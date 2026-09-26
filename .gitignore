@@ -1,3 +1,5 @@
 logs/rojo-serve.log
 .env.local
 .studio-lock/
+.venv-audio/
+assets/audio/*.wav

@@ -17,6 +17,7 @@ local WeaponController = require(script.WeaponController)
 
 local Config = require(ReplicatedStorage.Shared.Config)
 
+Sfx.preload()
 AimController.start()
 WeaponController.start()
 Hud.start()
@@ -42,6 +43,10 @@ local function applyPhase(phase: string)
 end
 
 GameState.onChanged("Phase", applyPhase)
+GameState.onChanged("Phase", function(phase)
+	-- Desert wind under the whole battle.
+	Sfx.setLoop("Wind", phase ~= "Title")
+end)
 applyPhase(GameState.phase())
 
 GameState.onEvent("WaveStart", function(p)
@@ -52,6 +57,20 @@ end)
 
 GameState.onEvent("Hit", function(p)
 	Hud.showHitMarker(p.killed)
+	Sfx.play(if p.killed then "Kill" else "Hit", 0.1)
+end)
+
+GameState.onEvent("WaveStart", function()
+	Sfx.play("WaveStart")
+end)
+GameState.onEvent("WaveClear", function()
+	Sfx.play("WaveClear")
+end)
+GameState.onEvent("Victory", function()
+	Sfx.play("Victory")
+end)
+GameState.onEvent("Defeat", function()
+	task.delay(1.2, Sfx.play, "Defeat")
 end)
 
 GameState.onEvent("Kill", function(p)
@@ -60,6 +79,9 @@ GameState.onEvent("Kill", function(p)
 		label ..= "  x" .. p.multiplier
 	end
 	Hud.scorePopup(p.position + Vector3.new(0, 4, 0), label)
+	if p.kind == "Infantry" then
+		Sfx.playAt("InfantryDeath", p.position, 0.3)
+	end
 end)
 
 GameState.onEvent("EnemyFire", EnemyFireFx.handle)
@@ -90,6 +112,7 @@ end)
 
 GameState.onEvent("Damage", function(p)
 	Hud.damageIndicator(p.from, p.heavy)
+	Sfx.play(if p.heavy then "HeavyHit" else "Damage", 0.2)
 	AimController.shake(if p.heavy then 0.6 else 0.15)
 end)
 
