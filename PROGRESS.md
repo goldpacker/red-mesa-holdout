@@ -49,6 +49,11 @@ Contracts: `docs/ARCHITECTURE.md`, `docs/ASSET_CONTRACTS.md`.
 - Phase 0 (beauty-shot rig, art bible, perf budget) in progress.
 
 ## Known bugs / gaps
+- **Headshots never register on infantry** (found 2026-09-26 by the
+  Character agent; pre-existing since the Blender infantry landed): the
+  padded leg hit boxes enclose the `Head` box, so the MG 2× headshot never
+  applies. Left as-is during the visual-only face-lift because balance was
+  tuned without headshots; needs a user decision.
 - Real mouse play and audio not yet checked by a human (see DONE.md).
 - Wash/road material edges show 4-stud voxel steps (Roblox terrain limit).
 - The Mac display idles when unattended, pausing Studio rendering; a
