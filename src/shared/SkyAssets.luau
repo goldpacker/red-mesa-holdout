@@ -97,12 +97,12 @@ local PRESETS: { [string]: Preset } = {
 	},
 	Dusk = {
 		faces = {
-			SkyboxBk = "rbxassetid://128928785550356",
-			SkyboxDn = "rbxassetid://138562660752897",
-			SkyboxFt = "rbxassetid://102670538728687",
-			SkyboxLf = "rbxassetid://78768915402709",
-			SkyboxRt = "rbxassetid://102208427325192",
-			SkyboxUp = "rbxassetid://116143397565758",
+			SkyboxBk = "rbxassetid://85535291159111",
+			SkyboxDn = "rbxassetid://99275239869662",
+			SkyboxFt = "rbxassetid://73551870672537",
+			SkyboxLf = "rbxassetid://126092028753929",
+			SkyboxRt = "rbxassetid://111780489233824",
+			SkyboxUp = "rbxassetid://129026609550600",
 		},
 		sky = {
 			CelestialBodiesShown = true,
@@ -116,17 +116,17 @@ local PRESETS: { [string]: Preset } = {
 			Density = 0.2,
 			Color = Color3.fromRGB(180, 140, 160),
 		},
-		clockTime = 18.1,
-		authoredSun = Vector3.new(-0.9932, -0.026, 0.1132),
+		clockTime = 17.7,
+		authoredSun = Vector3.new(-0.991, 0.078, 0.113),
 	},
 	Night = {
 		faces = {
-			SkyboxBk = "rbxassetid://71900680543023",
-			SkyboxDn = "rbxassetid://108341854875246",
-			SkyboxFt = "rbxassetid://130947742330491",
-			SkyboxLf = "rbxassetid://72100097281423",
-			SkyboxRt = "rbxassetid://132528921362110",
-			SkyboxUp = "rbxassetid://117754687821206",
+			SkyboxBk = "rbxassetid://97812057976457",
+			SkyboxDn = "rbxassetid://119677271876009",
+			SkyboxFt = "rbxassetid://71169618373133",
+			SkyboxLf = "rbxassetid://86562086661468",
+			SkyboxRt = "rbxassetid://85568030841391",
+			SkyboxUp = "rbxassetid://108816511091085",
 		},
 		sky = {
 			CelestialBodiesShown = true,
@@ -140,7 +140,7 @@ local PRESETS: { [string]: Preset } = {
 			Density = 0.15,
 			Color = Color3.fromRGB(60, 70, 100),
 		},
-		clockTime = 0.4,
+		clockTime = 12,
 		authoredSun = Vector3.new(0.1039, -0.9881, 0.1132),
 	},
 }

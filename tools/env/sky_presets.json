@@ -280,11 +280,11 @@
     "latitude": 30
   },
   "Dusk": {
-    "clock": 18.1,
+    "clock": 17.7,
     "sun": [
-      -0.9932,
-      -0.026,
-      0.1132
+      -0.991,
+      0.078,
+      0.113
     ],
     "moon": [
       0.9932,
@@ -300,7 +300,7 @@
     },
     "view": {
       "transform": "AgX",
-      "exposure": 3.6
+      "exposure": 2.2
     },
     "shader": {
       "BaseScale": 0.07,
@@ -347,7 +347,7 @@
         0.09
       ],
       "CirrusOpacity": 0.5,
-      "Stars": 0.00025,
+      "Stars": 0.0001,
       "StarScale": 50.0,
       "MilkyWay": 0.0,
       "SunGlowPower": 3.0,
@@ -370,15 +370,15 @@
     "latitude": 30
   },
   "Night": {
-    "clock": 0.4,
+    "clock": 12,
     "sun": [
       0.1039,
       -0.9881,
       0.1132
     ],
     "moon": [
-      -0.1039,
-      0.9881,
+      0.0,
+      0.9936,
       0.1132
     ],
     "view": {
@@ -459,6 +459,6 @@
       }
     },
     "latitude": 30,
-    "note": "Roblox renders the skybox black when the sun is far below the horizon (ClockTime 0.4); engine stars (StarCount) carry the night sky. The baked stars/Milky Way show only if the night ClockTime keeps the sun near the horizon."
+    "note": "LOOK renders night as 'day for night' (ClockTime 12, sun disc drawn with the moon texture at the noon sun direction), because Roblox blacks out the skybox when the sun is far below the horizon. The moon glow is painted at the noon sun direction."
   }
 }
