@@ -44,6 +44,8 @@ local NET_PINS = { Vector3.new(8.51, -2.65, 2.93), Vector3.new(5.42, -2.65, 7.19
 type Link = { part: BasePart, rest: CFrame, joint: Vector3 }
 
 local links: { Link } = {}
+local linkParts: { BasePart } = {} -- BulkMoveTo buffers, filled once per attach
+local linkFrames: { CFrame } = {}
 local tip = Vector2.zero -- tip deflection angles (about world X and Z)
 local tipVel = Vector2.zero
 local clock = 0
@@ -86,6 +88,8 @@ end
 -- ---------------------------------------------------------------- antenna
 local function attachAntenna(static: Instance)
 	table.clear(links)
+	table.clear(linkParts)
+	table.clear(linkFrames)
 	tip, tipVel = Vector2.zero, Vector2.zero
 	local antenna = static:FindFirstChild("Antenna")
 	if not antenna then
@@ -95,10 +99,14 @@ local function attachAntenna(static: Instance)
 		local part = antenna:FindFirstChild("Whip" .. k)
 		if not part or not part:IsA("BasePart") then
 			table.clear(links)
+			table.clear(linkParts)
+			table.clear(linkFrames)
 			return
 		end
 		local cf = part.CFrame
 		table.insert(links, { part = part, rest = cf, joint = cf:PointToWorldSpace(Vector3.new(0, -part.Size.Y / 2, 0)) })
+		table.insert(linkParts, part)
+		table.insert(linkFrames, cf)
 	end
 end
 
@@ -118,15 +126,13 @@ local function stepAntenna(dt: number)
 	-- Chain: each joint bends by its share of the tip angle, about the rest
 	-- joint, on top of the links below it.
 	local acc = CFrame.identity
-	local parts, frames = {}, {}
 	for k, link in links do
 		local w = JOINT_WEIGHTS[k]
 		local bend = CFrame.new(link.joint) * CFrame.Angles(tip.X * w, 0, tip.Y * w) * CFrame.new(-link.joint)
 		acc = acc * bend
-		table.insert(parts, link.part)
-		table.insert(frames, acc * link.rest)
+		linkFrames[k] = acc * link.rest
 	end
-	Workspace:BulkMoveTo(parts, frames, Enum.BulkMoveMode.FireCFrameChanged)
+	Workspace:BulkMoveTo(linkParts, linkFrames, Enum.BulkMoveMode.FireCFrameChanged)
 end
 
 -- -------------------------------------------------------------------- net

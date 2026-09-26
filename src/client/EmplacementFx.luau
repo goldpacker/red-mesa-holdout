@@ -268,8 +268,13 @@ local function ejectCasing()
 	c.part.Transparency = 0
 end
 
+local casingParts: { BasePart } = {} -- BulkMoveTo buffers, reused every frame
+local casingFrames: { CFrame } = {}
+
 local function stepCasings(dt: number, floorY: number, hidden: boolean)
-	local parts, frames = {}, {}
+	local parts, frames = casingParts, casingFrames
+	table.clear(parts)
+	table.clear(frames)
 	local now = os.clock()
 	-- Beauty shots (tools/qa/BEAUTY.md) are captured with no loose brass.
 	local clear = Workspace:GetAttribute("BeautyShot") ~= nil

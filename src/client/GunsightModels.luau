@@ -29,6 +29,11 @@ local RAISE_TIME = 0.16 -- seconds to bring the sight up to the eye
 local DROP_ANGLE = math.rad(22) -- lowered pose: pitched below the view
 local AA_DEPTH = 0.7 -- AASeeker bezel depth (gunsights.py AA_D)
 local AA_EDGE_MARGIN = 0.03 -- side bars' inner edge, tan units inside the viewport edge
+local AA_SIDE_INNER = 0.195 -- |x| of the side bars' inner edge as built (gunsights.py AA_SIDE_INNER)
+-- AASeeker parts that slide with a viewport edge: the side bars and the
+-- readable corner pieces ("IR SEEKER" Plate; Controls and Lamp on the
+-- right). Keeps them beside the centred, fixed-pixel HUD panels.
+local AA_SIDE = { Left = -1, Plate = -1, Right = 1, Controls = 1, Lamp = 1 }
 local KICK_MG = math.rad(0.3) -- sight jump per MG round (capped at KICK_MG_MAX)
 local KICK_MG_MAX = math.rad(1.1)
 local KICK_HEAVY = math.rad(2.4) -- rocket / missile launch
@@ -65,7 +70,7 @@ local function prepare(model: Model): Sight
 			d.CastShadow = false
 			d.Locked = true
 			local rel = pivot:ToObjectSpace(d.CFrame)
-			local side = if d.Name == "Left" then -1 elseif d.Name == "Right" then 1 else 0
+			local side = AA_SIDE[d.Name] or 0
 			table.insert(pieces, { part = d, rel = rel, side = side })
 			if d.Name == "Lamp" then
 				lamp = d
@@ -135,18 +140,17 @@ local function updateLamp(sight: Sight)
 end
 
 -- Places every piece of `sight` for the camera frame `base`. The AA side
--- bars slide to the viewport edges so the bezel frames any aspect ratio.
+-- pieces slide so the side bars' inner edges sit AA_EDGE_MARGIN inside the
+-- viewport edges: the bezel frames any aspect ratio.
 local function place(sight: Sight, base: CFrame, camera: Camera)
 	local halfH = math.tan(math.rad(camera.FieldOfView) / 2)
 	local viewport = camera.ViewportSize
 	local halfW = halfH * viewport.X / math.max(1, viewport.Y)
+	local slide = (halfW - AA_EDGE_MARGIN) * AA_DEPTH - AA_SIDE_INNER
 	for _, piece in sight.pieces do
 		local cf = base * piece.rel
 		if piece.side ~= 0 then
-			local part = piece.part
-			local inner = piece.rel.Position.X - piece.side * part.Size.X / 2
-			local target = piece.side * (halfW - AA_EDGE_MARGIN) * AA_DEPTH
-			cf = base * CFrame.new(target - inner, 0, 0) * piece.rel
+			cf = base * CFrame.new(piece.side * slide, 0, 0) * piece.rel
 		end
 		piece.part.CFrame = cf
 	end
