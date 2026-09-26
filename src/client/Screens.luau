@@ -65,9 +65,21 @@ local function buildTitle()
 		Ui.label({ Text = row[2], FontFace = F.Body, TextSize = 17, Position = UDim2.fromOffset(186, y), Size = UDim2.fromOffset(190, 24), Parent = card })
 	end
 
-	local start = Ui.button({ Name = "StartButton", Text = "START", TextSize = 36, Position = UDim2.new(0, 64, 0.18, 436), Size = UDim2.fromOffset(240, 64), Parent = title })
+	local start = Ui.button({ Name = "StartButton", Text = "LOADING…", TextSize = 36, Position = UDim2.new(0, 64, 0.18, 436), Size = UDim2.fromOffset(240, 64), Parent = title })
+	start.AutoButtonColor = false
 	start.Activated:Connect(function()
-		(remotes:WaitForChild("StartGame") :: RemoteEvent):FireServer()
+		if start:GetAttribute("Ready") then
+			(remotes:WaitForChild("StartGame") :: RemoteEvent):FireServer()
+		end
+	end)
+	local status = Ui.label({ Name = "LoadStatus", Text = "SURVEYING BATTLEFIELD…", FontFace = F.Label, TextSize = 16, TextColor3 = C.Olive, Position = UDim2.new(0, 68, 0.18, 506), Size = UDim2.fromOffset(400, 20), Parent = title })
+	Ui.outline(status)
+	task.spawn(function()
+		Screens.waitForWorld()
+		start:SetAttribute("Ready", true)
+		start.AutoButtonColor = true
+		start.Text = "START"
+		status.Visible = false
 	end)
 end
 
@@ -225,6 +237,48 @@ function Screens.applyPhase(phase: string)
 	end
 	if phase == "Defeat" then
 		Screens.banner("OUTPOST LOST", "", 2.4, C.Red)
+	end
+end
+
+-- Blocks until the generated battlefield has replicated to this client
+-- (terrain at the far end of the basin, the emplacement, fonts and the sound
+-- sheet), or a safety timeout passes, so the title never offers a half-built
+-- world. Terrain meshing can still lag a little behind on slow machines.
+function Screens.waitForWorld()
+	local started = os.clock()
+	local probes = {
+		Vector3.new(0, -4, -1100),
+		Vector3.new(-600, -4, -400),
+		Vector3.new(600, -4, -400),
+		Vector3.new(0, 40, 0),
+	}
+	local function terrainReady(): boolean
+		for _, p in probes do
+			local region = Region3.new(p - Vector3.new(2, 2, 2), p + Vector3.new(2, 2, 2)):ExpandToGrid(4)
+			local ok, materials = pcall(function()
+				return Workspace.Terrain:ReadVoxels(region, 4)
+			end)
+			if not ok or materials[1][1][1] == Enum.Material.Air then
+				return false
+			end
+		end
+		return Workspace:FindFirstChild("Battlefield") ~= nil
+	end
+	while not terrainReady() and os.clock() - started < 45 do
+		task.wait(0.5)
+	end
+	pcall(function()
+		local ContentProvider = game:GetService("ContentProvider")
+		local sheet = Instance.new("Sound")
+		sheet.SoundId = require(script.Parent.SfxSheet).SoundId
+		ContentProvider:PreloadAsync({ sheet, title })
+		sheet:Destroy()
+	end)
+	-- Give the renderer a moment to mesh what just arrived.
+	local minimum = 3
+	local elapsed = os.clock() - started
+	if elapsed < minimum then
+		task.wait(minimum - elapsed)
 	end
 end
 

@@ -65,7 +65,8 @@ local function endStats(): any
 		wave = waveNumber,
 		totalWaves = #Config.Waves,
 		kills = table.clone(s.kills),
-		accuracy = if s.shots > 0 then s.hits / s.shots else 0,
+		-- Splash can hit several enemies per shot; accuracy is capped at 100%.
+		accuracy = if s.shots > 0 then math.min(1, s.hits / s.shots) else 0,
 		bestCombo = s.bestCombo,
 		sessionBest = scoring.sessionBest,
 	}
