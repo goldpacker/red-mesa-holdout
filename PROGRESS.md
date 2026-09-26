@@ -48,7 +48,8 @@ integrity/damage → wave clear intermission → defeat (Restart / Retry Wave)
   need a human.
 - Runtime terrain takes ~30–45 s to replicate/mesh on the client; the title
   screen shows a partial world during that time.
-- Turret and emplacement are primitive placeholders (Blender assets pending).
+- Turret, emplacement, infantry and rocks are primitive placeholders and
+  infantry are oversized 1.5x; both conflict with the new art direction.
 - Rockets / AA missiles slots are shown but inactive.
 - Low-integrity alarm sound, jet siren etc. not yet implemented.
 
@@ -63,4 +64,9 @@ integrity/damage → wave clear intermission → defeat (Restart / Retry Wave)
   helper; real mouse-look has not been exercised by a human yet.
 
 ### Next planned task
-- Milestone 2: rockets + tanks, supply crates (waves 3), then buggies.
+- Art direction changed to grounded semi-realistic (GAME_SPEC §13/§14,
+  2026-09-26). Next: a visual-foundation pass before more enemies, so every
+  later asset is built once in the final style — terrain material variants,
+  lighting/sky, rock kit, emplacement + turret hero asset, human-scale
+  infantry mesh, particle effects.
+- Then milestone 2: rockets + tanks, supply crates (wave 3), buggies.
