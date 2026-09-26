@@ -264,7 +264,7 @@ def slate():
 
 # name -> (recipe, base material, studs per tile, pattern, sources)
 MATERIALS = {
-    "Sand": (sand, "Sand", 48, "Organic", ["aerial_beach_01", "gravelly_sand"]),
+    "Sand": (sand, "Sand", 48, "Organic", ["aerial_beach_01"]),
     "SandCoarse": (sand_coarse, "Mud", 40, "Organic", ["gravelly_sand"]),
     "Road": (road, "Ground", 32, "Regular", ["gravelly_sand"]),
     "Wash": (wash, "Salt", 24, "Organic", ["mud_cracked_dry_03", "aerial_beach_01"]),
