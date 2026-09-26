@@ -1,0 +1,29 @@
+{
+ "title-cam-pan-left": {
+  "captured": "2026-09-26T15:04:42",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "b320576"
+ },
+ "title-cam-pan-right": {
+  "captured": "2026-09-26T15:04:34",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "b320576"
+ },
+ "title-cam-pan-start": {
+  "captured": "2026-09-26T15:04:24",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "b320576"
+ }
+}

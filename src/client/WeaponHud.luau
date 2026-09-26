@@ -2,8 +2,10 @@
 -- Weapon HUD: weapon strip (slots, ammo, heat, reload), per-weapon
 -- crosshairs, lock-on box, hit markers, status callouts and the per-weapon
 -- gunsight overlays (machine-gun iron sight, rocket scope, AA seeker).
--- Owned by the weapons workstream; the core Hud creates the root frame
--- and calls build/update.
+-- The core Hud creates the root frame and calls build/update. The strip,
+-- slots, heat and reload bars use the LOOK-2 kit (UiKit): eased fills, a
+-- colour-ramped heat bar with a hot sheen and scrolling hazard stripes on
+-- overheat, reload-complete flashes and bracket motion on weapon select.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
@@ -13,6 +15,7 @@ local AimController = require(script.Parent.AimController)
 local LockOn = require(script.Parent.LockOn)
 local PostFxAssets = require(script.Parent.PostFxAssets)
 local Ui = require(script.Parent.Ui)
+local UiKit = require(script.Parent.UiKit)
 local WeaponController = require(script.Parent.WeaponController)
 
 local WeaponHud = {}
@@ -59,43 +62,63 @@ local function brackets(parent: Instance, color: Color3, length: number, thickne
 	end
 end
 
-local function setColor(frame: Instance, color: Color3)
-	for _, d in frame:GetDescendants() do
-		if d:IsA("Frame") and (d.Name == "H" or d.Name == "V") then
-			d.BackgroundColor3 = color
-		end
+-- Heat colour ramp: olive -> amber -> red.
+local function heatColor(heat: number): Color3
+	if heat < 0.5 then
+		return C.Olive:Lerp(C.Amber, heat / 0.5)
 	end
+	return C.Amber:Lerp(C.Red, math.clamp((heat - 0.5) / 0.35, 0, 1))
 end
 
 local function buildSlots(root: Frame)
-	local strip = Ui.panel({ Name = "Weapons", AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -16), Size = UDim2.fromOffset(436, 96), Parent = root })
+	local strip = UiKit.panel({ Name = "Weapons", AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -16), Size = UDim2.fromOffset(436, 98), Parent = root }, { stripe = true })
 	refs.slots = {}
 	for i, weapon in SLOTS do
-		local frame = Ui.new("Frame", {
+		local plate = UiKit.sprite("button", {
 			Name = "Slot" .. i,
-			BackgroundColor3 = C.Panel,
-			BackgroundTransparency = 0.5,
-			BorderSizePixel = 0,
-			Position = UDim2.fromOffset(8 + (i - 1) * 140, 8),
-			Size = UDim2.fromOffset(134, 52),
+			ImageColor3 = UiKit.Tints.PlateDim,
+			Position = UDim2.fromOffset(8 + (i - 1) * 140, 10),
+			Size = UDim2.fromOffset(134, 54),
 			Parent = strip,
 		})
+		local brackets = UiKit.brackets(plate, C.Amber, 3)
+		brackets.Visible = false
 		local slot = {
-			frame = frame,
-			stroke = Ui.new("UIStroke", { Color = C.OliveDark, Thickness = 2, Parent = frame }),
-			name = Ui.label({ Text = WeaponConfig.SLOT_NAMES[weapon], FontFace = F.Label, TextSize = 14, TextColor3 = DIM, Position = UDim2.fromOffset(24, 3), Size = UDim2.fromOffset(106, 16), Parent = frame }),
-			ammo = Ui.label({ Text = if weapon == "MG" then "∞" else "--", FontFace = F.Mono, TextSize = 20, TextColor3 = DIM, TextXAlignment = Enum.TextXAlignment.Right, Position = UDim2.fromOffset(0, 20), Size = UDim2.new(1, -8, 0, 22), Parent = frame }),
-			status = Ui.label({ Text = "", FontFace = F.Label, TextSize = 13, TextColor3 = C.Amber, Position = UDim2.fromOffset(8, 24), Size = UDim2.fromOffset(80, 18), Parent = frame }),
-			reloadBack = Ui.new("Frame", { BackgroundColor3 = Color3.fromRGB(30, 30, 24), BorderSizePixel = 0, Position = UDim2.new(0, 4, 1, -6), Size = UDim2.new(1, -8, 0, 3), Visible = weapon ~= "MG", Parent = frame }),
+			frame = plate,
+			brackets = brackets,
+			name = Ui.label({ Text = WeaponConfig.SLOT_NAMES[weapon], FontFace = F.Label, TextSize = 14, TextColor3 = DIM, Position = UDim2.fromOffset(24, 5), Size = UDim2.fromOffset(104, 16), Parent = plate }),
+			ammo = Ui.label({ Text = if weapon == "MG" then "∞" else "--", FontFace = F.Mono, TextSize = 20, TextColor3 = DIM, TextXAlignment = Enum.TextXAlignment.Right, Position = UDim2.fromOffset(0, 19), Size = UDim2.new(1, -10, 0, 22), Parent = plate }),
+			status = Ui.label({ Text = "", FontFace = F.Label, TextSize = 13, TextColor3 = C.Amber, Position = UDim2.fromOffset(9, 22), Size = UDim2.fromOffset(80, 18), Parent = plate }),
+			reload = nil :: UiKit.Bar?,
+			wasReloading = false,
+			readyUntil = 0,
 		}
-		Ui.label({ Text = tostring(i), FontFace = F.Header, TextSize = 18, TextColor3 = C.Amber, Position = UDim2.fromOffset(6, 2), Size = UDim2.fromOffset(16, 18), Parent = frame })
-		slot.reload = Ui.new("Frame", { BackgroundColor3 = C.Amber, BorderSizePixel = 0, Size = UDim2.fromScale(1, 1), Parent = slot.reloadBack })
+		Ui.label({ Text = tostring(i), FontFace = F.Header, TextSize = 18, TextColor3 = C.Amber, Position = UDim2.fromOffset(8, 4), Size = UDim2.fromOffset(16, 18), Parent = plate })
+		if weapon ~= "MG" then
+			local bar = UiKit.bar(plate, { Position = UDim2.new(0, 6, 1, -13), Size = UDim2.new(1, -12, 0, 9), SliceScale = 0.6 }, { color = C.Olive, rate = 18 })
+			bar.fill.SliceScale = 0.6
+			slot.reload = bar
+		end
 		refs.slots[i] = slot
 	end
-	Ui.label({ Text = "HEAT", FontFace = F.Label, TextSize = 14, TextColor3 = C.Olive, Position = UDim2.fromOffset(10, 68), Size = UDim2.fromOffset(40, 18), Parent = strip })
-	local heatBack = Ui.new("Frame", { BackgroundColor3 = Color3.fromRGB(30, 30, 24), BorderSizePixel = 0, Position = UDim2.fromOffset(52, 70), Size = UDim2.new(1, -62, 0, 14), Parent = strip })
-	refs.heatBar = Ui.new("Frame", { BackgroundColor3 = C.Amber, BorderSizePixel = 0, Size = UDim2.fromScale(0, 1), Parent = heatBack })
-	refs.overheat = Ui.label({ Text = "OVERHEAT", FontFace = F.Header, TextSize = 14, TextColor3 = C.White, TextXAlignment = Enum.TextXAlignment.Center, Size = UDim2.fromScale(1, 1), Visible = false, Parent = heatBack })
+	Ui.label({ Text = "HEAT", FontFace = F.Label, TextSize = 14, TextColor3 = C.Olive, Position = UDim2.fromOffset(12, 72), Size = UDim2.fromOffset(40, 18), Parent = strip })
+	refs.heat = UiKit.bar(strip, { Position = UDim2.fromOffset(52, 72), Size = UDim2.new(1, -64, 0, 16) }, { color = C.Olive, value = 0, rate = 16 })
+	local sheen = Ui.new("UIGradient", {
+		Name = "Sheen",
+		Color = ColorSequence.new({
+			ColorSequenceKeypoint.new(0, Color3.fromRGB(205, 205, 205)),
+			ColorSequenceKeypoint.new(0.42, Color3.fromRGB(205, 205, 205)),
+			ColorSequenceKeypoint.new(0.5, Color3.new(1, 1, 1)),
+			ColorSequenceKeypoint.new(0.58, Color3.fromRGB(205, 205, 205)),
+			ColorSequenceKeypoint.new(1, Color3.fromRGB(205, 205, 205)),
+		}),
+		Enabled = false,
+		Parent = refs.heat.fill,
+	})
+	refs.heatSheen = sheen
+	refs.overheatStripes = UiKit.hazard(refs.heat.trough, { Position = UDim2.fromOffset(2, 2), Size = UDim2.new(1, -4, 1, -4), Visible = false, ZIndex = 4 }, C.Red, 60)
+	refs.overheat = Ui.label({ Text = "OVERHEAT", FontFace = F.Header, TextSize = 14, TextColor3 = C.White, TextXAlignment = Enum.TextXAlignment.Center, Size = UDim2.fromScale(1, 1), Visible = false, ZIndex = 5, Parent = refs.heat.trough })
+	Ui.outline(refs.overheat, 1.5)
 end
 
 local function outlined(parent: Instance): { [string]: any }
@@ -138,7 +161,7 @@ local function buildCrosshairs(root: Frame)
 
 	-- Lock box (tracks the target on screen).
 	refs.lockBox = Ui.new("Frame", { Name = "LockBox", BackgroundTransparency = 1, AnchorPoint = Vector2.new(0.5, 0.5), Size = UDim2.fromOffset(100, 100), Visible = false, ZIndex = 3, Parent = root })
-	brackets(refs.lockBox, C.Amber, 14, 3)
+	refs.lockBrackets = UiKit.brackets(refs.lockBox, C.Amber, 0, { SliceScale = 1.4 })
 	refs.lockLabel = Ui.label({ Text = "", FontFace = F.Header, TextSize = 16, TextColor3 = C.Amber, TextXAlignment = Enum.TextXAlignment.Center, AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 1, 4), Size = UDim2.fromOffset(120, 18), Parent = refs.lockBox })
 	Ui.outline(refs.lockLabel, 1.5)
 
@@ -149,6 +172,7 @@ end
 
 local function buildHitMarker(root: Frame)
 	refs.hitmarker = Ui.new("Frame", { Name = "HitMarker", BackgroundTransparency = 1, AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromOffset(44, 44), Visible = false, ZIndex = 4, Parent = root })
+	refs.hitScale = Ui.new("UIScale", { Parent = refs.hitmarker })
 	for _, rot in { 45, -45, 135, -135 } do
 		local rad = math.rad(rot)
 		Ui.new("Frame", {
@@ -309,27 +333,60 @@ function WeaponHud.flash(text: string, color: Color3, duration: number)
 	statusUntil = os.clock() + duration
 end
 
-local function updateHeat()
+local function updateHeat(dt: number)
 	local heat = WeaponController.getHeat()
 	local locked = WeaponController.getLockRemaining() > 0
-	refs.heatBar.Size = UDim2.fromScale(heat, 1)
+	local bar = refs.heat :: UiKit.Bar
+	UiKit.setBar(bar, heat)
+	UiKit.stepBar(bar, dt)
+	refs.overheat.Visible = locked
+	refs.overheatStripes.Visible = locked
+	local sheen = refs.heatSheen :: UIGradient
 	if locked then
-		local blink = math.floor(os.clock() * 8) % 2 == 0
-		refs.heatBar.BackgroundColor3 = if blink then C.Red else C.Amber
-		refs.overheat.Visible = true
+		local blink = math.floor(os.clock() * 6) % 2 == 0
+		bar.fill.ImageColor3 = C.Red
+		refs.overheat.TextColor3 = if blink then C.White else C.Amber
+		sheen.Enabled = false
 	else
-		refs.heatBar.BackgroundColor3 = if heat > 0.75 then C.Red elseif heat > 0.5 then C.Amber else C.Olive
-		refs.overheat.Visible = false
+		bar.fill.ImageColor3 = heatColor(bar.shown)
+		-- Hot barrel: a bright sheen runs along the fill, faster as it heats.
+		sheen.Enabled = bar.shown > 0.55
+		if sheen.Enabled then
+			local speed = 0.6 + 1.6 * bar.shown
+			sheen.Offset = Vector2.new(((os.clock() * speed) % 2) - 1, 0)
+		end
 	end
 end
 
-local function updateSlots(current: string, lockState: string)
+local lastWeapon: string? = nil
+
+-- Selected slot: brackets snap in from further out and the plate flashes.
+local function selectMotion(slot: any)
+	local brackets = slot.brackets :: ImageLabel
+	brackets.Position = UDim2.fromOffset(-12, -12)
+	brackets.Size = UDim2.new(1, 24, 1, 24)
+	brackets.ImageTransparency = 0.6
+	UiKit.tween(brackets, 0.22, { Position = UDim2.fromOffset(-3, -3), Size = UDim2.new(1, 6, 1, 6), ImageTransparency = 0 }, Enum.EasingStyle.Back)
+	slot.frame.ImageColor3 = Color3.fromRGB(255, 240, 200)
+	UiKit.tween(slot.frame, 0.35, { ImageColor3 = UiKit.Tints.Plate })
+end
+
+local function updateSlots(current: string, lockState: string, dt: number)
+	local switched = current ~= lastWeapon
+	lastWeapon = current
+	local now = os.clock()
 	for i, weapon in SLOTS do
 		local slot = refs.slots[i]
 		local selected = weapon == current
-		slot.frame.BackgroundColor3 = if selected then C.OliveDark else C.Panel
-		slot.frame.BackgroundTransparency = if selected then 0.1 else 0.5
-		slot.stroke.Color = if selected then C.Amber else C.OliveDark
+		slot.brackets.Visible = selected
+		if switched then
+			if selected then
+				selectMotion(slot)
+			else
+				slot.frame.ImageColor3 = UiKit.Tints.PlateDim
+			end
+		end
+		slot.frame.ImageTransparency = if selected then 0 else 0.2
 		slot.name.TextColor3 = if selected then C.Text else DIM
 		if weapon == "MG" then
 			slot.ammo.TextColor3 = if selected then C.Amber else DIM
@@ -339,15 +396,31 @@ local function updateSlots(current: string, lockState: string)
 		end
 		local ammo = WeaponController.getAmmo(weapon)
 		local reload = WeaponController.getReload(weapon)
+		local bar = slot.reload :: UiKit.Bar
 		slot.ammo.Text = tostring(ammo)
 		slot.ammo.TextColor3 = if ammo == 0 then C.Red elseif selected then C.Amber else DIM
-		slot.reload.Size = UDim2.fromScale(if ammo == 0 then 0 else 1 - reload, 1)
-		slot.reload.BackgroundColor3 = if reload > 0 then C.AmberDim else C.Olive
+		local reloading = reload > 0 and ammo > 0
+		if slot.wasReloading and not reloading and ammo > 0 then
+			-- Reload complete: the bar flashes and READY shows briefly.
+			slot.readyUntil = now + 0.7
+			bar.fill.ImageColor3 = Color3.fromRGB(255, 244, 210)
+			UiKit.tween(bar.fill, 0.5, { ImageColor3 = C.Olive })
+		end
+		slot.wasReloading = reloading
+		UiKit.setBar(bar, if ammo == 0 then 0 else 1 - reload)
+		UiKit.stepBar(bar, dt)
+		if reloading then
+			bar.fill.ImageColor3 = C.AmberDim
+		elseif now >= slot.readyUntil then
+			bar.fill.ImageColor3 = C.Olive
+		end
 		local status, color = "", C.Amber
 		if ammo == 0 then
 			status, color = "EMPTY", C.Red
-		elseif reload > 0 then
+		elseif reloading then
 			status = "RELOAD"
+		elseif now < slot.readyUntil then
+			status, color = "READY", C.Green
 		elseif weapon == "Missile" and selected and lockState ~= "Idle" then
 			status, color = if lockState == "Locked" then "LOCKED" else "LOCKING", if lockState == "Locked" then C.Red else C.Amber
 		end
@@ -381,7 +454,7 @@ local function updateLockBox(current: string, state: string, target: Model?, pro
 	box.Size = UDim2.fromOffset(size, size)
 	local blink = math.floor(os.clock() * (if locked then 4 else 10)) % 2 == 0
 	local color = if locked then C.Red elseif blink then C.Amber else C.AmberDim
-	setColor(box, color)
+	refs.lockBrackets.ImageColor3 = color
 	refs.lockLabel.Text = if locked then "LOCK" else string.format("%d%%", math.floor(progress * 100))
 	refs.lockLabel.TextColor3 = color
 end
@@ -399,12 +472,13 @@ local function updateStatus(current: string, state: string)
 	end
 end
 
-function WeaponHud.update()
+function WeaponHud.update(dt: number?)
+	local step = dt or 1 / 60
 	local current = WeaponController.getWeapon()
 	local state, target, progress = LockOn.getState()
 	local aiming = AimController.isAiming()
-	updateHeat()
-	updateSlots(current, state)
+	updateHeat(step)
+	updateSlots(current, state, step)
 	updateLockBox(current, state, target, progress)
 	updateStatus(current, state)
 
@@ -430,9 +504,14 @@ function WeaponHud.showHitMarker(killed: boolean)
 	local marker = refs.hitmarker :: Frame
 	marker.Visible = true
 	for _, tick in marker:GetChildren() do
-		(tick :: Frame).BackgroundColor3 = if killed then C.Red else C.White
+		if tick:IsA("Frame") then
+			tick.BackgroundColor3 = if killed then C.Red else C.White
+		end
 	end
-	marker.Size = if killed then UDim2.fromOffset(60, 60) else UDim2.fromOffset(44, 44)
+	-- Pop: the ticks jump out and settle (a kill settles wider).
+	local scale = refs.hitScale :: UIScale
+	scale.Scale = if killed then 1.75 else 1.35
+	UiKit.tween(scale, if killed then 0.16 else 0.08, { Scale = if killed then 1.3 else 1 }, Enum.EasingStyle.Quad)
 	local token = os.clock()
 	marker:SetAttribute("Token", token)
 	task.delay(if killed then 0.25 else 0.1, function()

@@ -1,0 +1,101 @@
+{
+ "afternoon_1-title": {
+  "captured": "2026-09-26T15:05:59",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "b320576"
+ },
+ "afternoon_2-jet": {
+  "captured": "2026-09-26T15:06:19",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "b320576"
+ },
+ "afternoon_2-tally": {
+  "captured": "2026-09-26T15:06:29",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "b320576"
+ },
+ "afternoon_2-turret": {
+  "captured": "2026-09-26T15:06:13",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "b320576"
+ },
+ "afternoon_3-gunsight": {
+  "captured": "2026-09-26T15:06:39",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "b320576"
+ },
+ "afternoon_3-gunsight-aa": {
+  "captured": "2026-09-26T15:06:53",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "b320576"
+ },
+ "afternoon_3-gunsight-rocket": {
+  "captured": "2026-09-26T15:06:46",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "b320576"
+ },
+ "night_2-turret": {
+  "captured": "2026-09-26T15:07:03",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "b320576"
+ },
+ "night_2-victory": {
+  "captured": "2026-09-26T15:07:47",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "b320576"
+ },
+ "night_6-boss": {
+  "captured": "2026-09-26T15:07:19",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "b320576"
+ },
+ "sunset_2-defeat": {
+  "captured": "2026-09-26T15:07:33",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "b320576"
+ }
+}

@@ -88,7 +88,7 @@ BeautyShots.SHOTS = {
 		mode = "title",
 		phase = "Title",
 		stage = "none",
-		camera = CFrame.lookAt(Vector3.new(-70, 128, 150), Vector3.new(90, 0, -420)),
+		camera = CFrame.lookAt(Vector3.new(-62, 122, 122), Vector3.new(90, 0, -420)), -- AimController title pan at t = 0 (LOOK-2: clears ENV-2's rear wall)
 		fov = 60,
 		hud = true,
 	},

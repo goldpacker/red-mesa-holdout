@@ -197,7 +197,9 @@ local function titleCamera(_dt: number)
 	updateTurret(0.016)
 	local t = os.clock() - modeStarted
 	-- High behind the mesa, drifting slowly so the basin reads as a panorama.
-	local pos = Vector3.new(-70 + math.sin(t * 0.04) * 45, 128, 150)
+	-- Eye moved ~30 studs along the view (LOOK-2) so the whole pan clears
+	-- ENV-2's rear-wall mesh; keep BeautyShots.SHOTS[1].camera in step.
+	local pos = Vector3.new(-62 + math.sin(t * 0.04) * 45, 122, 122)
 	camera.FieldOfView = 60
 	camera.CFrame = CFrame.lookAt(pos, Vector3.new(90 + math.sin(t * 0.04) * 30, 0, -420))
 end
