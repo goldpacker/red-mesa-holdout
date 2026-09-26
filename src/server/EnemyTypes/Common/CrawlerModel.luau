@@ -70,8 +70,23 @@ function CrawlerModel.build(): Model
 		Kit.spotlight(flood, 140, 45, 2.2)
 	end
 
+	-- Command tower with a lit bridge slit, mast and red beacon: gives the
+	-- fortress its silhouette and a night marker.
+	Kit.box(m, "CommandTower", Vector3.new(13, 10, 10), at(0, 36, 30), CH)
+	Kit.wedge(m, "TowerFront", Vector3.new(13, 4, 3), at(0, 39, 23.5), CH)
+	Kit.decor(Kit.lamp(m, "BridgeSlit", Vector3.new(11, 0.8, 0.2), at(0, 38.5, 24.9), Color3.fromRGB(255, 70, 40)))
+	Kit.decor(Kit.post(m, "Mast", 14, 0.6, Vector3.new(4, 48, 31), DK))
+	local beacon = Kit.ball(m, "Beacon", 1.4, Vector3.new(4, 55.5, 31), Color3.fromRGB(255, 40, 30), Enum.Material.Neon)
+	Kit.decor(beacon)
+	Kit.glow(beacon, 30, 2.5, Color3.fromRGB(255, 40, 30))
+	for _, side in { -1, 1 } do
+		Kit.decor(Kit.box(m, "AmmoRack", Vector3.new(3, 4, 18), at(side * 17.5, 22, 22), DK, DIAMOND))
+		Kit.decor(Kit.box(m, "Antenna", Vector3.new(0.3, 9, 0.3), at(side * 5.5, 45.5, 33), DK))
+	end
+
 	-- Core (the kill zone) behind its armour plate on the upper glacis
-	local core = Kit.box(m, "Core", Vector3.new(10, 6, 3), at(0, 22.8, -30), CORE_COLOR, Enum.Material.Neon)
+	-- Dark while armoured; SiegeCrawler lights it up once exposed.
+	local core = Kit.box(m, "Core", Vector3.new(10, 6, 3), at(0, 22.8, -30), DK, DIAMOND)
 	core:SetAttribute("CoreColor", CORE_COLOR)
 	local armor = Kit.box(m, "CoreArmor", Vector3.new(14, 9, 2.6), at(0, 22.8, -32.4), CH, DIAMOND)
 	-- Emblem and bolts ride on the plate so they leave with it.

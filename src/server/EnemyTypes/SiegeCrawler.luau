@@ -159,6 +159,8 @@ function SiegeCrawler.spawn(ctx: Types.Context, laneName: string, rng: Random): 
 		model:SetAttribute("CoreExposed", true)
 		throwPiece("CoreArmor", 0.9)
 		if core then
+			core.Material = Enum.Material.Neon
+			core.Color = (core:GetAttribute("CoreColor") :: Color3?) or Color3.fromRGB(255, 86, 30)
 			Kit.glow(core, 45, 3, Color3.fromRGB(255, 90, 40))
 		end
 	end
