@@ -97,6 +97,12 @@ Never change a default another asset relies on.
   times: run `tools/check.sh` before saving risky edits and before every
   commit. If someone else's file breaks your playtest, don't fix it; note
   it in your report and carry on with what you can test.
+  Rojo has dropped sync twice during the face-lift (7.7 can crash when a
+  file is removed and re-added quickly). Before trusting a playtest,
+  confirm your latest edit is in Studio (e.g. `script_read` a changed
+  line). If it isn't: `pgrep -fl "rojo serve"`; restart with
+  `rojo serve --port 34872 > logs/rojo-serve.log 2>&1 &` if needed, and
+  reconnect the Studio plugin (Plugins → Rojo → Connect).
 - **Open Cloud uploads** (`docs/ASSET_PIPELINE.md`): private uploads only,
   batched, skip unchanged files. Never print the key. Harvest mesh ids in the
   Edit datamodel under the Studio lock.
