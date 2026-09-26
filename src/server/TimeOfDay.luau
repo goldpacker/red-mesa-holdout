@@ -78,13 +78,13 @@ local PRESETS: { [string]: Preset } = {
 	-- Long raking shadows, orange key, violet bounce, strong horizon glow.
 	Sunset = {
 		lighting = {
-			ClockTime = 17.25, Brightness = 3.6, ExposureCompensation = 0.2,
-			Ambient = rgb(80, 70, 92), OutdoorAmbient = rgb(104, 92, 142),
+			ClockTime = 17.25, Brightness = 3.6, ExposureCompensation = 0.1,
+			Ambient = rgb(70, 62, 84), OutdoorAmbient = rgb(86, 76, 122),
 			ColorShift_Top = rgb(255, 170, 110), ColorShift_Bottom = rgb(110, 90, 160),
 			EnvironmentDiffuseScale = 0.5, EnvironmentSpecularScale = 1, ShadowSoftness = 0.14,
 		},
-		atmosphere = { Density = 0.27, Offset = 0.1, Haze = 1.5, Glare = 0.9, Color = rgb(228, 164, 136), Decay = rgb(124, 80, 100) },
-		grade = { Contrast = 0.2, Saturation = -0.08, TintColor = rgb(255, 238, 230), Brightness = -0.01 },
+		atmosphere = { Density = 0.22, Offset = 0.12, Haze = 1.2, Glare = 0.9, Color = rgb(228, 164, 136), Decay = rgb(124, 80, 100) },
+		grade = { Contrast = 0.24, Saturation = -0.08, TintColor = rgb(255, 238, 230), Brightness = -0.01 },
 		bloom = { Intensity = 0.8, Size = 26, Threshold = 1.8 },
 		rays = { Intensity = 0.14, Spread = 0.6 },
 		searchlights = false,
@@ -113,9 +113,9 @@ local PRESETS: { [string]: Preset } = {
 	Night = {
 		lighting = {
 			ClockTime = 12, Brightness = 1.5, ExposureCompensation = 0.1,
-			Ambient = rgb(50, 58, 86), OutdoorAmbient = rgb(64, 82, 132),
+			Ambient = rgb(60, 68, 98), OutdoorAmbient = rgb(84, 102, 160),
 			ColorShift_Top = rgb(120, 160, 255), ColorShift_Bottom = rgb(30, 36, 60),
-			EnvironmentDiffuseScale = 0.4, EnvironmentSpecularScale = 0.6, ShadowSoftness = 0.25,
+			EnvironmentDiffuseScale = 0.55, EnvironmentSpecularScale = 0.6, ShadowSoftness = 0.25,
 		},
 		atmosphere = { Density = 0.28, Offset = 0.05, Haze = 0.6, Glare = 0, Color = rgb(60, 74, 110), Decay = rgb(30, 36, 60) },
 		grade = { Contrast = 0.3, Saturation = -0.3, TintColor = rgb(196, 220, 255), Brightness = 0 },

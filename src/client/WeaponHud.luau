@@ -223,7 +223,7 @@ function WeaponHud.build(root: Frame)
 		Name = "Vignette",
 		BackgroundTransparency = 1,
 		Image = PostFxAssets.vignette,
-		ImageTransparency = 0.3,
+		ImageTransparency = 0.5,
 		ScaleType = Enum.ScaleType.Stretch,
 		Size = UDim2.fromScale(1, 1),
 		ZIndex = 0,

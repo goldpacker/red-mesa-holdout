@@ -23,6 +23,7 @@ local DOF = {
 	NEAR_INTENSITY = 0.32,
 	NEAR_SHARP = 40, -- studs from the camera where sharp focus begins
 	MIN_FOCUS = 120,
+	MAX_FOCUS = 500, -- DepthOfFieldEffect clamps FocusDistance/InFocusRadius at 500
 	FADE = 0.18, -- seconds to blend in/out
 }
 
@@ -84,7 +85,7 @@ local function updateDof(dt: number)
 	end
 	local target = AimController.getAimTarget()
 	local distance = (target - camera.CFrame.Position).Magnitude
-	local focus = math.max(DOF.MIN_FOCUS, distance)
+	local focus = math.clamp(distance, DOF.MIN_FOCUS, DOF.MAX_FOCUS)
 	effect.Enabled = true
 	effect.FocusDistance = focus
 	effect.InFocusRadius = focus - DOF.NEAR_SHARP
