@@ -7,3 +7,8 @@ assets/audio/*.wav
 assets/source/cc0/
 .venv-qa/
 .studio-lock-queue/
+.venv-env/
+assets/source/landscape/build/
+tools/env/landscape/.capture.luau
+tools/env/landscape/.probe_*.luau
+tools/env/landscape/.capture_*.luau

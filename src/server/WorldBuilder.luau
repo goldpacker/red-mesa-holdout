@@ -7,6 +7,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local Emplacement = require(script.Parent.Emplacement)
+local Landscape = require(script.Parent.Landscape)
 local LightingRig = require(script.Parent.LightingRig)
 local TerrainBuilder = require(script.Parent.TerrainBuilder)
 local AssetLibrary = require(ReplicatedStorage.Shared.AssetLibrary)
@@ -185,6 +186,7 @@ function WorldBuilder.build()
 	battlefield.Parent = Workspace
 
 	TerrainBuilder.build()
+	Landscape.build(battlefield)
 	buildScrub(battlefield)
 	-- Terrain written this frame isn't raycastable yet; place rocks shortly after.
 	task.delay(1, buildRockKit, battlefield)

@@ -28,6 +28,20 @@ detail and a fraction of its own colour variation), relit-flattened
 The skyboxes (`tools/env/sky.py`) use no external sources: Blender's
 physical Sky Texture plus our own OSL shader (clouds, haze, stars).
 
+Landscape meshes (ENV-2, `tools/env/landscape/`) reuse three of the sources
+above as raw input only, never as a visible tile: their **luminance**,
+high-passed (divided by a wide blur so only grain and fractures remain),
+is projected triplanar in world space at several scales and offset per
+strata bed, and multiplied into our own strata colour ramp before the
+unique per-chunk bake; their **height maps** drive a world-space bump that
+Cycles bakes into each chunk's normal map.
+
+| Poly Haven id | Used for (landscape) | What we did to it |
+|---|---|---|
+| `cliff_side` | Layered-sandstone grain on wall faces (26- and 7.5-stud tiles) | Luminance high-passed, offset per bed; height map as bump; colour discarded |
+| `rock_face_03` | Fracture detail, slickrock tops, talus rubble | Luminance high-passed; height map as bump; colour discarded |
+| `gravelly_sand` | Wind-blown sand on ledges and at the foot | Luminance only, under our ochre/pale sand colours |
+
 ## Hard-surface (HS) — `python3 tools/assets/cc0.py fetch`
 
 Used through `photo=` layers in `tools/assets/rmh/materials.py`: the photo
