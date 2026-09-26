@@ -1,0 +1,17 @@
+{
+ "hashes": {
+  "c00/color": "fb71fd3d9a2702e0",
+  "c00/normal": "6c9a82803207ea4a",
+  "glb": "6a8d29aca3a76165"
+ },
+ "meshes": {
+  "Butte4_C00": "rbxassetid://77384295610309"
+ },
+ "model": "134550633003761",
+ "textures": {
+  "c00": {
+   "color": "rbxassetid://77838935588044",
+   "normal": "rbxassetid://110603109705472"
+  }
+ }
+}

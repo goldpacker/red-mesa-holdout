@@ -53,7 +53,7 @@ import fast_simplification  # noqa: E402
 import ops as opsmod  # noqa: E402
 import strata  # noqa: E402
 from noise import fbm2, smoothstep, value3  # noqa: E402
-from pieces import PIECES, PIT_FLOOR, PIT_RADIUS, TURRET_PIVOT, LOS_CLEARANCE, Piece, needed_density  # noqa: E402,F401
+from pieces import PIECES, TURRET_PIVOT, LOS_CLEARANCE, Piece, needed_density  # noqa: E402,F401
 
 OUT = opsmod.ROOT / "assets" / "source" / "landscape" / "build"
 CHUNK_TRIS = 15000
@@ -61,6 +61,8 @@ TEX = 1024
 PACK_EFFICIENCY = 0.5  # share of the 1024^2 atlas the packed islands really cover (measured 0.45-0.6)
 FLOOR_DROP = 2.5  # the talus fillet blends into a plane this far under the floor
 MIN_CLEAR = 0.35  # the mesh surface never comes closer than this to the terrain
+TOP_EXTRA_CLEARANCE = 0.8  # studs, extra LOS clearance on the mesa's top 15 studs of radius
+MESA_TOP_CAP = 63.3  # under the emplacement's floor (66.1) and inside its wall (y 58..66.4); live terrain top 62.0
 
 
 def log(msg: str) -> None:
@@ -253,7 +255,12 @@ def zone_weight(piece: Piece, xs, ys, zs):
     P = np.stack([X - a[0], Y - a[1], Z - a[2]], axis=-1)
     t = np.clip((P @ ab) / (ab @ ab), 0.0, 1.0)
     d = np.linalg.norm(P - t[..., None] * ab, axis=-1)
-    return smoothstep(radius, radius + 8.0, d).astype(np.float32)
+    w = smoothstep(radius, radius + 8.0, d)
+    # Only below the lens: rock above the camera is outside its view, and
+    # there the rim keeps its bedded ledges like the rest of the wall.
+    top = 0.5 * (a[1] + b[1]) + 9.0
+    w = np.maximum(w, smoothstep(top, top + 4.0, Y))
+    return w.astype(np.float32)
 
 
 def build_field(piece: Piece, ops: list[opsmod.Op]):
@@ -279,7 +286,8 @@ def build_field(piece: Piece, ops: list[opsmod.Op]):
     Eb = np.minimum(ndimage.gaussian_filter(Eb, piece.sigma / h), Tb).astype(np.float32)
     zone = zone_weight(piece, xs, ys, zs)
     if zone is not None:
-        smooth = np.minimum(ndimage.gaussian_filter(Ec, 2.0 / h), Tb)
+        # Softened ledges (not the raw terrain ball) around the lens.
+        smooth = np.minimum(ndimage.gaussian_filter(Eb, 3.5 / h), Tb)
         Eb = (smooth + (Eb - smooth) * zone).astype(np.float32)
         del smooth
     del Ec
@@ -347,15 +355,17 @@ def los_cap(r: np.ndarray, azimuth: np.ndarray) -> np.ndarray:
 
 
 def keep_clear(S, xs, ys, zs):
-    """Mesa: never rise into the turret's sight lines (front half, where the
-    lanes are), and leave the gun pit (hidden by the emplacement) empty."""
+    """Mesa: never rise into the turret's sight lines. The top under the gun
+    pit stays solid (the emplacement hides it): a hole there would give the
+    QA line-of-sight check's convex collision pieces a concavity to bridge."""
     XX, ZZ = np.meshgrid(xs, zs, indexing="ij")
     r = np.hypot(XX - TURRET_PIVOT[0], ZZ - TURRET_PIVOT[2])
     cap = los_cap(r, np.arctan2(XX - TURRET_PIVOT[0], -(ZZ - TURRET_PIVOT[2])))
+    # Near the top the rim is seen edge-on by the sight lines: extra margin.
+    cap = cap - np.clip((30.0 - r) / 15.0, 0.0, 1.0) * TOP_EXTRA_CLEARANCE
+    cap = np.minimum(cap, MESA_TOP_CAP)
     above = (ys[None, :, None] - cap[:, None, :]) * 0.8
-    S = np.maximum(S, above.astype(np.float32))
-    pit = np.maximum(r[:, None, :] - PIT_RADIUS, PIT_FLOOR - ys[None, :, None])
-    return np.maximum(S, (-pit).astype(np.float32))
+    return np.maximum(S, above.astype(np.float32))
 
 
 def mesh_from(S, xs, ys, zs, F, h):

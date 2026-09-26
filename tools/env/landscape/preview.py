@@ -37,6 +37,8 @@ SHOTS = {
     "ridge": ((-40, 110, 120), (10, 40, 30), 60),
     "top": ((0, 4000, -550.01), (0, 0, -550), 29),
     "corner": ((500, 60, -100), (800, 60, 150), 60),
+    "rim": ((60, 110, -260), (-70, 125, 140), 30),
+    "butte": ((100, 40, -900), (260, 50, -1150), 40),
 }
 ALL = ["Mesa", "RearWall", "FlankLeft", "FlankRight", "FarWall", "Butte1", "Butte2", "Butte3", "Butte4"]
 
@@ -91,6 +93,20 @@ def add_mesh(name, v, f, colors=None):
     return ob
 
 
+def cull_backfaces(mat):
+    """Roblox culls back faces; show the same (a camera inside the rock sees out)."""
+    nt = mat.node_tree
+    out = next(n for n in nt.nodes if n.type == "OUTPUT_MATERIAL")
+    src = out.inputs["Surface"].links[0].from_socket
+    geo = nt.nodes.new("ShaderNodeNewGeometry")
+    mix = nt.nodes.new("ShaderNodeMixShader")
+    tr = nt.nodes.new("ShaderNodeBsdfTransparent")
+    nt.links.new(geo.outputs["Backfacing"], mix.inputs["Fac"])
+    nt.links.new(src, mix.inputs[1])
+    nt.links.new(tr.outputs["BSDF"], mix.inputs[2])
+    nt.links.new(mix.outputs["Shader"], out.inputs["Surface"])
+
+
 def vcol_material():
     mat = bpy.data.materials.new("Strata")
     mat.use_nodes = True
@@ -140,6 +156,7 @@ def main():
     use_high = bool(arg("--high", False))
     baked = bool(arg("--baked", False))
     mat = vcol_material()
+    cull_backfaces(mat)
     for name in pieces:
         blend = os.path.join(ROOT, "assets", "blender", f"Landscape_{name}.blend")
         if baked and os.path.exists(blend):
@@ -147,6 +164,10 @@ def main():
                 dst.objects = [n for n in src.objects if n.startswith(f"{name}_C")]
             for ob in dst.objects:
                 sc.collection.objects.link(ob)
+                for slot in ob.material_slots:
+                    if slot.material and not slot.material.get("culled"):
+                        cull_backfaces(slot.material)
+                        slot.material["culled"] = True
             continue
         path = os.path.join(BUILD, f"{name}.npz")
         if not os.path.exists(path):

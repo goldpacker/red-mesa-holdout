@@ -1,0 +1,51 @@
+{
+ "name": "Landscape_Butte4",
+ "primary": null,
+ "pivots": {
+  "": [
+   0.0,
+   0.0,
+   0.0
+  ]
+ },
+ "parts": [
+  {
+   "name": "Butte4_C00",
+   "path": "",
+   "center": [
+    620.0,
+    49.5524,
+    -1060.0
+   ],
+   "size": [
+    260.0,
+    99.8953,
+    260.0
+   ],
+   "tex": "c00",
+   "tris": 6499,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "Sandstone"
+  }
+ ],
+ "attachments": [],
+ "markers": [],
+ "textures": {
+  "c00": {
+   "color": "Landscape_Butte4_c00_color.png",
+   "normal": "Landscape_Butte4_c00_normal.png"
+  }
+ },
+ "texel_density": {
+  "c00": 0.83
+ },
+ "previews": [],
+ "triangles": 6499,
+ "meta": {
+  "kit": "landscape",
+  "no_primary": true,
+  "high_tris": 190708
+ }
+}

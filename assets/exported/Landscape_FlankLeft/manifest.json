@@ -1,0 +1,126 @@
+{
+ "name": "Landscape_FlankLeft",
+ "primary": null,
+ "pivots": {
+  "": [
+   0.0,
+   0.0,
+   0.0
+  ]
+ },
+ "parts": [
+  {
+   "name": "FlankLeft_C00",
+   "path": "",
+   "center": [
+    -767.75,
+    83.55,
+    171.5963
+   ],
+   "size": [
+    154.5,
+    167.9,
+    495.8074
+   ],
+   "tex": "c00",
+   "tris": 6483,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "Sandstone"
+  },
+  {
+   "name": "FlankLeft_C01",
+   "path": "",
+   "center": [
+    -779.75,
+    83.5501,
+    -987.4808
+   ],
+   "size": [
+    130.5,
+    167.8999,
+    477.0385
+   ],
+   "tex": "c01",
+   "tris": 7633,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "Sandstone"
+  },
+  {
+   "name": "FlankLeft_C02",
+   "path": "",
+   "center": [
+    -743.5434,
+    83.5696,
+    -554.6094
+   ],
+   "size": [
+    106.0868,
+    167.8608,
+    454.9377
+   ],
+   "tex": "c02",
+   "tris": 5736,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "Sandstone"
+  },
+  {
+   "name": "FlankLeft_C03",
+   "path": "",
+   "center": [
+    -745.7939,
+    83.5609,
+    -200.5759
+   ],
+   "size": [
+    101.5878,
+    167.8782,
+    377.6795
+   ],
+   "tex": "c03",
+   "tris": 4146,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "Sandstone"
+  }
+ ],
+ "attachments": [],
+ "markers": [],
+ "textures": {
+  "c00": {
+   "color": "Landscape_FlankLeft_c00_color.png",
+   "normal": "Landscape_FlankLeft_c00_normal.png"
+  },
+  "c01": {
+   "color": "Landscape_FlankLeft_c01_color.png",
+   "normal": "Landscape_FlankLeft_c01_normal.png"
+  },
+  "c02": {
+   "color": "Landscape_FlankLeft_c02_color.png",
+   "normal": "Landscape_FlankLeft_c02_normal.png"
+  },
+  "c03": {
+   "color": "Landscape_FlankLeft_c03_color.png",
+   "normal": "Landscape_FlankLeft_c03_normal.png"
+  }
+ },
+ "texel_density": {
+  "c00": 0.92,
+  "c01": 0.64,
+  "c02": 0.69,
+  "c03": 1.04
+ },
+ "previews": [],
+ "triangles": 23998,
+ "meta": {
+  "kit": "landscape",
+  "no_primary": true,
+  "high_tris": 559104
+ }
+}

@@ -1,0 +1,126 @@
+{
+ "name": "Landscape_FarWall",
+ "primary": null,
+ "pivots": {
+  "": [
+   0.0,
+   0.0,
+   0.0
+  ]
+ },
+ "parts": [
+  {
+   "name": "FarWall_C00",
+   "path": "",
+   "center": [
+    -735.1159,
+    74.0,
+    -1372.3026
+   ],
+   "size": [
+    529.7682,
+    148.0,
+    137.4927
+   ],
+   "tex": "c00",
+   "tris": 4448,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "Sandstone"
+  },
+  {
+   "name": "FarWall_C01",
+   "path": "",
+   "center": [
+    -231.546,
+    74.0,
+    -1371.1688
+   ],
+   "size": [
+    558.6698,
+    148.0,
+    139.7603
+   ],
+   "tex": "c01",
+   "tris": 4375,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "Sandstone"
+  },
+  {
+   "name": "FarWall_C02",
+   "path": "",
+   "center": [
+    244.4074,
+    74.0,
+    -1369.0756
+   ],
+   "size": [
+    572.1311,
+    148.0,
+    143.9467
+   ],
+   "tex": "c02",
+   "tris": 4559,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "Sandstone"
+  },
+  {
+   "name": "FarWall_C03",
+   "path": "",
+   "center": [
+    740.3254,
+    74.0,
+    -1371.1885
+   ],
+   "size": [
+    519.3492,
+    148.0,
+    140.0201
+   ],
+   "tex": "c03",
+   "tris": 4616,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "Sandstone"
+  }
+ ],
+ "attachments": [],
+ "markers": [],
+ "textures": {
+  "c00": {
+   "color": "Landscape_FarWall_c00_color.png",
+   "normal": "Landscape_FarWall_c00_normal.png"
+  },
+  "c01": {
+   "color": "Landscape_FarWall_c01_color.png",
+   "normal": "Landscape_FarWall_c01_normal.png"
+  },
+  "c02": {
+   "color": "Landscape_FarWall_c02_color.png",
+   "normal": "Landscape_FarWall_c02_normal.png"
+  },
+  "c03": {
+   "color": "Landscape_FarWall_c03_color.png",
+   "normal": "Landscape_FarWall_c03_normal.png"
+  }
+ },
+ "texel_density": {
+  "c00": 0.8,
+  "c01": 0.73,
+  "c02": 0.82,
+  "c03": 0.77
+ },
+ "previews": [],
+ "triangles": 17998,
+ "meta": {
+  "kit": "landscape",
+  "no_primary": true,
+  "high_tris": 394045
+ }
+}

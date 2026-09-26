@@ -1,0 +1,35 @@
+<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" version="4">
+  <Item class="Model" referent="RBX00000001">
+    <Properties>
+      <string name="Name">Landscape_Butte1</string>
+      <OptionalCoordinateFrame name="WorldPivotData"><CFrame><X>0</X><Y>0</Y><Z>0</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CFrame></OptionalCoordinateFrame>
+    </Properties>
+    <Item class="MeshPart" referent="RBX00000002">
+      <Properties>
+        <string name="Name">Butte1_C00</string>
+        <Content name="MeshId"><url>rbxassetid://98880918125909</url></Content>
+        <Vector3 name="InitialSize"><X>240</X><Y>99.8405</Y><Z>240</Z></Vector3>
+        <Vector3 name="size"><X>240</X><Y>99.8405</Y><Z>240</Z></Vector3>
+        <CoordinateFrame name="CFrame"><X>-380</X><Y>49.5798</Y><Z>-1120</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="CollisionFidelity">2</token>
+        <float name="Transparency">0</float>
+        <token name="Material">912</token><token name="RenderFidelity">1</token>
+        <Color3uint8 name="Color3uint8">4294967295</Color3uint8>
+      </Properties>
+      <Item class="SurfaceAppearance" referent="RBX00000003">
+        <Properties>
+          <string name="Name">SurfaceAppearance</string>
+          <Content name="ColorMap"><url>rbxassetid://109472026056389</url></Content>
+          <Content name="NormalMap"><url>rbxassetid://83955600369738</url></Content>
+          <Content name="RoughnessMap"><null></null></Content>
+          <Content name="MetalnessMap"><null></null></Content>
+        </Properties>
+      </Item>
+    </Item>
+  </Item>
+</roblox>

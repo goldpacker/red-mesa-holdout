@@ -1,0 +1,126 @@
+{
+ "name": "Landscape_FlankRight",
+ "primary": null,
+ "pivots": {
+  "": [
+   0.0,
+   0.0,
+   0.0
+  ]
+ },
+ "parts": [
+  {
+   "name": "FlankRight_C00",
+   "path": "",
+   "center": [
+    743.2839,
+    83.5632,
+    -558.3024
+   ],
+   "size": [
+    106.5677,
+    167.8735,
+    433.6978
+   ],
+   "tex": "c00",
+   "tris": 7643,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "Sandstone"
+  },
+  {
+   "name": "FlankRight_C01",
+   "path": "",
+   "center": [
+    771.75,
+    83.5875,
+    172.9421
+   ],
+   "size": [
+    145.5,
+    167.8251,
+    493.1158
+   ],
+   "tex": "c01",
+   "tris": 7916,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "Sandstone"
+  },
+  {
+   "name": "FlankRight_C02",
+   "path": "",
+   "center": [
+    748.4633,
+    83.6064,
+    -195.1124
+   ],
+   "size": [
+    95.9266,
+    167.7871,
+    342.271
+   ],
+   "tex": "c02",
+   "tris": 5911,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "Sandstone"
+  },
+  {
+   "name": "FlankRight_C03",
+   "path": "",
+   "center": [
+    774.0,
+    83.5558,
+    -991.9872
+   ],
+   "size": [
+    141.0,
+    167.8885,
+    471.0255
+   ],
+   "tex": "c03",
+   "tris": 10529,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "Sandstone"
+  }
+ ],
+ "attachments": [],
+ "markers": [],
+ "textures": {
+  "c00": {
+   "color": "Landscape_FlankRight_c00_color.png",
+   "normal": "Landscape_FlankRight_c00_normal.png"
+  },
+  "c01": {
+   "color": "Landscape_FlankRight_c01_color.png",
+   "normal": "Landscape_FlankRight_c01_normal.png"
+  },
+  "c02": {
+   "color": "Landscape_FlankRight_c02_color.png",
+   "normal": "Landscape_FlankRight_c02_normal.png"
+  },
+  "c03": {
+   "color": "Landscape_FlankRight_c03_color.png",
+   "normal": "Landscape_FlankRight_c03_normal.png"
+  }
+ },
+ "texel_density": {
+  "c00": 0.84,
+  "c01": 1.03,
+  "c02": 1.13,
+  "c03": 0.64
+ },
+ "previews": [],
+ "triangles": 31999,
+ "meta": {
+  "kit": "landscape",
+  "no_primary": true,
+  "high_tris": 538871
+ }
+}

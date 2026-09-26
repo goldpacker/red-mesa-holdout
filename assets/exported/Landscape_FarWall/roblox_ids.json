@@ -1,0 +1,38 @@
+{
+ "hashes": {
+  "c00/color": "1ffb8617e06b686c",
+  "c00/normal": "121949b7aa6024eb",
+  "c01/color": "28909f046e62a3fa",
+  "c01/normal": "066c19d4006d4917",
+  "c02/color": "759841dd0ad9f930",
+  "c02/normal": "e734e1abdd4b2fa7",
+  "c03/color": "3e0761ccda503786",
+  "c03/normal": "88cbe48b94790a69",
+  "glb": "588b6c2acc50db21"
+ },
+ "meshes": {
+  "FarWall_C00": "rbxassetid://98821751557331",
+  "FarWall_C01": "rbxassetid://129394196915361",
+  "FarWall_C02": "rbxassetid://97656040674650",
+  "FarWall_C03": "rbxassetid://107322893492425"
+ },
+ "model": "103938126789191",
+ "textures": {
+  "c00": {
+   "color": "rbxassetid://134797658659528",
+   "normal": "rbxassetid://78492992113214"
+  },
+  "c01": {
+   "color": "rbxassetid://99075595953194",
+   "normal": "rbxassetid://125795165751388"
+  },
+  "c02": {
+   "color": "rbxassetid://122980089119693",
+   "normal": "rbxassetid://96620968867165"
+  },
+  "c03": {
+   "color": "rbxassetid://136013034474432",
+   "normal": "rbxassetid://121668304103188"
+  }
+ }
+}

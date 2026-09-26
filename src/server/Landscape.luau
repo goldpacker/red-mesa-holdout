@@ -40,7 +40,7 @@ local function prepare(part: BasePart)
 end
 
 -- Replaces a chunk's box collision with a precise convex decomposition
--- (~0.8 s per chunk, off the main build).
+-- (~0.8 s per chunk, off the main build thread).
 local function applyCollision(part: MeshPart)
 	local ok, err = pcall(function()
 		local shaped = AssetService:CreateMeshPartAsync(Content.fromUri(part.MeshId), {

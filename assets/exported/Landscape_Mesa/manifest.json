@@ -1,0 +1,276 @@
+{
+ "name": "Landscape_Mesa",
+ "primary": null,
+ "pivots": {
+  "": [
+   0.0,
+   0.0,
+   0.0
+  ]
+ },
+ "parts": [
+  {
+   "name": "Mesa_C00",
+   "path": "",
+   "center": [
+    -65.7716,
+    17.876,
+    -48.5923
+   ],
+   "size": [
+    68.4567,
+    47.248,
+    75.8154
+   ],
+   "tex": "c00",
+   "tris": 3687,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "Sandstone"
+  },
+  {
+   "name": "Mesa_C01",
+   "path": "",
+   "center": [
+    -41.05,
+    31.5533,
+    8.8701
+   ],
+   "size": [
+    105.3,
+    63.4939,
+    44.7953
+   ],
+   "tex": "c01",
+   "tris": 3889,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "Sandstone"
+  },
+  {
+   "name": "Mesa_C02",
+   "path": "",
+   "center": [
+    -49.9488,
+    31.5013,
+    71.6409
+   ],
+   "size": [
+    100.1024,
+    63.5983,
+    106.7725
+   ],
+   "tex": "c02",
+   "tris": 8918,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "Sandstone"
+  },
+  {
+   "name": "Mesa_C03",
+   "path": "",
+   "center": [
+    -47.35,
+    31.4994,
+    159.1996
+   ],
+   "size": [
+    105.3,
+    63.6013,
+    81.0008
+   ],
+   "tex": "c03",
+   "tris": 8919,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "Sandstone"
+  },
+  {
+   "name": "Mesa_C04",
+   "path": "",
+   "center": [
+    14.1725,
+    31.5408,
+    -48.255
+   ],
+   "size": [
+    41.1595,
+    63.5184,
+    74.6899
+   ],
+   "tex": "c04",
+   "tris": 3534,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "Sandstone"
+  },
+  {
+   "name": "Mesa_C05",
+   "path": "",
+   "center": [
+    -16.9873,
+    31.5509,
+    -49.164
+   ],
+   "size": [
+    38.3204,
+    63.4982,
+    78.2721
+   ],
+   "tex": "c05",
+   "tris": 3798,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "Sandstone"
+  },
+  {
+   "name": "Mesa_C06",
+   "path": "",
+   "center": [
+    65.7215,
+    18.5663,
+    -41.9454
+   ],
+   "size": [
+    68.1571,
+    47.7326,
+    62.1091
+   ],
+   "tex": "c06",
+   "tris": 4009,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "Sandstone"
+  },
+  {
+   "name": "Mesa_C07",
+   "path": "",
+   "center": [
+    38.6095,
+    31.5505,
+    9.2043
+   ],
+   "size": [
+    97.181,
+    63.5009,
+    44.3823
+   ],
+   "tex": "c07",
+   "tris": 4380,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "Sandstone"
+  },
+  {
+   "name": "Mesa_C08",
+   "path": "",
+   "center": [
+    45.1918,
+    31.4888,
+    79.593
+   ],
+   "size": [
+    109.2164,
+    63.6226,
+    121.4009
+   ],
+   "tex": "c08",
+   "tris": 9433,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "Sandstone"
+  },
+  {
+   "name": "Mesa_C09",
+   "path": "",
+   "center": [
+    43.0988,
+    31.4974,
+    161.4503
+   ],
+   "size": [
+    113.4024,
+    63.6063,
+    76.4994
+   ],
+   "tex": "c09",
+   "tris": 9433,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "Sandstone"
+  }
+ ],
+ "attachments": [],
+ "markers": [],
+ "textures": {
+  "c00": {
+   "color": "Landscape_Mesa_c00_color.png",
+   "normal": "Landscape_Mesa_c00_normal.png"
+  },
+  "c01": {
+   "color": "Landscape_Mesa_c01_color.png",
+   "normal": "Landscape_Mesa_c01_normal.png"
+  },
+  "c02": {
+   "color": "Landscape_Mesa_c02_color.png",
+   "normal": "Landscape_Mesa_c02_normal.png"
+  },
+  "c03": {
+   "color": "Landscape_Mesa_c03_color.png",
+   "normal": "Landscape_Mesa_c03_normal.png"
+  },
+  "c04": {
+   "color": "Landscape_Mesa_c04_color.png",
+   "normal": "Landscape_Mesa_c04_normal.png"
+  },
+  "c05": {
+   "color": "Landscape_Mesa_c05_color.png",
+   "normal": "Landscape_Mesa_c05_normal.png"
+  },
+  "c06": {
+   "color": "Landscape_Mesa_c06_color.png",
+   "normal": "Landscape_Mesa_c06_normal.png"
+  },
+  "c07": {
+   "color": "Landscape_Mesa_c07_color.png",
+   "normal": "Landscape_Mesa_c07_normal.png"
+  },
+  "c08": {
+   "color": "Landscape_Mesa_c08_color.png",
+   "normal": "Landscape_Mesa_c08_normal.png"
+  },
+  "c09": {
+   "color": "Landscape_Mesa_c09_color.png",
+   "normal": "Landscape_Mesa_c09_normal.png"
+  }
+ },
+ "texel_density": {
+  "c00": 13.03,
+  "c01": 10.73,
+  "c02": 7.03,
+  "c03": 6.27,
+  "c04": 12.89,
+  "c05": 13.47,
+  "c06": 12.76,
+  "c07": 10.52,
+  "c08": 6.81,
+  "c09": 6.85
+ },
+ "previews": [],
+ "triangles": 60000,
+ "meta": {
+  "kit": "landscape",
+  "no_primary": true,
+  "high_tris": 272694
+ }
+}

@@ -1,0 +1,80 @@
+{
+ "hashes": {
+  "c00/color": "51ef04ceeb7e6bb0",
+  "c00/normal": "2ac178e4e56145bb",
+  "c01/color": "29e2434d776c4c5d",
+  "c01/normal": "ab96482208533f45",
+  "c02/color": "f34ece4b02bac250",
+  "c02/normal": "223f54b8252adec3",
+  "c03/color": "5db6405023f044e0",
+  "c03/normal": "ae68d665571f782f",
+  "c04/color": "196a56c14561d800",
+  "c04/normal": "7e04bc1edf7b518c",
+  "c05/color": "6148a5cd50d21d7e",
+  "c05/normal": "42fd76c239b03e38",
+  "c06/color": "d57156db89d70dfc",
+  "c06/normal": "13f09aa792217fb4",
+  "c07/color": "52371eec1c68da9c",
+  "c07/normal": "b1ba986228cba1ca",
+  "c08/color": "0b9f2d306a7f3f95",
+  "c08/normal": "10f13f276be0e62b",
+  "c09/color": "672c7b58ec0b52bb",
+  "c09/normal": "e65f125c939e13ae",
+  "glb": "fd5547b8f98f9c15"
+ },
+ "meshes": {
+  "Mesa_C00": "rbxassetid://81604009487915",
+  "Mesa_C01": "rbxassetid://72423966581175",
+  "Mesa_C02": "rbxassetid://96364175440412",
+  "Mesa_C03": "rbxassetid://109836530587081",
+  "Mesa_C04": "rbxassetid://129412054381796",
+  "Mesa_C05": "rbxassetid://136213236895219",
+  "Mesa_C06": "rbxassetid://117455595826532",
+  "Mesa_C07": "rbxassetid://138146706304884",
+  "Mesa_C08": "rbxassetid://83688984418281",
+  "Mesa_C09": "rbxassetid://115129755142508"
+ },
+ "model": "115445496432133",
+ "textures": {
+  "c00": {
+   "color": "rbxassetid://131719884147740",
+   "normal": "rbxassetid://84395242267818"
+  },
+  "c01": {
+   "color": "rbxassetid://116125266891775",
+   "normal": "rbxassetid://76466507349752"
+  },
+  "c02": {
+   "color": "rbxassetid://98606843717125",
+   "normal": "rbxassetid://112098915413424"
+  },
+  "c03": {
+   "color": "rbxassetid://131169411005101",
+   "normal": "rbxassetid://88572280607003"
+  },
+  "c04": {
+   "color": "rbxassetid://136865627226210",
+   "normal": "rbxassetid://87868385418105"
+  },
+  "c05": {
+   "color": "rbxassetid://139464525914435",
+   "normal": "rbxassetid://98428943216881"
+  },
+  "c06": {
+   "color": "rbxassetid://91774174729834",
+   "normal": "rbxassetid://103333120104768"
+  },
+  "c07": {
+   "color": "rbxassetid://73765178894704",
+   "normal": "rbxassetid://135552311047531"
+  },
+  "c08": {
+   "color": "rbxassetid://81837029816087",
+   "normal": "rbxassetid://129510587251186"
+  },
+  "c09": {
+   "color": "rbxassetid://96936893841592",
+   "normal": "rbxassetid://125251510315928"
+  }
+ }
+}

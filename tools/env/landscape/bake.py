@@ -35,11 +35,7 @@ import pieces as P  # noqa: E402
 import texture  # noqa: E402
 
 BUILD = os.path.join(ROOT, "assets", "source", "landscape", "build")
-TEX = 1024
-# Normal-map size per piece: the mesa is seen up close (title, defeat
-# cameras); the walls and buttes only from 300+ studs.
-NORMAL_TEX = {"Mesa": 1024}
-NORMAL_TEX_DEFAULT = 512
+TEX = 1024  # bake resolution; exported sizes: pieces.TEXTURE_SIZES
 SMOOTH_ANGLE = math.radians(55)
 NEIGHBOURS = {  # pieces that shade (AO) each other
     "Mesa": ["RearWall"],
@@ -375,7 +371,9 @@ def build_piece(name, samples):
         # Fill the gutter between islands with the nearest island colour.
         colour = dilate(colour, valid)
         normal = pixels(imgs["normal"], 3)
-        ntex = NORMAL_TEX.get(name, NORMAL_TEX_DEFAULT)
+        ctex, ntex = P.TEXTURE_SIZES.get(name, P.TEXTURE_SIZES_DEFAULT)
+        if ctex != TEX:
+            colour = resize(colour, ctex)
         if ntex != TEX:
             n = resize(normal, ntex) * 2.0 - 1.0
             n /= np.maximum(np.linalg.norm(n, axis=2, keepdims=True), 1e-6)
@@ -397,7 +395,7 @@ def build_piece(name, samples):
         textures[grp] = files
         area = sum(p.area for p in ob.data.polygons)
         uv_area = uv_coverage(ob)
-        density[grp] = round(math.sqrt(uv_area * TEX * TEX / max(area, 1e-6)), 2)
+        density[grp] = round(math.sqrt(uv_area * ctex * ctex / max(area, 1e-6)), 2)
         # Show the baked result on the chunk (for previews and the .blend).
         ob.data.materials.clear()
         ob.data.materials.append(baked_material(cname, imgs["normal"], out_dir, files))
@@ -431,6 +429,10 @@ def build_piece(name, samples):
     }
     with open(os.path.join(out_dir, "manifest.json"), "w") as fh:
         json.dump(manifest, fh, indent=1)
+    keep = {"manifest.json", "roblox_ids.json", f"Landscape_{name}.glb"} | {f for t in textures.values() for f in t.values()}
+    for f in os.listdir(out_dir):  # maps of chunks an earlier build had
+        if f not in keep:
+            os.remove(os.path.join(out_dir, f))
     os.makedirs(os.path.join(ROOT, "assets", "blender"), exist_ok=True)
     bpy.context.preferences.filepaths.save_version = 0
     bpy.ops.wm.save_as_mainfile(filepath=os.path.join(ROOT, "assets", "blender", f"Landscape_{name}.blend"), compress=True, relative_remap=True)

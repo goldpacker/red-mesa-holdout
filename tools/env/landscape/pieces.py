@@ -65,11 +65,17 @@ MESA = Style(base=0.25, amp=1.1, gully=0.9, gully_scale=40.0, base_top=0.1, talu
 # Turret line of sight (QaDebug losCheck): sight lines from the turret pivot
 # to every lane end at feet height (+0.5 over the live ground: floor 2.0,
 # wash ends -3.3) and along the lanes at hip height. The mesa mesh stays
-# LOS_CLEARANCE under the lowest of them. Gun pit: the emplacement's
-# concrete ring (r 14.3, y 58..66.4) hides everything inside PIT_RADIUS.
+# LOS_CLEARANCE under the lowest of them (shape.keep_clear).
 TURRET_PIVOT = (0.0, 72.0, 0.0)
+
+# Texture sizes (colour, normal) per piece. Everything is baked at 1024 and
+# downsampled: the mesa is the only piece seen up close (title, defeat
+# cameras); walls and buttes are seen from 300+ studs, where 512 colour
+# (0.6-1.2 px/stud) is about 1:1 on screen in the turret view. Texture memory
+# is the budget that binds (docs/PERF_BUDGET.md, ENV share 90 MB).
+TEXTURE_SIZES = {"Mesa": (1024, 512)}
+TEXTURE_SIZES_DEFAULT = (512, 256)
 LOS_CLEARANCE = 1.2  # the QA check sees a convex decomposition, ~1 stud proud of the mesh
-PIT_RADIUS, PIT_FLOOR = 14.6, 57.5
 
 # The title camera (AimController title pan) sits on the rear wall's face at
 # x -115..-25, y 128, z 150 and looks down over the ridge and mesa.
