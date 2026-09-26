@@ -74,6 +74,17 @@ local TINT: { [string]: Color3 } = {
 	Wash = lifted(Color3.fromRGB(200, 178, 146)),
 	Rock = lifted(Effects.ROCK_DUST),
 }
+-- Dusk and night: the dust is lit by the vehicles' own headlights and the
+-- pale day tints blow out in the beams. Toward the night the dust takes a
+-- darker, cooler tint, dimmer brightness and thinner opacity, so it stays a
+-- subtle haze in the beams (VFX-3 fix 1). Keyed on TimeOfDay's preset
+-- (Workspace attribute TimeOfDay, as client/VehicleFx reads it).
+local DIM: { [string]: number } = { Dusk = 0.65, Night = 1 }
+local NIGHT_TINT = Color3.fromRGB(88, 86, 90) -- near-neutral: the moonlight already cools it
+local NIGHT_TINT_MIX = 0.75 -- share of NIGHT_TINT in the colour at full dim
+local NIGHT_BRIGHTNESS = 0.4 -- emitter Brightness at full dim (1 by day)
+local NIGHT_THIN = 0.35 -- extra transparency at full dim
+
 local SURFACE: { [Enum.Material]: string } = {
 	[Enum.Material.Ground] = "Road",
 	[Enum.Material.Salt] = "Wash",
@@ -103,7 +114,7 @@ local SPECS: { [string]: Spec } = {
 }
 Dust.SPECS = SPECS
 
-type Emitter = { e: ParticleEmitter, rate: number, size: NumberSequence }
+type Emitter = { e: ParticleEmitter, rate: number, size: NumberSequence, transparency: NumberSequence }
 type Source = {
 	inst: Instance,
 	att: Attachment,
@@ -116,12 +127,14 @@ type Source = {
 	strength: number,
 	rateK: number,
 	sizeK: number,
+	dim: number,
 	desired: number,
 }
 type Rig = { model: Model, spec: Spec, sources: { Source }, due: number }
 
 local rigs: { [Model]: Rig } = {}
 local capK = 1
+local dim = 0 -- 0 by day, 1 at night (eased toward the preset's value)
 
 local groundParams = RaycastParams.new()
 groundParams.FilterType = Enum.RaycastFilterType.Include
@@ -157,7 +170,7 @@ end
 local function add(list: { Emitter }, e: ParticleEmitter?, rateShare: number)
 	if e then
 		e.Enabled = true
-		table.insert(list, { e = e, rate = rateShare, size = e.Size })
+		table.insert(list, { e = e, rate = rateShare, size = e.Size, transparency = e.Transparency })
 	end
 end
 
@@ -286,6 +299,7 @@ function Dust.add(model: Model, kind: string)
 				strength = 0,
 				rateK = 1,
 				sizeK = 1,
+				dim = -1,
 				desired = 0,
 			})
 		end
@@ -360,6 +374,15 @@ local function strengthOf(spec: Spec, src: Source, p: Vector3): number
 	return t * t * (3 - 2 * t)
 end
 
+-- `s` with every opacity scaled by (1 - k).
+local function thinner(s: NumberSequence, k: number): NumberSequence
+	local keys = table.create(#s.Keypoints)
+	for i, kp in s.Keypoints do
+		keys[i] = NumberSequenceKeypoint.new(kp.Time, 1 - (1 - kp.Value) * (1 - k), kp.Envelope)
+	end
+	return NumberSequence.new(keys)
+end
+
 local function tick(rig: Rig, dustOff: boolean)
 	local spec = rig.spec
 	for _, src in rig.sources do
@@ -371,7 +394,14 @@ local function tick(rig: Rig, dustOff: boolean)
 		if spec.mode == "wheel" or spec.mode == "track" then
 			src.ground = probe(p, 16 * spec.scale)
 		end
-		src.target = tintOf(src.ground)
+		src.target = tintOf(src.ground):Lerp(NIGHT_TINT, NIGHT_TINT_MIX * dim)
+		if math.abs(dim - src.dim) > 0.02 then
+			src.dim = dim
+			for _, em in src.emitters do
+				em.e.Brightness = 1 + (NIGHT_BRIGHTNESS - 1) * dim
+				em.e.Transparency = thinner(em.transparency, NIGHT_THIN * dim)
+			end
+		end
 		src.strength = if dustOff then 0 else strengthOf(spec, src, p)
 		local rateK, sizeK = Lod.factor(src.att.WorldPosition, spec.cutoff)
 		src.rateK = rateK
@@ -444,6 +474,11 @@ local function recap()
 		end
 	end
 	capK = if total > MAX_RATE then MAX_RATE / total else 1
+	-- Ease toward the preset's night dimming (TimeOfDay blends its lighting
+	-- over a few seconds too). Studio A/B: Workspace attribute FxDustDimOff.
+	local preset = Workspace:GetAttribute("TimeOfDay")
+	local goal = if Workspace:GetAttribute("FxDustDimOff") == true then 0 else DIM[if type(preset) == "string" then preset else ""] or 0
+	dim += math.clamp(goal - dim, -0.25, 0.25)
 	if RunService:IsStudio() then
 		Workspace:SetAttribute("FxDustRate", math.round(total * capK))
 		Workspace:SetAttribute("FxDustSources", count)

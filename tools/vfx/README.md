@@ -176,9 +176,13 @@ with `RedMesaDebug:Invoke("beauty", {shot = 2, tod = ...})`, trigger, then
   x 1/sqrt(rate) (cap 2x), so the summed on-screen coverage stays the same
   with fewer particles; beyond each effect's cutoff nothing new is emitted.
   Motion dust also has a global cap (`MAX_RATE` particles/s).
+- **Dusk/night:** keyed on TimeOfDay's preset (Workspace attribute
+  `TimeOfDay`): toward Night (Dusk 0.65, Night 1) the dust eases to a
+  darker near-neutral tint, Brightness 0.4 and thinner opacity, so it stays
+  a subtle haze in the vehicles' headlight beams (VFX-3 fix 1).
 - **Studio switches** (Workspace attributes): `FxLodOff = true` disables
   LOD (perf A/B), `FxDustOff = true` stops motion dust (before/after
-  captures). Published in Studio: `FxOneShotLive` (live one-shot particle
+  captures), `FxDustDimOff = true` disables the dusk/night dimming. Published in Studio: `FxOneShotLive` (live one-shot particle
   estimate), `FxDustRate`, `FxDustSources`.
 - **Harness:** `H.follow(model, offset, fov, look)` / `H.chase(model, side,
   ahead, up, fov, lookBack)` chase cameras for moving vehicles; `H.particles()` / `H.sample(seconds)` live particle estimate
