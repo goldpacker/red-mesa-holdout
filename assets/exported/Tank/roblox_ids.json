@@ -1,45 +1,28 @@
 {
  "hashes": {
-  "gear/color": "e387a93fce0209a9",
-  "gear/metal": "1b5e56117de3b957",
-  "gear/normal": "d67fea83bb907e07",
-  "gear/rough": "8db5f4c259cb6e82",
-  "glb": "9a4d4fd5907c13c8",
-  "hull/color": "32ccbac8d9de2f43",
-  "hull/metal": "8af6b69df2fe454a",
-  "hull/normal": "056274db320f8156",
-  "hull/rough": "3573745fb07b44ab",
-  "turret/color": "a178209fa4c47389",
-  "turret/metal": "c6fd8604a3ba0a4e",
-  "turret/normal": "41c29469d7e642d2",
-  "turret/rough": "03819f47e8922937"
+  "glb": "da3f88b9274c6f25",
+  "hull/color": "22c5c4159b15358b",
+  "hull/metal": "cae79a02d755e6fe",
+  "hull/normal": "30dbeb2353814d85",
+  "hull/rough": "ea4b04e6e93810d9",
+  "turret/color": "5ed278e9ff731452",
+  "turret/metal": "746b3d279ee84281",
+  "turret/normal": "93e5e2a126dac9f5",
+  "turret/rough": "4ef62c083db6e82b"
  },
- "meshes": {
-  "Barrel": "rbxassetid://83855194457148",
-  "Root": "rbxassetid://77043080579073",
-  "TrackL": "rbxassetid://101444784261083",
-  "TrackR": "rbxassetid://87531682185619",
-  "TurretBody": "rbxassetid://122615812360166"
- },
- "model": "90941646117725",
+ "model": "122670026974343",
  "textures": {
-  "gear": {
-   "color": "rbxassetid://131492832991577",
-   "metal": "rbxassetid://118483625566832",
-   "normal": "rbxassetid://107907503732443",
-   "rough": "rbxassetid://91554906021163"
-  },
   "hull": {
-   "color": "rbxassetid://78675760592714",
-   "metal": "rbxassetid://106528493326459",
-   "normal": "rbxassetid://119931279597032",
-   "rough": "rbxassetid://119193991457628"
+   "color": "rbxassetid://122440170865556",
+   "metal": "rbxassetid://87737019843596",
+   "normal": "rbxassetid://133440878353399",
+   "rough": "rbxassetid://86592420814889"
   },
   "turret": {
-   "color": "rbxassetid://136549059185415",
-   "metal": "rbxassetid://83083003854148",
-   "normal": "rbxassetid://119269136349706",
-   "rough": "rbxassetid://118777135853679"
+   "color": "rbxassetid://76528821677765",
+   "metal": "rbxassetid://119714753041699",
+   "normal": "rbxassetid://124038358332583",
+   "rough": "rbxassetid://123462964481108"
   }
  }
 }

@@ -39,10 +39,16 @@ function Dress.ground(model: Model)
 		return
 	end
 	local found = false
+	local count = 0
+	eachAttachment(model, "Headlight", function()
+		count += 1
+	end)
+	-- One attachment = a light bar; a pair = two round lamps (HS-3 tank).
+	local size = if count >= 2 then Vector3.new(0.45, 0.45, 0.12) else Vector3.new(1.2, 0.5, 0.25)
 	eachAttachment(model, "Headlight", function(a)
 		found = true
-		local lamp = lampAt(model, "Headlight", a.WorldCFrame, Vector3.new(1.2, 0.5, 0.25), Kit.LAMP)
-		Kit.spotlight(lamp, 70, 55, 1.8)
+		local lamp = lampAt(model, "Headlight", a.WorldCFrame, size, Kit.LAMP)
+		Kit.spotlight(lamp, 70, if count >= 2 then 45 else 55, if count >= 2 then 1.4 else 1.8)
 	end)
 	if found then
 		return

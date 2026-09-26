@@ -15,6 +15,8 @@ Steps (see docs/ASSET_PIPELINE.md):
        several assets; its output ({Name: meshes}) goes to
        python3 tools/assets/publish.py meshes <file-or-json>
   python3 tools/assets/publish.py rbxmx <Name>   regenerates the rbxmx only.
+Trim sheets (`manifest.kind == "trim"`, rmh/trim.py) upload their maps only;
+assets with `shared_textures` point those groups at the sheet's image ids.
 
 Requires ROBLOX_OPEN_CLOUD_KEY / ROBLOX_CREATOR_USER_ID in the environment
 (`set -a; . ./.env.local; set +a`). The key is never printed.
@@ -69,9 +71,15 @@ def save_ids(ids_path: Path, ids: dict) -> None:
 def upload(name: str) -> None:
     out, manifest, ids, ids_path = load(name)
     hashes = ids.setdefault("hashes", {})
+    trim_only = manifest.get("kind") == "trim"  # texture-only trim sheet (rmh/trim.py): no model
+    for shared in manifest.get("shared_textures", {}).values():
+        if not load(shared)[2].get("textures"):
+            print(f"note: shared trim sheet {shared} has no uploaded maps yet; run `publish.py upload {shared}` first")
     glb = out / f"{name}.glb"
-    h = sha(glb)
-    if hashes.get("glb") != h or not ids.get("model"):
+    h = sha(glb) if not trim_only else None
+    if trim_only:
+        pass
+    elif hashes.get("glb") != h or not ids.get("model"):
         res = opencloud.upload(str(glb), "Model", f"RMH_{name}")
         ids["model"] = res["assetId"]
         hashes["glb"] = h
@@ -102,6 +110,9 @@ def upload(name: str) -> None:
             hashes[key] = h
             print(f"uploaded {key}: {res['assetId']}")
     save_ids(ids_path, ids)
+    if trim_only:
+        print(f"trim sheet {name}: maps uploaded; assets using it pick the ids up in `publish.py rbxmx`")
+        return
     hdir = HERE / ".harvest"
     hdir.mkdir(exist_ok=True)
     snippet = hdir / f"{name}.luau"
@@ -168,10 +179,30 @@ def meshes_multi(source: str) -> None:
         meshes(name, json.dumps(data))
 
 
+def with_shared(manifest: dict, ids: dict) -> dict:
+    """ids with the maps of shared texture groups (trim sheets, HS-3)
+    resolved from the owning asset's roblox_ids.json."""
+    shared = manifest.get("shared_textures", {})
+    if not shared:
+        return ids
+    merged = dict(ids)
+    merged["textures"] = dict(ids.get("textures", {}))
+    for group, source in shared.items():
+        src = load(source)[2].get("textures", {})
+        maps = next(iter(src.values()), None) if len(src) == 1 else src.get("sheet")
+        if not maps:
+            raise SystemExit(f"{manifest['name']}: shared group {group} needs {source}'s maps: run `publish.py upload {source}`")
+        merged["textures"][group] = maps
+    return merged
+
+
 def write_rbxmx(name: str) -> None:
     _, manifest, ids, _ = load(name)
+    if manifest.get("kind") == "trim":
+        print(f"{name} is a trim sheet (textures only): no rbxmx")
+        return
     target = ROOT / "assets" / "roblox" / f"{name}.rbxmx"
-    target.write_text(rbxmx.build(manifest, ids))
+    target.write_text(rbxmx.build(manifest, with_shared(manifest, ids)))
     print(f"wrote {target.relative_to(ROOT)}")
 
 

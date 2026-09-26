@@ -1,0 +1,34 @@
+{
+ "name": "TrimEnemy",
+ "kind": "trim",
+ "primary": null,
+ "pivots": {},
+ "parts": [],
+ "attachments": [],
+ "markers": [],
+ "textures": {
+  "sheet": {
+   "color": "TrimEnemy_sheet_color.png",
+   "rough": "TrimEnemy_sheet_rough.png",
+   "metal": "TrimEnemy_sheet_metal.png",
+   "normal": "TrimEnemy_sheet_normal.png"
+  }
+ },
+ "texel_density": {
+  "track": 65.45,
+  "grille": 73.33,
+  "mesh": 70.0,
+  "bolted": 112.0,
+  "canvas": 62.86,
+  "cable": 64.0,
+  "plain": 48.0,
+  "red": 40.0
+ },
+ "template_density": 48.71,
+ "previews": [
+  "assets/previews/TrimEnemy.png",
+  "assets/previews/TrimEnemy_templates.png"
+ ],
+ "triangles": 0,
+ "meta": {}
+}

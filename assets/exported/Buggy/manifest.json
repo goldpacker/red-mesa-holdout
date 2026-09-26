@@ -28,7 +28,26 @@
     12.9472
    ],
    "tex": "body",
-   "tris": 2452,
+   "tris": 1714,
+   "material": "Metal",
+   "hitbox": true
+  },
+  {
+   "name": "BuggyKit",
+   "path": "",
+   "center": [
+    0.0,
+    5.65,
+    -0.3095
+   ],
+   "size": [
+    5.458,
+    7.8,
+    12.459
+   ],
+   "tex": "trim",
+   "tris": 2968,
+   "query": false,
    "material": "Metal"
   },
   {
@@ -44,9 +63,10 @@
     2.9,
     2.9011
    ],
-   "tex": "wheels",
-   "tris": 1204,
-   "material": "Plastic"
+   "tex": "trim",
+   "tris": 870,
+   "material": "Plastic",
+   "hitbox": true
   },
   {
    "name": "WheelFR",
@@ -61,9 +81,10 @@
     2.9,
     2.9011
    ],
-   "tex": "wheels",
-   "tris": 1204,
-   "material": "Plastic"
+   "tex": "trim",
+   "tris": 870,
+   "material": "Plastic",
+   "hitbox": true
   },
   {
    "name": "WheelRL",
@@ -78,9 +99,10 @@
     2.9,
     2.9011
    ],
-   "tex": "wheels",
-   "tris": 1204,
-   "material": "Plastic"
+   "tex": "trim",
+   "tris": 870,
+   "material": "Plastic",
+   "hitbox": true
   },
   {
    "name": "WheelRR",
@@ -95,9 +117,10 @@
     2.9,
     2.9011
    ],
-   "tex": "wheels",
-   "tris": 1204,
-   "material": "Plastic"
+   "tex": "trim",
+   "tris": 870,
+   "material": "Plastic",
+   "hitbox": true
   },
   {
    "name": "GunBody",
@@ -113,8 +136,9 @@
     5.4603
    ],
    "tex": "body",
-   "tris": 452,
-   "material": "Metal"
+   "tris": 246,
+   "material": "Metal",
+   "hitbox": true
   }
  ],
  "attachments": [
@@ -154,19 +178,21 @@
    "rough": "Buggy_body_rough.png",
    "metal": "Buggy_body_metal.png",
    "normal": "Buggy_body_normal.png"
-  },
-  "wheels": {
-   "color": "Buggy_wheels_color.png",
-   "rough": "Buggy_wheels_rough.png",
-   "metal": "Buggy_wheels_metal.png",
-   "normal": "Buggy_wheels_normal.png"
   }
+ },
+ "texel_density": {
+  "body": 36.1,
+  "trim": 55.9
  },
  "previews": [
   "assets/previews/Buggy.png",
   "assets/previews/Buggy_rear.png",
-  "assets/previews/Buggy_side.png"
+  "assets/previews/Buggy_side.png",
+  "assets/previews/Buggy_cam_player.png"
  ],
- "triangles": 7720,
- "meta": {}
+ "triangles": 8408,
+ "meta": {},
+ "shared_textures": {
+  "trim": "TrimEnemy"
+ }
 }

@@ -28,7 +28,44 @@
     26.6184
    ],
    "tex": "hull",
-   "tris": 3160,
+   "tris": 1558,
+   "material": "Metal",
+   "hitbox": true
+  },
+  {
+   "name": "Skirts",
+   "path": "",
+   "center": [
+    0.0,
+    3.2,
+    0.05
+   ],
+   "size": [
+    11.46,
+    2.3,
+    22.8
+   ],
+   "tex": "turret",
+   "tris": 680,
+   "query": false,
+   "material": "Metal"
+  },
+  {
+   "name": "HullKit",
+   "path": "",
+   "center": [
+    0.5325,
+    3.917,
+    1.1425
+   ],
+   "size": [
+    10.985,
+    2.6141,
+    24.935
+   ],
+   "tex": "trim",
+   "tris": 2468,
+   "query": false,
    "material": "Metal"
   },
   {
@@ -44,9 +81,10 @@
     3.49,
     23.2385
    ],
-   "tex": "gear",
-   "tris": 4232,
-   "material": "Metal"
+   "tex": "trim",
+   "tris": 3302,
+   "material": "Metal",
+   "hitbox": true
   },
   {
    "name": "TrackR",
@@ -61,9 +99,10 @@
     3.49,
     23.2385
    ],
-   "tex": "gear",
-   "tris": 4232,
-   "material": "Metal"
+   "tex": "trim",
+   "tris": 3302,
+   "material": "Metal",
+   "hitbox": true
   },
   {
    "name": "TurretBody",
@@ -79,8 +118,9 @@
     13.2422
    ],
    "tex": "turret",
-   "tris": 1552,
-   "material": "Metal"
+   "tris": 1254,
+   "material": "Metal",
+   "hitbox": true
   },
   {
    "name": "Barrel",
@@ -96,11 +136,58 @@
     12.55
    ],
    "tex": "turret",
-   "tris": 656,
+   "tris": 874,
+   "material": "Metal",
+   "hitbox": true
+  },
+  {
+   "name": "TurretKit",
+   "path": "Turret",
+   "center": [
+    0.0,
+    9.39,
+    1.0145
+   ],
+   "size": [
+    8.25,
+    7.52,
+    14.4689
+   ],
+   "tex": "trim",
+   "tris": 2568,
+   "query": false,
    "material": "Metal"
   }
  ],
  "attachments": [
+  {
+   "name": "Headlight",
+   "part": "Root",
+   "pos": [
+    -4.0,
+    4.2,
+    -11.05
+   ],
+   "axis": [
+    0.0,
+    -0.0995,
+    -0.995
+   ]
+  },
+  {
+   "name": "Headlight",
+   "part": "Root",
+   "pos": [
+    4.0,
+    4.2,
+    -11.05
+   ],
+   "axis": [
+    0.0,
+    -0.0995,
+    -0.995
+   ]
+  },
   {
    "name": "Muzzle",
    "part": "Barrel",
@@ -124,12 +211,6 @@
    "metal": "Tank_hull_metal.png",
    "normal": "Tank_hull_normal.png"
   },
-  "gear": {
-   "color": "Tank_gear_color.png",
-   "rough": "Tank_gear_rough.png",
-   "metal": "Tank_gear_metal.png",
-   "normal": "Tank_gear_normal.png"
-  },
   "turret": {
    "color": "Tank_turret_color.png",
    "rough": "Tank_turret_rough.png",
@@ -137,11 +218,21 @@
    "normal": "Tank_turret_normal.png"
   }
  },
+ "texel_density": {
+  "hull": 35.3,
+  "turret": 34.0,
+  "trim": 60.5
+ },
  "previews": [
   "assets/previews/Tank.png",
   "assets/previews/Tank_rear.png",
-  "assets/previews/Tank_side.png"
+  "assets/previews/Tank_side.png",
+  "assets/previews/Tank_close_front.png",
+  "assets/previews/Tank_cam_player.png"
  ],
- "triangles": 13832,
- "meta": {}
+ "triangles": 16006,
+ "meta": {},
+ "shared_textures": {
+  "trim": "TrimEnemy"
+ }
 }

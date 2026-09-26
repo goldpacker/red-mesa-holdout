@@ -155,6 +155,11 @@ def side_prism(profile_yz, width, bevel=0.06, segments=2):
         py, pz, d = v.co.x, v.co.y, v.co.z
         v.co = Vector((d, py, pz))
     del rot
+    # NOTE (HS-3): recalc_face_normals trusts the stored normals, which are
+    # stale after the remap, so this returns an inside-out shell. Kept as is
+    # so existing assets rebuild identically; assets that set
+    # `Asset.fix_inside_out = True` get every closed shell turned outward
+    # at build time (rmh.asset.fix_inside_out).
     bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
     return _bevel(bm, bevel, segments)
 
@@ -281,3 +286,48 @@ def blade(length, root_chord, tip_chord, thickness, sweep=0.0):
     """Flat aerofoil blade/fin from the origin along +X (chord along Y)."""
     pts = [(0.0, -root_chord / 2), (length, -tip_chord / 2 + sweep), (length, tip_chord / 2 + sweep), (0.0, root_chord / 2)]
     return prism(pts, thickness, bevel=min(thickness * 0.4, 0.04), segments=1)
+
+
+def tapered_prism(bottom, top, z0, z1, bevel=0.0, segments=1):
+    """Faceted solid between two plan polygons (same vertex count, CCW,
+    (x, y) points): `bottom` at z0, `top` at z1 (sloped armour, turrets)."""
+    bm = bmesh.new()
+    lo = [bm.verts.new((x, y, z0)) for x, y in bottom]
+    hi = [bm.verts.new((x, y, z1)) for x, y in top]
+    n = len(bottom)
+    bm.faces.new(list(reversed(lo)))
+    bm.faces.new(hi)
+    for i in range(n):
+        j = (i + 1) % n
+        bm.faces.new((lo[i], lo[j], hi[j], hi[i]))
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    return _bevel(bm, bevel, segments)
+
+
+def band_loop(profile, thickness, width, closed=True):
+    """A band of `thickness` (inward) and `width` (along X) that follows a
+    2D (y, z) `profile` (CCW seen from +X): tank tracks, straps round
+    things. Outer faces follow the profile."""
+    n = len(profile)
+    pts = [Vector((0.0, p[0], p[1])) for p in profile]
+    inner = []
+    for i in range(n):
+        a = pts[i - 1] if (closed or i > 0) else pts[i]
+        b = pts[(i + 1) % n] if (closed or i < n - 1) else pts[i]
+        t = (b - a).normalized()
+        nrm = Vector((0.0, -t.z, t.y))  # inward normal for a CCW loop in (y, z)
+        inner.append(pts[i] + nrm * thickness)
+    bm = bmesh.new()
+    rings = []
+    for x in (-width / 2, width / 2):
+        rings.append(([bm.verts.new((x, p.y, p.z)) for p in pts], [bm.verts.new((x, q.y, q.z)) for q in inner]))
+    (lo_o, lo_i), (hi_o, hi_i) = rings
+    segs = n if closed else n - 1
+    for i in range(segs):
+        j = (i + 1) % n
+        bm.faces.new((lo_o[i], lo_o[j], hi_o[j], hi_o[i]))  # outer
+        bm.faces.new((hi_i[i], hi_i[j], lo_i[j], lo_i[i]))  # inner
+        bm.faces.new((lo_i[i], lo_i[j], lo_o[j], lo_o[i]))  # side -X
+        bm.faces.new((hi_o[i], hi_o[j], hi_i[j], hi_i[i]))  # side +X
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    return bm

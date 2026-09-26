@@ -46,6 +46,7 @@ class G:
         self.nodes = self.nt.nodes
         self.links = self.nt.links
         self.x = -1600
+        self.periodic = None  # opt-in: U period (studs) along object X, for trim strips
 
     def node(self, kind, **props):
         n = self.nodes.new(kind)
@@ -80,7 +81,23 @@ class G:
         n = self.node("ShaderNodeTexCoord")
         if obj is not None:
             n.object = obj
+        if obj is None and self.periodic:
+            return self._periodic(n.outputs["Object"], self.periodic)
         return n.outputs["Object"]
+
+    def _periodic(self, co, period):
+        """Object coords wrapped so every pattern repeats exactly every
+        `period` studs along X (trim strips tile along U): X goes round a
+        circle of circumference `period`, Y and Z are summed into the third
+        axis (strips are thin, so nothing is lost)."""
+        xyz = self.sep(co)
+        theta = self.math("MULTIPLY", xyz[0], 2 * math.pi / period)
+        radius = period / (2 * math.pi)
+        n = self.node("ShaderNodeCombineXYZ")
+        self.link(self.math("MULTIPLY", self.math("COSINE", theta), radius), n.inputs[0])
+        self.link(self.math("MULTIPLY", self.math("SINE", theta), radius), n.inputs[1])
+        self.link(self.math("ADD", xyz[1], xyz[2]), n.inputs[2])
+        return n.outputs[0]
 
     def geometry(self):
         return self.node("ShaderNodeNewGeometry")
@@ -322,6 +339,11 @@ def _wear_layers(g, spec, co, color, rough, metal, height, edge, zmin):
     wear = spec.get("wear", 0.4)
     dust = spec.get("dust", 0.5)
     grime = spec.get("grime", 0.5)
+    if spec.get("edge_convex"):
+        # Opt-in (HS-3): curvature-driven wear only on convex edges; concave
+        # creases (occluded) keep their paint and collect grime instead.
+        cav = g.maprange(g.ao_cavity(spec.get("edge_convex_distance", 0.25)), 0.04, 0.3)
+        edge = g.math("MULTIPLY", edge, g.math("SUBTRACT", 1.0, cav))
     # Paint chips along edges plus a few scattered scratches.
     if wear > 0 and spec.get("chip_style") == "blotch":
         # Opt-in: irregular chip blotches concentrated on edges, scattered
@@ -361,10 +383,18 @@ def _wear_layers(g, spec, co, color, rough, metal, height, edge, zmin):
     if grime > 0:
         cav = g.maprange(g.ao_cavity(), 0.15, 0.7)
         streak_n = g.noise(g.mapping(co, scale=(6.0, 6.0, 0.35)), scale=3.0, detail=3.0)
-        streak = g.maprange(streak_n, 0.5, 0.8, 0.0, 0.5)
+        streak = g.maprange(streak_n, 0.5, 0.8, 0.0, spec.get("streaks", 0.5))
         gm = g.math("MULTIPLY", g.math("MAXIMUM", cav, streak), grime)
-        color = g.mix(g.math("MULTIPLY", gm, 0.75), color, rgb(GRIME))
+        color = g.mix(g.math("MULTIPLY", gm, 0.75), color, rgb(spec.get("grime_color", GRIME)))
         rough = g.math("ADD", rough, g.math("MULTIPLY", gm, 0.12), clamp=True)
+    if spec.get("polish"):
+        # Opt-in (HS-3): the sharpest convex edges rubbed to bright steel.
+        thin, _ = g.edge_mask(spec.get("polish_radius", 0.02))
+        pm = g.math("MULTIPLY", g.maprange(thin, 0.35, 0.9), spec["polish"])
+        pm = g.math("MULTIPLY", pm, g.maprange(g.noise(co, scale=7.0, detail=4.0), 0.35, 0.6, 0.3, 1.0))
+        color = g.mix(pm, color, rgb(spec.get("polish_color", "#8d8e8c")))
+        rough = g.mixf(pm, rough, 0.3)
+        metal = g.mixf(pm, metal, 1.0)
     # Dust: on upward faces and near the ground.
     if dust > 0:
         geo = g.geometry()
@@ -378,7 +408,98 @@ def _wear_layers(g, spec, co, color, rough, metal, height, edge, zmin):
         color = g.mix(dm, color, rgb(spec.get("dust_color", DUST)))
         rough = g.mixf(dm, rough, 0.93)
         metal = g.mixf(dm, metal, 0.0)
+    if spec.get("dust_cavity"):
+        # Opt-in (HS-3): dust packed into occluded gaps and corners (track
+        # shoes, grilles, tyre grooves) whatever way the surface faces.
+        cav = g.maprange(g.ao_cavity(spec.get("dust_cavity_distance", 0.3)), *spec.get("dust_cavity_range", (0.08, 0.45)))
+        dn2 = g.noise(co, scale=spec.get("dust_cavity_scale", 9.0), detail=6.0, rough=0.65)
+        m = g.math("MULTIPLY", g.math("MULTIPLY", cav, g.maprange(dn2, 0.3, 0.7, 0.45, 1.0)), spec["dust_cavity"])
+        color = g.mix(m, color, rgb(spec.get("dust_color", DUST)))
+        rough = g.mixf(m, rough, 0.95)
+        metal = g.mixf(m, metal, 0.0)
+        height = g.math("ADD", height, g.math("MULTIPLY", m, 0.2))
+    if spec.get("dust_caked") or spec.get("splash"):
+        color, rough, metal, height = _caked_dust(g, spec, co, color, rough, metal, height, zmin)
+    if spec.get("soot"):
+        color, rough, metal, height = _soot(g, spec, co, color, rough, metal, height)
+    if spec.get("rough_breakup"):
+        rough = _rough_breakup(g, spec, co, rough)
     return color, rough, metal, height
+
+
+def _caked_dust(g, spec, co, color, rough, metal, height, zmin):
+    """Opt-in (HS-3): opaque caked dust in a noisy band along the ground
+    (`dust_caked` strength, `caked_height` studs above zmin) and dirt
+    sprayed round each wheel (`splash=[{"center", "radius", "strength"}]`,
+    a shell from 0.95 to 1.9 wheel radii round the wheel centre)."""
+    z = g.sep(co)[2]
+    grain = g.noise(co, scale=spec.get("caked_scale", 5.0), detail=8.0, rough=0.7)
+    total = None
+    if spec.get("dust_caked"):
+        h = spec.get("caked_height", 0.9)
+        low = g.maprange(z, zmin, zmin + h, 1.0, 0.0)
+        edge = g.math("ADD", low, g.math("MULTIPLY", g.math("SUBTRACT", grain, 0.5), 0.9))
+        total = g.maprange(edge, 0.42, 0.52)
+        spots = g.maprange(g.noise(co, scale=16.0, detail=6.0, rough=0.7), 0.64, 0.68)
+        reach = g.maprange(z, zmin, zmin + h * 2.2, 1.0, 0.0)
+        total = g.math("MAXIMUM", total, g.math("MULTIPLY", spots, reach))
+        total = g.math("MULTIPLY", total, spec["dust_caked"])
+    for s in spec.get("splash", []):
+        cx, cy, cz = s["center"]
+        # Distance from the wheel centre (a wheel sprays what's around it).
+        d = g.vmath("LENGTH", g.vmath("SUBTRACT", co, (cx, cy, cz)))
+        r = s["radius"]
+        ring = g.math("MULTIPLY", g.maprange(d, r * 0.95, r * 1.15), g.maprange(d, r * 1.2, r * 1.9, 1.0, 0.0))
+        splat = g.maprange(g.math("ADD", grain, g.math("MULTIPLY", ring, 0.45)), 0.62, 0.7)
+        m = g.math("MULTIPLY", splat, s.get("strength", 0.8))
+        total = m if total is None else g.math("MAXIMUM", total, m)
+    color = g.mix(total, color, rgb(spec.get("caked_color", "#8f7658")))
+    rough = g.mixf(total, rough, 0.97)
+    metal = g.mixf(total, metal, 0.0)
+    height = g.math("ADD", height, g.math("MULTIPLY", g.math("MULTIPLY", total, grain), 0.6))
+    return color, rough, metal, height
+
+
+def _soot(g, spec, co, color, rough, metal, height):
+    """Opt-in (HS-3): soot deposits around exhausts and muzzles. Each source
+    `{"pos", "dir", "radius", "length", "spread", "strength"}` blackens a
+    noisy plume that starts at `pos` and widens along `dir`."""
+    total = None
+    breakup = g.noise(co, scale=spec.get("soot_scale", 3.5), detail=6.0, rough=0.65)
+    for s in spec["soot"]:
+        d = s.get("dir", (0.0, 0.0, 1.0))
+        n = math.sqrt(sum(c * c for c in d)) or 1.0
+        d = tuple(c / n for c in d)
+        r = s["radius"]
+        length = s.get("length", r * 3.0)
+        rel = g.vmath("SUBTRACT", co, tuple(s["pos"]))
+        along = g.vmath("DOT_PRODUCT", rel, d)
+        dist2 = g.math("POWER", g.vmath("LENGTH", rel), 2.0)
+        perp = g.math("SQRT", g.math("MAXIMUM", g.math("SUBTRACT", dist2, g.math("POWER", along, 2.0)), 0.0))
+        width = g.math("ADD", r, g.math("MULTIPLY", g.math("MAXIMUM", along, 0.0), s.get("spread", 0.35)))
+        across = g.maprange(g.math("DIVIDE", perp, width), 0.35, 1.0, 1.0, 0.0, smooth=True)
+        lengthwise = g.math("MULTIPLY", g.maprange(along, -r * 0.6, 0.0), g.maprange(along, length * 0.4, length, 1.0, 0.0, smooth=True))
+        m = g.math("MULTIPLY", across, lengthwise)
+        m = g.math("MULTIPLY", m, g.maprange(breakup, 0.2, 0.6, 0.45, 1.0))
+        m = g.math("MULTIPLY", m, s.get("strength", 0.9))
+        total = m if total is None else g.math("MAXIMUM", total, m)
+    color = g.mix(total, color, rgb(spec.get("soot_color", "#131110")))
+    rough = g.mixf(total, rough, 0.9)
+    metal = g.mixf(total, metal, 0.0)
+    return color, rough, metal, height
+
+
+def _rough_breakup(g, spec, co, rough):
+    """Opt-in (HS-3): roughness breakup — broad smudges, wiped patches and
+    fine directional scratches, so no surface reads as one flat sheen."""
+    amt = spec["rough_breakup"]
+    smudge = g.math("SUBTRACT", g.noise(co, scale=0.9, detail=5.0, rough=0.6), 0.5)
+    rough = g.math("ADD", rough, g.math("MULTIPLY", smudge, amt * 0.9))
+    wipe = g.maprange(g.noise(g.mapping(co, loc=(4.1, 9.3, 2.7)), scale=1.6, detail=3.0), 0.58, 0.7)
+    rough = g.math("SUBTRACT", rough, g.math("MULTIPLY", wipe, amt * 0.5))
+    scratch = g.noise(g.mapping(co, scale=(55.0, 1.5, 55.0)), scale=2.0, detail=2.0)
+    rough = g.math("SUBTRACT", rough, g.math("MULTIPLY", g.maprange(scratch, 0.66, 0.74), amt * 0.6), clamp=True)
+    return rough
 
 
 def _apply_marks(g, spec, co, color, decals):
@@ -388,6 +509,14 @@ def _apply_marks(g, spec, co, color, decals):
     if spec.get("decals", True):
         for d in decals:
             m, img_col = g.decal_mask(d)
+            if d.get("wear"):
+                # Opt-in (HS-3): the marking's own paint flakes off in chips
+                # and thins out, independent of the base coat's chips.
+                seed = d.get("seed", 1)
+                chips = g.noise(g.mapping(co, loc=(seed * 3.1, seed * 1.7, seed * 2.3)), scale=d.get("chip_scale", 7.0), detail=8.0, rough=0.72)
+                keep = g.maprange(chips, d["wear"] * 0.62, d["wear"] * 0.62 + 0.05)
+                thin = g.maprange(g.noise(co, scale=1.3, detail=3.0), 0.3, 0.7, 1.0 - d["wear"] * 0.45, 1.0)
+                m = g.math("MULTIPLY", m, g.math("MULTIPLY", keep, thin))
             if d.get("color") is not None:
                 color = g.mix(m, color, rgb(d["color"]))
             else:
@@ -413,6 +542,7 @@ def build(name, spec, decals=(), zmin=0.0):
     mat = bpy.data.materials.new(name)
     mat.use_nodes = True
     g = G(mat)
+    g.periodic = spec.get("periodic")
     kind = spec.get("kind", "paint")
     builder = KINDS[kind]
     builder(g, spec, list(decals), spec.get("zmin", zmin))

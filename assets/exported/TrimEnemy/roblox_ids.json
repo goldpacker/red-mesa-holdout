@@ -1,0 +1,16 @@
+{
+ "hashes": {
+  "sheet/color": "cfb4732038cc9365",
+  "sheet/metal": "f55764511f289d2d",
+  "sheet/normal": "e39744a72cfb5914",
+  "sheet/rough": "014a9de8b81b0912"
+ },
+ "textures": {
+  "sheet": {
+   "color": "rbxassetid://80918941971016",
+   "metal": "rbxassetid://125071944390812",
+   "normal": "rbxassetid://74832333808530",
+   "rough": "rbxassetid://90013858471420"
+  }
+ }
+}

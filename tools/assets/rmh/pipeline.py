@@ -57,13 +57,71 @@ def _select(objs):
     bpy.context.view_layer.objects.active = objs[0]
 
 
-def _unwrap(objs, margin):
+def _unwrap(objs, margin, down=None, back=None):
     _select(objs)
     bpy.ops.object.mode_set(mode="EDIT")
     bpy.ops.mesh.select_all(action="SELECT")
     bpy.ops.uv.smart_project(angle_limit=math.radians(52), island_margin=margin, area_weight=0.0, correct_aspect=True, scale_to_bounds=False)
+    weighted = down is not None or back is not None or any("rmh_texel" in o.data.attributes for o in objs)
+    if weighted:
+        bpy.ops.object.mode_set(mode="OBJECT")
+        for o in objs:
+            _weight_islands(o, down, back)
+        _select(objs)
+        bpy.ops.object.mode_set(mode="EDIT")
+        bpy.ops.mesh.select_all(action="SELECT")
     bpy.ops.uv.pack_islands(margin=margin, rotate=True)
     bpy.ops.object.mode_set(mode="OBJECT")
+
+
+def uv_islands(me):
+    """UV islands of a mesh as lists of polygon indices (read-only bmesh)."""
+    import bmesh
+    from bpy_extras import bmesh_utils
+
+    bm = bmesh.new()
+    bm.from_mesh(me)
+    bm.faces.ensure_lookup_table()
+    uv = bm.loops.layers.uv.active
+    out = [[f.index for f in island] for island in bmesh_utils.bmesh_linked_uv_islands(bm, uv)]
+    bm.free()
+    return out
+
+
+def _weight_islands(obj, down, back=None):
+    """Opt-in texel weighting (HS-3): each face gets a weight — its
+    `rmh_texel` value (Part.add(texel=...)), times `down` if it faces the
+    ground, or `back` if it faces the model's rear. Within every UV island
+    the faces of each weight are scaled about their own centre by it (which
+    splits them off into their own island), before packing, so the freed
+    space goes to the surfaces people see. UVs are edited in place (no
+    bmesh round trip, so custom normals stay untouched)."""
+    me = obj.data
+    uvd = me.uv_layers.active.data
+    attr = me.attributes.get("rmh_texel")
+
+    def weight(pl):
+        fw = attr.data[pl.index].value if attr is not None else 0.0
+        w = fw if fw > 0 else 1.0
+        if down is not None and pl.normal.z < -0.6:
+            w *= down
+        elif back is not None and pl.normal.y < -0.6:
+            w *= back
+        return round(w, 3)
+
+    for island in uv_islands(me):
+        groups = {}
+        for i in island:
+            pl = me.polygons[i]
+            groups.setdefault(weight(pl), []).append(pl)
+        for w, polys in groups.items():
+            if abs(w - 1.0) < 1e-3:
+                continue
+            idx = [i for pl in polys for i in pl.loop_indices]
+            cu = sum(uvd[i].uv.x for i in idx) / len(idx)
+            cv = sum(uvd[i].uv.y for i in idx) / len(idx)
+            for i in idx:
+                uvd[i].uv = (cu + (uvd[i].uv.x - cu) * w, cv + (uvd[i].uv.y - cv) * w)
 
 
 def _new_image(name, size, channel):
@@ -84,7 +142,7 @@ def _group_materials(objs):
     return seen
 
 
-def _bake_channel(objs, mats, img, channel, sources=None):
+def _bake_channel(objs, mats, img, channel, sources=None, cage=0.06, ray=0.4):
     """Bake `channel` into `img` on `objs` (materials `mats`). With
     `sources` (high-poly objects) the bake is selected-to-active: the
     channel is read from the sources' materials and written to the single
@@ -124,8 +182,8 @@ def _bake_channel(objs, mats, img, channel, sources=None):
         _select(list(sources) + list(objs))
         bpy.context.view_layer.objects.active = objs[0]
         bake.use_selected_to_active = True
-        bake.cage_extrusion = 0.06
-        bake.max_ray_distance = 0.4
+        bake.cage_extrusion = cage
+        bake.max_ray_distance = ray
     else:
         _select(objs)
         bake.use_selected_to_active = False
@@ -301,16 +359,25 @@ def _bake_sheet(asset, group, size, out_dir, channels):
     return imgs, files, density
 
 
-def texel_density(objs, size):
-    """Average texture density in px/stud over the objects' UV'd surface."""
+def texel_density(objs, size, skip_down=False, skip_back=False):
+    """Average texture density in px/stud over the objects' UV'd surface.
+    Faces given less texture on purpose (Part.add(texel=...) < 1) are left
+    out, so the number is what the visible surfaces get."""
     a3 = auv = 0.0
     for o in objs:
         me = o.data
         if not me.uv_layers:
             continue
         uv = me.uv_layers.active.data
+        weights = me.attributes.get("rmh_texel")
         sx, sy, sz = o.matrix_world.to_scale()
         for poly in me.polygons:
+            if weights is not None and 0.0 < weights.data[poly.index].value < 0.999:
+                continue
+            if skip_down and poly.normal.z < -0.6:
+                continue
+            if skip_back and poly.normal.y < -0.6:
+                continue
             a3 += poly.area * abs(sx * sy * sz) ** (2.0 / 3.0)
             pts = [uv[i].uv for i in poly.loop_indices]
             auv += abs(sum(pts[k].x * pts[(k + 1) % len(pts)].y - pts[(k + 1) % len(pts)].x * pts[k].y for k in range(len(pts)))) / 2
@@ -329,13 +396,26 @@ def bake_groups(asset, out_dir, samples):
         size = asset.tex_size.get(group, asset.tex_size["main"])
         opts = asset.group_opts.get(group, {})
         channels = [ch for ch in CHANNELS if ch != "metal" or opts.get("metal", True)]
+        if opts.get("shared"):
+            # Trim sheet owned by another asset: UVs come from the parts,
+            # the maps are the source's (loaded for previews only).
+            log(f"shared group {group} -> {opts['shared']} ({len(objs)} parts)")
+            textures[group] = {"files": {}, "images": opts["images"], "objects": objs,
+                               "density": texel_density(objs, size), "shared": opts["shared"]}
+            continue
+        if opts.get("high"):
+            log(f"bake group {group} from high poly ({len(objs)} parts, {size}px)")
+            _unwrap(objs, margin=6.0 / size, down=opts.get("down"), back=opts.get("back"))
+            imgs, files = _bake_high(asset, group, objs, size, out_dir, channels, opts["high"])
+            textures[group] = {"files": files, "images": imgs, "objects": objs, "density": texel_density(objs, size, opts.get("down") is not None, opts.get("back") is not None)}
+            continue
         if opts.get("sheet"):
             log(f"bake sheet {group} ({len(objs)} parts, {size}px)")
             imgs, files, density = _bake_sheet(asset, group, size, out_dir, channels)
             textures[group] = {"files": files, "images": imgs, "objects": objs, "density": density}
             continue
         log(f"unwrap group {group} ({len(objs)} parts, {size}px)")
-        _unwrap(objs, margin=6.0 / size)
+        _unwrap(objs, margin=6.0 / size, down=opts.get("down"), back=opts.get("back"))
         mats = _group_materials(objs)
         imgs = {}
         files = {}
@@ -348,8 +428,53 @@ def bake_groups(asset, out_dir, samples):
             imgs[ch] = img
             files[ch] = path.name
             log(f"  baked {ch} in {time.time() - t0:.1f}s")
-        textures[group] = {"files": files, "images": imgs, "objects": objs, "density": texel_density(objs, size)}
+        textures[group] = {"files": files, "images": imgs, "objects": objs, "density": texel_density(objs, size, opts.get("down") is not None, opts.get("back") is not None)}
     return textures
+
+
+_RAY_VIS = ("visible_camera", "visible_diffuse", "visible_glossy", "visible_transmission", "visible_volume_scatter", "visible_shadow")
+
+
+def _bake_high(asset, group, objs, size, out_dir, channels, opts):
+    """Selected-to-active bake of a group from its parts' high-poly copies
+    (Part.add rounds every hard edge; Part.detail adds bolts, welds, slats).
+    The game meshes are hidden from rays meanwhile, so AO grime and edge
+    wear are computed on the high-poly surface only."""
+    highs = [bpy.data.objects[o["rmh_high"]] for o in objs if o.get("rmh_high")]
+    if not highs:
+        raise ValueError(f"group {group} is declared high but has no high-poly parts")
+    target = _join_copies(objs, f"BAKE_{group}")
+    target.data.materials.clear()
+    tm = bpy.data.materials.new(f"BakeTarget_{group}")
+    tm.use_nodes = True
+    target.data.materials.append(tm)
+    hidden = objs + [target]
+    saved = [(o, [getattr(o, k) for k in _RAY_VIS]) for o in hidden]
+    for o in hidden:
+        for k in _RAY_VIS:
+            setattr(o, k, False)
+    for h in highs:
+        h.hide_render = False
+    imgs, files = {}, {}
+    try:
+        for ch in channels:
+            t0 = time.time()
+            img = _new_image(f"{asset.name}_{group}_{ch}", size, ch)
+            _bake_channel([target], [tm], img, ch, sources=highs, cage=opts.get("cage", 0.1), ray=opts.get("ray", 0.3))
+            path = out_dir / f"{asset.name}_{group}_{ch}.png"
+            _save_png(img, path, grayscale=ch in ("rough", "metal"))
+            imgs[ch] = img
+            files[ch] = path.name
+            log(f"  baked {ch} in {time.time() - t0:.1f}s (high poly, {sum(len(h.data.polygons) for h in highs)} faces)")
+    finally:
+        for o, vals in saved:
+            if o.name in bpy.data.objects:
+                for k, v in zip(_RAY_VIS, vals):
+                    setattr(o, k, v)
+        bpy.data.objects.remove(target, do_unlink=True)
+        for h in highs:
+            bpy.data.objects.remove(h, do_unlink=True)
+    return imgs, files
 
 
 def _bounds(objs):
@@ -499,7 +624,7 @@ def write_manifest(asset, out_dir, textures, previews):
             "tex": None if (o.get("rmh_neon") is not None or o.get("rmh_invisible")) else o["rmh_tex"],
             "tris": sum(len(p.vertices) - 2 for p in o.data.polygons),
         }
-        for key in ("query", "collide", "neon", "material", "transparency", "shadow", "invisible", "pivot_offset", "fidelity"):
+        for key in ("query", "collide", "neon", "material", "transparency", "shadow", "invisible", "pivot_offset", "fidelity", "hitbox"):
             if o.get("rmh_" + key) is not None:
                 v = o["rmh_" + key]
                 entry[key] = list(v) if hasattr(v, "__len__") and not isinstance(v, str) else v
@@ -517,12 +642,15 @@ def write_manifest(asset, out_dir, textures, previews):
         "parts": parts,
         "attachments": [{"name": a["name"], "part": a["part"], "pos": rb(a["pos"]), "axis": axis(a["axis"])} for a in asset.attachments],
         "markers": [{"name": m["name"], "path": m["path"], "pos": rb(m["pos"]), "size": rb_size(Vector(m["size"])), "axis": axis(m["axis"])} for m in asset.markers],
-        "textures": {g: t["files"] for g, t in textures.items()},
+        "textures": {g: t["files"] for g, t in textures.items() if not t.get("shared")},
         "texel_density": {g: t.get("density") for g, t in textures.items()},
         "previews": previews,
         "triangles": sum(p["tris"] for p in parts),
         "meta": asset.meta,
     }
+    shared = {g: t["shared"] for g, t in textures.items() if t.get("shared")}
+    if shared:
+        manifest["shared_textures"] = shared
     with open(out_dir / "manifest.json", "w") as fh:
         json.dump(manifest, fh, indent=1)
     return manifest
@@ -538,6 +666,8 @@ def finish(asset, samples=24, preview_samples=96, views=None, preview=True):
         prepare_templates(asset)
     asset.build_objects()
     textures = bake_groups(asset, out_dir, samples)
+    for o in [o for o in bpy.data.objects if o.name.startswith("HP_")]:
+        bpy.data.objects.remove(o, do_unlink=True)  # high-poly sources of skipped groups
     bpy.context.preferences.filepaths.save_version = 0
     bpy.ops.wm.save_as_mainfile(filepath=str(ROOT / "assets" / "blender" / f"{asset.name}.blend"), compress=True, relative_remap=True)
     for group, t in textures.items():
