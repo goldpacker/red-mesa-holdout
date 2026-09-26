@@ -19,6 +19,7 @@ local Workspace = game:GetService("Workspace")
 
 local Flipbooks = require(ReplicatedStorage.Shared.Flipbooks)
 local Effects = require(script.Parent.Effects)
+local Lod = require(script.Parent.EffectsLod)
 
 local Particles = {}
 
@@ -149,6 +150,16 @@ end
 
 local scorches: { BasePart } = {}
 local scorchTex = Flipbooks.texture("ScorchMark")
+local SCORCH_RETIRE = 1.5 -- s: an evicted mark fades out instead of popping
+
+-- Fades a mark out over `seconds` and removes it.
+local function retireScorch(p: BasePart, seconds: number)
+	local decal = p:FindFirstChildOfClass("Decal")
+	if decal then
+		TweenService:Create(decal, TweenInfo.new(seconds, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Transparency = 1 }):Play()
+	end
+	Debris:AddItem(p, seconds + 0.1)
+end
 
 -- A burn mark on the terrain under `position` (skipped on steep or missing
 -- ground). The oldest mark goes when MAX_SCORCH is reached.
@@ -160,10 +171,12 @@ function Particles.scorch(position: Vector3, size: number)
 	if not hit or hit.Normal.Y < 0.55 then
 		return
 	end
+	-- At the cap the oldest mark (usually already fading) fades out over
+	-- SCORCH_RETIRE s instead of vanishing.
 	while #scorches >= MAX_SCORCH do
 		local old = table.remove(scorches, 1)
 		if old then
-			old:Destroy()
+			retireScorch(old, SCORCH_RETIRE)
 		end
 	end
 	local p = Instance.new("Part")
@@ -185,6 +198,7 @@ function Particles.scorch(position: Vector3, size: number)
 	decal.Parent = p
 	p.Parent = Effects.folder()
 	table.insert(scorches, p)
+	-- Fades from 14 s to 24 s (still counted against the cap while fading).
 	task.delay(14, function()
 		if p.Parent then
 			TweenService:Create(decal, TweenInfo.new(10, Enum.EasingStyle.Linear), { Transparency = 1 }):Play()
@@ -230,6 +244,7 @@ local function smokeColumn(a: Attachment, s: number, n: number, linger: number, 
 	emit(smoke, n)
 	if smoke and linger > 0 then
 		smoke.Rate = 1.2 * s + 0.6
+		Lod.track(smoke)
 		smoke.Enabled = true
 		task.delay(linger, function()
 			smoke.Enabled = false
@@ -412,6 +427,8 @@ function Particles.burn(part: BasePart, scale: number, offset: Vector3?, smokeOn
 			Brightness = 1.4 * Effects.exposure(),
 		})
 		if fire then
+			-- The flames' base line is placed by their size: LOD the rate only.
+			Lod.track(fire, nil, true)
 			fire.Enabled = true
 		end
 		local light = Instance.new("PointLight")
@@ -441,6 +458,7 @@ function Particles.burn(part: BasePart, scale: number, offset: Vector3?, smokeOn
 		Acceleration = WIND + Vector3.new(0, 0.8, 0),
 	})
 	if smoke then
+		Lod.track(smoke)
 		smoke.Enabled = true
 	end
 end
@@ -477,6 +495,7 @@ function Particles.trail(part: BasePart, scale: number): { ParticleEmitter }
 	})
 	for _, e in { smoke, fire } do
 		if e then
+			Lod.track(e, nil, e == fire)
 			e.Enabled = true
 			table.insert(out, e)
 		end

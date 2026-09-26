@@ -1,0 +1,431 @@
+--!strict
+-- Motion dust (VFX-3): wheel dust behind buggies, track dust behind tanks
+-- and the Siege Crawler (rate from speed), rotor downwash under low
+-- helicopters and the jet's wake over the basin floor on low passes. Dust
+-- takes the colour of the ground it's over (sand, road, wash, rock).
+--
+-- Sources are the vehicles' contract parts and attachments
+-- (docs/ASSET_CONTRACTS.md): Buggy WheelRL/WheelRR, Tank and SiegeCrawler
+-- TrackL/TrackR, Helicopter MainRotor, Jet Exhaust. The emitters sit on
+-- world attachments that follow those children every frame; the model root
+-- is never moved (Look's EnemyMotion owns root smoothing), so rebuilt
+-- meshes with the same names pick the dust up unchanged.
+--
+-- LOD: client/EffectsLod (fewer, larger particles far away, none beyond a
+-- per-kind cutoff) plus a global cap of MAX_RATE particles/s.
+-- Studio QA: Workspace attribute FxDustOff = true stops new dust (A/B);
+-- FxDustRate / FxDustSources publish the live totals.
+
+local Debris = game:GetService("Debris")
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+
+local Effects = require(script.Parent.Effects)
+local Lod = require(script.Parent.EffectsLod)
+
+local Dust = {}
+
+local UP = Vector3.yAxis
+local TICK = 0.2 -- s between ground probes and rate updates per source
+local MAX_RATE = 420 -- particles/s over all motion dust, after LOD
+local SPEED_TAU = 0.3 -- s: smooths the replicated (stepped) motion
+local MIN_SPEED = 1.5 -- studs/s: parked vehicles raise nothing
+
+local seq = Effects.seq
+local WIND = Effects.WIND
+-- DustPuff's last frames thin into a ring: fade them out before that shows.
+local FADE = seq(0.5, 0.6, 0.8, 1)
+
+-- Dust tint by the ground under the source. Lit particles, so these sit a
+-- little darker than the ground they match on screen (see Effects).
+local TINT: { [string]: Color3 } = {
+	Sand = Color3.fromRGB(214, 160, 110),
+	Road = Color3.fromRGB(150, 116, 88),
+	Wash = Color3.fromRGB(200, 178, 146),
+	Rock = Effects.ROCK_DUST,
+}
+local SURFACE: { [Enum.Material]: string } = {
+	[Enum.Material.Ground] = "Road",
+	[Enum.Material.Salt] = "Wash",
+}
+
+type Mode = "wheel" | "track" | "rotor" | "wake"
+type Spec = {
+	mode: Mode,
+	sources: { { string } }, -- per source: contract names, first found wins
+	rate: number, -- particles/s per source at full strength, close up
+	cutoff: number, -- zoom-corrected camera distance with no dust beyond
+	scale: number, -- particle size
+	refSpeed: number?, -- wheel/track: speed for full strength (studs/s)
+	low: number?, -- rotor/wake: full strength at or below this height (studs)
+	high: number?, -- rotor/wake: none at or above this height
+}
+
+local SPECS: { [string]: Spec } = {
+	Buggy = { mode = "wheel", sources = { { "WheelRL" }, { "WheelRR" } }, rate = 16, cutoff = 1500, scale = 1, refSpeed = 40 },
+	Tank = { mode = "track", sources = { { "TrackL" }, { "TrackR" } }, rate = 8, cutoff = 1800, scale = 1, refSpeed = 10 },
+	SiegeCrawler = { mode = "track", sources = { { "TrackL" }, { "TrackR" } }, rate = 7, cutoff = 2600, scale = 2.1, refSpeed = 5 },
+	-- Hover heights are ~100-160 studs over the basin: a faint ring at the
+	-- top of that window, a full one when a helicopter comes down low.
+	Helicopter = { mode = "rotor", sources = { { "MainRotor", "Root" } }, rate = 18, cutoff = 2200, scale = 1, low = 50, high = 170 },
+	-- Jets run ~200-220 studs over the basin floor (~57 over the canyon rims).
+	Jet = { mode = "wake", sources = { { "Exhaust", "Root" } }, rate = 42, cutoff = 2800, scale = 1, low = 150, high = 270 },
+}
+Dust.SPECS = SPECS
+
+type Emitter = { e: ParticleEmitter, rate: number, size: NumberSequence }
+type Source = {
+	inst: Instance,
+	att: Attachment,
+	emitters: { Emitter },
+	last: Vector3?,
+	vel: Vector3,
+	ground: RaycastResult?,
+	color: Color3,
+	target: Color3,
+	strength: number,
+	rateK: number,
+	sizeK: number,
+	desired: number,
+}
+type Rig = { model: Model, spec: Spec, sources: { Source }, due: number }
+
+local rigs: { [Model]: Rig } = {}
+local capK = 1
+
+local groundParams = RaycastParams.new()
+groundParams.FilterType = Enum.RaycastFilterType.Include
+
+local function probe(p: Vector3, depth: number): RaycastResult?
+	groundParams.FilterDescendantsInstances = { Workspace.Terrain }
+	return Workspace:Raycast(p + UP * 2, -UP * (depth + 2), groundParams)
+end
+
+local function tintOf(hit: RaycastResult?): Color3
+	if not hit then
+		return TINT.Sand
+	end
+	if Effects.isRocky(hit) then
+		return TINT.Rock
+	end
+	return TINT[SURFACE[hit.Material] or "Sand"]
+end
+
+local function positionOf(inst: Instance): Vector3?
+	if inst:IsA("Attachment") then
+		return inst.WorldPosition
+	elseif inst:IsA("BasePart") then
+		return inst.Position
+	end
+	return nil
+end
+
+---------------------------------------------------------------------------
+-- Emitters per mode
+---------------------------------------------------------------------------
+
+local function add(list: { Emitter }, e: ParticleEmitter?, rateShare: number)
+	if e then
+		e.Enabled = true
+		table.insert(list, { e = e, rate = rateShare, size = e.Size })
+	end
+end
+
+local function build(att: Attachment, spec: Spec): { Emitter }
+	local s = spec.scale
+	local list: { Emitter } = {}
+	local emitter = Effects.emitter
+	if spec.mode == "wheel" then
+		-- A billowing plume rolling off the tyre, and a denser, short-lived
+		-- spray thrown back right at the tyre.
+		add(list, emitter(att, "DustPuff", 0, {
+			Name = "WheelDust",
+			Size = seq(2.2 * s, 7.5 * s, 12 * s),
+			Transparency = FADE,
+			Lifetime = NumberRange.new(1.6, 2.6),
+			Speed = NumberRange.new(3, 7),
+			SpreadAngle = Vector2.new(25, 25),
+			Drag = 1.6,
+			Acceleration = WIND * 0.6 + Vector3.new(0, 1, 0),
+		}), 1)
+		add(list, emitter(att, "DustPuff", 0, {
+			Name = "WheelSpray",
+			Size = seq(1.2 * s, 3.5 * s, 5 * s),
+			Transparency = seq(0.35, 0.5, 0.75, 1),
+			Lifetime = NumberRange.new(0.5, 0.8),
+			Speed = NumberRange.new(8, 13),
+			SpreadAngle = Vector2.new(20, 20),
+			Drag = 3,
+			Acceleration = Vector3.new(0, -8, 0),
+		}), 0.6)
+	elseif spec.mode == "track" then
+		add(list, emitter(att, "DustPuff", 0, {
+			Name = "TrackDust",
+			Size = seq(3.5 * s, 11 * s, 17 * s),
+			Transparency = FADE,
+			Lifetime = NumberRange.new(2.4, 3.4),
+			Speed = NumberRange.new(1.5 * s, 4 * s),
+			SpreadAngle = Vector2.new(35, 20),
+			Drag = 1,
+			Acceleration = WIND * 0.6 + Vector3.new(0, 0.5, 0),
+		}), 1)
+	elseif spec.mode == "rotor" then
+		-- Downwash: dust blown out flat in every direction from under the hub
+		-- (EmissionDirection Front + a full yaw spread), and a flat ring.
+		add(list, emitter(att, "DustPuff", 0, {
+			Name = "Downwash",
+			Size = seq(6 * s, 16 * s, 24 * s),
+			Transparency = FADE,
+			Lifetime = NumberRange.new(2, 2.8),
+			Speed = NumberRange.new(40, 55), -- ~40 studs out (1 rotor diameter)
+			EmissionDirection = Enum.NormalId.Front,
+			SpreadAngle = Vector2.new(8, 180), -- Y sweeps the yaw (checked in Studio)
+			Drag = 1.2,
+			Acceleration = WIND * 0.3 + Vector3.new(0, 1.5, 0),
+		}), 1)
+		add(list, emitter(att, "ShockwaveRing", 0, {
+			Name = "DownwashRing",
+			Size = seq(30 * s, 90 * s),
+			Transparency = seq(0.55, 1),
+			Lifetime = NumberRange.new(1.2, 1.5),
+			Orientation = Enum.ParticleOrientation.VelocityPerpendicular,
+			EmissionDirection = Enum.NormalId.Top,
+			Speed = NumberRange.new(0.05),
+			SpreadAngle = Vector2.zero,
+			LightEmission = 0,
+			LightInfluence = 1,
+		}), 0.08)
+	else
+		-- Jet wake: a sheet of dust swept up along the ground track.
+		add(list, emitter(att, "DustPuff", 0, {
+			Name = "JetWake",
+			Size = seq(8 * s, 24 * s, 36 * s),
+			Transparency = FADE,
+			Lifetime = NumberRange.new(2.6, 3.8),
+			Speed = NumberRange.new(8, 16),
+			SpreadAngle = Vector2.new(50, 50),
+			Drag = 1.4,
+			Acceleration = WIND + Vector3.new(0, 1.2, 0),
+		}), 1)
+	end
+	for _, em in list do
+		em.e.Rate = 0
+		em.e.Color = ColorSequence.new(TINT.Sand)
+	end
+	return list
+end
+
+---------------------------------------------------------------------------
+-- Rigs
+---------------------------------------------------------------------------
+
+local function find(model: Model, names: { string }): Instance?
+	for _, name in names do
+		local inst = model:FindFirstChild(name, true)
+		if inst and (inst:IsA("BasePart") or inst:IsA("Attachment")) then
+			return inst
+		end
+	end
+	return nil
+end
+
+-- Starts dust for an enemy vehicle model (Kind attribute = `kind`).
+function Dust.add(model: Model, kind: string)
+	local spec = SPECS[kind]
+	if not spec or rigs[model] then
+		return
+	end
+	local sources: { Source } = {}
+	for _, names in spec.sources do
+		local inst = find(model, names)
+		if inst then
+			local att = Instance.new("Attachment")
+			att.Name = "MotionDust"
+			att.Parent = Workspace.Terrain
+			table.insert(sources, {
+				inst = inst,
+				att = att,
+				emitters = build(att, spec),
+				last = nil,
+				vel = Vector3.zero,
+				ground = nil,
+				color = TINT.Sand,
+				target = TINT.Sand,
+				strength = 0,
+				rateK = 1,
+				sizeK = 1,
+				desired = 0,
+			})
+		end
+	end
+	if #sources > 0 then
+		rigs[model] = { model = model, spec = spec, sources = sources, due = 0 }
+	end
+end
+
+-- Stops a vehicle's dust; what's in the air fades out on its own.
+function Dust.remove(model: Model)
+	local rig = rigs[model]
+	if not rig then
+		return
+	end
+	rigs[model] = nil
+	for _, src in rig.sources do
+		for _, em in src.emitters do
+			em.e.Enabled = false
+		end
+		Debris:AddItem(src.att, 6)
+	end
+end
+
+---------------------------------------------------------------------------
+-- Per frame: follow the source; per tick: ground, strength, LOD, rate
+---------------------------------------------------------------------------
+
+-- Where the dust starts and which way it's thrown, for this frame.
+local function place(spec: Spec, src: Source, p: Vector3)
+	local flat = Vector3.new(src.vel.X, 0, src.vel.Z)
+	local back = if flat.Magnitude > 0.5 then -flat.Unit else Vector3.zero
+	if spec.mode == "wheel" then
+		local inst = src.inst
+		local radius = if inst:IsA("BasePart") then inst.Size.Y * 0.5 else 1.5
+		local contact = p - UP * radius
+		src.att.CFrame = Effects.upFrame(contact + UP * 0.8, UP + back * 0.6)
+	elseif spec.mode == "track" then
+		local inst = src.inst
+		local contact = p
+		if inst:IsA("BasePart") then
+			-- Rear bottom of the track (model forward is -Z).
+			contact = inst.CFrame:PointToWorldSpace(Vector3.new(0, -inst.Size.Y * 0.5, inst.Size.Z * 0.5))
+		end
+		src.att.CFrame = Effects.upFrame(contact + UP * spec.scale, UP * 0.6 + back)
+	else
+		local ground = src.ground
+		if ground then
+			local g = Vector3.new(p.X, ground.Position.Y, p.Z)
+			src.att.CFrame = if spec.mode == "rotor" then CFrame.new(g + UP * 1.5) else Effects.upFrame(g + UP * 2, UP + back * 0.4)
+		end
+	end
+end
+
+local function strengthOf(spec: Spec, src: Source, p: Vector3): number
+	if spec.mode == "wheel" or spec.mode == "track" then
+		local speed = Vector3.new(src.vel.X, 0, src.vel.Z).Magnitude
+		local ref = spec.refSpeed or 10
+		-- Not on the ground (thrown, airborne): nothing.
+		if not src.ground or p.Y - src.ground.Position.Y > 12 * spec.scale then
+			return 0
+		end
+		return math.clamp((speed - MIN_SPEED) / (ref - MIN_SPEED), 0, 1.25)
+	end
+	local ground = src.ground
+	if not ground then
+		return 0
+	end
+	local h = p.Y - ground.Position.Y
+	local low, high = spec.low or 40, spec.high or 120
+	local t = math.clamp((high - h) / (high - low), 0, 1)
+	return t * t * (3 - 2 * t)
+end
+
+local function tick(rig: Rig, dustOff: boolean)
+	local spec = rig.spec
+	for _, src in rig.sources do
+		local p = positionOf(src.inst)
+		if not p then
+			src.desired = 0
+			continue
+		end
+		if spec.mode == "wheel" or spec.mode == "track" then
+			src.ground = probe(p, 16 * spec.scale)
+		end
+		src.target = tintOf(src.ground)
+		src.strength = if dustOff then 0 else strengthOf(spec, src, p)
+		local rateK, sizeK = Lod.factor(src.att.WorldPosition, spec.cutoff)
+		src.rateK = rateK
+		src.desired = spec.rate * src.strength * rateK
+		if math.abs(sizeK - src.sizeK) > 0.04 then
+			src.sizeK = sizeK
+			for _, em in src.emitters do
+				em.e.Size = Lod.scaleSeq(em.size, sizeK)
+			end
+		end
+		local c = src.color:Lerp(src.target, 0.35)
+		if math.abs(c.R - src.color.R) + math.abs(c.G - src.color.G) + math.abs(c.B - src.color.B) > 0.004 then
+			src.color = c
+			local cs = ColorSequence.new(c)
+			for _, em in src.emitters do
+				em.e.Color = cs
+			end
+		end
+		for _, em in src.emitters do
+			em.e.Rate = src.desired * em.rate * capK
+		end
+	end
+end
+
+local function step(dt: number)
+	if dt <= 0 then
+		return
+	end
+	local now = os.clock()
+	local alpha = 1 - math.exp(-dt / SPEED_TAU)
+	local dustOff = Workspace:GetAttribute("FxDustOff") == true
+	for model, rig in rigs do
+		if not model.Parent then
+			Dust.remove(model)
+			continue
+		end
+		local spec = rig.spec
+		local airborne = spec.mode == "rotor" or spec.mode == "wake"
+		for _, src in rig.sources do
+			local p = positionOf(src.inst)
+			if p then
+				if src.last then
+					src.vel = src.vel:Lerp((p - (src.last :: Vector3)) / dt, alpha)
+				end
+				src.last = p
+				if airborne then
+					-- The ground under an aircraft changes fast (a jet covers 50
+					-- studs a tick): probe it every frame.
+					src.ground = probe(p, (spec.high or 200) + 20)
+				end
+				place(spec, src, p)
+			end
+		end
+		if now >= rig.due then
+			rig.due = now + TICK
+			tick(rig, dustOff)
+		end
+	end
+end
+
+-- Global cap over all dust sources (on top of the per-source LOD).
+local function recap()
+	local total, count = 0, 0
+	for _, rig in rigs do
+		for _, src in rig.sources do
+			for _, em in src.emitters do
+				total += src.desired * em.rate
+			end
+			count += 1
+		end
+	end
+	capK = if total > MAX_RATE then MAX_RATE / total else 1
+	if RunService:IsStudio() then
+		Workspace:SetAttribute("FxDustRate", math.round(total * capK))
+		Workspace:SetAttribute("FxDustSources", count)
+	end
+end
+
+function Dust.start()
+	RunService:BindToRenderStep("VehicleFxDust", Enum.RenderPriority.Last.Value, step)
+	task.spawn(function()
+		while true do
+			task.wait(0.5)
+			recap()
+		end
+	end)
+end
+
+return Dust

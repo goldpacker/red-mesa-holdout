@@ -116,6 +116,7 @@ end
 -- Fixed free camera (look-dev boards); H.boardEnd() gives it back.
 function H.board(camAt, lookAt, fov)
 	local camera = Workspace.CurrentCamera
+	H.boardEnd() -- one binding at a time (no duplicate-name warning)
 	game:GetService("RunService"):BindToRenderStep("FxBoard", Enum.RenderPriority.Last.Value + 20, function()
 		camera.CFrame = CFrame.lookAt(camAt, lookAt)
 		camera.FieldOfView = fov or 50
@@ -123,7 +124,57 @@ function H.board(camAt, lookAt, fov)
 end
 
 function H.boardEnd()
-	game:GetService("RunService"):UnbindFromRenderStep("FxBoard")
+	pcall(function()
+		game:GetService("RunService"):UnbindFromRenderStep("FxBoard")
+	end)
+end
+
+-- Chase camera (VFX-3 motion dust): camera at the model's pivot + `offset`
+-- (world space), looking at the pivot + `look`. H.boardEnd() releases it.
+function H.follow(model, offset, fov, look)
+	local camera = Workspace.CurrentCamera
+	H.boardEnd() -- one binding at a time (no duplicate-name warning)
+	game:GetService("RunService"):BindToRenderStep("FxBoard", Enum.RenderPriority.Last.Value + 20, function()
+		if model.Parent then
+			local c = model:GetPivot().Position
+			camera.CFrame = CFrame.lookAt(c + offset, c + (look or Vector3.zero))
+		end
+		camera.FieldOfView = fov or 50
+	end)
+end
+
+-- Live particle estimate: continuous emitters (Rate x mean lifetime) plus
+-- client/EffectsLod's one-shot count; motion dust totals from
+-- client/VehicleFxDust (Studio attributes).
+function H.particles()
+	local cont, on = 0, 0
+	for _, d in Workspace:GetDescendants() do
+		if d:IsA("ParticleEmitter") and d.Enabled and d.Rate > 0 then
+			on += 1
+			cont += d.Rate * (d.Lifetime.Min + d.Lifetime.Max) * 0.5
+		end
+	end
+	local one = Workspace:GetAttribute("FxOneShotLive") or 0
+	return cont + one, cont, one, on, Workspace:GetAttribute("FxDustRate") or 0, Workspace:GetAttribute("FxDustSources") or 0
+end
+
+-- Samples H.particles() every 0.5 s for `seconds`; returns a summary line.
+function H.sample(seconds)
+	local n, sum, peak, sumCont, sumOne, sumDust, peakOn = 0, 0, 0, 0, 0, 0, 0
+	local t0 = os.clock()
+	while os.clock() - t0 < seconds do
+		local total, cont, one, on, dust = H.particles()
+		n += 1
+		sum += total
+		sumCont += cont
+		sumOne += one
+		sumDust += dust
+		peak = math.max(peak, total)
+		peakOn = math.max(peakOn, on)
+		task.wait(0.5)
+	end
+	return string.format("particles avg %.0f peak %.0f (continuous %.0f, one-shot %.0f; emitters on peak %d); dust %.0f/s avg; LOD %s",
+		sum / n, peak, sumCont / n, sumOne / n, peakOn, sumDust / n, if Workspace:GetAttribute("FxLodOff") then "OFF" else "on")
 end
 
 -- Raycast from the pivot along yaw/pitch: what the MG would hit.

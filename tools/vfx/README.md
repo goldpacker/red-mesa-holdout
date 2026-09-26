@@ -150,3 +150,32 @@ and `ServerStorage.FxHarnessServer` (enemy fire through the real
 with `RedMesaDebug:Invoke("beauty", {shot = 2, tod = ...})`, trigger, then
 `H.freeze()` (particle `TimeScale` 0 + `FxFreeze`) to hold a phase for
 `screen_capture`. Captures: `qa/beauty/vfx-2/`.
+
+## Motion dust and particle LOD (VFX-3)
+
+| Module | What |
+|---|---|
+| `src/client/VehicleFxDust.luau` | motion dust: buggy wheel dust (plume + sand-spurt rooster tail), tank and Siege Crawler track dust (rate from speed), helicopter rotor downwash (radial billows + flat ring, by height above ground), jet wake over the basin floor (by height); tinted by the terrain under each source (sand, road, wash, rock) |
+| `src/client/EffectsLod.luau` | distance LOD shared by every effect module: `factor` (continuous rate/size multipliers with a cutoff), `count` (one-shot bursts, was `Effects.lod`), `track` (keeps fires, smoke columns and trails on their LOD) |
+
+- **Sources** are the contract names in `docs/ASSET_CONTRACTS.md`: Buggy
+  `WheelRL`/`WheelRR`, Tank and SiegeCrawler `TrackL`/`TrackR` (rear bottom
+  of the part), Helicopter `MainRotor` (hub), Jet `Exhaust`. The emitters
+  sit on world attachments that follow those children each frame; the model
+  root is never moved, so rebuilt meshes (HS) and client root smoothing
+  (Look's `EnemyMotion`) are picked up unchanged. Tuning: `SPECS` at the
+  top of `VehicleFxDust.luau` (rate, reference speed, height window, cutoff,
+  size).
+- **LOD:** distances are zoom-corrected (FOV 32 in the gunsight). Inside
+  250 studs full detail; out to each effect's cutoff the rate falls to 20 %
+  while particles grow up to 2x (~1/sqrt(rate), so a cloud keeps its
+  coverage); beyond the cutoff nothing new is emitted. Motion dust also has
+  a global cap (`MAX_RATE` particles/s).
+- **Studio switches** (Workspace attributes): `FxLodOff = true` disables
+  LOD (perf A/B), `FxDustOff = true` stops motion dust (before/after
+  captures). Published in Studio: `FxOneShotLive` (live one-shot particle
+  estimate), `FxDustRate`, `FxDustSources`.
+- **Harness:** `H.follow(model, offset, fov, look)` chase camera for moving
+  vehicles; `H.particles()` / `H.sample(seconds)` live particle estimate
+  (continuous emitters' Rate x mean lifetime + the one-shot estimate).
+  Captures: `qa/beauty/vfx-3/`.

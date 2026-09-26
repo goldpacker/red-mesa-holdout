@@ -40,6 +40,17 @@ local function buildBackblast(): { [string]: ParticleEmitter? }
 			Drag = 3,
 			Acceleration = Vector3.new(0, 2, 0),
 		}),
+		-- Exhaust gas and dust billowing up behind the pod: what the turret
+		-- camera (above and behind the gun) sees of the backblast.
+		billow = slot("DustPuff", 0.6, {
+			Color = ColorSequence.new(Color3.fromRGB(206, 190, 166)),
+			Transparency = seq(0.35, 0.5, 0.75, 1),
+			Lifetime = NumberRange.new(1.1, 1.6),
+			Speed = NumberRange.new(7, 11),
+			SpreadAngle = Vector2.new(30, 30),
+			Drag = 3,
+			Acceleration = Effects.WIND * 0.5 + Vector3.new(0, 3, 0),
+		}),
 		-- Backblast dust thrown back and down into the pit, rolling out low.
 		dust = slot("DustPuff", 0.7, {
 			Color = ColorSequence.new(Effects.DUST),
@@ -80,6 +91,14 @@ function Particles.backblast(position: Vector3, dir: Vector3, bright: boolean)
 	back = if back.Magnitude > 1e-3 then back.Unit else Vector3.zAxis
 	local rear = Config.TURRET_PIVOT + back * 3 + Vector3.new(0, -3.5, 0)
 	emitAt(e.dust, upFrame(rear, (back - Vector3.new(0, 1.2, 0)).Unit), if bright then 2 else 4)
+	-- The billow leaves the back of the tubes (~3.6 studs behind the mouth)
+	-- rising and rolling outward, away from the gun, so it stays in the
+	-- bottom corner of the turret view and off the aim point.
+	local right = d:Cross(Vector3.yAxis)
+	right = if right.Magnitude > 1e-3 then right.Unit else Vector3.xAxis
+	local side = if right:Dot(position - Config.TURRET_PIVOT) >= 0 then right else -right
+	local tail = position - d * 3.8
+	emitAt(e.billow, upFrame(tail, (Vector3.yAxis * 0.9 + back * 0.5 + side * 0.45).Unit), if bright then 2 else 3)
 	Effects.placeLight(r.light, mouth)
 	Effects.pulse(r.light, if bright then Color3.fromRGB(255, 236, 206) else Color3.fromRGB(255, 176, 96), 2.6 * k, 0.12)
 end

@@ -6,6 +6,8 @@
 --
 -- VFX-2: every particle comes from the custom flipbooks through
 -- VehicleFxParticles / Effects (no built-in textures, no ball parts).
+-- VFX-3: motion dust (wheels, tracks, rotor downwash, jet wake) in
+-- VehicleFxDust.
 --
 -- Driven entirely by replicated state: models in Workspace.Enemies (Kind +
 -- State attributes, "<Name>Motor" Motor6Ds from EnemyTypes/Common/Rig) and
@@ -18,6 +20,7 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Config = require(ReplicatedStorage.Shared.Config)
+local Dust = require(script.Parent.VehicleFxDust)
 local Particles = require(script.Parent.VehicleFxParticles)
 local Sfx = require(script.Parent.Sfx)
 
@@ -150,6 +153,7 @@ local function register(model: Model)
 		end
 	end
 	vehicles[model] = v
+	Dust.add(model, kind)
 	-- Socket fires appear on the boss when a weak point is destroyed.
 	model.DescendantAdded:Connect(function(d)
 		if d:IsA("BasePart") and d:GetAttribute("Burning") then
@@ -159,6 +163,7 @@ local function register(model: Model)
 end
 
 local function unregister(model: Model)
+	Dust.remove(model)
 	local v = vehicles[model]
 	if v then
 		stopLoop(v)
@@ -414,6 +419,7 @@ end
 
 function VehicleFx.start()
 	Particles.startFlicker()
+	Dust.start()
 	local enemies = Workspace:WaitForChild("Enemies")
 	local wrecks = Workspace:WaitForChild("Wrecks")
 	for _, child in enemies:GetChildren() do

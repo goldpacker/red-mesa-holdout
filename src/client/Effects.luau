@@ -1,17 +1,12 @@
 --!strict
 -- Client combat effects (VFX-2): the building blocks every effect module
--- uses, and the gunfire effects.
---   * emitters show the custom flipbooks in shared/Flipbooks (never a
---     built-in particle texture: a missing texture means no emitter);
---   * pooled "rigs" (an Attachment + emitters moved to each shot and
---     re-emitted) for frequent effects, and pooled Beam tracers;
---   * our machine-gun muzzle flash, bullet impacts chosen by the surface
---     the raycast hit (sand, rock, metal, soldier), enemy muzzle flashes,
---     rifle shots and grenades.
--- Explosions, debris, scorch and fires: VehicleFxParticles (required lazily,
--- it requires this module). Cap: MAX_LIVE tracers; LOD by camera distance.
--- Studio QA: Workspace attribute FxFreeze pauses tracer/debris motion so a
--- capture can hold a frame (tools/vfx/qa).
+-- uses (emitters on the custom flipbooks in shared/Flipbooks, never a
+-- built-in texture; pooled "rigs" and Beam tracers), and the gunfire
+-- effects: our MG muzzle flash, bullet impacts by the surface the raycast
+-- hit (sand, rock, metal, soldier), enemy muzzle flashes, rifles, grenades.
+-- Explosions, debris, scorch, fires: VehicleFxParticles (required lazily).
+-- Cap: MAX_LIVE tracers; distance LOD in EffectsLod. Studio QA: Workspace
+-- attribute FxFreeze pauses tracers/debris for captures (tools/vfx/qa).
 
 local Debris = game:GetService("Debris")
 local Lighting = game:GetService("Lighting")
@@ -22,6 +17,7 @@ local Workspace = game:GetService("Workspace")
 
 local Config = require(ReplicatedStorage.Shared.Config)
 local Flipbooks = require(ReplicatedStorage.Shared.Flipbooks)
+local Lod = require(script.Parent.EffectsLod)
 
 local Effects = {}
 
@@ -33,6 +29,7 @@ local WIND = Vector3.new(2.6, 0, 1.1) -- smoke drift (studs/s^2), same way every
 local AMBER = Color3.fromRGB(255, 178, 36) -- art bible: our tracer amber
 local RED = Color3.fromRGB(255, 74, 58) -- enemy tracer red
 local FIRE_LIGHT = Color3.fromRGB(255, 150, 70)
+local FLASH_WARM = Color3.fromRGB(255, 196, 128) -- our MG flash tint at night
 local SMOKE = Color3.fromRGB(74, 68, 61)
 -- Sunlight multiplies lit particles up, so these sit darker than the ochre
 -- floor they should match on screen (checked side by side in Studio).
@@ -53,8 +50,7 @@ Effects.WIND = WIND
 
 local live = 0
 
--- VehicleFxParticles (explosions, fires) requires this module, so it is
--- required on first use instead of at load.
+-- VehicleFxParticles requires this module: required on first use.
 local blastModule: any = nil
 local function blasts(): any
 	if not blastModule then
@@ -122,13 +118,7 @@ function Effects.camDistance(p: Vector3): number
 	return (Workspace.CurrentCamera.CFrame.Position - p).Magnitude
 end
 local camDistance = Effects.camDistance
-
--- Particle count after distance level of detail.
-function Effects.lod(n: number, p: Vector3): number
-	local d = camDistance(p)
-	local k = if d < 300 then 1 elseif d < 650 then 0.7 else 0.45
-	return math.max(1, math.round(n * k))
-end
+Effects.lod = Lod.count -- one-shot particle count after distance LOD
 
 -- A ParticleEmitter showing flipbook `name` (suggested look from Flipbooks,
 -- sizes x `scale`), then `props`. nil if the texture isn't available.
@@ -153,6 +143,7 @@ local emitter = Effects.emitter
 local function emit(e: ParticleEmitter?, n: number)
 	if e and n > 0 then
 		e:Emit(n)
+		Lod.note(e, n)
 	end
 end
 Effects.emit = emit
@@ -244,6 +235,7 @@ function Effects.emitAt(e: ParticleEmitter?, cf: CFrame, n: number)
 	if e and n > 0 and att and att:IsA("Attachment") then
 		att.CFrame = cf
 		e:Emit(n)
+		Lod.note(e, n)
 	end
 end
 local emitAt = Effects.emitAt
@@ -540,9 +532,8 @@ function Effects.tracer(from: Vector3, to: Vector3, color: Color3?, width: numbe
 end
 
 ---------------------------------------------------------------------------
--- Machine-gun muzzle flash (ours): side flash along the barrel, a star
--- facing the camera, a wisp of gun smoke and a small, toned-down light
--- held ~2 studs in front of the muzzle so the sandbags don't blow out.
+-- Our MG muzzle flash: side flash, camera-facing star, a wisp of smoke and
+-- a toned-down light ~2 studs ahead so the sandbags don't blow out.
 ---------------------------------------------------------------------------
 
 local shotCount = 0
@@ -572,11 +563,16 @@ function Effects.muzzleFlash(position: Vector3, direction: Vector3)
 	local sighted = camDistance(position) < 8
 	if not sighted then
 		local side, front = r.e.side, r.e.front
+		-- Warmer as the bloom threshold drops: a white core reads cold
+		-- under the blue night grade.
+		local tint = ColorSequence.new(Color3.new(1, 1, 1):Lerp(FLASH_WARM, math.clamp((1 - k) / 0.45, 0, 1)))
 		if side then
 			side.Brightness = 1.1 * k
+			side.Color = tint
 		end
 		if front then
 			front.Brightness = 0.9 * k
+			front.Color = tint
 		end
 		emitAt(side, upFrame(position + dir * 0.85, dir), 1)
 		emitAt(front, upFrame(position + dir * 0.35, dir), 1)
@@ -663,6 +659,10 @@ function Effects.impact(position: Vector3, onEnemy: boolean, from: Vector3?, sur
 	elseif kind == "Soldier" then
 		emitAt(e.cloth, at, 1)
 	elseif kind == "Rock" then
+		-- Landscape meshes sit up to ~1 stud proud of the terrain the ray
+		-- hits (they aren't queryable): start the chips in front of them.
+		local toShooter = (from or PIVOT) - position
+		at = if toShooter.Magnitude > 2 then CFrame.new(position + toShooter.Unit * 1.4) else at
 		emitAt(e.chips, at, 1)
 		emitAt(e.rockDust, at, 1)
 	else
