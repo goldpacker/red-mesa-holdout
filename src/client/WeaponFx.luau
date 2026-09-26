@@ -21,6 +21,7 @@ local Flipbooks = require(ReplicatedStorage.Shared.Flipbooks)
 local AimController = require(script.Parent.AimController)
 local Blasts = require(script.Parent.VehicleFxParticles)
 local Effects = require(script.Parent.Effects)
+local Surface = require(script.Parent.EffectsSurface)
 local GameState = require(script.Parent.GameState)
 local Particles = require(script.Parent.WeaponFxParticles)
 local Sfx = require(script.Parent.Sfx)
@@ -40,6 +41,7 @@ type Visual = {
 	targetLast: Vector3?,
 	targetVel: Vector3,
 	exploded: Vector3?, -- where it visibly detonated locally
+	onRock: boolean?, -- ...on a landscape mesh face, in front of the server's terrain hit
 	done: boolean,
 	confirmed: boolean,
 }
@@ -264,6 +266,13 @@ local function advance(v: Visual, dt: number)
 	else
 		local delta = v.dir * v.speed * dt
 		local result = Workspace:Raycast(oldPos, delta, rayParams)
+		-- Landscape meshes are visual only (the terrain behind them takes the
+		-- ray): blow up on the rock face the player sees.
+		local rock = Surface.hit(oldPos, oldPos + delta)
+		if rock and (not result or (rock.Position - oldPos).Magnitude < (result.Position - oldPos).Magnitude) then
+			result = rock
+			v.onRock = true
+		end
 		if result then
 			v.pos = result.Position
 			v.exploded = result.Position
@@ -349,7 +358,10 @@ local function onProjectileEnd(p: any)
 		return
 	end
 	local already = v and v.exploded
-	if not already or (already - p.position).Magnitude > 25 then
+	-- A rocket that burst on a landscape face locally: the server's hit is on
+	-- the terrain behind that rock, so don't blow up again inside it.
+	local behindRock = v ~= nil and v.onRock == true and already ~= nil and (already - p.position).Magnitude < 160
+	if not behindRock and (not already or (already - p.position).Magnitude > 25) then
 		local fake: Visual = v or ({ kind = p.kind } :: any)
 		explodeAt(fake, p.position, p.air == true)
 	end

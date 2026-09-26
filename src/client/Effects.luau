@@ -18,6 +18,7 @@ local Workspace = game:GetService("Workspace")
 local Config = require(ReplicatedStorage.Shared.Config)
 local Flipbooks = require(ReplicatedStorage.Shared.Flipbooks)
 local Lod = require(script.Parent.EffectsLod)
+local Surface = require(script.Parent.EffectsSurface)
 
 local Effects = {}
 
@@ -100,10 +101,9 @@ function Effects.frozen(): boolean
 end
 local frozen = Effects.frozen
 
--- Emissive brightness scale for the current time of day. LightingRig's
--- per-preset bloom threshold drops from 2.4 (afternoon) to 0.95 (night)
--- so fire, flares and muzzle flashes bloom in the dark; this keeps them
--- from ballooning into white halos, and compensates any exposure boost.
+-- Emissive brightness scale for the time of day: LightingRig's bloom
+-- threshold drops from 2.4 (afternoon) to 0.95 (night); this keeps fire and
+-- flashes from ballooning into white halos, and offsets exposure boosts.
 local bloom: BloomEffect? = nil
 function Effects.exposure(): number
 	if not (bloom and bloom.Parent) then
@@ -178,10 +178,9 @@ function Effects.flash(parent: Instance, color: Color3, range: number, brightnes
 	return light
 end
 
--- Pooled rigs: emitters on their own world Attachments (in Terrain), built
--- once and moved to each use. Roblox spawns an Emit()'s particles where the
--- emitter is at its next particle update, so one emitter serves one
--- position per frame: each key keeps a ring of `count` copies.
+-- Pooled rigs: emitters on world Attachments, built once, moved to each use.
+-- An Emit() spawns where the emitter is at its next particle update, so one
+-- emitter serves one position per frame: a ring of `count` copies per key.
 type Rig = { e: { [string]: ParticleEmitter? }, light: PointLight? }
 type RigSet = { list: { Rig }, turn: number }
 local rigSets: { [string]: RigSet } = {}
@@ -314,10 +313,9 @@ function Effects.surfaceOf(result: RaycastResult?): string
 	local material = result.Material
 	if METAL[material] then
 		return "Metal"
-	elseif ROCKY[material] then
-		return "Rock"
 	end
-	return "Sand"
+	-- Rock, or terrain too steep to hold sand (wall feet under landscape meshes).
+	return if ROCKY[material] or (inst == Workspace.Terrain and result.Normal.Y < 0.6) then "Rock" else "Sand"
 end
 
 local groundParams = RaycastParams.new()
@@ -642,6 +640,9 @@ function Effects.impact(position: Vector3, onEnemy: boolean, from: Vector3?, sur
 		if onEnemy and kind == "Sand" then
 			kind = "Metal"
 		end
+		-- Landscape meshes stand in front of the terrain the ray hit.
+		local rock = if onEnemy then nil else Surface.hit(from or PIVOT, position)
+		position, kind = if rock then rock.Position else position, if rock then "Rock" else kind
 	end
 	local r = rig("Impact", buildImpactRig, nil, 6)
 	local e = r.e
@@ -659,8 +660,7 @@ function Effects.impact(position: Vector3, onEnemy: boolean, from: Vector3?, sur
 	elseif kind == "Soldier" then
 		emitAt(e.cloth, at, 1)
 	elseif kind == "Rock" then
-		-- Landscape meshes sit up to ~1 stud proud of the terrain the ray
-		-- hits (they aren't queryable): start the chips in front of them.
+		-- Start the chips just in front of the surface.
 		local toShooter = (from or PIVOT) - position
 		at = if toShooter.Magnitude > 2 then CFrame.new(position + toShooter.Unit * 1.4) else at
 		emitAt(e.chips, at, 1)

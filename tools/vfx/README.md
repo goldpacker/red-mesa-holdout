@@ -156,6 +156,7 @@ with `RedMesaDebug:Invoke("beauty", {shot = 2, tod = ...})`, trigger, then
 | Module | What |
 |---|---|
 | `src/client/VehicleFxDust.luau` | motion dust: buggy wheel dust (plume + sand-spurt rooster tail), tank and Siege Crawler track dust (rate from speed), helicopter rotor downwash (radial billows + flat ring, by height above ground), jet wake over the basin floor (by height); tinted by the terrain under each source (sand, road, wash, rock) |
+| `src/client/EffectsSurface.luau` | visible landscape surfaces for effects: the landscape meshes are `CanQuery = false`, so rays hit the terrain 30–125 studs behind the rock you see; `hit(from, to)` makes only the meshes whose boxes the segment crosses queryable for one synchronous raycast (gameplay and aim rays never see it). MG impacts (rock chips) and our rocket blasts land on the rock face |
 | `src/client/EffectsLod.luau` | distance LOD shared by every effect module: `factor` (continuous rate/size multipliers with a cutoff), `count` (one-shot bursts, was `Effects.lod`), `track` (keeps fires, smoke columns and trails on their LOD) |
 
 - **Sources** are the contract names in `docs/ASSET_CONTRACTS.md`: Buggy
