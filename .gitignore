@@ -3,3 +3,5 @@ logs/rojo-serve.log
 .studio-lock/
 .venv-audio/
 assets/audio/*.wav
+.blender-lock/
+assets/source/cc0/
