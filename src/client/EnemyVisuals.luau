@@ -1,9 +1,13 @@
 --!strict
 -- Procedural limb animation for infantry, driven by the server-set "State"
 -- attribute. Motor6D.Transform is local-only, so this costs no bandwidth.
+-- Also starts VehicleFx (vehicle animation and destruction effects).
 
+local Lighting = game:GetService("Lighting")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
+
+local VehicleFx = require(script.Parent.VehicleFx)
 
 local EnemyVisuals = {}
 
@@ -70,7 +74,42 @@ local function animate(model: Model, rig: Rig, t: number)
 	end
 end
 
+local function isNight(): boolean
+	local t = Lighting.ClockTime
+	return t >= 18.3 or t < 6
+end
+
+-- Helmet lamps keep soldiers readable at dusk and night.
+local function setLamp(model: Model, on: boolean)
+	local lamp = model:FindFirstChild("HelmetLamp")
+	if lamp and lamp:IsA("BasePart") and (lamp.Transparency < 0.5) ~= on then
+		lamp.Transparency = if on then 0 else 1
+		local light = lamp:FindFirstChildWhichIsA("PointLight")
+		if light then
+			light.Enabled = on
+		end
+	end
+end
+
 function EnemyVisuals.start()
+	VehicleFx.start()
+	local lampClock = 0
+	RunService.Heartbeat:Connect(function(dt)
+		lampClock -= dt
+		if lampClock > 0 then
+			return
+		end
+		lampClock = 0.5
+		local night = isNight()
+		local folder = Workspace:FindFirstChild("Enemies")
+		if folder then
+			for _, model in folder:GetChildren() do
+				if model:IsA("Model") and model.Name == "Infantry" then
+					setLamp(model, night and model:GetAttribute("State") ~= "Dead")
+				end
+			end
+		end
+	end)
 	local enemies = Workspace:WaitForChild("Enemies")
 	enemies.ChildRemoved:Connect(function(child)
 		rigs[child :: Model] = nil
