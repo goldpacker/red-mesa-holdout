@@ -14,6 +14,14 @@ Whip + whip links Whip2..Whip4, pivot at its base), Static/CamoNet (part
 Net, pivot at the ridge), MachineGun part Belt and the hidden templates
 BeltRound / EjectCase.
 
+Turret gun assembly (HS-4, models/emplacement_turret.py): chamfered,
+stiffened shield plates on hinged wings, a vision block, a U-channel
+cradle with bearing housings, mounting arms and an elevation sector,
+detailed machine gun (feed tray, ejection port, reflex sight, jacket
+holes), rocket pod (clamp bands, rear nozzles, umbilical) and missile
+launcher (channel beam, rails, finned electronics), all baked from high
+polys; contract boxes and HS-2 motion geometry unchanged.
+
 Hero pass (HS-1): cloth-simulated sandbag variants shared through a sheet
 texture group, burlap/concrete/painted-steel detail from CC0 photo
 sources (tools/assets/cc0.py), stencils, a draped camo net, water cans,
@@ -25,6 +33,7 @@ import random
 import bmesh
 from mathutils import Matrix, Vector
 
+from models import emplacement_turret
 from rmh import cloth, geo, images
 from rmh.asset import Asset
 
@@ -206,7 +215,7 @@ def bunker(a):
     for i in range(10):
         w.add(geo.cylinder(0.05, 1.4, verts=6, bevel=0.0), "ladder_p", at=(0, -13.75, FLOOR - 7.2 + i * 0.75), rot=(0, 90, 0))
 
-    d = a.part("Drifts", path="Static", tex="outer", query=False, material="Sand")
+    d = a.part("Drifts", path="Static", tex="outer", query=False, material="Sand", keep_normals=True)
     for i in range(10):
         deg = 180 + GAP_DEG + 8 + i * (360 - 2 * GAP_DEG - 16) / 9
         x, y, _ = polar(10.6, deg)
@@ -504,175 +513,25 @@ def bmesh_to_mesh(bm):
 
 
 # --- turret -------------------------------------------------------------------
-
-def turret_yaw(a):
-    a.material("seat", kind="fabric", color="#3b3a2c", rough=0.8, wrinkle=0.3, dust=0.4)
-    y = a.part("Mount", path="TurretYaw", tex="turret", query=False, material="Metal")
-    y.add(geo.cylinder(1.35, 0.45, verts=32, bevel=0.06), "olive_dark_p", at=(0, 0, -2.85))
-    for i in range(12):
-        ang = 2 * math.pi * i / 12
-        y.add(geo.cylinder(0.07, 0.1, verts=6, bevel=0.0), "steel_dark_p", at=(1.2 * math.cos(ang), 1.2 * math.sin(ang), -2.58))
-    plate = [(-1.35, -3.9), (1.35, -3.9), (1.6, -1.2), (1.6, 1.4), (-1.6, 1.4), (-1.6, -1.2)]
-    y.add(geo.prism(plate, 0.18, bevel=0.05), "olive_p", at=(0, 0, -2.5))
-    for sx in (-1, 1):
-        prof = [(-1.3, -2.45), (1.3, -2.45), (0.75, 0.1), (0.35, 0.55), (-0.35, 0.55), (-0.85, 0.1)]
-        y.add(geo.side_prism(prof, 0.18, bevel=0.05), "olive_p", at=(sx * 1.3, 0, 0))
-        y.add(geo.cylinder(0.48, 0.34, verts=20, bevel=0.05), "olive_dark_p", at=(sx * 1.47, 0, 0), rot=(0, 90, 0))
-        y.add(geo.cylinder(0.2, 0.1, verts=12, bevel=0.02), "handle", at=(sx * 1.68, 0, 0), rot=(0, 90, 0))
-        y.add(geo.box(0.1, 0.18, 2.2, bevel=0.03), "olive_dark_p", at=(sx * 1.43, -0.1, -1.3), rot=(12, 0, 0))
-    # Gunner seat on a post behind the gun, with a footrest bar.
-    y.add(geo.cylinder(0.14, 1.0, verts=10), "steel_dark_p", at=(0, -3.2, -1.95))
-    y.add(geo.box(1.25, 1.0, 0.22, bevel=0.08), "olive_dark_p", at=(0, -3.1, -1.4))
-    y.add(geo.box(1.1, 0.9, 0.16, bevel=0.07), "seat", at=(0, -3.1, -1.21))
-    y.add(geo.box(1.1, 0.16, 1.05, bevel=0.07), "seat", at=(0, -3.62, -0.62), rot=(-12, 0, 0))
-    y.add(geo.box(1.2, 0.1, 1.1, bevel=0.04), "olive_dark_p", at=(0, -3.72, -0.64), rot=(-12, 0, 0))
-    y.add(geo.pipe_path([(-0.8, -2.1, -2.35), (-0.8, -1.8, -2.05), (0.8, -1.8, -2.05), (0.8, -2.1, -2.35)], 0.06, verts=6), "handle")
-    # Traverse handwheel housing on the right plate (bare steel from use).
-    y.add(geo.box(0.35, 0.6, 0.6, bevel=0.05), "olive_dark_p", at=(1.6, -0.9, -1.5))
-    y.add(geo.torus(0.35, 0.04, verts=16, ring_verts=6), "handle", at=(1.82, -0.9, -1.5), rot=(0, 90, 0))
-    y.add(geo.cylinder(0.04, 0.22, verts=6), "handle", at=(1.92, -0.62, -1.5), rot=(0, 90, 0))
-
-
-def turret_gun(a, smalls):
-    # Parkerized (matte phosphate) finish: mostly diffuse, so it keeps its
-    # form at night instead of mirroring the dark sky.
-    a.material("receiver", base="steel_dark", color="#3f3f3a", metal=0.55, rough=0.62, dust=0.4, grime=0.4,
-               photo={"id": "green_metal_rust", "scale": 2.4, "rough": 0.6, "height": 0.4})
-    a.material("grip", base="rubber", color="#1c1a16")
-    a.material("pod", base="olive_p", wear=0.5, marks=[{"lo": (1.5, 1.2, -2.0), "hi": (5.0, 1.45, 2.0), "color": "#c9a227"}])
-    a.material("rocket_nose", base="olive_dark_p", color="#4d5236", marks=[{"lo": (1.5, 2.02, -2.0), "hi": (5.0, 2.09, 2.0), "color": "#c9a227"}])
-    a.material("missile_body", kind="paint", color="#a39a7c", rough=0.5, wear=0.35, dust=0.45, grime=0.5, dust_color=DUST_OCHRE,
-               chip_style="blotch", chip_scale=7.0, under="#7a7b78",
-               marks=[{"lo": (-5, 1.35, -1), "hi": (-1, 1.5, 2), "color": "#c9a227"}, {"lo": (-5, -0.2, -1), "hi": (-1, -0.05, 2), "color": "#5a3a22"}])
-    a.material("seeker", base="glass", color="#20282c", rough=0.05)
-
-    g = a.part("Cradle", path="TurretGun", tex="turret", query=False, material="Metal")
-    g.add(geo.cylinder(0.24, 4.8, verts=16, bevel=0.03), "olive_dark_p", rot=(0, 90, 0))
-    g.add(geo.box(1.05, 3.2, 0.32, bevel=0.06), "olive_p", at=(0, 0.5, -0.42))
-    # Gun shield: armour plates around a barrel slot, raked back 10 degrees.
-    rake = (-10, 0, 0)
-    sy = 2.35
-    g.add(geo.box(4.4, 0.14, 1.45, bevel=0.05), "shield", at=(0, sy, -0.95), rot=rake)
-    for sx in (-1, 1):
-        g.add(geo.tapered_box(1.65, 0.14, 1.6, top_scale=(0.72, 1.0), top_shift=(sx * 0.22, 0.0), bevel=0.05), "shield", at=(sx * 1.37, sy - 0.12, 0.55), rot=rake)
-        g.add(geo.box(0.9, 0.06, 0.08, bevel=0.02), "olive_dark_p", at=(sx * 1.3, sy - 0.2, 0.75), rot=rake)
-        g.add(geo.box(0.7, 0.14, 2.6, bevel=0.05), "shield", at=(sx * 2.45, sy - 0.35, -0.2), rot=(-10, 0, sx * -28))
-        g.add(geo.box(0.14, 0.5, 0.14, bevel=0.03), "olive_dark_p", at=(sx * 0.9, sy - 0.4, -0.35))
-        # Grab handle welded to each wing plate (worn to bare steel).
-        g.add(geo.pipe_path([(sx * 2.35, sy - 0.55, 0.45), (sx * 2.35, sy - 0.75, 0.4), (sx * 2.35, sy - 0.75, -0.4), (sx * 2.35, sy - 0.55, -0.45)], 0.045, verts=6), "handle")
-    g.add(geo.box(1.1, 0.14, 0.5, bevel=0.04), "shield", at=(0, sy - 0.2, 1.1), rot=rake)
-    # Weld beads along the plate joints and bolt rows on the gunner's side
-    # (built in the lower plate's frame, then raked with it).
-    for pts in ([(-2.15, -0.2, 0.76), (-0.6, -0.2, 0.76)], [(0.6, -0.2, 0.76), (2.15, -0.2, 0.76)]):
-        g.add(geo.pipe_path(pts, 0.04, verts=5), "weld", at=(0, sy, -0.95), rot=rake)
-    for k in range(9):
-        bolt = geo.transform(geo.cylinder(0.045, 0.05, verts=6, bevel=0.0), at=(-2.0 + k * 0.5, -0.085, 0.45), rot=(90, 0, 0))
-        g.add(bolt, "steel_dark_p", at=(0, sy, -0.95), rot=rake)
-    for sx in (-1, 1):
-        for k in range(3):
-            bolt = geo.transform(geo.cylinder(0.045, 0.05, verts=6, bevel=0.0), at=(sx * 2.05, -0.085, -0.45 + k * 0.35), rot=(90, 0, 0))
-            g.add(bolt, "steel_dark_p", at=(0, sy, -0.95), rot=rake)
-    for sx in (-1.9, -1.0, 1.0, 1.9):
-        for zz in (-1.5, 1.2):
-            g.add(geo.cylinder(0.06, 0.08, verts=6, bevel=0.0), "steel_dark_p", at=(sx, sy + 0.08 + (0.03 if zz > 0 else -0.25) * 0.5 - 0.02 * zz, zz), rot=(-100, 0, 0))
-    for sx in (-1, 1):
-        g.add(geo.box(0.95, 1.3, 0.7, bevel=0.06), "olive_dark_p", at=(sx * 2.1, 0.15, 0.05))
-    # Unit marking on the gunner's side of the shield.
-    stencil(a, "C-3-41", (-1.35, sy - 0.25, -0.95), (0, -0.985, 0.17), 0.3, wear=0.4, seed=70)
-    stencil(a, "7.62", (1.35, sy - 0.25, -0.95), (0, -0.985, 0.17), 0.3, wear=0.45, seed=71)
-
-    mg = a.part("Gun", path="TurretGun/MachineGun", tex="weapons", query=False, material="Metal")
-    mg.add(geo.box(0.78, 2.9, 0.8, bevel=0.05), "receiver", at=(0, 0.25, BARREL_Z))
-    mg.add(geo.box(0.84, 1.5, 0.14, bevel=0.04), "receiver", at=(0, 0.75, BARREL_Z + 0.46))
-    mg.add(geo.box(0.9, 0.18, 0.95, bevel=0.04), "receiver", at=(0, -1.3, BARREL_Z))
-    mg.add(geo.box(0.95, 0.55, 0.95, bevel=0.05), "receiver", at=(0, 1.8, BARREL_Z))
-    for sx in (-1, 1):  # side plates rivets + spade grips
-        for i in range(5):
-            mg.add(geo.cylinder(0.04, 0.05, verts=6, bevel=0.0), "handle", at=(sx * 0.4, -0.8 + i * 0.5, BARREL_Z - 0.2), rot=(0, 90, 0))
-        mg.add(geo.pipe_path([(sx * 0.3, -1.38, BARREL_Z - 0.3), (sx * 0.32, -1.62, BARREL_Z - 0.2), (sx * 0.32, -1.72, BARREL_Z + 0.35)], 0.05, verts=6), "handle")
-        mg.add(geo.cylinder(0.085, 0.5, verts=10, bevel=0.03), "grip", at=(sx * 0.32, -1.7, BARREL_Z + 0.12), rot=(-8, 0, 0))
-    mg.add(geo.box(0.32, 0.12, 0.2, bevel=0.03), "handle", at=(0, -1.55, BARREL_Z + 0.2))
-    mg.add(geo.box(0.12, 0.35, 0.12, bevel=0.03), "handle", at=(0.47, 0.5, BARREL_Z + 0.05))
-    mg.add(geo.cylinder(0.07, 0.25, verts=8), "handle", at=(0.6, 0.5, BARREL_Z + 0.05), rot=(0, 90, 0))
-    # Reflex sight on the top cover.
-    mg.add(geo.box(0.34, 0.5, 0.3, bevel=0.05), "olive_dark_p", at=(0, -0.55, BARREL_Z + 0.68))
-    mg.add(geo.box(0.3, 0.05, 0.26, bevel=0.02), "seeker", at=(0, -0.3, BARREL_Z + 0.7))
-    # Barrel: perforated jacket, barrel, carry handle and muzzle brake.
-    mg.add(along_y(geo.tube(0.26, 0.2, 1.6, verts=16), (0, 2.85, BARREL_Z)), "receiver")
-    for yy in (2.15, 2.6, 3.05, 3.5):
-        mg.add(along_y(geo.cylinder(0.29, 0.08, verts=16, bevel=0.01), (0, yy, BARREL_Z)), "receiver")
-    mg.add(along_y(geo.cylinder(0.13, 3.6, verts=12, bevel=0.0), (0, 5.0, BARREL_Z)), "receiver")
-    mg.add(geo.pipe_path([(0, 3.9, BARREL_Z + 0.1), (0, 4.0, BARREL_Z + 0.42), (0, 4.5, BARREL_Z + 0.42), (0, 4.6, BARREL_Z + 0.1)], 0.045, verts=6), "handle")
-    mg.add(along_y(geo.tube(0.2, 0.09, 0.55, verts=12), (0, 7.02, BARREL_Z)), "receiver")
-    for sx in (-1, 1):
-        mg.add(geo.box(0.06, 0.3, 0.16, bevel=0.01), "receiver", at=(sx * 0.2, 7.02, BARREL_Z))
-    # Ammo can on the left feeding the belt into the tray.
-    mg.add(geo.box(0.55, 1.15, 0.8, bevel=0.05), "olive_p", at=(-0.85, 0.55, BARREL_Z - 0.2))
-    mg.add(geo.box(0.6, 1.2, 0.08, bevel=0.02), "olive_p", at=(-0.85, 0.55, BARREL_Z + 0.22))
-    mg.add(geo.box(0.22, 0.9, 0.06, bevel=0.02), "olive_dark_p", at=(-0.5, 0.75, BARREL_Z + 0.3))  # feed tray
-    stencil(a, "7.62", (-1.13, 0.55, BARREL_Z - 0.15), (-1, 0, 0), 0.2, up=(0, 0, 1), wear=0.35, seed=72)
-
-    belt = a.part("Belt", path="TurretGun/MachineGun", tex="smalls", query=False, material="Metal")
-    belt_along(belt, smalls, [(-1.0, 0.75, BARREL_Z + 0.2), (-0.95, 0.75, BARREL_Z + 0.44), (-0.8, 0.75, BARREL_Z + 0.56),
-                              (-0.6, 0.75, BARREL_Z + 0.56), (-0.42, 0.75, BARREL_Z + 0.42)], 7, up=(0, 0, -1))
-    # HS-2 motion templates (hidden; client/EmplacementFx clones them): one
-    # belted round with its links in belt_along's frame for a belt running
-    # along +X (X = feed direction, Y = round axis, Z = X x Y; origin = the
-    # belt line), and one spent case (axis +Z, base at the origin).
-    fed = a.part("BeltRound", path="TurretGun/MachineGun", tex="smalls", query=False, shadow=False, material="Metal", transparency=1)
-    fed.add_template(smalls["round"], at=(0, -0.22, 0), rot=_lay((0, 0, 0)))
-    for off in (-0.08, 0.1):
-        fed.add_template(smalls["link"], at=(0, off, -0.035))
-    case = a.part("EjectCase", path="TurretGun/MachineGun", tex="smalls", query=False, shadow=False, material="Metal", transparency=1)
-    case.add_template(smalls["case"])
-
-    pod = a.part("Pod", path="TurretGun/RocketPod", tex="weapons", query=False, material="Metal")
-    pod.add(along_y(geo.cylinder(0.95, 3.2, verts=24, bevel=0.08), (POD_X, 0.4, POD_Z)), "pod")
-    for yy in (-1.15, 1.95):
-        pod.add(along_y(geo.cylinder(1.0, 0.18, verts=24, bevel=0.04), (POD_X, yy, POD_Z)), "olive_dark_p")
-    tubes = [(0.0, 0.0)] + [(0.58 * math.cos(math.pi / 6 + k * math.pi / 3), 0.58 * math.sin(math.pi / 6 + k * math.pi / 3)) for k in range(6)]
-    for tx, tz in tubes:
-        pod.add(along_y(geo.tube(0.26, 0.21, 0.2, verts=12), (POD_X + tx, 2.1, POD_Z + tz)), "olive_dark_p")
-        pod.add(along_y(geo.lathe([(0.2, 0.0), (0.2, 0.12), (0.14, 0.3), (0.05, 0.42), (0.0, 0.45)], verts=10), (POD_X + tx, 1.72, POD_Z + tz)), "rocket_nose")
-        pod.add(along_y(geo.tube(0.24, 0.12, 0.12, verts=10), (POD_X + tx, -1.3, POD_Z + tz)), "steel_dark_p")
-    pod.add(geo.box(0.5, 1.0, 0.35, bevel=0.05), "olive_dark_p", at=(POD_X, 0.3, POD_Z + 1.0))
-    pod.add(geo.pipe_path([(POD_X - 0.4, -0.3, POD_Z + 1.0), (POD_X - 0.4, 0.0, POD_Z + 1.3), (POD_X + 0.4, 0.0, POD_Z + 1.3), (POD_X + 0.4, -0.3, POD_Z + 1.0)], 0.05, verts=6), "handle")
-    stencil(a, "RKT 70", (POD_X - 0.96, 0.2, POD_Z), (-1, 0, 0), 0.24, up=(0, 0, 1), wear=0.35, seed=73)
-
-    rack = a.part("Rail", path="TurretGun/MissileRack", tex="weapons", query=False, material="Metal")
-    rack.add(geo.box(1.35, 3.4, 0.28, bevel=0.05), "olive_dark_p", at=(RACK_X, 0.35, 0.02))
-    for sx in (-0.33, 0.33):
-        rack.add(geo.box(0.16, 3.2, 0.16, bevel=0.03), "steel_dark_p", at=(RACK_X + sx, 0.35, 0.22))
-    rack.add(geo.box(0.9, 0.9, 0.55, bevel=0.06), "olive_dark_p", at=(RACK_X, -0.9, -0.36))
-    rack.add(geo.cylinder(0.16, 0.9, verts=12, bevel=0.03), "olive_p", at=(RACK_X - 0.32, -0.95, -0.72), rot=(0, 90, 0))
-    for i, sx in enumerate((-0.33, 0.33)):
-        m = a.part(f"Missile{i + 1}", path="TurretGun/MissileRack", tex="weapons", query=False, material="Metal")
-        mx, mz = RACK_X + sx, 0.52
-        body = [(0.0, -1.55), (0.12, -1.55), (0.14, -1.45), (0.2, -1.4), (0.2, 1.75), (0.18, 1.95), (0.12, 2.2), (0.0, 2.28)]
-        m.add(along_y(geo.lathe(body[:5], verts=16, close_top=True), (mx, 0.0, mz)), "missile_body")
-        m.add(along_y(geo.lathe([(0.2, 1.75), (0.18, 1.95), (0.12, 2.2), (0.0, 2.3)], verts=16, close_bottom=False), (mx, 0.0, mz)), "seeker")
-        for k in range(4):
-            ang = 45 + k * 90
-            fin = geo.prism([(0.18, -0.2), (0.62, -0.02), (0.62, 0.25), (0.18, 0.35)], 0.03, bevel=0.0)
-            m.add(fin, "missile_body", at=(mx, -1.15, mz), rot=(-90, 0, ang))
-            canard = geo.prism([(0.18, -0.05), (0.38, 0.05), (0.38, 0.15), (0.18, 0.2)], 0.025, bevel=0.0)
-            m.add(canard, "missile_body", at=(mx, 1.55, mz), rot=(-90, 0, ang))
-    a.marker("Muzzle", "TurretGun", (0, 7.4, BARREL_Z), size=(0.3, 0.3, 0.3), axis=(0, 1, 0))
-    a.marker("RocketMuzzle", "TurretGun/RocketPod", (POD_X, 2.3, POD_Z), size=(0.3, 0.3, 0.3), axis=(0, 1, 0))
-    a.marker("MissileMuzzle", "TurretGun/MissileRack", (RACK_X - 0.33, 2.45, 0.52), size=(0.3, 0.3, 0.3), axis=(0, 1, 0))
+# The mount and gun assembly live in models/emplacement_turret.py (HS-4).
 
 
 def build(**kw):
     a = Asset("Emplacement", pivot=(0, 0, 0), tex_size=1024)
     a.primary = None
     a.zmin = FLOOR
+    # HS-4: closed shells turned outward (the yoke cheeks were inside-out
+    # side prisms); the turret and weapons atlases bake from high polys.
+    a.fix_inside_out = True
     a.texture_group("floor", 1024, metal=False)
     a.texture_group("outer", 1024, metal=False)
     a.texture_group("bags", 1024, sheet=True, metal=False)
     a.texture_group("net", 512, metal=False)
     a.texture_group("smalls", 256, sheet=True)
-    for g in ("props", "stores", "turret", "weapons"):
+    for g in ("props", "stores"):
         a.texture_group(g, 1024)
+    for g in ("turret", "weapons"):
+        a.texture_group(g, 1024, high={"hp": 0.04, "cage": 0.12, "ray": 0.3})
     for path in ("TurretYaw", "TurretGun", "TurretGun/MachineGun"):
         a.pivot(path, (0, 0, 0))
     materials(a)
@@ -681,8 +540,7 @@ def build(**kw):
     placed = sandbags(a)
     props(a, smalls)
     camo_net(a, placed)
-    turret_yaw(a)
-    turret_gun(a, smalls)
+    emplacement_turret.build_turret(a, smalls, belt_along, _lay)
     turret = ["Mount", "Cradle", "Gun", "Belt", "Pod", "Rail", "Missile1", "Missile2"]
     views = [
         ("", (1.0, 1.25, 0.75)),
@@ -695,6 +553,10 @@ def build(**kw):
         {"label": "_cam_right", "pos": (-12.2, 4.45, 8), "look": (-12.2 + 94, 4.45 - 34.2, 1.0), "fov": 70},
         {"label": "_close_bags", "pos": (-2.5, -1.0, -1.0), "look": (-7.5, 7.0, -4.6), "fov": 40},
         {"label": "_close_gun", "pos": (-1.6, -4.2, 1.2), "look": (0.0, 1.5, 0.0), "fov": 40},
+        # HS-4: the gun assembly as the turret camera frames it (zoomed), and
+        # the shield's front three-quarter.
+        {"label": "_cam_turret_zoom", "pos": (0, -13, 8), "look": (0, 1.5, 0.2), "fov": 30, "res": (1600, 900)},
+        {"label": "_close_shield", "pos": (6.5, 9.5, 2.8), "look": (0.0, 1.8, 0.0), "fov": 40},
         {"label": "_close_net", "pos": (4.9, -2.7, 0.6), "look": (8.0, -6.9, -4.2), "fov": 55},
     ]
     return a.finish(views=views, **kw)

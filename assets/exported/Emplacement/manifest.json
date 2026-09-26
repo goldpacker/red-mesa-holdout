@@ -336,17 +336,17 @@
    "name": "Mount",
    "path": "TurretYaw",
    "center": [
-    0.15,
+    0.1,
     -1.2625,
     1.25
    ],
    "size": [
-    3.76,
+    3.86,
     3.625,
     5.3
    ],
    "tex": "turret",
-   "tris": 3040,
+   "tris": 1416,
    "query": false,
    "material": "Metal"
   },
@@ -354,17 +354,17 @@
    "name": "Cradle",
    "path": "TurretGun",
    "center": [
-    0.0,
-    -0.158,
-    -0.7181
+    -0.0094,
+    -0.1699,
+    -0.8188
    ],
    "size": [
-    5.7472,
-    3.0189,
-    3.6361
+    5.745,
+    2.975,
+    3.8375
    ],
    "tex": "turret",
-   "tris": 2172,
+   "tris": 1236,
    "query": false,
    "material": "Metal"
   },
@@ -372,17 +372,17 @@
    "name": "Gun",
    "path": "TurretGun/MachineGun",
    "center": [
-    -0.2125,
-    0.315,
-    -2.7401
+    -0.2275,
+    0.325,
+    -2.738
    ],
    "size": [
-    1.875,
-    1.43,
-    9.1098
+    1.905,
+    1.65,
+    9.114
    ],
    "tex": "weapons",
-   "tris": 3056,
+   "tris": 1120,
    "query": false,
    "material": "Metal"
   },
@@ -458,9 +458,10 @@
     3.56
    ],
    "tex": "weapons",
-   "tris": 2782,
+   "tris": 2916,
    "query": false,
-   "material": "Metal"
+   "material": "Metal",
+   "hitbox": true
   },
   {
    "name": "Rail",
@@ -476,9 +477,10 @@
     3.4
    ],
    "tex": "weapons",
-   "tris": 572,
+   "tris": 270,
    "query": false,
-   "material": "Metal"
+   "material": "Metal",
+   "hitbox": true
   },
   {
    "name": "Missile1",
@@ -494,9 +496,10 @@
     3.899
    ],
    "tex": "weapons",
-   "tris": 302,
+   "tris": 304,
    "query": false,
-   "material": "Metal"
+   "material": "Metal",
+   "hitbox": true
   },
   {
    "name": "Missile2",
@@ -512,9 +515,10 @@
     3.899
    ],
    "tex": "weapons",
-   "tris": 302,
+   "tris": 304,
    "query": false,
-   "material": "Metal"
+   "material": "Metal",
+   "hitbox": true
   }
  ],
  "attachments": [
@@ -534,25 +538,6 @@
   }
  ],
  "markers": [
-  {
-   "name": "Muzzle",
-   "path": "TurretGun",
-   "pos": [
-    0.0,
-    0.2,
-    -7.4
-   ],
-   "size": [
-    0.3,
-    0.3,
-    0.3
-   ],
-   "axis": [
-    0.0,
-    0.0,
-    -1.0
-   ]
-  },
   {
    "name": "RocketMuzzle",
    "path": "TurretGun/RocketPod",
@@ -579,6 +564,25 @@
     -3.58,
     0.52,
     -2.45
+   ],
+   "size": [
+    0.3,
+    0.3,
+    0.3
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "name": "Muzzle",
+   "path": "TurretGun",
+   "pos": [
+    0.0,
+    0.2,
+    -7.4
    ],
    "size": [
     0.3,
@@ -647,13 +651,13 @@
  "texel_density": {
   "floor": 42.0,
   "outer": 21.8,
-  "turret": 45.8,
+  "turret": 40.0,
   "bags": 84.1,
   "props": 55.1,
   "stores": 101.6,
   "smalls": 290.2,
   "net": 44.4,
-  "weapons": 57.8
+  "weapons": 44.5
  },
  "previews": [
   "assets/previews/Emplacement.png",
@@ -664,8 +668,10 @@
   "assets/previews/Emplacement_cam_right.png",
   "assets/previews/Emplacement_close_bags.png",
   "assets/previews/Emplacement_close_gun.png",
+  "assets/previews/Emplacement_cam_turret_zoom.png",
+  "assets/previews/Emplacement_close_shield.png",
   "assets/previews/Emplacement_close_net.png"
  ],
- "triangles": 69726,
+ "triangles": 65066,
  "meta": {}
 }

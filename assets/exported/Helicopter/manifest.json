@@ -23,8 +23,9 @@
     37.4925
    ],
    "tex": "body",
-   "tris": 4148,
-   "material": "Metal"
+   "tris": 3722,
+   "material": "Metal",
+   "hitbox": true
   },
   {
    "name": "MainRotor",
@@ -35,12 +36,12 @@
     -0.0
    ],
    "size": [
-    27.8044,
-    1.6,
-    27.8044
+    28.8802,
+    1.8143,
+    28.8802
    ],
-   "tex": "rotor",
-   "tris": 614,
+   "tex": "trim",
+   "tris": 634,
    "query": false,
    "material": "Metal"
   },
@@ -53,17 +54,63 @@
     21.3
    ],
    "size": [
-    0.7,
-    4.0274,
-    4.0274
+    0.72,
+    4.2851,
+    4.2851
    ],
-   "tex": "rotor",
-   "tris": 250,
+   "tex": "trim",
+   "tris": 278,
+   "query": false,
+   "material": "Metal"
+  },
+  {
+   "name": "HeliKit",
+   "path": "",
+   "center": [
+    0.0,
+    1.8735,
+    4.335
+   ],
+   "size": [
+    7.5338,
+    11.153,
+    36.3645
+   ],
+   "tex": "trim",
+   "tris": 5110,
    "query": false,
    "material": "Metal"
   }
  ],
  "attachments": [
+  {
+   "name": "GunMuzzle",
+   "part": "Root",
+   "pos": [
+    0.0,
+    -2.05,
+    -14.15
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "name": "NavLightL",
+   "part": "Root",
+   "pos": [
+    -5.84,
+    -0.5116,
+    -1.2
+   ],
+   "axis": [
+    -1.0,
+    0.0,
+    -0.0
+   ]
+  },
   {
    "name": "RocketMuzzleL",
    "part": "Root",
@@ -79,26 +126,26 @@
    ]
   },
   {
+   "name": "NavLightR",
+   "part": "Root",
+   "pos": [
+    5.84,
+    -0.5116,
+    -1.2
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
    "name": "RocketMuzzleR",
    "part": "Root",
    "pos": [
     5.4,
     -1.25,
     -1.95
-   ],
-   "axis": [
-    0.0,
-    0.0,
-    -1.0
-   ]
-  },
-  {
-   "name": "GunMuzzle",
-   "part": "Root",
-   "pos": [
-    0.0,
-    -2.05,
-    -14.15
    ],
    "axis": [
     0.0,
@@ -126,23 +173,28 @@
   "body": {
    "color": "Helicopter_body_color.png",
    "rough": "Helicopter_body_rough.png",
-   "metal": "Helicopter_body_metal.png",
    "normal": "Helicopter_body_normal.png"
-  },
-  "rotor": {
-   "color": "Helicopter_rotor_color.png",
-   "rough": "Helicopter_rotor_rough.png",
-   "metal": "Helicopter_rotor_metal.png",
-   "normal": "Helicopter_rotor_normal.png"
   }
+ },
+ "texel_density": {
+  "body": 26.0,
+  "trim": 68.5
  },
  "previews": [
   "assets/previews/Helicopter.png",
   "assets/previews/Helicopter_rear.png",
-  "assets/previews/Helicopter_side.png"
+  "assets/previews/Helicopter_side.png",
+  "assets/previews/Helicopter_below.png",
+  "assets/previews/Helicopter_front.png",
+  "assets/previews/Helicopter_cam_player.png",
+  "assets/previews/Helicopter_close_nose.png",
+  "assets/previews/Helicopter_close_engine.png"
  ],
- "triangles": 5012,
+ "triangles": 9744,
  "meta": {
-  "no_ground": false
+  "no_ground": true
+ },
+ "shared_textures": {
+  "trim": "TrimEnemy"
  }
 }

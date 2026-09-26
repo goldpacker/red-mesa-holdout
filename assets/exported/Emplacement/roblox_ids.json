@@ -6,7 +6,7 @@
   "floor/color": "34f41203eff3d6b4",
   "floor/normal": "1dddf1fc31bc5822",
   "floor/rough": "6c4d5dcbcbd4455d",
-  "glb": "48baa3e08841f0b4",
+  "glb": "4b5d6ce615b05cf9",
   "net/color": "e5e6bb0a21f24d35",
   "net/normal": "db645e9899c6c5a8",
   "net/rough": "5730e305e8a8ea15",
@@ -25,14 +25,14 @@
   "stores/metal": "c521fe2be90b8a8c",
   "stores/normal": "8b25b96d57a06e7d",
   "stores/rough": "fc3b37ef9646c4de",
-  "turret/color": "7864427120c38202",
-  "turret/metal": "f032fb3a598dc24b",
-  "turret/normal": "6890d5553d755ca9",
-  "turret/rough": "6115c0cbe0e651be",
-  "weapons/color": "538a96132d4e37c6",
-  "weapons/metal": "0c8676ce57467ffa",
-  "weapons/normal": "9f7de50ce92177fa",
-  "weapons/rough": "a83669061260745f"
+  "turret/color": "a7951e07044e43a5",
+  "turret/metal": "2064f66e2f6e4bc9",
+  "turret/normal": "6d360b11987f1592",
+  "turret/rough": "8b586f7d667e6412",
+  "weapons/color": "44d0b6b86a400e6e",
+  "weapons/metal": "fa0c532484581322",
+  "weapons/normal": "973dc4b481071842",
+  "weapons/rough": "053b818fdadfb283"
  },
  "meshes": {
   "Belt": "rbxassetid://122458962840954",
@@ -40,18 +40,18 @@
   "Bunker": "rbxassetid://75731905174788",
   "BunkerWall": "rbxassetid://99565733649125",
   "Casings": "rbxassetid://122828373005090",
-  "Cradle": "rbxassetid://117549881305633",
+  "Cradle": "rbxassetid://122792844935127",
   "Drifts": "rbxassetid://83858096798947",
   "EjectCase": "rbxassetid://129902142241384",
-  "Gun": "rbxassetid://98296648660519",
-  "Missile1": "rbxassetid://135975871907489",
-  "Missile2": "rbxassetid://87053387706570",
-  "Mount": "rbxassetid://110436145451635",
+  "Gun": "rbxassetid://120566348437693",
+  "Missile1": "rbxassetid://77168433627481",
+  "Missile2": "rbxassetid://118448391628137",
+  "Mount": "rbxassetid://109648303592446",
   "Net": "rbxassetid://91595826867322",
-  "Pedestal": "rbxassetid://89626203325118",
-  "Pod": "rbxassetid://122940570753014",
+  "Pedestal": "rbxassetid://122456651259686",
+  "Pod": "rbxassetid://73141867438183",
   "Props": "rbxassetid://112244226945377",
-  "Rail": "rbxassetid://97894003627341",
+  "Rail": "rbxassetid://101900654599623",
   "SandbagsFront": "rbxassetid://110802466787266",
   "SandbagsLeft": "rbxassetid://111711653621180",
   "SandbagsRight": "rbxassetid://71481534805522",
@@ -62,7 +62,7 @@
   "Whip3": "rbxassetid://111604377363121",
   "Whip4": "rbxassetid://98597430664627"
  },
- "model": "91874949710104",
+ "model": "95300083608534",
  "textures": {
   "bags": {
    "color": "rbxassetid://104952416841368",
@@ -103,16 +103,16 @@
    "rough": "rbxassetid://91869883438007"
   },
   "turret": {
-   "color": "rbxassetid://121319387079194",
-   "metal": "rbxassetid://115978023777691",
-   "normal": "rbxassetid://107385114496353",
-   "rough": "rbxassetid://83804984513607"
+   "color": "rbxassetid://93673388587830",
+   "metal": "rbxassetid://109487483722842",
+   "normal": "rbxassetid://75299663860674",
+   "rough": "rbxassetid://126262373087513"
   },
   "weapons": {
-   "color": "rbxassetid://129323805319752",
-   "metal": "rbxassetid://119993069110347",
-   "normal": "rbxassetid://72547549252345",
-   "rough": "rbxassetid://122544048420654"
+   "color": "rbxassetid://124016599401878",
+   "metal": "rbxassetid://139159020719354",
+   "normal": "rbxassetid://87490180146963",
+   "rough": "rbxassetid://81121125803595"
   }
  }
 }

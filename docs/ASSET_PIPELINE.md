@@ -226,6 +226,32 @@ build log for texel density ≥ 30 and triangle counts; look at the
 previews (add a `{"label": "_cam_player", ...}` view from the player's
 side).
 
+### Aircraft and turret additions (HS-4)
+
+- **`rmh/aero.py`** (new): `span_loft(sections, axis="x"|"z")` lofts
+  wings, stabilisers, fins and rotor blades through lens/superellipse
+  sections (chord, thickness, centre per station — sweep, taper and
+  dihedral come from the section list); `store(length, r, fins=4, blunt=)`
+  builds bombs, missiles, drop tanks and pods along +Y; `tube_cluster`
+  makes rocket-pod tube mouths for `detail()`; `outward(bm)` turns a
+  closed shell outward (use it on a `side_prism` before splitting it).
+- **Aircraft on the trim sheet:** rotor blades map to `plain` with the tip
+  faces on `red` (`T.planar(..., faces=...)`), hubs to `bolted`/`plain`,
+  missiles to `plain` + a `red` band + `cable` seeker (`T.cylindrical(...,
+  along=True)`), gear to the `tyre_half`/`rim` templates scaled down. Only
+  the airframe keeps its own 1024² atlas (`metal=False`: painted skins).
+- **Texel weights for air targets:** they are seen from below, so upward
+  faces get `texel=0.25–0.4` instead of `down=`.
+- **`keep_normals=True`** (per part, opt-in): skips `fix_inside_out` for
+  parts whose faces were oriented on purpose (the emplacement's `face_up`
+  sand drifts have a capped underside, so the shell test would flip them).
+- **Bake gotcha:** `detail()` geometry must sit on or above the low
+  surface. Plates placed a few hundredths *below* it (inside the cage)
+  baked as black slots on the jet's belly.
+- **Rebuilding one group of a big asset** (Emplacement): every group
+  re-bakes with sub-2/255 noise; copy the untouched groups' PNGs back from
+  HEAD so `upload` skips them (hash) and their ids stay.
+
 ### Axis handling (verified in Studio)
 Roblox's glTF importer turns an asset 180° about up. `export_glb` rotates
 mesh data 180° about Z just for the export, so a model built facing +Y in

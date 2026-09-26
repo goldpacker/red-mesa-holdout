@@ -74,7 +74,17 @@ function Dress.helicopter(model: Model)
 	end)
 	local root = hostPart(model)
 	if root then
-		for _, side in { -1, 1 } do
+		-- Wing-tip nav lights at NavLightL/R attachments (HS-4 asset), else
+		-- beside the hull as before.
+		local tips = 0
+		for _, spec in { { "NavLightL", "NavLeft", NAV_RED }, { "NavLightR", "NavRight", NAV_GREEN } } do
+			eachAttachment(model, spec[1], function(a)
+				tips += 1
+				Kit.glow(lampAt(model, spec[2], a.WorldCFrame, Vector3.new(0.6, 0.6, 0.6), spec[3]), 18, 2, spec[3])
+			end)
+		end
+		local sides: { number } = if tips > 0 then {} else { -1, 1 }
+		for _, side in sides do
 			local p = lampAt(model, if side < 0 then "NavLeft" else "NavRight", root.CFrame * CFrame.new(side * (root.Size.X / 2 + 0.3), 0, 0), Vector3.new(0.8, 0.8, 0.8), if side < 0 then NAV_RED else NAV_GREEN)
 			Kit.glow(p, 18, 2, p.Color)
 		end

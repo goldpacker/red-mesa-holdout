@@ -105,7 +105,8 @@ function Jet.spawn(ctx: Types.Context, laneName: string, rng: Random): Types.Ene
 		released = true
 		model:SetAttribute("State", "Egress")
 		for _, d in model:GetDescendants() do
-			if d:IsA("BasePart") and (d:GetAttribute("Bomb") or d.Name == "BombBand") then
+			-- Fallback bombs carry a Bomb attribute; the asset's ordnance is its `Bombs` part.
+			if d:IsA("BasePart") and (d:GetAttribute("Bomb") or d.Name == "BombBand" or d.Name == "Bombs") then
 				d.Transparency = 1
 				d.CanQuery = false
 			end

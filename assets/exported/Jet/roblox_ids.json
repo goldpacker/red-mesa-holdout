@@ -1,22 +1,21 @@
 {
  "hashes": {
-  "body/color": "3addf1575f8c9c46",
-  "body/metal": "a2fc9fe213a70df8",
-  "body/normal": "bf01387780674835",
-  "body/rough": "d15275cf1f65b854",
-  "glb": "1fad6b942e75704a"
+  "body/color": "8afbe7e2a82bf6db",
+  "body/normal": "09db45341a1a7de8",
+  "body/rough": "640dba20a482f220",
+  "glb": "819175e1bb34de99"
  },
  "meshes": {
-  "Bombs": "rbxassetid://127973656762100",
-  "Root": "rbxassetid://124736616421690"
+  "Bombs": "rbxassetid://135169115451199",
+  "JetKit": "rbxassetid://70953981971495",
+  "Root": "rbxassetid://121330602649637"
  },
- "model": "101659641813930",
+ "model": "79567653016658",
  "textures": {
   "body": {
-   "color": "rbxassetid://119520252968035",
-   "metal": "rbxassetid://110796606360850",
-   "normal": "rbxassetid://113614631376671",
-   "rough": "rbxassetid://87359395269971"
+   "color": "rbxassetid://134598342673450",
+   "normal": "rbxassetid://98999951935495",
+   "rough": "rbxassetid://103728300042224"
   }
  }
 }

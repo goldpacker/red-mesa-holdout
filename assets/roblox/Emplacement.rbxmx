@@ -92,7 +92,7 @@
       <Item class="MeshPart" referent="RBX00000009">
         <Properties>
           <string name="Name">Pedestal</string>
-          <Content name="MeshId"><url>rbxassetid://89626203325118</url></Content>
+          <Content name="MeshId"><url>rbxassetid://122456651259686</url></Content>
           <Vector3 name="InitialSize"><X>3.8</X><Y>2.895</Y><Z>3.8</Z></Vector3>
           <Vector3 name="size"><X>3.8</X><Y>2.895</Y><Z>3.8</Z></Vector3>
           <CoordinateFrame name="CFrame"><X>0</X><Y>-4.2575</Y><Z>-0</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
@@ -109,10 +109,10 @@
         <Item class="SurfaceAppearance" referent="RBX0000000A">
           <Properties>
             <string name="Name">SurfaceAppearance</string>
-            <Content name="ColorMap"><url>rbxassetid://121319387079194</url></Content>
-            <Content name="NormalMap"><url>rbxassetid://107385114496353</url></Content>
-            <Content name="RoughnessMap"><url>rbxassetid://83804984513607</url></Content>
-            <Content name="MetalnessMap"><url>rbxassetid://115978023777691</url></Content>
+            <Content name="ColorMap"><url>rbxassetid://93673388587830</url></Content>
+            <Content name="NormalMap"><url>rbxassetid://75299663860674</url></Content>
+            <Content name="RoughnessMap"><url>rbxassetid://126262373087513</url></Content>
+            <Content name="MetalnessMap"><url>rbxassetid://109487483722842</url></Content>
           </Properties>
         </Item>
       </Item>
@@ -467,10 +467,10 @@
       <Item class="MeshPart" referent="RBX00000025">
         <Properties>
           <string name="Name">Mount</string>
-          <Content name="MeshId"><url>rbxassetid://110436145451635</url></Content>
-          <Vector3 name="InitialSize"><X>3.76</X><Y>3.625</Y><Z>5.3</Z></Vector3>
-          <Vector3 name="size"><X>3.76</X><Y>3.625</Y><Z>5.3</Z></Vector3>
-          <CoordinateFrame name="CFrame"><X>0.15</X><Y>-1.2625</Y><Z>1.25</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+          <Content name="MeshId"><url>rbxassetid://109648303592446</url></Content>
+          <Vector3 name="InitialSize"><X>3.86</X><Y>3.625</Y><Z>5.3</Z></Vector3>
+          <Vector3 name="size"><X>3.86</X><Y>3.625</Y><Z>5.3</Z></Vector3>
+          <CoordinateFrame name="CFrame"><X>0.1</X><Y>-1.2625</Y><Z>1.25</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
           <bool name="Anchored">true</bool>
           <bool name="CanCollide">false</bool>
           <bool name="CanQuery">false</bool>
@@ -484,10 +484,10 @@
         <Item class="SurfaceAppearance" referent="RBX00000026">
           <Properties>
             <string name="Name">SurfaceAppearance</string>
-            <Content name="ColorMap"><url>rbxassetid://121319387079194</url></Content>
-            <Content name="NormalMap"><url>rbxassetid://107385114496353</url></Content>
-            <Content name="RoughnessMap"><url>rbxassetid://83804984513607</url></Content>
-            <Content name="MetalnessMap"><url>rbxassetid://115978023777691</url></Content>
+            <Content name="ColorMap"><url>rbxassetid://93673388587830</url></Content>
+            <Content name="NormalMap"><url>rbxassetid://75299663860674</url></Content>
+            <Content name="RoughnessMap"><url>rbxassetid://126262373087513</url></Content>
+            <Content name="MetalnessMap"><url>rbxassetid://109487483722842</url></Content>
           </Properties>
         </Item>
       </Item>
@@ -500,10 +500,10 @@
       <Item class="MeshPart" referent="RBX00000028">
         <Properties>
           <string name="Name">Cradle</string>
-          <Content name="MeshId"><url>rbxassetid://117549881305633</url></Content>
-          <Vector3 name="InitialSize"><X>5.7472</X><Y>3.0189</Y><Z>3.6361</Z></Vector3>
-          <Vector3 name="size"><X>5.7472</X><Y>3.0189</Y><Z>3.6361</Z></Vector3>
-          <CoordinateFrame name="CFrame"><X>0</X><Y>-0.158</Y><Z>-0.7181</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+          <Content name="MeshId"><url>rbxassetid://122792844935127</url></Content>
+          <Vector3 name="InitialSize"><X>5.745</X><Y>2.975</Y><Z>3.8375</Z></Vector3>
+          <Vector3 name="size"><X>5.745</X><Y>2.975</Y><Z>3.8375</Z></Vector3>
+          <CoordinateFrame name="CFrame"><X>-0.0094</X><Y>-0.1699</Y><Z>-0.8188</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
           <bool name="Anchored">true</bool>
           <bool name="CanCollide">false</bool>
           <bool name="CanQuery">false</bool>
@@ -517,10 +517,10 @@
         <Item class="SurfaceAppearance" referent="RBX00000029">
           <Properties>
             <string name="Name">SurfaceAppearance</string>
-            <Content name="ColorMap"><url>rbxassetid://121319387079194</url></Content>
-            <Content name="NormalMap"><url>rbxassetid://107385114496353</url></Content>
-            <Content name="RoughnessMap"><url>rbxassetid://83804984513607</url></Content>
-            <Content name="MetalnessMap"><url>rbxassetid://115978023777691</url></Content>
+            <Content name="ColorMap"><url>rbxassetid://93673388587830</url></Content>
+            <Content name="NormalMap"><url>rbxassetid://75299663860674</url></Content>
+            <Content name="RoughnessMap"><url>rbxassetid://126262373087513</url></Content>
+            <Content name="MetalnessMap"><url>rbxassetid://109487483722842</url></Content>
           </Properties>
         </Item>
       </Item>
@@ -532,10 +532,10 @@
         <Item class="MeshPart" referent="RBX0000002B">
           <Properties>
             <string name="Name">Gun</string>
-            <Content name="MeshId"><url>rbxassetid://98296648660519</url></Content>
-            <Vector3 name="InitialSize"><X>1.875</X><Y>1.43</Y><Z>9.1098</Z></Vector3>
-            <Vector3 name="size"><X>1.875</X><Y>1.43</Y><Z>9.1098</Z></Vector3>
-            <CoordinateFrame name="CFrame"><X>-0.2125</X><Y>0.315</Y><Z>-2.7401</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+            <Content name="MeshId"><url>rbxassetid://120566348437693</url></Content>
+            <Vector3 name="InitialSize"><X>1.905</X><Y>1.65</Y><Z>9.114</Z></Vector3>
+            <Vector3 name="size"><X>1.905</X><Y>1.65</Y><Z>9.114</Z></Vector3>
+            <CoordinateFrame name="CFrame"><X>-0.2275</X><Y>0.325</Y><Z>-2.738</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
             <bool name="Anchored">true</bool>
             <bool name="CanCollide">false</bool>
             <bool name="CanQuery">false</bool>
@@ -549,10 +549,10 @@
           <Item class="SurfaceAppearance" referent="RBX0000002C">
             <Properties>
               <string name="Name">SurfaceAppearance</string>
-              <Content name="ColorMap"><url>rbxassetid://129323805319752</url></Content>
-              <Content name="NormalMap"><url>rbxassetid://72547549252345</url></Content>
-              <Content name="RoughnessMap"><url>rbxassetid://122544048420654</url></Content>
-              <Content name="MetalnessMap"><url>rbxassetid://119993069110347</url></Content>
+              <Content name="ColorMap"><url>rbxassetid://124016599401878</url></Content>
+              <Content name="NormalMap"><url>rbxassetid://87490180146963</url></Content>
+              <Content name="RoughnessMap"><url>rbxassetid://81121125803595</url></Content>
+              <Content name="MetalnessMap"><url>rbxassetid://139159020719354</url></Content>
             </Properties>
           </Item>
         </Item>
@@ -645,7 +645,7 @@
         <Item class="MeshPart" referent="RBX00000034">
           <Properties>
             <string name="Name">Pod</string>
-            <Content name="MeshId"><url>rbxassetid://122940570753014</url></Content>
+            <Content name="MeshId"><url>rbxassetid://73141867438183</url></Content>
             <Vector3 name="InitialSize"><X>2</X><Y>2.3409</Y><Z>3.56</Z></Vector3>
             <Vector3 name="size"><X>2</X><Y>2.3409</Y><Z>3.56</Z></Vector3>
             <CoordinateFrame name="CFrame"><X>3.2</X><Y>0.4704</Y><Z>-0.42</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
@@ -662,14 +662,14 @@
           <Item class="SurfaceAppearance" referent="RBX00000035">
             <Properties>
               <string name="Name">SurfaceAppearance</string>
-              <Content name="ColorMap"><url>rbxassetid://129323805319752</url></Content>
-              <Content name="NormalMap"><url>rbxassetid://72547549252345</url></Content>
-              <Content name="RoughnessMap"><url>rbxassetid://122544048420654</url></Content>
-              <Content name="MetalnessMap"><url>rbxassetid://119993069110347</url></Content>
+              <Content name="ColorMap"><url>rbxassetid://124016599401878</url></Content>
+              <Content name="NormalMap"><url>rbxassetid://87490180146963</url></Content>
+              <Content name="RoughnessMap"><url>rbxassetid://81121125803595</url></Content>
+              <Content name="MetalnessMap"><url>rbxassetid://139159020719354</url></Content>
             </Properties>
           </Item>
         </Item>
-        <Item class="Part" referent="RBX0000003F">
+        <Item class="Part" referent="RBX0000003E">
           <Properties>
             <string name="Name">RocketMuzzle</string>
             <Vector3 name="size"><X>0.3</X><Y>0.3</Y><Z>0.3</Z></Vector3>
@@ -692,7 +692,7 @@
         <Item class="MeshPart" referent="RBX00000037">
           <Properties>
             <string name="Name">Rail</string>
-            <Content name="MeshId"><url>rbxassetid://97894003627341</url></Content>
+            <Content name="MeshId"><url>rbxassetid://101900654599623</url></Content>
             <Vector3 name="InitialSize"><X>1.445</X><Y>1.18</Y><Z>3.4</Z></Vector3>
             <Vector3 name="size"><X>1.445</X><Y>1.18</Y><Z>3.4</Z></Vector3>
             <CoordinateFrame name="CFrame"><X>-3.2975</X><Y>-0.29</Y><Z>-0.35</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
@@ -709,17 +709,17 @@
           <Item class="SurfaceAppearance" referent="RBX00000038">
             <Properties>
               <string name="Name">SurfaceAppearance</string>
-              <Content name="ColorMap"><url>rbxassetid://129323805319752</url></Content>
-              <Content name="NormalMap"><url>rbxassetid://72547549252345</url></Content>
-              <Content name="RoughnessMap"><url>rbxassetid://122544048420654</url></Content>
-              <Content name="MetalnessMap"><url>rbxassetid://119993069110347</url></Content>
+              <Content name="ColorMap"><url>rbxassetid://124016599401878</url></Content>
+              <Content name="NormalMap"><url>rbxassetid://87490180146963</url></Content>
+              <Content name="RoughnessMap"><url>rbxassetid://81121125803595</url></Content>
+              <Content name="MetalnessMap"><url>rbxassetid://139159020719354</url></Content>
             </Properties>
           </Item>
         </Item>
         <Item class="MeshPart" referent="RBX0000003A">
           <Properties>
             <string name="Name">Missile1</string>
-            <Content name="MeshId"><url>rbxassetid://135975871907489</url></Content>
+            <Content name="MeshId"><url>rbxassetid://77168433627481</url></Content>
             <Vector3 name="InitialSize"><X>0.898</X><Y>0.55</Y><Z>3.899</Z></Vector3>
             <Vector3 name="size"><X>0.898</X><Y>0.55</Y><Z>3.899</Z></Vector3>
             <CoordinateFrame name="CFrame"><X>-3.58</X><Y>0.445</Y><Z>-0.3505</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
@@ -736,17 +736,17 @@
           <Item class="SurfaceAppearance" referent="RBX0000003B">
             <Properties>
               <string name="Name">SurfaceAppearance</string>
-              <Content name="ColorMap"><url>rbxassetid://129323805319752</url></Content>
-              <Content name="NormalMap"><url>rbxassetid://72547549252345</url></Content>
-              <Content name="RoughnessMap"><url>rbxassetid://122544048420654</url></Content>
-              <Content name="MetalnessMap"><url>rbxassetid://119993069110347</url></Content>
+              <Content name="ColorMap"><url>rbxassetid://124016599401878</url></Content>
+              <Content name="NormalMap"><url>rbxassetid://87490180146963</url></Content>
+              <Content name="RoughnessMap"><url>rbxassetid://81121125803595</url></Content>
+              <Content name="MetalnessMap"><url>rbxassetid://139159020719354</url></Content>
             </Properties>
           </Item>
         </Item>
         <Item class="MeshPart" referent="RBX0000003C">
           <Properties>
             <string name="Name">Missile2</string>
-            <Content name="MeshId"><url>rbxassetid://87053387706570</url></Content>
+            <Content name="MeshId"><url>rbxassetid://118448391628137</url></Content>
             <Vector3 name="InitialSize"><X>0.898</X><Y>0.55</Y><Z>3.899</Z></Vector3>
             <Vector3 name="size"><X>0.898</X><Y>0.55</Y><Z>3.899</Z></Vector3>
             <CoordinateFrame name="CFrame"><X>-2.92</X><Y>0.445</Y><Z>-0.3505</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
@@ -763,14 +763,14 @@
           <Item class="SurfaceAppearance" referent="RBX0000003D">
             <Properties>
               <string name="Name">SurfaceAppearance</string>
-              <Content name="ColorMap"><url>rbxassetid://129323805319752</url></Content>
-              <Content name="NormalMap"><url>rbxassetid://72547549252345</url></Content>
-              <Content name="RoughnessMap"><url>rbxassetid://122544048420654</url></Content>
-              <Content name="MetalnessMap"><url>rbxassetid://119993069110347</url></Content>
+              <Content name="ColorMap"><url>rbxassetid://124016599401878</url></Content>
+              <Content name="NormalMap"><url>rbxassetid://87490180146963</url></Content>
+              <Content name="RoughnessMap"><url>rbxassetid://81121125803595</url></Content>
+              <Content name="MetalnessMap"><url>rbxassetid://139159020719354</url></Content>
             </Properties>
           </Item>
         </Item>
-        <Item class="Part" referent="RBX00000040">
+        <Item class="Part" referent="RBX0000003F">
           <Properties>
             <string name="Name">MissileMuzzle</string>
             <Vector3 name="size"><X>0.3</X><Y>0.3</Y><Z>0.3</Z></Vector3>
@@ -786,7 +786,7 @@
           </Properties>
         </Item>
       </Item>
-      <Item class="Part" referent="RBX0000003E">
+      <Item class="Part" referent="RBX00000040">
         <Properties>
           <string name="Name">Muzzle</string>
           <Vector3 name="size"><X>0.3</X><Y>0.3</Y><Z>0.3</Z></Vector3>

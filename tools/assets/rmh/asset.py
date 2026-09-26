@@ -145,6 +145,9 @@ class Part:
         self.path = path
         self.tex = tex
         self.hitbox = flags.pop("hitbox", None)
+        # Opt-in (HS-4): parts whose faces were oriented on purpose (e.g.
+        # face_up sand mounds with a capped underside) skip fix_inside_out.
+        self.keep_normals = flags.pop("keep_normals", False)
         self.flags = flags
         self.bm = bmesh.new()
         self.mats = []
@@ -368,7 +371,7 @@ class Asset:
                 p.realise_instances()
             if p.flags.get("joint") is not None:
                 _pad_to_joint(p.bm, Vector(p.flags["joint"]))
-            if self.fix_inside_out:
+            if self.fix_inside_out and not p.keep_normals:
                 p.bm.faces.index_update()
                 n_flipped = fix_inside_out(p.bm)
                 if n_flipped:
@@ -401,7 +404,7 @@ class Asset:
     def _high_object(self, p):
         """The part's high-poly bake source (hidden until its group bakes)."""
         me = bpy.data.meshes.new(f"HP_{p.name}")
-        if self.fix_inside_out:
+        if self.fix_inside_out and not p.keep_normals:
             p.hbm.faces.index_update()
             fix_inside_out(p.hbm)
         p.hbm.to_mesh(me)
