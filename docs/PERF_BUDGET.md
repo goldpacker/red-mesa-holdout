@@ -71,7 +71,7 @@ Reading it:
   watch as the landscape gets heavier.
 - **Draw calls:** ~190–210 scene, 38–75 shadow.
 
-### Proposed split of the headroom (for the lead to confirm)
+### Split of the headroom (confirmed by the lead, 2026-09-26)
 
 | Workstream | Extra triangles on screen | Extra texture memory |
 |---|---|---|
