@@ -11,6 +11,7 @@ local Workspace = game:GetService("Workspace")
 local WeaponConfig = require(ReplicatedStorage.Shared.WeaponConfig)
 local AimController = require(script.Parent.AimController)
 local LockOn = require(script.Parent.LockOn)
+local PostFxAssets = require(script.Parent.PostFxAssets)
 local Ui = require(script.Parent.Ui)
 local WeaponController = require(script.Parent.WeaponController)
 
@@ -216,6 +217,18 @@ end
 function WeaponHud.build(root: Frame)
 	-- Sights sit behind every other HUD panel (ZIndex 0).
 	refs.sight = Ui.new("Frame", { Name = "Gunsight", BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), Visible = false, ZIndex = 0, Parent = root })
+	-- Lens vignette (gunsight only, LOOK-1): darkens the frame edges under
+	-- every sight overlay.
+	Ui.new("ImageLabel", {
+		Name = "Vignette",
+		BackgroundTransparency = 1,
+		Image = PostFxAssets.vignette,
+		ImageTransparency = 0.3,
+		ScaleType = Enum.ScaleType.Stretch,
+		Size = UDim2.fromScale(1, 1),
+		ZIndex = 0,
+		Parent = refs.sight,
+	})
 	refs.sights = {
 		MG = buildIronSight(refs.sight),
 		Rocket = buildRocketScope(refs.sight),

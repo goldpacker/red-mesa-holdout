@@ -1,14 +1,44 @@
 --!strict
 -- Client-side night ambience: sweeps the mesa searchlights across the basin
 -- and pops illumination flares over the battlefield at dusk and night so
--- enemies stay readable (GAME_SPEC §7.1).
+-- enemies stay readable (GAME_SPEC §7.1). The searchlight beams get a dusty
+-- volumetric look here (textured cone + soft outer glow, LOOK-1); the tower
+-- meshes and the server-side beam/light instances belong to WorldBuilder.
 
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local GameState = require(script.Parent.GameState)
+local PostFxAssets = require(script.Parent.PostFxAssets)
 
 local NightFx = {}
+
+-- Warm practical lights against the cool moonlight key (ART_BIBLE §4).
+local LAMP_WARM = Color3.fromRGB(255, 210, 150)
+-- Two layers of the same dusty-cone texture: a hot narrow core and a wide
+-- soft body (tuned in Studio at dusk/night, LOOK-1).
+local CONE_CORE = {
+	width0 = 2,
+	width1 = 34,
+	speed = 0.05,
+	transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 0.5),
+		NumberSequenceKeypoint.new(0.4, 0.75),
+		NumberSequenceKeypoint.new(0.85, 0.9),
+		NumberSequenceKeypoint.new(1, 1),
+	}),
+}
+local CONE_BODY = {
+	width0 = 6,
+	width1 = 96,
+	speed = 0.02,
+	transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 0.45),
+		NumberSequenceKeypoint.new(0.5, 0.62),
+		NumberSequenceKeypoint.new(0.85, 0.8),
+		NumberSequenceKeypoint.new(1, 1),
+	}),
+}
 
 local FLARE_INTERVAL = { 7, 12 }
 local FLARE_FALL = 5
@@ -17,13 +47,59 @@ local FLARE_LIFETIME = 16
 local groundParams = RaycastParams.new()
 groundParams.FilterType = Enum.RaycastFilterType.Include
 
-type Light = { model: Model, head: BasePart, lens: BasePart, pool: BasePart?, base: CFrame, phase: number }
+type Light = { model: Model, head: BasePart, lens: BasePart, pool: BasePart?, base: CFrame, phase: number, beam: Beam?, glow: Beam? }
 local lights: { Light } = {}
 local nextFlare = 0
 
 local function isNight(): boolean
 	local t = Workspace:GetAttribute("TimeOfDay")
 	return t == "Night" or t == "Dusk"
+end
+
+-- Dusty cone: the server's flat beam becomes the hot core of a textured
+-- cone, and a wider client-only "Glow" beam forms its soft body (it mirrors
+-- the core's Enabled state every frame).
+local function styleLayer(beam: Beam, layer: typeof(CONE_CORE))
+	beam.Texture = PostFxAssets.searchlight_cone
+	beam.TextureMode = Enum.TextureMode.Stretch
+	beam.TextureLength = 1
+	-- Dust drift pauses while a beauty shot is staged (deterministic frames).
+	beam.TextureSpeed = if Workspace:GetAttribute("BeautyShot") ~= nil then 0 else layer.speed
+	beam.Width0 = layer.width0
+	beam.Width1 = layer.width1
+	beam.FaceCamera = true
+	beam.LightEmission = 1
+	beam.LightInfluence = 0
+	beam.Color = ColorSequence.new(LAMP_WARM)
+	beam.Transparency = layer.transparency
+end
+
+local function styleBeam(lens: BasePart): (Beam?, Beam?)
+	local beam: Beam? = nil
+	for _, child in lens:GetChildren() do
+		if child:IsA("Beam") and child.Name ~= "Glow" then
+			beam = child
+			break
+		end
+	end
+	if not beam then
+		return nil, nil
+	end
+	styleLayer(beam, CONE_CORE)
+	local glow = lens:FindFirstChild("Glow") :: Beam?
+	if not glow then
+		local created = Instance.new("Beam")
+		created.Name = "Glow"
+		created.Attachment0 = beam.Attachment0
+		created.Attachment1 = beam.Attachment1
+		created.Segments = 1
+		created.Parent = lens
+		glow = created
+	end
+	local body = glow :: Beam
+	styleLayer(body, CONE_BODY)
+	body.Enabled = beam.Enabled
+	return beam, body
 end
 
 local function collect()
@@ -37,6 +113,7 @@ local function collect()
 		local head = model:FindFirstChild("Head") :: BasePart?
 		local lens = model:FindFirstChild("Lens") :: BasePart?
 		if model:IsA("Model") and head and lens then
+			local beam, glow = styleBeam(lens)
 			table.insert(lights, {
 				model = model,
 				head = head,
@@ -44,6 +121,8 @@ local function collect()
 				pool = model:FindFirstChild("Pool") :: BasePart?,
 				base = head.CFrame,
 				phase = i * 2.1,
+				beam = beam,
+				glow = glow,
 			})
 		end
 	end
@@ -133,6 +212,14 @@ function NightFx.start()
 	RunService.RenderStepped:Connect(function()
 		if (#lights == 0 or not lights[1].model.Parent) and Workspace:FindFirstChild("Battlefield") then
 			collect()
+		end
+		local beauty = Workspace:GetAttribute("BeautyShot") ~= nil
+		for _, light in lights do
+			if light.beam and light.glow then
+				light.glow.Enabled = light.beam.Enabled
+				light.beam.TextureSpeed = if beauty then 0 else CONE_CORE.speed
+				light.glow.TextureSpeed = if beauty then 0 else CONE_BODY.speed
+			end
 		end
 		-- Studio beauty-shot rig (shared/BeautyShots) pins the lights and flares.
 		if Workspace:GetAttribute("BeautyShot") ~= nil then
