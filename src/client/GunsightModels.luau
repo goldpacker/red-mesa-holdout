@@ -30,10 +30,10 @@ local DROP_ANGLE = math.rad(22) -- lowered pose: pitched below the view
 local AA_DEPTH = 0.7 -- AASeeker bezel depth (gunsights.py AA_D)
 local AA_EDGE_MARGIN = 0.03 -- side bars' inner edge, tan units inside the viewport edge
 local AA_SIDE_INNER = 0.195 -- |x| of the side bars' inner edge as built (gunsights.py AA_SIDE_INNER)
--- AASeeker parts that slide with a viewport edge: the side bars and the
--- readable corner pieces ("IR SEEKER" Plate; Controls and Lamp on the
--- right). Keeps them beside the centred, fixed-pixel HUD panels.
-local AA_SIDE = { Left = -1, Plate = -1, Right = 1, Controls = 1, Lamp = 1 }
+-- AASeeker parts that slide with a viewport edge: the side bars, and the
+-- lamp box (Controls) and Lamp riding the right one. Keeps the lamp box
+-- beside the centred, fixed-pixel HUD panels at any aspect.
+local AA_SIDE = { Left = -1, Right = 1, Controls = 1, Lamp = 1 }
 local KICK_MG = math.rad(0.3) -- sight jump per MG round (capped at KICK_MG_MAX)
 local KICK_MG_MAX = math.rad(1.1)
 local KICK_HEAVY = math.rad(2.4) -- rocket / missile launch

@@ -17,11 +17,11 @@ Models:
                         GUI scope lens (0.62 x screen height), so the GUI's
                         reticle marks sit inside it.
   AASeeker    (missile) hooded display bezel of the IR seeker unit: Top,
-                        Bottom, Left + Plate ("IR SEEKER"), Right + Controls
-                        (lamp bezel, tone knob, toggle) + Lamp (Neon,
-                        coloured by lock state). The client slides the
-                        left/right pieces to the viewport edges, so the
-                        corners clear the centred HUD panels at any aspect.
+                        Bottom, Left, Right + Controls (lamp bezel, tone knob,
+                        toggle) + Lamp (Neon, coloured by lock state). The
+                        client slides the left/right pieces to the viewport
+                        edges, so the lamp box clears the centred HUD panels
+                        at any aspect. No lettering (see aa_seeker).
 
 Same material language as the emplacement (worn OD paint over bare steel,
 parkerized steel, rubber, stencils), at sight scale.
@@ -217,11 +217,11 @@ AA_SIDE_INNER = 0.195  # |x| of the side bars' inner edge (corner blocks); clien
 
 def aa_seeker(a):
     """Hooded display bezel. The HUD's panels are fixed-pixel and centred
-    (score/wave panel 520 px, tips, boss bar), so everything readable sits in
-    the two top corners on the `Left` / `Right` parts, which the client
-    slides to the viewport edges: that keeps it beside the panels at any
-    resolution and aspect (checked 1190x1080, 1280x720, 1366x768,
-    1440x1080, 1920x1080). The centred `Top` / `Bottom` bars are plain."""
+    (score/wave panel 520 px, tips, boss bar), so the only detail piece,
+    the lamp box, sits in the top-right corner on a part the client slides
+    with the right viewport edge: it stays beside the panels at any
+    resolution and aspect (checked 1024x768 to 2560x1440). The centred
+    Top / Bottom bars are plain."""
     d = AA_D
     top_edge = 0.24 * d  # lower edge of the top bar (84 % up the half-view, above the 13-degree lock-break cone)
     bot_edge = -0.25 * d  # upper edge of the bottom lip
@@ -253,37 +253,28 @@ def aa_seeker(a):
             p.add(geo.box(0.06, 0.04, 0.06, bevel=0.014), "sight_rubber", at=(x + side * 0.025, d - 0.012, zz))
         sides[side] = p
 
-    # The two corner pieces carry the only small lettering, so they get their
-    # own 512 atlas ("labels", ~3000 px/stud): the text stays crisp at 1080p.
-    # Top-left corner: riveted data plate with the unit name.
-    left = a.part("Plate", path="AASeeker", tex="labels", query=False, shadow=False, material="Metal")
-    th = 0.012
-    tw = th * images.text_aspect("IR SEEKER")
-    pw = tw + 0.022
-    pz = top_edge + 0.014
-    px = -AA_SIDE_INNER + pw / 2 + 0.002
-    left.add(geo.box(pw, 0.012, 0.028, bevel=0.003), "sight_od_dark", at=(px, d - 0.008, pz))
-    for sx in (-1, 1):
-        left.add(facing(geo.cylinder(0.0028, 0.004, verts=6, bevel=0.0)), "sight_bare", at=(px + sx * (pw / 2 - 0.006), d - 0.015, pz))
-    stencil(a, "IR SEEKER", (px, d - 0.016, pz), th, wear=0.2, seed=94)
-
-    # Top-right corner: control box with the lock lamp (the Lamp part sits
-    # in its bezel), tone knob and uncage toggle.
-    right = a.part("Controls", path="AASeeker", tex="labels", query=False, shadow=False, material="Metal")
-    cz = top_edge + 0.017
-    lamp_x, knob_x, tog_x = AA_SIDE_INNER - 0.07, AA_SIDE_INNER - 0.04, AA_SIDE_INNER - 0.016
-    right.add(geo.box(0.092, 0.02, 0.066, bevel=0.006), "sight_od_dark", at=(AA_SIDE_INNER - 0.046, d - 0.008, cz - 0.004))
-    right.add(facing(geo.tube(0.016, 0.0105, 0.012, verts=24)), "sight_bare", at=(lamp_x, d - 0.022, cz))
-    right.add(facing(geo.cylinder(0.0106, 0.004, verts=20, bevel=0.0)), "lamp_off", at=(lamp_x, d - 0.016, cz))
-    right.add(facing(knurled(0.012, 0.016, teeth=14, depth=0.002)), "sight_rubber", at=(knob_x, d - 0.026, cz))
-    right.add(facing(geo.cylinder(0.007, 0.01, verts=10, bevel=0.002)), "sight_bare", at=(tog_x, d - 0.022, cz))
-    right.add(geo.pipe_path([(tog_x, d - 0.026, cz), (tog_x + 0.004, d - 0.05, cz + 0.012)], 0.0032, verts=6), "sight_bare")
-    stencil(a, "LOCK", (lamp_x, d - 0.019, cz - 0.0215), 0.0075, wear=0.15, seed=91)
-    stencil(a, "TONE", (knob_x, d - 0.019, cz - 0.0215), 0.0075, wear=0.15, seed=92)
+    # No lettering on the bezel: the top-left corner sits under Roblox's own
+    # topbar buttons (GuiService.TopbarInset, 0-164 x 0-58 px), and the
+    # seeker GUI already says "IR SEEKER". Top-right corner: a compact box
+    # with the lock lamp (the Lamp part sits in its bezel), tone knob and
+    # uncage toggle, kept inside the top 58 px band at 720p-1440p so it
+    # clears both the centred HUD panels and the CoreGui player list below
+    # the topbar. It rides the right edge with the side bar (client slide).
+    right = a.part("Controls", path="AASeeker", tex="sights", query=False, shadow=False, material="Metal")
+    cz = 0.184  # lamp centre ~30 px below the top edge at 1068 px (the box face is 0.02 nearer than d)
+    lamp_x, knob_x, tog_x = AA_SIDE_INNER - 0.066, AA_SIDE_INNER - 0.038, AA_SIDE_INNER - 0.016
+    right.add(geo.box(0.086, 0.02, 0.04, bevel=0.005), "sight_od_dark", at=(AA_SIDE_INNER - 0.043, d - 0.008, 0.196))
+    right.add(facing(geo.tube(0.0095, 0.0062, 0.01, verts=24)), "sight_bare", at=(lamp_x, d - 0.021, cz))
+    right.add(facing(geo.cylinder(0.0063, 0.004, verts=20, bevel=0.0)), "lamp_off", at=(lamp_x, d - 0.016, cz))
+    right.add(facing(knurled(0.008, 0.014, teeth=12, depth=0.0016)), "sight_rubber", at=(knob_x, d - 0.025, cz))
+    right.add(facing(geo.cylinder(0.005, 0.01, verts=10, bevel=0.002)), "sight_bare", at=(tog_x, d - 0.022, cz))
+    right.add(geo.pipe_path([(tog_x, d - 0.026, cz), (tog_x + 0.003, d - 0.046, cz + 0.01)], 0.0028, verts=6), "sight_bare")
+    for x in (AA_SIDE_INNER - 0.08, AA_SIDE_INNER - 0.006):
+        right.add(facing(geo.cylinder(0.0028, 0.004, verts=6, bevel=0.0)), "sight_bare", at=(x, d - 0.019, 0.18))
     lamp = a.part("Lamp", path="AASeeker", neon=(0.49, 0.82, 0.31), query=False, shadow=False, transparency=0.2, material="Neon")
-    lamp.add(facing(geo.cylinder(0.0098, 0.004, verts=20, bevel=0.0)), "lamp_off", at=(lamp_x, d - 0.02, cz))
+    lamp.add(facing(geo.cylinder(0.0058, 0.004, verts=20, bevel=0.0)), "lamp_off", at=(lamp_x, d - 0.02, cz))
 
-    for p in (top, bot, sides[-1], sides[1], left, right):
+    for p in (top, bot, sides[-1], sides[1], right):
         cull_back_faces(p)
     a.material("lamp_off", kind="flat", color="#2a1210", rough=0.2)
 
@@ -295,7 +286,6 @@ def build(**kw):
     a.meta["no_ground"] = True
     a.texture_group("sights", 1024)
     a.texture_group("rocket", 1024)
-    a.texture_group("labels", 512)
     for path in ("IronSight", "RocketScope", "AASeeker"):
         a.pivot(path, (0, 0, 0))
     materials(a)
@@ -304,7 +294,7 @@ def build(**kw):
     aa_seeker(a)
     iron = ["Ring", "Rear"]
     rocket = ["Housing"]
-    aa = ["Top", "Bottom", "Left", "Right", "Plate", "Controls", "Lamp"]
+    aa = ["Top", "Bottom", "Left", "Right", "Controls", "Lamp"]
 
     def eye(label, hide, res=(1190, 1080)):
         return {"label": label, "pos": (0, 0, 0), "look": (0, 10, 0), "fov": 32, "res": res, "hide": hide}
