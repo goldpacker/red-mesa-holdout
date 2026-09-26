@@ -136,11 +136,11 @@ function EnemyFireFx.handle(p: any)
 		buggyBurst(p)
 	elseif attack == "TankAim" then
 		-- Telegraph: a hot glint on the muzzle while the turret swings on.
-		Particles.glint(p.from, EnemyConfig.Tank.AIM_TIME, Color3.fromRGB(255, 236, 190), 9)
+		Particles.glint(p.from, EnemyConfig.Tank.AIM_TIME, Color3.fromRGB(255, 236, 190), 18)
 	elseif attack == "Shell" then
 		tankShell(p)
 	elseif attack == "SalvoWarn" then
-		Particles.glint(p.from + Vector3.new(0, -3, 0), EnemyConfig.Helicopter.SALVO_WARN, Color3.fromRGB(255, 80, 60), 11)
+		Particles.glint(p.from + Vector3.new(0, -3, 0), EnemyConfig.Helicopter.SALVO_WARN, Color3.fromRGB(255, 80, 60), 16)
 	elseif attack == "Rocket" then
 		heliRocket(p)
 	elseif attack == "Bombs" then

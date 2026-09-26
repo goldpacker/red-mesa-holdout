@@ -129,9 +129,10 @@ function SiegeCrawler.spawn(ctx: Types.Context, laneName: string, rng: Random): 
 		anchor.Anchored = false
 		anchor.CFrame = CFrame.new(position)
 		anchor:SetAttribute("Burning", scale)
-		local weld = Instance.new("WeldConstraint")
+		local weld = Instance.new("Weld")
 		weld.Part0 = root
 		weld.Part1 = anchor
+		weld.C0 = root.CFrame:ToObjectSpace(anchor.CFrame)
 		weld.Parent = anchor
 		anchor.Parent = model
 	end

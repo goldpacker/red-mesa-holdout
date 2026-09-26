@@ -34,9 +34,9 @@ EnemyConfig.Buggy = {
 	STRAFE_RADIUS = { 230, 320 },
 	STRAFE_YAW_LIMIT = 92, -- degrees either side of forward
 	GUN_RANGE = 460,
-	BURST_INTERVAL = 2.4,
+	BURST_INTERVAL = 2.6,
 	BURST_ROUNDS = 5,
-	BURST_DAMAGE = 1.4, -- per burst
+	BURST_DAMAGE = 1.1, -- per burst (~0.4 integrity/s per strafing buggy)
 	RIDE_HEIGHT = 0,
 }
 

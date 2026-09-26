@@ -38,10 +38,15 @@ local function pivotOf(inst: Instance): CFrame
 	return (inst :: BasePart).CFrame
 end
 
+-- A Weld (explicit C0), not a WeldConstraint: models are built and
+-- positioned before they are parented to Workspace, and a WeldConstraint
+-- would capture whatever stale offset exists when it first activates.
 local function weld(a: BasePart, b: BasePart)
-	local w = Instance.new("WeldConstraint")
+	local w = Instance.new("Weld")
 	w.Part0 = a
 	w.Part1 = b
+	w.C0 = a.CFrame:ToObjectSpace(b.CFrame)
+	w.C1 = CFrame.identity
 	w.Parent = b
 end
 

@@ -16,10 +16,20 @@ local function at(x: number, y: number, z: number): CFrame
 end
 
 local function navLight(parent: Instance, name: string, pos: Vector3, color: Color3): Part
-	local p = Kit.lamp(parent, name, Vector3.new(0.5, 0.5, 0.5), CFrame.new(pos), color)
+	local p = Kit.lamp(parent, name, Vector3.new(0.8, 0.8, 0.8), CFrame.new(pos), color)
 	p.Shape = Enum.PartType.Ball
-	Kit.glow(p, 10, 1.2, color)
+	Kit.glow(p, 18, 2, color)
 	return p
+end
+
+-- A faint light shaft (only shown at night by client/VehicleFx).
+local function searchBeam(parent: Instance, from: Vector3, dir: Vector3, length: number, width: number)
+	local centre = from + dir.Unit * (length / 2)
+	local beam = Kit.cyl(parent, "SearchBeam", length, width, CFrame.lookAt(centre, centre + dir) * CFrame.Angles(0, math.rad(90), 0), Kit.LAMP, Enum.Material.Neon)
+	beam.Transparency = 1
+	beam.CastShadow = false
+	Kit.decor(beam)
+	return beam
 end
 
 -- Tandem-seat attack helicopter, ~40 studs rotor to tail.
@@ -74,6 +84,8 @@ function AirModels.helicopter(): Model
 	local search = Kit.lamp(m, "SearchlightLens", Vector3.new(0.9, 0.9, 0.3), at(0, -3.9, -6.2) * CFrame.Angles(math.rad(-25), 0, 0), Kit.LAMP)
 	Kit.attachment(search, "Searchlight", search.Position, search.CFrame.LookVector)
 	Kit.spotlight(search, 120, 30, 2.2)
+	searchBeam(m, search.Position, search.CFrame.LookVector, 70, 4)
+	navLight(m, "NavStrobe", Vector3.new(0, -3.7, 2), NAV_WHITE)
 
 	-- Main rotor (spins on Y)
 	local rotor = Instance.new("Model")

@@ -9,6 +9,7 @@
 -- models entering Workspace.Wrecks with State = Dead | Crashing | Thrown |
 -- Debris | Dying | Wreck and an FxScale attribute.
 
+local Lighting = game:GetService("Lighting")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
@@ -34,8 +35,15 @@ type Vehicle = {
 	lastPos: Vector3,
 	loop: Sound?,
 	strobes: { BasePart },
+	beams: { BasePart },
 	flyby: boolean,
 }
+
+local night = false
+local function isNight(): boolean
+	local t = Lighting.ClockTime
+	return t >= 18.3 or t < 6
+end
 
 local vehicles: { [Model]: Vehicle } = {}
 local aimController: any = nil
@@ -101,10 +109,12 @@ local function register(model: Model)
 			motors[(string.gsub(d.Name, "Motor$", ""))] = d
 		end
 	end
-	local strobes = {}
+	local strobes, beams = {}, {}
 	for _, d in model:GetDescendants() do
 		if d:IsA("BasePart") and d.Name == "NavStrobe" then
 			table.insert(strobes, d)
+		elseif d:IsA("BasePart") and d.Name == "SearchBeam" then
+			table.insert(beams, d)
 		elseif d:IsA("BasePart") and d:GetAttribute("Burning") then
 			Particles.burn(d, d:GetAttribute("Burning") :: number, Vector3.zero)
 		end
@@ -119,6 +129,7 @@ local function register(model: Model)
 		lastPos = root.Position,
 		loop = nil,
 		strobes = strobes,
+		beams = beams,
 		flyby = false,
 	}
 	local loopName = ENGINE_LOOPS[kind]
@@ -176,21 +187,36 @@ local function animateBoss(v: Vehicle, dt: number, now: number)
 	if glow and glow:IsA("BasePart") then
 		local charging = v.model:GetAttribute("Charging") == true
 		local light = glow:FindFirstChildWhichIsA("PointLight")
+		local flare = glow:FindFirstChild("ChargeFlare") :: ParticleEmitter?
+		if not flare then
+			flare = Particles.chargeFlare(glow)
+		end
 		if charging then
 			local ends = (v.model:GetAttribute("ChargeEnd") :: number?) or now
 			local total = 5.5
 			local frac = math.clamp(1 - (ends - Workspace:GetServerTimeNow()) / total, 0, 1)
 			local pulse = 0.85 + 0.15 * math.sin(now * (8 + frac * 20))
 			glow.Transparency = 1 - (0.25 + 0.7 * frac) * pulse
-			glow.Size = Vector3.one * (2 + frac * 5)
+			glow.Size = Vector3.one * (2 + frac * 7)
 			if light then
-				light.Brightness = frac * 10 * pulse
-				light.Range = 20 + frac * 40
+				light.Brightness = frac * 12 * pulse
+				light.Range = 25 + frac * 50
+			end
+			if flare then
+				flare.Rate = 10 + 50 * frac
+				flare.Size = NumberSequence.new({
+					NumberSequenceKeypoint.new(0, 4 + 10 * frac),
+					NumberSequenceKeypoint.new(0.5, 10 + 22 * frac),
+					NumberSequenceKeypoint.new(1, 3),
+				})
 			end
 		else
 			glow.Transparency = 1
 			if light then
 				light.Brightness = 0
+			end
+			if flare then
+				flare.Rate = 0
 			end
 		end
 	end
@@ -237,6 +263,10 @@ local function animate(v: Vehicle, dt: number, now: number)
 		end
 	elseif v.kind == "SiegeCrawler" then
 		animateBoss(v, dt, now)
+	end
+	-- Searchlight shafts only read (and only make sense) after dark.
+	for _, b in v.beams do
+		b.Transparency = if night then 0.9 else 1
 	end
 	-- Anti-collision strobes: a short flash every 1.1 s.
 	if #v.strobes > 0 then
@@ -392,8 +422,13 @@ function VehicleFx.start()
 	end)
 	wrecks.ChildAdded:Connect(watchWreck)
 
+	local nightCheck = 0
 	RunService.RenderStepped:Connect(function(dt)
 		local now = os.clock()
+		if now > nightCheck then
+			nightCheck = now + 0.5
+			night = isNight()
+		end
 		for model, v in vehicles do
 			if not model.Parent then
 				unregister(model)

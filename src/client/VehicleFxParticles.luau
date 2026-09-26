@@ -345,12 +345,32 @@ function Particles.glint(position: Vector3, duration: number, color: Color3, siz
 	e.Enabled = true
 	local light = Instance.new("PointLight")
 	light.Color = color
-	light.Range = 18
+	light.Range = 36
 	light.Brightness = 0
 	light.Shadows = false
 	light.Parent = anchor
-	TweenService:Create(light, TweenInfo.new(duration, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Brightness = 6 }):Play()
+	TweenService:Create(light, TweenInfo.new(duration, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Brightness = 9 }):Play()
 	return anchor
+end
+
+-- Charge-up flare for the Siege Crawler's cannon: a sparkle emitter on
+-- the glow part whose rate/size the caller drives each frame.
+function Particles.chargeFlare(part: BasePart): ParticleEmitter
+	local e = emitter(part, {
+		Texture = TEX.sparkle,
+		Color = ColorSequence.new(Color3.fromRGB(255, 200, 150), Color3.fromRGB(255, 90, 40)),
+		LightEmission = 1,
+		LightInfluence = 0,
+		Size = ns({ { 0, 6 }, { 0.5, 14 }, { 1, 4 } }),
+		Transparency = ns({ { 0, 0.2 }, { 1, 1 } }),
+		Lifetime = NumberRange.new(0.2, 0.35),
+		Rate = 0,
+		Speed = NumberRange.new(0),
+		RotSpeed = NumberRange.new(-200, 200),
+	})
+	e.Name = "ChargeFlare"
+	e.Enabled = true
+	return e
 end
 
 -- Moves `body` from `from` to `to` over `duration` with an optional arc,
