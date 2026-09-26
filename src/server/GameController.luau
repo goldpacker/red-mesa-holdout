@@ -164,10 +164,38 @@ GameController.context = {
 	end,
 	enemyFired = function(enemy: Types.Enemy, attack: string, from: Vector3, to: Vector3)
 		if phase == "Wave" then
-			emit("EnemyFire", { kind = enemy.kind, attack = attack, from = from, to = to })
+			emit("EnemyFire", { kind = enemy.kind, attack = attack, from = from, to = to, id = enemy.id })
 		end
 	end,
+	emit = function(kind: string, payload: any)
+		emit(kind, payload)
+	end,
+	spawn = function(kind: string, lane: string): Types.Enemy?
+		if phase ~= "Wave" then
+			return nil
+		end
+		local ok, enemy = pcall(Enemies.spawn, GameController.context, kind, lane)
+		if not ok then
+			warn("[RedMesa] ctx.spawn failed: " .. tostring(enemy))
+			return nil
+		end
+		return enemy
+	end,
+	dropCrate = function(bias: string?)
+		if phase == "Wave" and GameController.onCrateRequest then
+			GameController.onCrateRequest(bias)
+		end
+	end,
+	awardPoints = function(points: number, position: Vector3, label: string)
+		scoring:addBonus(points)
+		scoring.waveScore += points
+		emit("Points", { points = points, position = position, label = label })
+		publish()
+	end,
 } :: Types.Context
+
+-- Set by the crate system once it exists; receives the requested bias.
+GameController.onCrateRequest = nil :: ((bias: string?) -> ())?
 
 local function onHeartbeat(dt: number)
 	local current = director
@@ -234,10 +262,16 @@ local function installDebugHooks()
 			end
 		elseif cmd == "killAll" then
 			for _, enemy in Enemies.all() do
-				Enemies.damage(enemy, math.huge)
+				Enemies.damage(enemy, math.huge, "Debug")
 			end
 		elseif cmd == "startWave" then
 			startWave(arg)
+		elseif cmd == "spawn" then
+			-- arg = { kind = "Tank", lane = "Road" }; works during a Wave.
+			local enemy = GameController.context.spawn(arg.kind, arg.lane)
+			return enemy ~= nil
+		elseif cmd == "crate" then
+			GameController.context.dropCrate(arg)
 		end
 		return true
 	end

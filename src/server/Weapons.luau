@@ -92,7 +92,7 @@ local function fireMachineGun(player: Player, dir: Vector3)
 	end
 	local headshot = result.Instance.Name == "Head"
 	local damage = MG.DAMAGE * (if headshot then MG.HEADSHOT_MULTIPLIER else 1)
-	local killed = Enemies.damage(enemy, damage)
+	local killed = Enemies.damage(enemy, damage, "MG", result.Instance :: BasePart)
 	hooks.onHit(player, enemy, killed, result.Position, headshot)
 end
 

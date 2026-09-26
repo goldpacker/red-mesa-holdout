@@ -5,6 +5,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local AimController = require(script.AimController)
 local Effects = require(script.Effects)
+local EnemyFireFx = require(script.EnemyFireFx)
 local EnemyVisuals = require(script.EnemyVisuals)
 local GameState = require(script.GameState)
 local Hud = require(script.Hud)
@@ -20,14 +21,7 @@ Hud.start()
 Screens.start()
 EnemyVisuals.start()
 
-local tipsShown: { [string]: boolean } = {}
-local function tipOnce(key: string, text: string, duration: number?)
-	if tipsShown[key] then
-		return
-	end
-	tipsShown[key] = true
-	Hud.showTip(text, duration)
-end
+local tipOnce = Hud.tipOnce
 
 local function applyPhase(phase: string)
 	Screens.applyPhase(phase)
@@ -64,17 +58,7 @@ GameState.onEvent("Kill", function(p)
 	Hud.scorePopup(p.position + Vector3.new(0, 4, 0), label)
 end)
 
-GameState.onEvent("EnemyFire", function(p)
-	if p.attack == "Grenade" then
-		Effects.grenade(p.from, p.to, Config.Infantry.GRENADE_FLIGHT)
-		task.delay(Config.Infantry.GRENADE_FLIGHT, function()
-			Sfx.play("GrenadeBlast", 0.2)
-		end)
-		tipOnce("grenade", "Infantry at the mesa base throw grenades — <b>clear them fast!</b>", 5)
-	else
-		Effects.enemyShot(p.from, p.to)
-	end
-end)
+GameState.onEvent("EnemyFire", EnemyFireFx.handle)
 
 -- Defeat: the emplacement erupts and keeps burning until the next run.
 local burning: { BasePart } = {}

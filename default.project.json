@@ -26,6 +26,9 @@
       },
       "GameState": {
         "$className": "Configuration"
+      },
+      "Assets": {
+        "$path": "assets/roblox"
       }
     },
     "ServerScriptService": {

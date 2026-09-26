@@ -1,16 +1,25 @@
 --!strict
 -- Registry of live enemies: spawning, per-frame updates, damage and cleanup.
+-- Enemy kinds are loaded from every ModuleScript in server/EnemyTypes that
+-- returns { kind = string, spawn = function } (see Types.EnemyType).
 
 local Workspace = game:GetService("Workspace")
 
 local Types = require(script.Parent.Types)
-local Infantry = require(script.Parent.Infantry)
 
 local Enemies = {}
 
-local SPAWNERS: { [string]: (Types.Context, string, Random) -> Types.Enemy } = {
-	Infantry = Infantry.spawn,
-}
+local SPAWNERS: { [string]: (Types.Context, string, Random) -> Types.Enemy } = {}
+for _, module in script.Parent.EnemyTypes:GetChildren() do
+	if module:IsA("ModuleScript") then
+		local ok, def = pcall(require, module)
+		if ok and type(def) == "table" and def.kind and def.spawn then
+			SPAWNERS[def.kind] = def.spawn
+		else
+			warn("[RedMesa] failed to load enemy type " .. module.Name .. ": " .. tostring(def))
+		end
+	end
+end
 
 local alive: { [number]: Types.Enemy } = {}
 local nextId = 0
@@ -18,6 +27,10 @@ local rng = Random.new()
 
 local function folder(): Folder
 	return Workspace:WaitForChild("Enemies") :: Folder
+end
+
+function Enemies.has(kind: string): boolean
+	return SPAWNERS[kind] ~= nil
 end
 
 function Enemies.spawn(ctx: Types.Context, kind: string, lane: string): Types.Enemy
@@ -44,6 +57,11 @@ function Enemies.update(dt: number)
 		if not ok then
 			warn(string.format("[RedMesa] enemy %s#%d update failed: %s", enemy.kind, id, tostring(err)))
 			Enemies.remove(enemy)
+			continue
+		end
+		local threatening = enemy.isThreatening ~= nil and enemy.isThreatening()
+		if enemy.model:GetAttribute("Threat") ~= threatening then
+			enemy.model:SetAttribute("Threat", threatening)
 		end
 	end
 end
@@ -64,12 +82,19 @@ function Enemies.fromPart(part: Instance): Types.Enemy?
 	return nil
 end
 
--- Applies damage; returns true if this hit killed the enemy.
-function Enemies.damage(enemy: Types.Enemy, amount: number): boolean
+-- Applies damage from `weapon` ("MG", "Rocket", "Missile"), honouring the
+-- enemy's resistances and onDamage hook. Returns true if this hit killed it.
+function Enemies.damage(enemy: Types.Enemy, amount: number, weapon: string, part: BasePart?): boolean
 	if enemy.dead then
 		return false
 	end
-	enemy.health -= amount
+	local resist = enemy.resist and enemy.resist[weapon]
+	local dealt = amount * (if resist then resist else 1)
+	if enemy.onDamage then
+		local ok, result = pcall(enemy.onDamage, dealt, weapon, part)
+		dealt = if ok and type(result) == "number" then result else 0
+	end
+	enemy.health -= dealt
 	if enemy.health > 0 then
 		return false
 	end
@@ -81,6 +106,28 @@ function Enemies.damage(enemy: Types.Enemy, amount: number): boolean
 		enemy.model:Destroy()
 	end
 	return true
+end
+
+-- Splash damage with linear falloff to 25% at the edge. Returns every enemy
+-- touched with whether it died, nearest first.
+function Enemies.damageRadius(center: Vector3, radius: number, amount: number, weapon: string): { { enemy: Types.Enemy, killed: boolean } }
+	local hits = {}
+	for _, enemy in alive do
+		local dist = (enemy.root.Position - center).Magnitude
+		if dist <= radius then
+			table.insert(hits, { enemy = enemy, dist = dist })
+		end
+	end
+	table.sort(hits, function(a, b)
+		return a.dist < b.dist
+	end)
+	local results = {}
+	for _, h in hits do
+		local falloff = 1 - 0.75 * (h.dist / radius)
+		local killed = Enemies.damage(h.enemy, amount * falloff, weapon, nil)
+		table.insert(results, { enemy = h.enemy, killed = killed })
+	end
+	return results
 end
 
 function Enemies.remove(enemy: Types.Enemy)

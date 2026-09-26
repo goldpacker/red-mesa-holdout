@@ -9,9 +9,10 @@ local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local Config = require(ReplicatedStorage.Shared.Config)
-local Types = require(script.Parent.Types)
+local Types = require(script.Parent.Parent.Types)
 
 local Infantry = {}
+Infantry.kind = "Infantry"
 
 local UNIFORM = Color3.fromRGB(56, 58, 64)
 local UNIFORM_DARK = Color3.fromRGB(38, 40, 44)
@@ -227,6 +228,10 @@ function Infantry.spawn(ctx: Types.Context, laneName: string, rng: Random): Type
 		task.delay(4, function()
 			model:Destroy()
 		end)
+	end
+
+	function enemy.isThreatening(): boolean
+		return (position - Config.TURRET_PIVOT).Magnitude <= CFG.RIFLE_RANGE
 	end
 
 	function enemy.distanceToOutpost(): number
