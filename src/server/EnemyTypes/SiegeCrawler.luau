@@ -223,6 +223,12 @@ function SiegeCrawler.spawn(ctx: Types.Context, laneName: string, rng: Random): 
 		if part then
 			lastDirectHit = os.clock()
 			target = owner(part)
+			if not target then
+				-- Hull hit: partial credit to the nearest intact target so a
+				-- rocket into the middle of the hulk is never wasted.
+				target = nearestTarget()
+				amount *= CFG.SPLASH_CREDIT
+			end
 		elseif os.clock() - lastDirectHit > SPLASH_DEDUPE then
 			target = nearestTarget()
 			amount *= CFG.SPLASH_CREDIT

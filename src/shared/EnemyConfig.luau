@@ -131,8 +131,10 @@ EnemyConfig.SiegeCrawler = {
 	-- Weak points only take rockets. A direct rocket hit deals 60 to the
 	-- part it strikes (the splash of that same rocket is ignored); a near
 	-- miss that only splashes credits half to the nearest intact target.
-	WEAK_POINT_HEALTH = { TurretLeft = 120, TurretRight = 120, MainCannon = 180 }, -- 2 / 2 / 3 rockets
-	CORE_HEALTH = 240, -- 4 rockets
+	-- Sized so the fight outlasts the opening 8 rockets and leans on the
+	-- rocket crates the crawler calls in (~2.5 min for a steady player).
+	WEAK_POINT_HEALTH = { TurretLeft = 200, TurretRight = 200, MainCannon = 280 }, -- 4 / 4 / 5 rockets
+	CORE_HEALTH = 360, -- 6 rockets
 	SPLASH_CREDIT = 0.5,
 	SPEED = 5.5, -- ~100 s from the far road to its siege position
 	TURN_RATE = 0.12,
@@ -140,11 +142,11 @@ EnemyConfig.SiegeCrawler = {
 	CANNON_INTERVAL = 11, -- cooldown after each shot
 	CANNON_FIRST = 9,
 	CANNON_CHARGE = 5.5,
-	CANNON_DAMAGE = 20,
+	CANNON_DAMAGE = 16,
 	TURRET_INTERVAL = 4.5,
 	TURRET_DAMAGE = 1.5,
-	TURRET_RANGE = 700,
-	CANNON_RANGE = 820, -- harmless while it is still far out
+	TURRET_RANGE = 560,
+	CANNON_RANGE = 600, -- harmless while it is still far out
 	CRATE_FIRST = 10,
 	CRATE_INTERVAL = 17,
 	ESCORT_FIRST = 12,
