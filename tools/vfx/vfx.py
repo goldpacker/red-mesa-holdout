@@ -45,10 +45,10 @@ def cmd_render(name):
 
 
 def _frames(spec):
-    """Yields premultiplied linear RGBA frames at CELL * SUPER."""
+    """Yields premultiplied linear RGBA frames at cell * SUPER (painted) or CELL * SUPER (rendered)."""
     from vfxlib import image
     mod = _module(spec)
-    size = CELL * SUPER
+    size = spec.get("cell", CELL) * SUPER
     if spec["method"] == "render":
         folder = os.path.join(CACHE, spec["name"])
         last = None
@@ -82,7 +82,7 @@ def cmd_assemble(name):
             t = i / (FRAMES - 1)
             k = min(max((t - fade[0]) / (fade[1] - fade[0]), 0.0), 1.0)
             frame = frame * (1.0 - k * k * (3.0 - 2.0 * k))  # premultiplied: scale all channels
-        cells.append(image.process_frame(frame, spec, CELL))
+        cells.append(image.process_frame(frame, spec, spec.get("cell", CELL)))
     atlas = image.assemble(cells)
     path = os.path.join(OUT, f"{name}.png")
     image.save_png(path, atlas)

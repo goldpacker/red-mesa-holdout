@@ -36,6 +36,20 @@ local WIND = Effects.WIND
 -- Soft, edgeless dust cloud sheet (tools/vfx/sheets/drift.py).
 local DUST = "DustDrift"
 
+-- ZOffset on every dust emitter pulls the sprites toward the camera so the
+-- ground doesn't cut them off in hard lines; small on ground vehicles so the
+-- dust still sits behind the hull it rolls off.
+
+-- Opacity over a particle's life: dense where it leaves the ground (the
+-- sheet itself has no edge to show), thinning out over the last two thirds.
+local function thins(start: number, mid: number): NumberSequence
+	return NumberSequence.new({
+		NumberSequenceKeypoint.new(0, start),
+		NumberSequenceKeypoint.new(0.35, mid),
+		NumberSequenceKeypoint.new(1, 1),
+	})
+end
+
 -- Sizes with a random spread (envelope) so a trail of puffs doesn't read
 -- as a string of identical balls.
 local function sizes(a: number, b: number, c: number, spread: number): NumberSequence
@@ -46,13 +60,19 @@ local function sizes(a: number, b: number, c: number, spread: number): NumberSeq
 	})
 end
 
--- Dust tint by the ground under the source. Lit particles, so these sit a
--- little darker than the ground they match on screen (see Effects).
+-- Dust tint by the ground under the source: the ground's on-screen colour
+-- lifted toward white, since a cloud of fine dust scatters light and reads
+-- paler than the ground it came off (matched side by side in Studio; the
+-- plain ground colour made the dust vanish into the sand).
+local LIFT = 0.3
+local function lifted(c: Color3): Color3
+	return c:Lerp(Color3.new(1, 1, 1), LIFT)
+end
 local TINT: { [string]: Color3 } = {
-	Sand = Color3.fromRGB(214, 160, 110),
-	Road = Color3.fromRGB(150, 116, 88),
-	Wash = Color3.fromRGB(200, 178, 146),
-	Rock = Effects.ROCK_DUST,
+	Sand = lifted(Color3.fromRGB(214, 160, 110)),
+	Road = lifted(Color3.fromRGB(160, 122, 92)),
+	Wash = lifted(Color3.fromRGB(200, 178, 146)),
+	Rock = lifted(Effects.ROCK_DUST),
 }
 local SURFACE: { [Enum.Material]: string } = {
 	[Enum.Material.Ground] = "Road",
@@ -73,8 +93,8 @@ type Spec = {
 
 local SPECS: { [string]: Spec } = {
 	Buggy = { mode = "wheel", sources = { { "WheelRL" }, { "WheelRR" } }, rate = 22, cutoff = 1500, scale = 1, refSpeed = 40 },
-	Tank = { mode = "track", sources = { { "TrackL" }, { "TrackR" } }, rate = 8, cutoff = 1800, scale = 1, refSpeed = 10 },
-	SiegeCrawler = { mode = "track", sources = { { "TrackL" }, { "TrackR" } }, rate = 10, cutoff = 2600, scale = 2.1, refSpeed = 5 },
+	Tank = { mode = "track", sources = { { "TrackL" }, { "TrackR" } }, rate = 12, cutoff = 1800, scale = 1.2, refSpeed = 10 },
+	SiegeCrawler = { mode = "track", sources = { { "TrackL" }, { "TrackR" } }, rate = 10, cutoff = 2600, scale = 2.2, refSpeed = 5 },
 	-- Hover heights are ~100-160 studs over the basin: a faint ring at the
 	-- top of that window, a full one when a helicopter comes down low.
 	Helicopter = { mode = "rotor", sources = { { "MainRotor", "Root" } }, rate = 18, cutoff = 2200, scale = 1, low = 50, high = 170 },
@@ -151,8 +171,9 @@ local function build(att: Attachment, spec: Spec): { Emitter }
 		-- string of separate puffs at range).
 		add(list, emitter(att, DUST, 0, {
 			Name = "WheelDust",
-			Size = sizes(3 * s, 9.5 * s, 14 * s, 0.3),
-			Transparency = seq(0.4, 0.55, 1),
+			Size = sizes(4.5 * s, 11 * s, 15 * s, 0.27),
+			Transparency = thins(0.1, 0.42),
+			ZOffset = 1,
 			Lifetime = NumberRange.new(1.6, 2.6),
 			Speed = NumberRange.new(3, 8),
 			SpreadAngle = Vector2.new(35, 35),
@@ -162,8 +183,9 @@ local function build(att: Attachment, spec: Spec): { Emitter }
 	elseif spec.mode == "track" then
 		add(list, emitter(att, DUST, 0, {
 			Name = "TrackDust",
-			Size = sizes(4 * s, 12 * s, 18 * s, 0.25),
-			Transparency = seq(0.4, 0.55, 1),
+			Size = sizes(5 * s, 13 * s, 19 * s, 0.25),
+			Transparency = thins(0.05, 0.32),
+			ZOffset = 1.5 * s,
 			Lifetime = NumberRange.new(2.4, 3.4),
 			Speed = NumberRange.new(1.5 * s, 4 * s),
 			SpreadAngle = Vector2.new(35, 20),
@@ -176,7 +198,8 @@ local function build(att: Attachment, spec: Spec): { Emitter }
 		add(list, emitter(att, DUST, 0, {
 			Name = "Downwash",
 			Size = sizes(7 * s, 18 * s, 26 * s, 0.25),
-			Transparency = seq(0.42, 0.58, 1),
+			Transparency = thins(0.25, 0.5),
+			ZOffset = 4,
 			Lifetime = NumberRange.new(2, 2.8),
 			Speed = NumberRange.new(40, 55), -- ~40 studs out (1 rotor diameter)
 			EmissionDirection = Enum.NormalId.Front,
@@ -203,7 +226,11 @@ local function build(att: Attachment, spec: Spec): { Emitter }
 		add(list, emitter(att, DUST, 0, {
 			Name = "JetWake",
 			Size = sizes(16 * s, 34 * s, 48 * s, 0.3),
-			Transparency = seq(0.55, 0.65, 1),
+			Transparency = thins(0.35, 0.55),
+			-- Drawn this much nearer the camera so the big sprites don't
+			-- slice into the ground in hard horizontal bands (no soft
+			-- particles in Roblox). Checked in Studio.
+			ZOffset = 14,
 			Lifetime = NumberRange.new(2.6, 3.8),
 			-- Blown out flat to both sides of the ground track, rising slowly.
 			Speed = NumberRange.new(12, 24),

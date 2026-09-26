@@ -18,6 +18,8 @@ Keys used by tools/vfx/vfxlib/image.py when assembling a sheet:
   preview_tint  sRGB hex the preview multiplies in (what the emitter would do)
   preview_add   LightEmission share the preview uses (0 normal, 1 additive)
   fade          (t0, t1): scale the frames to clear between t0 and t1 of the sheet
+  cell          optional frame size in px (default 128 -> 1024² atlas); 64 gives a
+                512² atlas for soft sheets with no fine detail (a quarter of the memory)
 """
 import sys
 
@@ -45,7 +47,7 @@ SHEETS = {
                       preview_tint="#8A5A44"),
     # VFX-3 addition (sheets/drift.py)
     "DustDrift": dict(module="drift", method="paint", exposure=1.0, tone="clamp", grey=True,
-                      preview_tint="#D9B98C"),
+                      cell=64, border=3, preview_tint="#D9B98C"),
     # --- single textures (numpy) ---
     "TracerBeam": dict(module="singles", method="single", preview_tint="#FFB347", preview_add=1.0),
     "ShockwaveRing": dict(module="singles", method="single", preview_tint="#FFE2B8", preview_add=0.5),
