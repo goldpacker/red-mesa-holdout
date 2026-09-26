@@ -1,13 +1,13 @@
 --!strict
 -- Builds the Red Mesa battlefield at server start: terrain, lanes, props,
--- the player emplacement and base lighting. Everything is generated from
--- code so the place is reproducible from the repo.
+-- the player emplacement and base lighting (LightingRig). Everything is
+-- generated from code so the place is reproducible from the repo.
 
-local Lighting = game:GetService("Lighting")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local Emplacement = require(script.Parent.Emplacement)
+local LightingRig = require(script.Parent.LightingRig)
 local TerrainBuilder = require(script.Parent.TerrainBuilder)
 local AssetLibrary = require(ReplicatedStorage.Shared.AssetLibrary)
 
@@ -167,56 +167,6 @@ local function buildRockKit(parent: Instance)
 	end
 end
 
-local function ensureEffect(className: string, name: string): Instance
-	local existing = Lighting:FindFirstChild(name)
-	if existing then
-		return existing
-	end
-	local inst = Instance.new(className)
-	inst.Name = name
-	inst.Parent = Lighting
-	return inst
-end
-
-local function buildLighting()
-	-- The default place template ships blur effects we don't want.
-	for _, child in Lighting:GetChildren() do
-		if child:IsA("DepthOfFieldEffect") or child:IsA("BlurEffect") then
-			child:Destroy()
-		end
-	end
-	Lighting.ClockTime = 15.2
-	Lighting.GeographicLatitude = 30
-	Lighting.Brightness = 3
-	Lighting.Ambient = Color3.fromRGB(90, 70, 60)
-	Lighting.OutdoorAmbient = Color3.fromRGB(150, 120, 100)
-	Lighting.EnvironmentDiffuseScale = 0.6
-	Lighting.EnvironmentSpecularScale = 0.4
-	Lighting.GlobalShadows = true
-
-	local atmosphere = ensureEffect("Atmosphere", "Atmosphere") :: Atmosphere
-	atmosphere.Density = 0.2
-	atmosphere.Offset = 0.05
-	atmosphere.Color = Color3.fromRGB(235, 190, 150)
-	atmosphere.Decay = Color3.fromRGB(190, 120, 90)
-	atmosphere.Glare = 0.1
-	atmosphere.Haze = 0.5
-
-	local bloom = ensureEffect("BloomEffect", "Bloom") :: BloomEffect
-	bloom.Intensity = 0.6
-	bloom.Size = 28
-	bloom.Threshold = 1.6
-
-	local rays = ensureEffect("SunRaysEffect", "SunRays") :: SunRaysEffect
-	rays.Intensity = 0.06
-	rays.Spread = 0.6
-
-	local grade = ensureEffect("ColorCorrectionEffect", "Grade") :: ColorCorrectionEffect
-	grade.Contrast = 0.12
-	grade.Saturation = 0.08
-	grade.TintColor = Color3.fromRGB(255, 244, 232)
-end
-
 function WorldBuilder.build()
 	local started = os.clock()
 	local existing = Workspace:FindFirstChild("Battlefield")
@@ -239,7 +189,7 @@ function WorldBuilder.build()
 	-- Terrain written this frame isn't raycastable yet; place rocks shortly after.
 	task.delay(1, buildRockKit, battlefield)
 	buildSearchlights(battlefield)
-	buildLighting()
+	LightingRig.build()
 	Emplacement.build(battlefield)
 
 	for _, name in { "Enemies", "Projectiles", "Wrecks", "Crates" } do
