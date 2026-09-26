@@ -27,3 +27,18 @@ detail and a fraction of its own colour variation), relit-flattened
 
 The skyboxes (`tools/env/sky.py`) use no external sources: Blender's
 physical Sky Texture plus our own OSL shader (clouds, haze, stars).
+
+## Hard-surface (HS) — `python3 tools/assets/cc0.py fetch`
+
+Used through `photo=` layers in `tools/assets/rmh/materials.py`: the photo
+is box-projected in object space and only its *variation* (ratio to its own
+mean colour, partly desaturated) is multiplied into our art-bible colour;
+its roughness and height maps add their deviation from the mean. The result
+is combined with procedural wear (chips, dust, fading, stains) and baked
+into the asset's own 1024² atlases (`assets/exported/<Name>/`).
+
+| Poly Haven id | Name / authors | URL | Licence | Used for | What we did to it |
+|---|---|---|---|---|---|
+| `hessian_230` | Hessian 230 — colormass (photography), Rico Cilliers (processing) | https://polyhaven.com/a/hessian_230 | CC0 | Emplacement sandbags (burlap weave) | Weave scaled 2.5× coarser, re-tinted to four burlap tints (`#9A8560`…), weave height into the normal map; sun-bleach, damp bottoms, seam dust and cloth-sim wrinkles layered on top; baked per sandbag template |
+| `green_metal_rust` | Green Metal Rust — Rob Tuytel | https://polyhaven.com/a/green_metal_rust | CC0 | Emplacement turret, gun, pedestal, crates, cans (painted steel) | Only its variation (rust flecks, scratches, roughness breakup) kept, re-tinted to olive drab `#55563A`/`#45472F`; procedural blotch chips to bare steel, fading, touch-up patches and ochre dust on top |
+| `concrete_floor_worn_001` | Concrete Floor Worn 001 — Dimitrios Savva (photography), Rico Cilliers (processing) | https://polyhaven.com/a/concrete_floor_worn_001 | CC0 | Emplacement bunker floor and walls | Scratch/stain variation re-tinted to concrete `#837D70`; procedural slab joints, cracks, water stains, soot/oil/sand marks and ochre dust added |

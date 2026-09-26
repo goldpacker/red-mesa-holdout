@@ -10,11 +10,15 @@ Material specs are plain dicts, e.g.
 Colours are sRGB hex or (r, g, b) 0..1 sRGB.
 """
 import math
+from pathlib import Path
 
 import bpy
+import numpy as np
 
 DUST = "#b79b78"
 GRIME = "#2b2520"
+CC0_DIR = Path(__file__).resolve().parents[3] / "assets" / "source" / "cc0"
+_PHOTO_CACHE = {}
 
 
 def srgb_to_linear(c):
@@ -221,13 +225,127 @@ class G:
         return self.math("MULTIPLY", m, facing), img.outputs["Color"]
 
 
+def _photo_image(pid, stem):
+    """A CC0 source map (tools/assets/cc0.py) plus its mean value (linear)."""
+    path = CC0_DIR / pid / f"{stem}.jpg"
+    key = str(path)
+    if key in _PHOTO_CACHE:
+        return _PHOTO_CACHE[key]
+    if not path.exists():
+        raise FileNotFoundError(f"{path} missing: run `python3 tools/assets/cc0.py fetch {pid}`")
+    img = bpy.data.images.load(key, check_existing=True)
+    if stem != "diff":
+        img.colorspace_settings.name = "Non-Color"
+    px = np.empty(len(img.pixels), dtype=np.float32)
+    img.pixels.foreach_get(px)
+    px = px.reshape(-1, 4)[::7, :3]
+    if stem == "diff":
+        px = np.where(px <= 0.04045, px / 12.92, ((px + 0.055) / 1.055) ** 2.4)
+    mean = tuple(float(m) for m in px.mean(axis=0))
+    _PHOTO_CACHE[key] = (img, mean)
+    return img, mean
+
+
+def _photo_tex(g, co, photo, stem):
+    img, mean = _photo_image(photo["id"], stem)
+    s = 1.0 / photo.get("scale", 1.0)
+    vec = g.mapping(co, scale=(s, s, s), loc=tuple(photo.get("offset", (0.0, 0.0, 0.0))))
+    n = g.node("ShaderNodeTexImage", projection="BOX", interpolation="Linear")
+    n.projection_blend = photo.get("blend", 0.3)
+    n.image = img
+    g.link(vec, n.inputs["Vector"])
+    return n, mean
+
+
+def _photo_layers(g, spec, co, color, rough, height):
+    """Opt-in CC0 detail (`photo={id, scale, color, sat, rough, height}`):
+    the photo is box-projected in object space and only its *variation*
+    (ratio to its mean colour) is multiplied into our palette colour, so
+    the result keeps the art-bible colours; roughness and height get the
+    photo's deviation from its mean."""
+    photo = spec.get("photo")
+    if not photo:
+        return color, rough, height
+    if photo.get("color", 0.0) > 0:
+        n, mean = _photo_tex(g, co, photo, "diff")
+        detail = g.vmath("DIVIDE", n.outputs["Color"], tuple(max(m, 1e-3) for m in mean))
+        lum = g.vmath("DOT_PRODUCT", detail, (0.2126, 0.7152, 0.0722))
+        detail = g.mix(photo.get("sat", 0.3), lum, detail)
+        color = g.mix(photo["color"], color, g.multiply_color(1.0, color, detail))
+    if photo.get("rough", 0.0) > 0:
+        n, mean = _photo_tex(g, co, photo, "rough")
+        dev = g.math("SUBTRACT", n.outputs["Color"], mean[0])
+        rough = g.math("ADD", rough, g.math("MULTIPLY", dev, photo["rough"]), clamp=True)
+    if photo.get("height", 0.0) > 0:
+        n, mean = _photo_tex(g, co, photo, "disp")
+        dev = g.math("SUBTRACT", n.outputs["Color"], mean[0])
+        height = g.math("ADD", height, g.math("MULTIPLY", dev, photo["height"]))
+    return color, rough, height
+
+
+def _cloth_weathering(g, spec, co, color, rough, height, zmin):
+    """Opt-in sandbag weathering: sun-bleached tops (`bleach`), damp dark
+    bottoms (`damp`, `damp_height` above zmin) and dust packed into the
+    seams and creases (`seam_dust`)."""
+    geo = g.geometry()
+    nz = g.sep(geo.outputs["Normal"])[2]
+    z = g.sep(co)[2]
+    breakup = g.noise(co, scale=spec.get("weather_scale", 3.0), detail=5.0, rough=0.6)
+    if spec.get("bleach", 0) > 0:
+        up = g.maprange(nz, 0.25, 0.95)
+        m = g.math("MULTIPLY", up, g.maprange(breakup, 0.25, 0.7, 0.55, 1.0))
+        color = g.mix(g.math("MULTIPLY", m, spec["bleach"]), color, rgb(spec.get("bleach_color", "#b3a383")))
+        rough = g.mixf(g.math("MULTIPLY", m, spec["bleach"]), rough, 0.97)
+    if spec.get("damp", 0) > 0:
+        low = g.maprange(z, zmin, zmin + spec.get("damp_height", 0.2), 1.0, 0.0, smooth=True)
+        low = g.math("MULTIPLY", low, g.maprange(breakup, 0.2, 0.6, 0.6, 1.0))
+        down = g.maprange(nz, 0.3, -0.6)
+        m = g.math("MULTIPLY", g.math("MAXIMUM", low, g.math("MULTIPLY", down, 0.6)), spec["damp"])
+        color = g.mix(m, color, rgb(spec.get("damp_color", "#4a3b27")))
+        rough = g.mixf(m, rough, spec.get("damp_rough", 0.72))
+        height = g.math("SUBTRACT", height, g.math("MULTIPLY", m, 0.1))
+    if spec.get("seam_dust", 0) > 0:
+        ao = g.node("ShaderNodeAmbientOcclusion", samples=16)
+        ao.inputs["Distance"].default_value = spec.get("seam_distance", 0.12)
+        cav = g.maprange(g.math("SUBTRACT", 1.0, ao.outputs["AO"]), 0.08, 0.45)
+        fine = g.noise(co, scale=spec.get("seam_noise", 22.0), detail=4.0, rough=0.7)
+        m = g.math("MULTIPLY", cav, g.maprange(fine, 0.3, 0.65, 0.5, 1.0))
+        m = g.math("MULTIPLY", m, spec["seam_dust"])
+        color = g.mix(m, color, rgb(spec.get("seam_color", "#c2a67c")))
+        rough = g.mixf(m, rough, 0.98)
+        height = g.math("ADD", height, g.math("MULTIPLY", m, 0.15))
+    return color, rough, height
+
+
 def _wear_layers(g, spec, co, color, rough, metal, height, edge, zmin):
     """Chips, grime, streaks and dust shared by hard-surface kinds."""
     wear = spec.get("wear", 0.4)
     dust = spec.get("dust", 0.5)
     grime = spec.get("grime", 0.5)
     # Paint chips along edges plus a few scattered scratches.
-    if wear > 0:
+    if wear > 0 and spec.get("chip_style") == "blotch":
+        # Opt-in: irregular chip blotches concentrated on edges, scattered
+        # nicks on faces, and a dark rust/primer ring around each chip.
+        cs = spec.get("chip_scale", 9.0)
+        if spec.get("chip_bevel"):
+            edge, _ = g.edge_mask(spec["chip_bevel"])
+        n1 = g.maprange(g.noise(co, scale=cs, detail=8.0, rough=0.72), 0.32, 0.68)
+        n2 = g.maprange(g.noise(co, scale=cs * 3.7, detail=6.0, rough=0.6), 0.32, 0.68)
+        src = g.math("ADD", g.math("MULTIPLY", edge, 0.5), g.math("MULTIPLY", n1, 0.55))
+        src = g.math("ADD", src, g.math("MULTIPLY", n2, 0.2))
+        t = 1.25 - wear * 0.5
+        ring = g.maprange(src, t - 0.12, t - 0.02)
+        chip = g.maprange(src, t, t + 0.03)
+        nick = g.maprange(g.noise(co, scale=cs * 2.2, detail=10.0, rough=0.8), 0.76 - wear * 0.03, 0.78 - wear * 0.03)
+        chip = g.math("MAXIMUM", chip, nick)
+        color = g.mix(g.math("MULTIPLY", ring, spec.get("ring", 0.55)), color, rgb(spec.get("ring_color", "#3b3124")))
+        rough = g.mixf(g.math("MULTIPLY", ring, 0.5), rough, 0.8)
+        under = spec.get("under", "#6d6a66")
+        color = g.mix(chip, color, rgb(under))
+        rough = g.mixf(chip, rough, spec.get("under_rough", 0.38))
+        metal = g.mixf(chip, metal, spec.get("under_metal", 0.85))
+        height = g.math("SUBTRACT", height, g.math("MULTIPLY", chip, 0.45))
+    elif wear > 0:
         n = g.noise(co, scale=spec.get("chip_scale", 9.0), detail=8.0, rough=0.7)
         chip_src = g.math("ADD", g.math("MULTIPLY", edge, 0.75), g.math("MULTIPLY", n, 0.55))
         t = 1.08 - wear * 0.42
@@ -297,7 +415,7 @@ def build(name, spec, decals=(), zmin=0.0):
     g = G(mat)
     kind = spec.get("kind", "paint")
     builder = KINDS[kind]
-    builder(g, spec, list(decals), zmin)
+    builder(g, spec, list(decals), spec.get("zmin", zmin))
     mat["rmh_spec"] = repr(spec)
     return mat
 
@@ -318,6 +436,19 @@ def _paint(g, spec, decals, zmin):
         lines = _panel_lines(g, co, spec["panels"], spec.get("panel_width", 0.035))
         color = g.mix(g.math("MULTIPLY", lines, 0.55), color, scale_rgb(base, 0.45))
         height = g.math("SUBTRACT", height, g.math("MULTIPLY", lines, 0.6))
+    color, rough, height = _photo_layers(g, spec, co, color, rough, height)
+    if spec.get("fade"):
+        # Opt-in: sun-faded, chalky paint on upward faces, blotchy.
+        nz = g.sep(g.geometry().outputs["Normal"])[2]
+        fm = g.math("MULTIPLY", g.maprange(nz, 0.1, 0.9), g.maprange(g.noise(co, scale=1.1, detail=5.0), 0.3, 0.7, 0.4, 1.0))
+        fm = g.math("MULTIPLY", fm, spec["fade"])
+        color = g.mix(fm, color, rgb(spec.get("fade_color", "#8a8a66")))
+        rough = g.mixf(fm, rough, 0.8)
+    if spec.get("patches"):
+        # Opt-in: touch-up paint patches in a slightly different shade.
+        pm = g.maprange(g.noise(g.mapping(co, loc=(7.3, 2.1, 5.5)), scale=0.9, detail=2.0), 0.62, 0.64)
+        color = g.mix(g.math("MULTIPLY", pm, spec["patches"]), color, rgb(spec.get("patch_color", "#4c5130")))
+        rough = g.mixf(g.math("MULTIPLY", pm, spec["patches"]), rough, 0.5)
     color, rough, metal, height = _wear_layers(g, spec, co, color, rough, metal, height, edge, zmin)
     _finish(g, color, rough, metal, height, bevn, bump=spec.get("bump", 0.18))
 
@@ -350,6 +481,7 @@ def _metal(g, spec, decals, zmin):
     height = g.math("MULTIPLY", g.noise(co, scale=60.0, detail=2.0), 0.1)
     spec2 = dict(spec)
     spec2.setdefault("wear", 0.0)
+    color, rough, height = _photo_layers(g, spec, co, color, rough, height)
     color, rough, metal, height = _wear_layers(g, spec2, co, color, rough, metal, height, edge, zmin)
     _finish(g, color, rough, metal, height, bevn, bump=spec.get("bump", 0.12))
 
@@ -376,6 +508,23 @@ def _fabric(g, spec, decals, zmin):
         var = g.noise(co, scale=spec.get("var_scale", 2.0), detail=5.0)
         color = g.mix(g.maprange(var, 0.3, 0.7), scale_rgb(base, 0.82), scale_rgb(base, 1.1))
     color = _apply_marks(g, spec, co, color, decals)
+    net_h = None
+    if spec.get("net"):
+        # Garnished camo net: leaf clusters on a mesh with dark gaps.
+        net = spec["net"]
+        warp = g.vmath("MULTIPLY", g.vmath("SUBTRACT", g.noise(co, scale=2.5, color=True), (0.5, 0.5, 0.5)), (0.5, 0.5, 0.5))
+        wco = g.vmath("ADD", co, warp)
+        sc = 1.0 / net.get("cell", 0.3)
+        edge_d = g.voronoi(wco, scale=sc, feature="DISTANCE_TO_EDGE", output="Distance")
+        gap = g.maprange(edge_d, net.get("gap", 0.07), 0.0)
+        holes = g.maprange(g.noise(co, scale=3.0, detail=3.0), 0.58, 0.64)
+        gap = g.math("MAXIMUM", gap, g.math("MULTIPLY", holes, 0.8))
+        tone = g.voronoi(wco, scale=sc, feature="F1", output="Color")
+        tint = g.vmath("ADD", g.vmath("MULTIPLY", tone, (0.5, 0.5, 0.5)), (0.75, 0.75, 0.75))
+        color = g.multiply_color(1.0, color, tint)
+        color = g.mix(g.math("MULTIPLY", gap, 0.9), color, rgb(net.get("gap_color", "#1b1a15")))
+        leaf = g.maprange(edge_d, 0.0, 0.18)
+        net_h = g.math("MULTIPLY", g.math("SUBTRACT", leaf, g.math("MULTIPLY", gap, 0.6)), 0.9)
     ws = spec.get("weave", 28.0)
     weave = g.math(
         "MULTIPLY",
@@ -383,9 +532,14 @@ def _fabric(g, spec, decals, zmin):
         g.wave(g.mapping(co, scale=(ws, ws, ws)), scale=1.0, distortion=0.4, detail=0.0, direction="Y"),
     )
     wrinkle = g.noise(co, scale=spec.get("wrinkle_scale", 3.0), detail=3.0, distortion=0.5)
-    height = g.math("ADD", g.math("MULTIPLY", weave, 0.25), g.math("MULTIPLY", wrinkle, spec.get("wrinkle", 0.6)))
+    height = g.math("ADD", g.math("MULTIPLY", weave, spec.get("weave_amount", 0.25)), g.math("MULTIPLY", wrinkle, spec.get("wrinkle", 0.6)))
+    if net_h is not None:
+        height = g.math("ADD", height, net_h)
     edge, bevn = g.edge_mask(spec.get("bevel", 0.08))
     rough = spec.get("rough", 0.9)
+    color, rough, height = _photo_layers(g, spec, co, color, rough, height)
+    if spec.get("bleach") or spec.get("damp") or spec.get("seam_dust"):
+        color, rough, height = _cloth_weathering(g, spec, co, color, rough, height, zmin)
     spec2 = dict(spec)
     spec2["wear"] = 0.0
     color, rough, metal, height = _wear_layers(g, spec2, co, color, rough, 0.0, height, edge, zmin)
@@ -454,6 +608,7 @@ def _flat(g, spec, decals, zmin):
     height = g.math("MULTIPLY", n, 0.1)
     rough = spec.get("rough", 0.5)
     metal = spec.get("metal", 0.0)
+    color, rough, height = _photo_layers(g, spec, co, color, rough, height)
     if spec.get("dust", 0) > 0 or spec.get("grime", 0) > 0:
         spec2 = dict(spec)
         spec2["wear"] = 0.0
@@ -492,6 +647,7 @@ def _concrete(g, spec, decals, zmin):
     height = g.math("SUBTRACT", g.math("MULTIPLY", fine, 0.35), g.math("MULTIPLY", grooves, 0.8))
     edge, bevn = g.edge_mask(0.08)
     rough = g.maprange(var, 0.3, 0.7, 0.82, 0.95)
+    color, rough, height = _photo_layers(g, spec, co, color, rough, height)
     spec2 = dict({"wear": 0.0, "dust": 0.7, "grime": 0.8}, **spec)
     spec2["wear"] = 0.0
     color, rough, metal, height = _wear_layers(g, spec2, co, color, rough, 0.0, height, edge, zmin)

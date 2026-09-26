@@ -21,11 +21,40 @@
    0.0,
    0.0,
    -0.0
+  ],
+  "Static/CamoNet": [
+   7.2812,
+   -2.65,
+   5.2901
+  ],
+  "Static/Antenna": [
+   6.7653,
+   -4.4,
+   -0.3458
   ]
  },
  "parts": [
   {
    "name": "Bunker",
+   "path": "Static",
+   "center": [
+    0.0,
+    -5.855,
+    -0.0
+   ],
+   "size": [
+    22.0,
+    0.31,
+    22.0
+   ],
+   "tex": "floor",
+   "tris": 1408,
+   "query": true,
+   "collide": true,
+   "material": "Concrete"
+  },
+  {
+   "name": "BunkerWall",
    "path": "Static",
    "center": [
     0.0,
@@ -37,11 +66,29 @@
     8.41,
     28.6
    ],
-   "tex": "static",
-   "tris": 2964,
+   "tex": "outer",
+   "tris": 2648,
    "query": true,
    "collide": true,
    "material": "Concrete"
+  },
+  {
+   "name": "Drifts",
+   "path": "Static",
+   "center": [
+    -0.0046,
+    -6.02,
+    -0.7429
+   ],
+   "size": [
+    22.581,
+    0.5055,
+    21.3094
+   ],
+   "tex": "outer",
+   "tris": 1200,
+   "query": false,
+   "material": "Sand"
   },
   {
    "name": "Pedestal",
@@ -56,7 +103,7 @@
     2.895,
     3.8
    ],
-   "tex": "static",
+   "tex": "turret",
    "tris": 1852,
    "query": false,
    "material": "Metal"
@@ -65,17 +112,17 @@
    "name": "SandbagsLeft",
    "path": "Static",
    "center": [
-    -9.6206,
-    -4.9069,
-    2.1551
+    -9.6102,
+    -4.94,
+    2.1333
    ],
    "size": [
-    7.3571,
-    2.3148,
-    17.9526
+    7.6716,
+    2.2774,
+    18.2956
    ],
    "tex": "bags",
-   "tris": 6264,
+   "tris": 8896,
    "query": true,
    "collide": false,
    "material": "Fabric"
@@ -84,17 +131,17 @@
    "name": "SandbagsFront",
    "path": "Static",
    "center": [
-    -0.0159,
-    -4.8968,
-    -9.3681
+    0.0124,
+    -4.9392,
+    -9.3956
    ],
    "size": [
-    23.6068,
-    2.3497,
-    7.9103
+    24.1215,
+    2.2692,
+    8.2911
    ],
    "tex": "bags",
-   "tris": 8856,
+   "tris": 12576,
    "query": true,
    "collide": false,
    "material": "Fabric"
@@ -103,17 +150,17 @@
    "name": "SandbagsRight",
    "path": "Static",
    "center": [
-    9.6601,
-    -4.8958,
-    2.1977
+    9.5898,
+    -4.9506,
+    2.2218
    ],
    "size": [
-    7.323,
-    2.3242,
-    17.8998
+    7.7174,
+    2.2404,
+    18.3066
    ],
    "tex": "bags",
-   "tris": 6588,
+   "tris": 9320,
    "query": true,
    "collide": false,
    "material": "Fabric"
@@ -122,17 +169,35 @@
    "name": "Props",
    "path": "Static",
    "center": [
-    0.013,
-    -3.7122,
-    -0.9205
+    -0.3764,
+    -4.9,
+    0.0811
    ],
    "size": [
-    22.8289,
-    5.0157,
-    21.3591
+    18.1472,
+    2.26,
+    13.4496
    ],
    "tex": "props",
-   "tris": 6172,
+   "tris": 5664,
+   "query": false,
+   "material": "Metal"
+  },
+  {
+   "name": "Stores",
+   "path": "Static",
+   "center": [
+    6.9824,
+    -4.325,
+    5.1122
+   ],
+   "size": [
+    5.3739,
+    3.35,
+    4.5042
+   ],
+   "tex": "stores",
+   "tris": 4904,
    "query": false,
    "material": "Metal"
   },
@@ -140,17 +205,17 @@
    "name": "Casings",
    "path": "Static",
    "center": [
-    -0.0689,
-    -5.93,
-    0.4755
+    0.5489,
+    -5.6003,
+    0.8906
    ],
    "size": [
-    8.7323,
-    0.108,
-    8.4949
+    10.3778,
+    0.8395,
+    11.7801
    ],
-   "tex": "props",
-   "tris": 920,
+   "tex": "smalls",
+   "tris": 5720,
    "query": false,
    "material": "Metal",
    "shadow": false
@@ -174,20 +239,57 @@
    "material": "Metal"
   },
   {
+   "name": "Whip",
+   "path": "Static/Antenna",
+   "center": [
+    6.8098,
+    -2.7497,
+    -0.3108
+   ],
+   "size": [
+    0.189,
+    3.3005,
+    0.21
+   ],
+   "tex": "props",
+   "tris": 150,
+   "query": false,
+   "material": "Metal",
+   "shadow": false
+  },
+  {
+   "name": "Net",
+   "path": "Static/CamoNet",
+   "center": [
+    8.1933,
+    -4.286,
+    5.9929
+   ],
+   "size": [
+    10.3366,
+    3.3617,
+    10.518
+   ],
+   "tex": "net",
+   "tris": 840,
+   "query": false,
+   "material": "Fabric"
+  },
+  {
    "name": "Mount",
    "path": "TurretYaw",
    "center": [
-    0.0623,
+    0.15,
     -1.2625,
     1.25
    ],
    "size": [
-    3.5846,
+    3.76,
     3.625,
     5.3
    ],
    "tex": "turret",
-   "tris": 2972,
+   "tris": 3040,
    "query": false,
    "material": "Metal"
   },
@@ -205,7 +307,7 @@
     3.6361
    ],
    "tex": "turret",
-   "tris": 1752,
+   "tris": 2172,
    "query": false,
    "material": "Metal"
   },
@@ -222,8 +324,26 @@
     1.43,
     9.1098
    ],
-   "tex": "turret",
-   "tris": 3204,
+   "tex": "weapons",
+   "tris": 3056,
+   "query": false,
+   "material": "Metal"
+  },
+  {
+   "name": "Belt",
+   "path": "TurretGun/MachineGun",
+   "center": [
+    -0.7277,
+    0.6011,
+    -0.785
+   ],
+   "size": [
+    0.6329,
+    0.4339,
+    0.51
+   ],
+   "tex": "smalls",
+   "tris": 840,
    "query": false,
    "material": "Metal"
   },
@@ -240,7 +360,7 @@
     2.3409,
     3.56
    ],
-   "tex": "turret",
+   "tex": "weapons",
    "tris": 2782,
    "query": false,
    "material": "Metal"
@@ -258,7 +378,7 @@
     1.18,
     3.4
    ],
-   "tex": "turret",
+   "tex": "weapons",
    "tris": 572,
    "query": false,
    "material": "Metal"
@@ -276,7 +396,7 @@
     0.55,
     3.899
    ],
-   "tex": "turret",
+   "tex": "weapons",
    "tris": 302,
    "query": false,
    "material": "Metal"
@@ -294,7 +414,7 @@
     0.55,
     3.899
    ],
-   "tex": "turret",
+   "tex": "weapons",
    "tris": 302,
    "query": false,
    "material": "Metal"
@@ -376,16 +496,25 @@
   }
  ],
  "textures": {
-  "static": {
-   "color": "Emplacement_static_color.png",
-   "rough": "Emplacement_static_rough.png",
-   "metal": "Emplacement_static_metal.png",
-   "normal": "Emplacement_static_normal.png"
+  "floor": {
+   "color": "Emplacement_floor_color.png",
+   "rough": "Emplacement_floor_rough.png",
+   "normal": "Emplacement_floor_normal.png"
+  },
+  "outer": {
+   "color": "Emplacement_outer_color.png",
+   "rough": "Emplacement_outer_rough.png",
+   "normal": "Emplacement_outer_normal.png"
+  },
+  "turret": {
+   "color": "Emplacement_turret_color.png",
+   "rough": "Emplacement_turret_rough.png",
+   "metal": "Emplacement_turret_metal.png",
+   "normal": "Emplacement_turret_normal.png"
   },
   "bags": {
    "color": "Emplacement_bags_color.png",
    "rough": "Emplacement_bags_rough.png",
-   "metal": "Emplacement_bags_metal.png",
    "normal": "Emplacement_bags_normal.png"
   },
   "props": {
@@ -394,19 +523,52 @@
    "metal": "Emplacement_props_metal.png",
    "normal": "Emplacement_props_normal.png"
   },
-  "turret": {
-   "color": "Emplacement_turret_color.png",
-   "rough": "Emplacement_turret_rough.png",
-   "metal": "Emplacement_turret_metal.png",
-   "normal": "Emplacement_turret_normal.png"
+  "stores": {
+   "color": "Emplacement_stores_color.png",
+   "rough": "Emplacement_stores_rough.png",
+   "metal": "Emplacement_stores_metal.png",
+   "normal": "Emplacement_stores_normal.png"
+  },
+  "smalls": {
+   "color": "Emplacement_smalls_color.png",
+   "rough": "Emplacement_smalls_rough.png",
+   "metal": "Emplacement_smalls_metal.png",
+   "normal": "Emplacement_smalls_normal.png"
+  },
+  "net": {
+   "color": "Emplacement_net_color.png",
+   "rough": "Emplacement_net_rough.png",
+   "normal": "Emplacement_net_normal.png"
+  },
+  "weapons": {
+   "color": "Emplacement_weapons_color.png",
+   "rough": "Emplacement_weapons_rough.png",
+   "metal": "Emplacement_weapons_metal.png",
+   "normal": "Emplacement_weapons_normal.png"
   }
+ },
+ "texel_density": {
+  "floor": 42.0,
+  "outer": 21.7,
+  "turret": 45.8,
+  "bags": 84.1,
+  "props": 55.8,
+  "stores": 101.6,
+  "smalls": 290.2,
+  "net": 44.4,
+  "weapons": 57.8
  },
  "previews": [
   "assets/previews/Emplacement.png",
   "assets/previews/Emplacement_player.png",
   "assets/previews/Emplacement_turret.png",
-  "assets/previews/Emplacement_rear.png"
+  "assets/previews/Emplacement_rear.png",
+  "assets/previews/Emplacement_cam_turret.png",
+  "assets/previews/Emplacement_cam_right.png",
+  "assets/previews/Emplacement_close_bags.png",
+  "assets/previews/Emplacement_close_gun.png",
+  "assets/previews/Emplacement_close_net.png"
  ],
- "triangles": 46422,
+ "triangles": 69164,
  "meta": {}
 }

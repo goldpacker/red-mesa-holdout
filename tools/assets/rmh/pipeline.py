@@ -84,8 +84,13 @@ def _group_materials(objs):
     return seen
 
 
-def _bake_channel(objs, mats, img, channel):
+def _bake_channel(objs, mats, img, channel, sources=None):
+    """Bake `channel` into `img` on `objs` (materials `mats`). With
+    `sources` (high-poly objects) the bake is selected-to-active: the
+    channel is read from the sources' materials and written to the single
+    target object in `objs`."""
     temp = []
+    src_mats = _group_materials(sources) if sources else mats
     for mat in mats:
         nt = mat.node_tree
         node = nt.nodes.new("ShaderNodeTexImage")
@@ -95,8 +100,10 @@ def _bake_channel(objs, mats, img, channel):
         node.select = True
         nt.nodes.active = node
         temp.append((mat, node, None, None))
+    for mat in src_mats:
         if channel == "normal":
             continue
+        nt = mat.node_tree
         out = next(n for n in nt.nodes if n.type == "OUTPUT_MATERIAL" and n.is_active_output)
         bsdf = next(n for n in nt.nodes if n.type == "BSDF_PRINCIPLED")
         prev = out.inputs["Surface"].links[0].from_socket if out.inputs["Surface"].is_linked else None
@@ -108,21 +115,30 @@ def _bake_channel(objs, mats, img, channel):
             v = src.default_value
             emit.inputs["Color"].default_value = tuple(v) if channel == "color" else (v, v, v, 1.0)
         nt.links.new(emit.outputs["Emission"], out.inputs["Surface"])
-        temp[-1] = (mat, node, emit, (out, prev))
-    _select(objs)
+        temp.append((mat, None, emit, (out, prev)))
     bake = bpy.context.scene.render.bake
     bake.margin = 8
     bake.margin_type = "EXTEND"
     bake.use_clear = True
-    bake.use_selected_to_active = False
+    if sources:
+        _select(list(sources) + list(objs))
+        bpy.context.view_layer.objects.active = objs[0]
+        bake.use_selected_to_active = True
+        bake.cage_extrusion = 0.06
+        bake.max_ray_distance = 0.4
+    else:
+        _select(objs)
+        bake.use_selected_to_active = False
     if channel == "normal":
         bake.normal_space = "TANGENT"
         bpy.ops.object.bake(type="NORMAL")
     else:
         bpy.ops.object.bake(type="EMIT")
+    bake.use_selected_to_active = False
     for mat, node, emit, restore in temp:
         nt = mat.node_tree
-        nt.nodes.remove(node)
+        if node is not None:
+            nt.nodes.remove(node)
         if emit is not None:
             nt.nodes.remove(emit)
             out, prev = restore
@@ -143,7 +159,10 @@ def _baked_material(name, imgs):
 
     nt.links.new(tex("color").outputs["Color"], bsdf.inputs["Base Color"])
     nt.links.new(tex("rough").outputs["Color"], bsdf.inputs["Roughness"])
-    nt.links.new(tex("metal").outputs["Color"], bsdf.inputs["Metallic"])
+    if "metal" in imgs:
+        nt.links.new(tex("metal").outputs["Color"], bsdf.inputs["Metallic"])
+    else:
+        bsdf.inputs["Metallic"].default_value = 0.0
     nm = nt.nodes.new("ShaderNodeNormalMap")
     nt.links.new(tex("normal").outputs["Color"], nm.inputs["Color"])
     nt.links.new(nm.outputs["Normal"], bsdf.inputs["Normal"])
@@ -176,6 +195,128 @@ def _save_png(img, path, grayscale=False):
         img.save()
 
 
+TEMPLATE_ORIGIN = Vector((0.0, 4000.0, 0.0))  # far from the asset so AO/bevel never see it
+TEMPLATE_SPACING = 8.0
+
+
+def prepare_templates(asset):
+    """Create and UV-unwrap each sheet group's template meshes (before
+    build_objects realises the instances that share those UVs)."""
+    groups = {}
+    for t in asset.templates:
+        groups.setdefault(t.group, []).append(t)
+    for group, temps in groups.items():
+        size = asset.tex_size.get(group, asset.tex_size["main"])
+        lows = []
+        for i, t in enumerate(temps):
+            loc = TEMPLATE_ORIGIN + Vector((i * TEMPLATE_SPACING, 0.0, 0.0))
+            me = bpy.data.meshes.new(f"TPL_{t.name}")
+            t.low.to_mesh(me)
+            low = bpy.data.objects.new(f"TPL_{t.name}", me)
+            bpy.context.scene.collection.objects.link(low)
+            low.location = loc
+            me.materials.append(asset.material_obj(t.mat))
+            lows.append(low)
+            t.objects.append(low)
+            if t.high is not None:
+                hm = bpy.data.meshes.new(f"TPLH_{t.name}")
+                t.high.to_mesh(hm)
+                high = bpy.data.objects.new(f"TPLH_{t.name}", hm)
+                bpy.context.scene.collection.objects.link(high)
+                high.location = loc
+                hm.materials.append(asset.material_obj(t.mat))
+                hm.shade_smooth()
+                t.objects.append(high)
+        log(f"unwrap sheet {group} ({len(temps)} templates, {size}px)")
+        _unwrap_templates(temps, lows, margin=6.0 / size)
+        from .asset import finalize_normals
+
+        for t, low in zip(temps, lows):
+            finalize_normals(low, t.smooth_angle)
+            t.mesh = low.data
+
+
+def _unwrap_templates(temps, lows, margin):
+    smart = [o for t, o in zip(temps, lows) if t.uv != "seams"]
+    seams = [o for t, o in zip(temps, lows) if t.uv == "seams"]
+    if smart:
+        _select(smart)
+        bpy.ops.object.mode_set(mode="EDIT")
+        bpy.ops.mesh.select_all(action="SELECT")
+        bpy.ops.uv.smart_project(angle_limit=math.radians(52), island_margin=margin, area_weight=0.0, correct_aspect=True, scale_to_bounds=False)
+        bpy.ops.object.mode_set(mode="OBJECT")
+    if seams:
+        _select(seams)
+        bpy.ops.object.mode_set(mode="EDIT")
+        bpy.ops.mesh.select_all(action="SELECT")
+        bpy.ops.uv.unwrap(method="ANGLE_BASED", margin=margin)
+        bpy.ops.object.mode_set(mode="OBJECT")
+    _select(lows)
+    bpy.ops.object.mode_set(mode="EDIT")
+    bpy.ops.mesh.select_all(action="SELECT")
+    bpy.ops.uv.select_all(action="SELECT")
+    bpy.ops.uv.pack_islands(margin=margin, rotate=True)
+    bpy.ops.object.mode_set(mode="OBJECT")
+
+
+def _join_copies(objs, name):
+    copies = []
+    for o in objs:
+        c = o.copy()
+        c.data = o.data.copy()
+        bpy.context.scene.collection.objects.link(c)
+        copies.append(c)
+    _select(copies)
+    bpy.ops.object.join()
+    joined = bpy.context.view_layer.objects.active
+    joined.name = name
+    return joined
+
+
+def _bake_sheet(asset, group, size, out_dir, channels):
+    temps = [t for t in asset.templates if t.group == group]
+    lows = [t.objects[0] for t in temps]
+    highs = [t.objects[1] if len(t.objects) > 1 else t.objects[0] for t in temps]
+    target = _join_copies(lows, f"BAKE_{group}")
+    source = _join_copies(highs, f"BAKESRC_{group}")
+    target.data.materials.clear()
+    tm = bpy.data.materials.new(f"BakeTarget_{group}")
+    tm.use_nodes = True
+    target.data.materials.append(tm)
+    imgs, files = {}, {}
+    for ch in channels:
+        t0 = time.time()
+        img = _new_image(f"{asset.name}_{group}_{ch}", size, ch)
+        _bake_channel([target], [tm], img, ch, sources=[source])
+        path = out_dir / f"{asset.name}_{group}_{ch}.png"
+        _save_png(img, path, grayscale=ch in ("rough", "metal"))
+        imgs[ch] = img
+        files[ch] = path.name
+        log(f"  baked {ch} in {time.time() - t0:.1f}s (selected-to-active)")
+    density = texel_density(lows, size)
+    for o in [target, source] + [o for t in temps for o in t.objects]:
+        bpy.data.objects.remove(o, do_unlink=True)
+    for t in temps:
+        t.objects = []
+    return imgs, files, density
+
+
+def texel_density(objs, size):
+    """Average texture density in px/stud over the objects' UV'd surface."""
+    a3 = auv = 0.0
+    for o in objs:
+        me = o.data
+        if not me.uv_layers:
+            continue
+        uv = me.uv_layers.active.data
+        sx, sy, sz = o.matrix_world.to_scale()
+        for poly in me.polygons:
+            a3 += poly.area * abs(sx * sy * sz) ** (2.0 / 3.0)
+            pts = [uv[i].uv for i in poly.loop_indices]
+            auv += abs(sum(pts[k].x * pts[(k + 1) % len(pts)].y - pts[(k + 1) % len(pts)].x * pts[k].y for k in range(len(pts)))) / 2
+    return round(size * math.sqrt(auv / a3), 1) if a3 > 0 else None
+
+
 def bake_groups(asset, out_dir, samples):
     groups = {}
     for o in asset.objects:
@@ -186,12 +327,19 @@ def bake_groups(asset, out_dir, samples):
     _setup_cycles(samples)
     for group, objs in groups.items():
         size = asset.tex_size.get(group, asset.tex_size["main"])
+        opts = asset.group_opts.get(group, {})
+        channels = [ch for ch in CHANNELS if ch != "metal" or opts.get("metal", True)]
+        if opts.get("sheet"):
+            log(f"bake sheet {group} ({len(objs)} parts, {size}px)")
+            imgs, files, density = _bake_sheet(asset, group, size, out_dir, channels)
+            textures[group] = {"files": files, "images": imgs, "objects": objs, "density": density}
+            continue
         log(f"unwrap group {group} ({len(objs)} parts, {size}px)")
         _unwrap(objs, margin=6.0 / size)
         mats = _group_materials(objs)
         imgs = {}
         files = {}
-        for ch in CHANNELS:
+        for ch in channels:
             t0 = time.time()
             img = _new_image(f"{asset.name}_{group}_{ch}", size, ch)
             _bake_channel(objs, mats, img, ch)
@@ -200,7 +348,7 @@ def bake_groups(asset, out_dir, samples):
             imgs[ch] = img
             files[ch] = path.name
             log(f"  baked {ch} in {time.time() - t0:.1f}s")
-        textures[group] = {"files": files, "images": imgs, "objects": objs}
+        textures[group] = {"files": files, "images": imgs, "objects": objs, "density": texel_density(objs, size)}
     return textures
 
 
@@ -262,7 +410,11 @@ def render_previews(asset, views, samples=96):
     scene.camera = cam
     fov = 2 * math.atan(18 / cam_data.lens)
     outputs = []
+    base_res = (scene.render.resolution_x, scene.render.resolution_y)
     for view in views:
+        if isinstance(view, dict):
+            outputs.append(_render_camera_view(asset, scene, cam, view, base_res))
+            continue
         label, direction = view[0], view[1]
         c, rad = center, radius
         if len(view) > 2 and view[2]:
@@ -280,6 +432,33 @@ def render_previews(asset, views, samples=96):
     for o in (sun, ground, cam):
         bpy.data.objects.remove(o)
     return outputs
+
+
+def _render_camera_view(asset, scene, cam, view, base_res):
+    """Opt-in preview from an explicit camera (e.g. the in-game turret
+    camera): {"label", "pos", "look" (Blender coords), "fov" (vertical
+    degrees, Roblox FieldOfView), "res": (w, h), "hide": [part names]}."""
+    data = cam.data
+    old = (data.sensor_fit, data.lens)
+    data.sensor_fit = "VERTICAL"
+    data.angle_y = math.radians(view.get("fov", 70))
+    data.clip_start = 0.05
+    pos = Vector(view["pos"])
+    cam.location = pos
+    cam.rotation_euler = (Vector(view["look"]) - pos).to_track_quat("-Z", "Y").to_euler()
+    scene.render.resolution_x, scene.render.resolution_y = view.get("res", (1280, 720))
+    hidden = [o for o in asset.objects if o.name in view.get("hide", ()) and not o.hide_render]
+    for o in hidden:
+        o.hide_render = True
+    path = ROOT / "assets" / "previews" / f"{asset.name}{view['label']}.png"
+    scene.render.filepath = str(path)
+    bpy.ops.render.render(write_still=True)
+    for o in hidden:
+        o.hide_render = False
+    data.sensor_fit, data.lens = old
+    scene.render.resolution_x, scene.render.resolution_y = base_res
+    log(f"preview {path.name}")
+    return str(path.relative_to(ROOT))
 
 
 def export_glb(asset, out_dir):
@@ -339,6 +518,7 @@ def write_manifest(asset, out_dir, textures, previews):
         "attachments": [{"name": a["name"], "part": a["part"], "pos": rb(a["pos"]), "axis": axis(a["axis"])} for a in asset.attachments],
         "markers": [{"name": m["name"], "path": m["path"], "pos": rb(m["pos"]), "size": rb_size(Vector(m["size"])), "axis": axis(m["axis"])} for m in asset.markers],
         "textures": {g: t["files"] for g, t in textures.items()},
+        "texel_density": {g: t.get("density") for g, t in textures.items()},
         "previews": previews,
         "triangles": sum(p["tris"] for p in parts),
         "meta": asset.meta,
@@ -354,6 +534,8 @@ def finish(asset, samples=24, preview_samples=96, views=None, preview=True):
     out_dir.mkdir(parents=True, exist_ok=True)
     (ROOT / "assets" / "blender").mkdir(parents=True, exist_ok=True)
     (ROOT / "assets" / "previews").mkdir(parents=True, exist_ok=True)
+    if asset.templates:
+        prepare_templates(asset)
     asset.build_objects()
     textures = bake_groups(asset, out_dir, samples)
     bpy.context.preferences.filepaths.save_version = 0
@@ -376,6 +558,7 @@ def finish(asset, samples=24, preview_samples=96, views=None, preview=True):
     export_glb(asset, out_dir)
     manifest = write_manifest(asset, out_dir, textures, previews)
     log(f"{asset.name}: {len(manifest['parts'])} parts, {manifest['triangles']} tris, {time.time() - t0:.0f}s")
+    log(f"  texel density px/stud: {manifest['texel_density']}")
     for p in manifest["parts"]:
         log(f"  {p['path'] or '.'}/{p['name']}: {p['tris']} tris size={p['size']}")
     return manifest
