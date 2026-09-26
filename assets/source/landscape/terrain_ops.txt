@@ -194,7 +194,6 @@ cliffs ball -153.066 26.689 147.489 7.174 Sandstone
 cliffs ball -138.067 11.526 145.832 11.909 Sandstone
 cliffs ball -111.517 64.040 145.749 12.144 Sandstone
 cliffs ball -93.227 40.226 145.687 12.324 Sandstone
-cliffs ball -71.183 128.889 144.999 14.289 Sandstone
 cliffs ball -71.183 108.436 144.895 6.381 Air
 cliffs ball -44.302 100.428 144.639 15.316 Sandstone
 cliffs ball -20.557 20.628 144.922 14.509 Sandstone
@@ -210,7 +209,6 @@ cliffs ball 156.138 77.778 147.737 6.464 Sandstone
 cliffs ball 182.683 85.701 147.529 7.060 Sandstone
 cliffs ball 198.764 93.554 147.208 7.976 Sandstone
 cliffs ball 198.764 7.674 141.126 11.093 Air
-cliffs ball 220.946 122.631 144.555 15.557 Sandstone
 cliffs ball 220.946 104.304 141.450 10.688 Air
 cliffs ball 241.599 101.622 144.908 14.549 Sandstone
 cliffs ball 265.478 112.954 144.761 14.967 Sandstone
@@ -228,10 +226,8 @@ cliffs ball 462.769 93.583 146.934 8.759 Sandstone
 cliffs ball 491.381 119.107 146.960 8.686 Sandstone
 cliffs ball 508.046 26.346 147.740 6.457 Sandstone
 cliffs ball 508.046 15.806 144.777 6.529 Air
-cliffs ball 533.902 121.456 144.688 15.177 Sandstone
 cliffs ball 560.609 107.480 144.871 14.654 Sandstone
 cliffs ball 560.609 113.243 144.026 7.467 Air
-cliffs ball 578.176 123.558 144.759 14.973 Sandstone
 cliffs ball 601.971 73.712 146.253 10.707 Sandstone
 cliffs ball 619.532 37.133 144.413 15.964 Sandstone
 cliffs ball 647.085 16.494 145.023 14.219 Sandstone
@@ -239,7 +235,6 @@ cliffs ball 647.085 92.443 142.825 8.969 Air
 cliffs ball 664.257 79.115 144.567 15.522 Sandstone
 cliffs ball 686.748 63.812 144.811 14.826 Sandstone
 cliffs ball 707.498 101.560 145.214 13.674 Sandstone
-cliffs ball 728.656 129.238 144.782 14.910 Sandstone
 cliffs ball 758.772 64.961 146.130 11.057 Sandstone
 cliffs ball 774.674 63.250 145.576 12.640 Sandstone
 cliffs ball 800.886 29.954 147.067 8.380 Sandstone
@@ -462,7 +457,6 @@ cliffs ball -814.783 86.592 -137.457 14.907 Sandstone
 cliffs ball -817.592 115.978 -113.559 6.879 Sandstone
 cliffs ball -814.865 81.704 -113.559 6.419 Air
 cliffs ball -815.227 103.410 -96.635 13.636 Sandstone
-cliffs ball -814.729 148.177 -88.425 15.061 Sandstone
 cliffs ball -813.958 100.203 -88.425 7.553 Air
 cliffs ball -816.859 82.423 -75.312 8.973 Sandstone
 cliffs ball -815.417 114.096 -59.291 13.094 Sandstone
@@ -760,7 +754,6 @@ cliffs ball 815.384 102.775 -57.985 13.189 Sandstone
 cliffs ball 816.013 81.314 -40.006 11.391 Sandstone
 cliffs ball 816.836 118.701 -23.967 9.040 Sandstone
 cliffs ball 813.309 92.133 -23.967 8.364 Air
-cliffs ball 815.503 149.380 -18.704 12.850 Sandstone
 cliffs ball 816.365 131.170 0.533 10.385 Sandstone
 cliffs ball 815.854 111.464 18.609 11.846 Sandstone
 cliffs ball 817.031 133.688 28.669 8.484 Sandstone
@@ -855,7 +848,6 @@ cliffs ball -908.559 52.761 -1336.269 10.660 Sandstone
 cliffs ball -893.107 89.303 -1335.729 12.204 Sandstone
 cliffs ball -877.939 28.914 -1336.489 10.032 Sandstone
 cliffs ball -877.939 0.893 -1330.009 12.488 Air
-cliffs ball -860.131 112.842 -1335.356 13.267 Sandstone
 cliffs ball -840.025 55.703 -1336.568 9.804 Sandstone
 cliffs ball -840.025 89.203 -1331.035 11.206 Air
 cliffs ball -812.427 52.408 -1336.409 10.259 Sandstone
@@ -879,7 +871,6 @@ cliffs ball -577.942 115.294 -1334.447 6.941 Air
 cliffs ball -563.957 72.134 -1335.861 11.826 Sandstone
 cliffs ball -540.016 74.345 -1334.475 15.785 Sandstone
 cliffs ball -540.016 69.981 -1332.652 9.185 Air
-cliffs ball -522.070 118.497 -1335.663 12.391 Sandstone
 cliffs ball -509.683 77.333 -1333.351 18.996 Sandstone
 cliffs ball -509.683 11.789 -1329.654 12.933 Air
 cliffs ball -486.259 52.729 -1334.725 15.072 Sandstone
@@ -903,7 +894,6 @@ cliffs ball -273.043 108.013 -1330.627 11.716 Air
 cliffs ball -257.683 97.468 -1334.726 15.069 Sandstone
 cliffs ball -241.289 42.663 -1336.578 9.776 Sandstone
 cliffs ball -241.289 92.944 -1330.290 12.138 Air
-cliffs ball -217.212 107.872 -1333.825 17.643 Sandstone
 cliffs ball -204.855 111.828 -1337.130 8.201 Sandstone
 cliffs ball -176.989 5.674 -1336.100 11.143 Sandstone
 cliffs ball -165.933 54.085 -1336.010 11.399 Sandstone
@@ -923,7 +913,6 @@ cliffs ball 33.782 10.630 -1337.003 8.564 Sandstone
 cliffs ball 33.782 84.637 -1332.670 9.162 Air
 cliffs ball 57.298 34.012 -1333.462 18.679 Sandstone
 cliffs ball 57.298 84.166 -1334.742 6.572 Air
-cliffs ball 67.882 109.308 -1333.572 18.365 Sandstone
 cliffs ball 67.882 71.296 -1330.952 11.310 Air
 cliffs ball 94.914 82.774 -1336.696 9.439 Sandstone
 cliffs ball 107.480 11.557 -1334.508 15.692 Sandstone
@@ -956,8 +945,6 @@ cliffs ball 471.217 22.874 -1335.756 12.125 Sandstone
 cliffs ball 471.217 113.735 -1331.855 10.181 Air
 cliffs ball 488.758 85.620 -1334.526 15.639 Sandstone
 cliffs ball 506.922 32.938 -1336.207 10.838 Sandstone
-cliffs ball 532.366 115.365 -1333.673 18.076 Sandstone
-cliffs ball 542.320 115.748 -1334.529 15.633 Sandstone
 cliffs ball 542.320 71.001 -1332.610 9.237 Air
 cliffs ball 564.667 78.055 -1335.906 11.696 Sandstone
 cliffs ball 583.281 17.754 -1336.624 9.647 Sandstone
@@ -965,7 +952,6 @@ cliffs ball 596.278 104.394 -1333.680 18.058 Sandstone
 cliffs ball 596.278 74.799 -1329.882 12.647 Air
 cliffs ball 614.401 57.029 -1337.076 8.354 Sandstone
 cliffs ball 614.401 11.788 -1330.203 12.246 Air
-cliffs ball 640.835 114.088 -1335.295 13.442 Sandstone
 cliffs ball 640.835 80.553 -1333.394 8.258 Air
 cliffs ball 656.504 62.696 -1335.476 12.926 Sandstone
 cliffs ball 678.515 33.561 -1334.468 15.805 Sandstone
@@ -1334,9 +1320,7 @@ buttes ball -3.345 53.478 -1159.663 3.493 Air
 buttes ball -6.162 48.152 -1153.363 7.619 Limestone
 buttes ball -14.768 50.486 -1140.374 7.814 Limestone
 buttes ball -28.726 51.725 -1129.060 6.783 Limestone
-buttes ball -46.051 54.567 -1120.563 10.434 Limestone
 buttes ball -61.429 45.382 -1119.161 9.873 Limestone
-buttes ball -80.657 53.987 -1122.438 10.733 Limestone
 buttes ball -80.984 45.514 -1121.527 5.905 Air
 buttes ball -86.469 47.356 -1124.773 10.978 Limestone
 buttes ball -98.575 46.035 -1134.509 6.413 Limestone
@@ -1346,18 +1330,14 @@ buttes ball -117.183 54.412 -1164.347 5.392 Limestone
 buttes ball -119.148 49.798 -1177.393 5.159 Limestone
 buttes ball -116.729 54.175 -1197.295 5.447 Limestone
 buttes ball -112.597 51.832 -1206.895 4.785 Limestone
-buttes ball -102.771 56.518 -1223.730 10.768 Limestone
 buttes ball -93.925 45.763 -1230.780 10.484 Limestone
 buttes ball -95.021 44.670 -1232.419 7.051 Air
 buttes ball -70.722 49.815 -1238.328 5.443 Limestone
 buttes ball -63.692 52.496 -1240.601 9.466 Limestone
 buttes ball -63.794 49.145 -1242.261 6.221 Air
-buttes ball -44.404 55.898 -1238.812 9.842 Limestone
-buttes ball -24.777 55.768 -1229.384 9.311 Limestone
 buttes ball -19.337 52.352 -1224.465 8.155 Limestone
 buttes ball -8.992 51.354 -1211.656 7.523 Limestone
 buttes ball -1.061 53.022 -1192.103 7.911 Limestone
-buttes ball 1.186 56.686 -1177.312 10.986 Limestone
 buttes ball 29.754 -1.560 -1160.140 3.466 Sandstone
 buttes ball 21.824 -2.053 -1139.799 4.562 Sandstone
 buttes ball 8.145 -1.579 -1138.858 3.510 Sandstone

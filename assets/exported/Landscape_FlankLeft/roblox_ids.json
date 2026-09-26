@@ -1,13 +1,13 @@
 {
  "hashes": {
-  "c00/color": "9808c145174cd7ac",
-  "c00/normal": "184b7772638a4e4b",
-  "c01/color": "9542044bee57d359",
-  "c01/normal": "aa92be5c3642f6da",
-  "c02/color": "fa6f9956d64cdb26",
-  "c02/normal": "f739796b5e84af9f",
-  "c03/color": "db6d6ac5fc9100e7",
-  "c03/normal": "c5de8f71e2fc0115",
+  "c00/color": "6b98a9f48fe71856",
+  "c00/normal": "03b396e8ac7d3692",
+  "c01/color": "d68e776763b457fd",
+  "c01/normal": "1958ae848d892f69",
+  "c02/color": "9350ec94255d9ad6",
+  "c02/normal": "c6be578c236cfbc1",
+  "c03/color": "ea08d0c1602c3534",
+  "c03/normal": "2026a0fbec001f31",
   "glb": "ad0470a143a29b8a"
  },
  "meshes": {
@@ -19,20 +19,20 @@
  "model": "79137152092437",
  "textures": {
   "c00": {
-   "color": "rbxassetid://88972536095015",
-   "normal": "rbxassetid://78245938803593"
+   "color": "rbxassetid://132906806399607",
+   "normal": "rbxassetid://131508785338560"
   },
   "c01": {
-   "color": "rbxassetid://104526674054004",
-   "normal": "rbxassetid://138718722435636"
+   "color": "rbxassetid://94293006043793",
+   "normal": "rbxassetid://96675315750620"
   },
   "c02": {
-   "color": "rbxassetid://70494707972958",
-   "normal": "rbxassetid://127225188327973"
+   "color": "rbxassetid://84375623528141",
+   "normal": "rbxassetid://91487152295604"
   },
   "c03": {
-   "color": "rbxassetid://99706009573324",
-   "normal": "rbxassetid://87801809446047"
+   "color": "rbxassetid://78877800604155",
+   "normal": "rbxassetid://83163447610799"
   }
  }
 }

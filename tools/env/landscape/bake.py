@@ -36,6 +36,10 @@ import texture  # noqa: E402
 
 BUILD = os.path.join(ROOT, "assets", "source", "landscape", "build")
 TEX = 1024  # bake resolution; exported sizes: pieces.TEXTURE_SIZES
+JOINT_SPACING = 19.0  # studs between rock joints (fracture cells); cells are
+JOINT_STRETCH = 1.8  # this many times longer along one axis (two joint sets)
+JOINT_WIDTH = 0.35  # studs, half-width of a joint
+JOINT_DEPTH = 0.4  # bump height units (see high_material)
 SMOOTH_ANGLE = math.radians(55)
 NEIGHBOURS = {  # pieces that shade (AO) each other
     "Mesa": ["RearWall"],
@@ -146,10 +150,44 @@ def high_material():
     add2.operation = "ADD"
     nt.links.new(add1.outputs[0], add2.inputs[0])
     nt.links.new(layers[2].outputs[0], add2.inputs[1])
+    # Joints: a plan-view fracture network (cells ~JOINT_SPACING studs) cut
+    # into the rock. Seen from above they part the flat tops into slabs;
+    # projected down the walls they become vertical fractures.
+    jmap = nt.nodes.new("ShaderNodeMapping")
+    jmap.inputs["Scale"].default_value = (1 / JOINT_SPACING, 1 / (JOINT_SPACING * JOINT_STRETCH), 1 / JOINT_SPACING)
+    jmap.inputs["Rotation"].default_value = (0.0, 0.0, 0.5)
+    nt.links.new(coord.outputs["Object"], jmap.inputs["Vector"])
+    jwarp = nt.nodes.new("ShaderNodeTexNoise")
+    jwarp.inputs["Scale"].default_value = 0.7
+    jadd = nt.nodes.new("ShaderNodeVectorMath")
+    jadd.operation = "MULTIPLY_ADD"
+    nt.links.new(jmap.outputs["Vector"], jwarp.inputs["Vector"])
+    nt.links.new(jwarp.outputs["Color"], jadd.inputs[0])
+    jadd.inputs[1].default_value = (0.25, 0.25, 0.25)
+    nt.links.new(jmap.outputs["Vector"], jadd.inputs[2])
+    edges = nt.nodes.new("ShaderNodeTexVoronoi")
+    edges.voronoi_dimensions = "2D"
+    edges.feature = "DISTANCE_TO_EDGE"
+    nt.links.new(jadd.outputs["Vector"], edges.inputs["Vector"])
+    cells = nt.nodes.new("ShaderNodeTexVoronoi")
+    cells.voronoi_dimensions = "2D"
+    cells.feature = "F1"
+    nt.links.new(jadd.outputs["Vector"], cells.inputs["Vector"])
+    joint = nt.nodes.new("ShaderNodeMapRange")
+    joint.inputs["From Min"].default_value = 0.0
+    joint.inputs["From Max"].default_value = JOINT_WIDTH / JOINT_SPACING
+    joint.inputs["To Min"].default_value = 1.0
+    joint.inputs["To Max"].default_value = 0.0
+    nt.links.new(edges.outputs["Distance"], joint.inputs["Value"])
+    jdepth = nt.nodes.new("ShaderNodeMath")
+    jdepth.operation = "MULTIPLY_ADD"
+    jdepth.inputs[1].default_value = -JOINT_DEPTH
+    nt.links.new(joint.outputs["Result"], jdepth.inputs[0])
+    nt.links.new(add2.outputs[0], jdepth.inputs[2])
     bump = nt.nodes.new("ShaderNodeBump")
     bump.inputs["Strength"].default_value = 0.85
     bump.inputs["Distance"].default_value = 1.6
-    nt.links.new(add2.outputs[0], bump.inputs["Height"])
+    nt.links.new(jdepth.outputs[0], bump.inputs["Height"])
     nt.links.new(bump.outputs["Normal"], bsdf.inputs["Normal"])
     # Emission outputs used by the aux bakes (switched in per bake).
     geo = nt.nodes.new("ShaderNodeNewGeometry")
@@ -167,10 +205,12 @@ def high_material():
     curv = nt.nodes.new("ShaderNodeCombineXYZ")
     nt.links.new(geo.outputs["Pointiness"], curv.inputs["X"])
     nt.links.new(edge.outputs[0], curv.inputs["Y"])
+    nt.links.new(joint.outputs["Result"], curv.inputs["Z"])
     emit = nt.nodes.new("ShaderNodeEmission")
     emit.name = "AuxEmit"
     mat["sources"] = {}
-    return mat, {"position": geo.outputs["Position"], "normal": geo.outputs["Normal"], "curv": curv.outputs["Vector"]}, emit, bsdf
+    return mat, {"position": geo.outputs["Position"], "normal": geo.outputs["Normal"], "curv": curv.outputs["Vector"],
+                 "cell": cells.outputs["Color"]}, emit, bsdf
 
 
 def island_scale(ob, face_density):
@@ -352,6 +392,7 @@ def build_piece(name, samples):
             ("position", "EMIT", "position", 1, True),
             ("wnormal", "EMIT", "normal", 1, True),
             ("curv", "EMIT", "curv", 4, True),
+            ("cell", "EMIT", "cell", 1, True),
             ("ao", "AO", None, samples, True),
         ):
             img = bpy.data.images.new(f"{cname}_{key}", TEX, TEX, alpha=True, float_buffer=color)
@@ -365,7 +406,8 @@ def build_piece(name, samples):
         Nw = to_roblox(pixels(imgs["wnormal"], 3)[valid].astype(np.float64))
         ao = pixels(imgs["ao"], 1)[:, :, 0][valid].astype(np.float64)
         curv = pixels(imgs["curv"], 3)[valid].astype(np.float64)
-        col, _rough = texture.composite(Pw, Nw, ao, curv[:, 0], curv[:, 1])
+        cell = pixels(imgs["cell"], 1)[:, :, 0][valid].astype(np.float64)
+        col, _rough = texture.composite(Pw, Nw, ao, curv[:, 0], curv[:, 1], joint=curv[:, 2], cell=cell)
         colour = np.zeros((TEX, TEX, 3))
         colour[valid] = col
         # Fill the gutter between islands with the nearest island colour.
@@ -391,7 +433,7 @@ def build_piece(name, samples):
         save_png(os.path.join(out_dir, files["color"]), colour)
         save_png(os.path.join(out_dir, files["normal"]), normal)
         np.savez_compressed(os.path.join(aux_dir, f"{cname}.npz"), pos=pos.astype(np.float32), ao=pixels(imgs["ao"], 1).astype(np.float16),
-                            curv=pixels(imgs["curv"], 2).astype(np.float16), wn=pixels(imgs["wnormal"], 3).astype(np.float16))
+                            curv=pixels(imgs["curv"], 3).astype(np.float16), wn=pixels(imgs["wnormal"], 3).astype(np.float16))
         textures[grp] = files
         area = sum(p.area for p in ob.data.polygons)
         uv_area = uv_coverage(ob)
@@ -400,7 +442,7 @@ def build_piece(name, samples):
         ob.data.materials.clear()
         ob.data.materials.append(baked_material(cname, imgs["normal"], out_dir, files))
         for img in imgs.values():
-            if img.name.endswith(("_position", "_wnormal", "_curv", "_ao")):
+            if img.name.endswith(("_position", "_wnormal", "_curv", "_ao", "_cell")):
                 bpy.data.images.remove(img)
         log(f"{cname}: baked ({density[grp]} px/stud mean, {time.time() - t0:.0f}s)")
     # Export GLB (chunks only) and manifest.

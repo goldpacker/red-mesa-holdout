@@ -7,10 +7,10 @@
     <Item class="MeshPart" referent="RBX00000002">
       <Properties>
         <string name="Name">FarWall_C00</string>
-        <Content name="MeshId"><url>rbxassetid://98821751557331</url></Content>
-        <Vector3 name="InitialSize"><X>529.768</X><Y>148</Y><Z>137.493</Z></Vector3>
-        <Vector3 name="size"><X>529.768</X><Y>148</Y><Z>137.493</Z></Vector3>
-        <CoordinateFrame name="CFrame"><X>-735.116</X><Y>74</Y><Z>-1372.3</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+        <Content name="MeshId"><url>rbxassetid://88213450538068</url></Content>
+        <Vector3 name="InitialSize"><X>557.128</X><Y>148</Y><Z>137.493</Z></Vector3>
+        <Vector3 name="size"><X>557.128</X><Y>148</Y><Z>137.493</Z></Vector3>
+        <CoordinateFrame name="CFrame"><X>-721.436</X><Y>74</Y><Z>-1372.3</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
         <bool name="Anchored">true</bool>
         <bool name="CanCollide">false</bool>
         <bool name="CanQuery">false</bool>
@@ -24,8 +24,8 @@
       <Item class="SurfaceAppearance" referent="RBX00000003">
         <Properties>
           <string name="Name">SurfaceAppearance</string>
-          <Content name="ColorMap"><url>rbxassetid://134797658659528</url></Content>
-          <Content name="NormalMap"><url>rbxassetid://78492992113214</url></Content>
+          <Content name="ColorMap"><url>rbxassetid://115287939414457</url></Content>
+          <Content name="NormalMap"><url>rbxassetid://136095135606566</url></Content>
           <Content name="RoughnessMap"><null></null></Content>
           <Content name="MetalnessMap"><null></null></Content>
         </Properties>
@@ -34,10 +34,10 @@
     <Item class="MeshPart" referent="RBX00000004">
       <Properties>
         <string name="Name">FarWall_C01</string>
-        <Content name="MeshId"><url>rbxassetid://129394196915361</url></Content>
-        <Vector3 name="InitialSize"><X>558.67</X><Y>148</Y><Z>139.76</Z></Vector3>
-        <Vector3 name="size"><X>558.67</X><Y>148</Y><Z>139.76</Z></Vector3>
-        <CoordinateFrame name="CFrame"><X>-231.546</X><Y>74</Y><Z>-1371.17</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+        <Content name="MeshId"><url>rbxassetid://83695979362987</url></Content>
+        <Vector3 name="InitialSize"><X>564.339</X><Y>148</Y><Z>139.76</Z></Vector3>
+        <Vector3 name="size"><X>564.339</X><Y>148</Y><Z>139.76</Z></Vector3>
+        <CoordinateFrame name="CFrame"><X>-230.612</X><Y>74</Y><Z>-1371.17</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
         <bool name="Anchored">true</bool>
         <bool name="CanCollide">false</bool>
         <bool name="CanQuery">false</bool>
@@ -51,8 +51,8 @@
       <Item class="SurfaceAppearance" referent="RBX00000005">
         <Properties>
           <string name="Name">SurfaceAppearance</string>
-          <Content name="ColorMap"><url>rbxassetid://99075595953194</url></Content>
-          <Content name="NormalMap"><url>rbxassetid://125795165751388</url></Content>
+          <Content name="ColorMap"><url>rbxassetid://131864334154307</url></Content>
+          <Content name="NormalMap"><url>rbxassetid://87908510577871</url></Content>
           <Content name="RoughnessMap"><null></null></Content>
           <Content name="MetalnessMap"><null></null></Content>
         </Properties>
@@ -61,10 +61,10 @@
     <Item class="MeshPart" referent="RBX00000006">
       <Properties>
         <string name="Name">FarWall_C02</string>
-        <Content name="MeshId"><url>rbxassetid://97656040674650</url></Content>
-        <Vector3 name="InitialSize"><X>572.131</X><Y>148</Y><Z>143.947</Z></Vector3>
-        <Vector3 name="size"><X>572.131</X><Y>148</Y><Z>143.947</Z></Vector3>
-        <CoordinateFrame name="CFrame"><X>244.407</X><Y>74</Y><Z>-1369.08</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+        <Content name="MeshId"><url>rbxassetid://89410011982602</url></Content>
+        <Vector3 name="InitialSize"><X>563.807</X><Y>148</Y><Z>143.947</Z></Vector3>
+        <Vector3 name="size"><X>563.807</X><Y>148</Y><Z>143.947</Z></Vector3>
+        <CoordinateFrame name="CFrame"><X>244.809</X><Y>74</Y><Z>-1369.08</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
         <bool name="Anchored">true</bool>
         <bool name="CanCollide">false</bool>
         <bool name="CanQuery">false</bool>
@@ -78,8 +78,8 @@
       <Item class="SurfaceAppearance" referent="RBX00000007">
         <Properties>
           <string name="Name">SurfaceAppearance</string>
-          <Content name="ColorMap"><url>rbxassetid://122980089119693</url></Content>
-          <Content name="NormalMap"><url>rbxassetid://96620968867165</url></Content>
+          <Content name="ColorMap"><url>rbxassetid://84447502267514</url></Content>
+          <Content name="NormalMap"><url>rbxassetid://82972161092648</url></Content>
           <Content name="RoughnessMap"><null></null></Content>
           <Content name="MetalnessMap"><null></null></Content>
         </Properties>
@@ -88,10 +88,10 @@
     <Item class="MeshPart" referent="RBX00000008">
       <Properties>
         <string name="Name">FarWall_C03</string>
-        <Content name="MeshId"><url>rbxassetid://107322893492425</url></Content>
-        <Vector3 name="InitialSize"><X>519.349</X><Y>148</Y><Z>140.02</Z></Vector3>
-        <Vector3 name="size"><X>519.349</X><Y>148</Y><Z>140.02</Z></Vector3>
-        <CoordinateFrame name="CFrame"><X>740.325</X><Y>74</Y><Z>-1371.19</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+        <Content name="MeshId"><url>rbxassetid://90340155156212</url></Content>
+        <Vector3 name="InitialSize"><X>518.119</X><Y>148</Y><Z>140.02</Z></Vector3>
+        <Vector3 name="size"><X>518.119</X><Y>148</Y><Z>140.02</Z></Vector3>
+        <CoordinateFrame name="CFrame"><X>740.941</X><Y>74</Y><Z>-1371.19</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
         <bool name="Anchored">true</bool>
         <bool name="CanCollide">false</bool>
         <bool name="CanQuery">false</bool>
@@ -105,8 +105,8 @@
       <Item class="SurfaceAppearance" referent="RBX00000009">
         <Properties>
           <string name="Name">SurfaceAppearance</string>
-          <Content name="ColorMap"><url>rbxassetid://136013034474432</url></Content>
-          <Content name="NormalMap"><url>rbxassetid://121668304103188</url></Content>
+          <Content name="ColorMap"><url>rbxassetid://88777999953345</url></Content>
+          <Content name="NormalMap"><url>rbxassetid://70403210156718</url></Content>
           <Content name="RoughnessMap"><null></null></Content>
           <Content name="MetalnessMap"><null></null></Content>
         </Properties>

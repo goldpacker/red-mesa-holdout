@@ -24,8 +24,8 @@
       <Item class="SurfaceAppearance" referent="RBX00000003">
         <Properties>
           <string name="Name">SurfaceAppearance</string>
-          <Content name="ColorMap"><url>rbxassetid://116935794601346</url></Content>
-          <Content name="NormalMap"><url>rbxassetid://109139529371326</url></Content>
+          <Content name="ColorMap"><url>rbxassetid://76102168036193</url></Content>
+          <Content name="NormalMap"><url>rbxassetid://80023067819796</url></Content>
           <Content name="RoughnessMap"><null></null></Content>
           <Content name="MetalnessMap"><null></null></Content>
         </Properties>
@@ -51,8 +51,8 @@
       <Item class="SurfaceAppearance" referent="RBX00000005">
         <Properties>
           <string name="Name">SurfaceAppearance</string>
-          <Content name="ColorMap"><url>rbxassetid://133830739621570</url></Content>
-          <Content name="NormalMap"><url>rbxassetid://91333084173903</url></Content>
+          <Content name="ColorMap"><url>rbxassetid://88526837519124</url></Content>
+          <Content name="NormalMap"><url>rbxassetid://93371721551037</url></Content>
           <Content name="RoughnessMap"><null></null></Content>
           <Content name="MetalnessMap"><null></null></Content>
         </Properties>
@@ -78,8 +78,8 @@
       <Item class="SurfaceAppearance" referent="RBX00000007">
         <Properties>
           <string name="Name">SurfaceAppearance</string>
-          <Content name="ColorMap"><url>rbxassetid://90450794109641</url></Content>
-          <Content name="NormalMap"><url>rbxassetid://109352627340883</url></Content>
+          <Content name="ColorMap"><url>rbxassetid://110358266479991</url></Content>
+          <Content name="NormalMap"><url>rbxassetid://97230145454036</url></Content>
           <Content name="RoughnessMap"><null></null></Content>
           <Content name="MetalnessMap"><null></null></Content>
         </Properties>
@@ -105,8 +105,8 @@
       <Item class="SurfaceAppearance" referent="RBX00000009">
         <Properties>
           <string name="Name">SurfaceAppearance</string>
-          <Content name="ColorMap"><url>rbxassetid://86631813888307</url></Content>
-          <Content name="NormalMap"><url>rbxassetid://116575539560734</url></Content>
+          <Content name="ColorMap"><url>rbxassetid://106503460512546</url></Content>
+          <Content name="NormalMap"><url>rbxassetid://90012881511543</url></Content>
           <Content name="RoughnessMap"><null></null></Content>
           <Content name="MetalnessMap"><null></null></Content>
         </Properties>

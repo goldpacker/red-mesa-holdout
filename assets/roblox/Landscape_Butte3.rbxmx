@@ -7,7 +7,7 @@
     <Item class="MeshPart" referent="RBX00000002">
       <Properties>
         <string name="Name">Butte3_C00</string>
-        <Content name="MeshId"><url>rbxassetid://72196488660684</url></Content>
+        <Content name="MeshId"><url>rbxassetid://96071822733839</url></Content>
         <Vector3 name="InitialSize"><X>208.75</X><Y>69.853</Y><Z>220</Z></Vector3>
         <Vector3 name="size"><X>208.75</X><Y>69.853</Y><Z>220</Z></Vector3>
         <CoordinateFrame name="CFrame"><X>-54.375</X><Y>34.5735</Y><Z>-1180</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
@@ -24,8 +24,8 @@
       <Item class="SurfaceAppearance" referent="RBX00000003">
         <Properties>
           <string name="Name">SurfaceAppearance</string>
-          <Content name="ColorMap"><url>rbxassetid://112117371731439</url></Content>
-          <Content name="NormalMap"><url>rbxassetid://83057616535453</url></Content>
+          <Content name="ColorMap"><url>rbxassetid://134569521676235</url></Content>
+          <Content name="NormalMap"><url>rbxassetid://116357156649443</url></Content>
           <Content name="RoughnessMap"><null></null></Content>
           <Content name="MetalnessMap"><null></null></Content>
         </Properties>

@@ -53,6 +53,9 @@ class Piece:
     keep_clear: bool = False  # mesa: stay under the turret's sight lines and out of the gun pit
     max_density: float = 10.0  # px/stud cap (the rear wall under the title camera sits behind the title UI)
     smooth_zone: tuple = ()  # ((a xyz), (b xyz), radius): no ledges near this segment (a camera inside the rock)
+    density_slack: float = 0.75  # see DENSITY_SLACK
+    close_density: float = 0.0  # px/stud floor on surfaces the title camera sees within CLOSE_RANGE
+    min_chunks: int = 1  # walls: 4 atlases (512^2) keep their accepted 0.6-1.2 px/stud
 
     def selects(self, op: Op) -> bool:
         return op.group in self.groups
@@ -77,9 +80,9 @@ TEXTURE_SIZES = {"Mesa": (1024, 512)}
 TEXTURE_SIZES_DEFAULT = (512, 256)
 LOS_CLEARANCE = 1.2  # the QA check sees a convex decomposition, ~1 stud proud of the mesh
 
-# The title camera (AimController title pan) sits on the rear wall's face at
-# x -115..-25, y 128, z 150 and looks down over the ridge and mesa.
-TITLE_CAM = (-70.0, 128.0, 150.0)
+# The title camera (AimController title pan, moved by LOOK-2) runs at
+# x -107..-17, y 122, z 122 and looks down over the ridge and mesa.
+TITLE_CAM = (-62.0, 122.0, 122.0)
 
 # Every camera the game uses (Roblox studs; vertical FOV in degrees; the
 # viewport is ~1080 px tall): position (a segment for the title pan), the
@@ -87,7 +90,8 @@ TITLE_CAM = (-70.0, 128.0, 150.0)
 # and FOV. Texture density is sized for the nearest camera that can see a
 # point.
 CAMERAS = (
-    (((-115.0, 128.0, 150.0), (-25.0, 128.0, 150.0)), (90.0, 0.0, -420.0), 60.0),
+    # Title pan (AimController, LOOK-2 e404d55): eye (-62 +- 45, 122, 122).
+    (((-107.0, 122.0, 122.0), (-17.0, 122.0, 122.0)), (90.0, 0.0, -420.0), 60.0),
     (((0.0, 80.0, 13.0), (0.0, 80.0, 13.0)), None, 70.0),
     (((0.0, 80.0, 13.0), (0.0, 80.0, 13.0)), None, 32.0),
     (((430.0, 70.0, -700.0), (430.0, 70.0, -700.0)), (-20.0, 25.0, -190.0), 45.0),
@@ -99,10 +103,12 @@ VIEW_PX = 1080.0
 ASPECT = 1190.0 / 1080.0
 DENSITY_SLACK = 0.75  # accept this much texture magnification at the nearest camera
 DENSITY_RANGE = (1.5, 10.0)
+CLOSE_RANGE = 260.0  # studs: the plan's close-range bar (>= 8 px/stud) applies inside this
 
 
-def needed_density(points):
-    """px/stud each point needs so its texture is ~1:1 at the nearest camera."""
+def needed_density(points, slack=None, cap=None):
+    """px/stud each point needs so its texture is ~1:1 at the nearest camera
+    (times `slack`, clipped to DENSITY_RANGE or `cap`)."""
     import numpy as np
 
     p = np.asarray(points, dtype=np.float64)
@@ -122,31 +128,47 @@ def needed_density(points):
             seen = (rel @ fwd) > d * np.cos(half)
         need = VIEW_PX / (2.0 * np.maximum(d, 1.0) * np.tan(np.radians(fov) / 2.0))
         best = np.maximum(best, np.where(seen, need, 0.0))
-    return np.clip(best * DENSITY_SLACK, *DENSITY_RANGE)
+    return np.clip(best * (DENSITY_SLACK if slack is None else slack), DENSITY_RANGE[0], cap or DENSITY_RANGE[1])
+
+
+def close_view(points, max_dist):
+    """Points the title camera (either pan position) sees within max_dist."""
+    import numpy as np
+
+    p = np.asarray(points, dtype=np.float64)
+    seen = np.zeros(len(p), dtype=bool)
+    for (a, b), look, fov in CAMERAS[:1]:
+        a, b = np.array(a), np.array(b)
+        ab = b - a
+        t = np.clip(((p - a) @ ab) / (ab @ ab), 0.0, 1.0)
+        rel = p - (a + t[:, None] * ab)
+        d = np.linalg.norm(rel, axis=1)
+        fwd = np.array(look) - (a + b) / 2.0
+        fwd /= np.linalg.norm(fwd)
+        half = np.arctan(np.tan(np.radians(fov) / 2.0) * np.hypot(1.0, ASPECT)) + np.radians(6.0)
+        seen |= ((rel @ fwd) > d * np.cos(half)) & (d < max_dist)
+    return seen
 
 PIECES: dict[str, Piece] = {
     "Mesa": Piece(
         "Mesa", ("mesa",), (-100.0, -8.0, -100.0), (100.0, 64.0, 200.0), 0.9, 4.5, 0.7, 0.8, MESA,
-        tris=60000, keep_clear=True, plan_close=4.0, smear=7.0, smear_axis=1, ring_center=(0.0, 0.0), ring_radius=82.0,
+        tris=80000, keep_clear=True, plan_close=4.0, max_density=12.0, density_slack=1.0, close_density=8.0, smear=7.0, smear_axis=1, ring_center=(0.0, 0.0), ring_radius=82.0,
     ),
     "RearWall": Piece(
         "RearWall", ("rear",), (-830.0, -8.0, 116.0), (830.0, 158.0, 292.0), 1.5, 5.0, 1.5, 1.2, WALL,
-        tris=30000, plan_close=9.0, smear_axis=0, smear=12.0, max_density=4.0,
-        # The title pan runs inside a terrain bulge on this face: keep the rock
-        # there one smooth convex mass so no ledge face passes near the lens.
-        smooth_zone=((-122.0, 128.0, 150.0), (-18.0, 128.0, 150.0), 24.0),
+        tris=30000, plan_close=9.0, smear_axis=0, smear=12.0, max_density=4.0, min_chunks=4,
     ),
     "FlankLeft": Piece(
         "FlankLeft", ("flankL",), (-845.0, -8.0, -1262.0), (-690.0, 168.0, 420.0), 1.5, 5.0, 1.5, 1.2, WALL,
-        tris=24000, plan_close=8.0, smear_axis=1, smear=12.0,
+        tris=24000, plan_close=8.0, smear_axis=1, smear=12.0, min_chunks=4,
     ),
     "FlankRight": Piece(
         "FlankRight", ("flankR",), (690.0, -8.0, -1262.0), (845.0, 168.0, 420.0), 1.5, 5.0, 1.5, 1.2, WALL,
-        tris=32000, plan_close=8.0, smear_axis=1, smear=12.0,
+        tris=32000, plan_close=8.0, smear_axis=1, smear=12.0, min_chunks=4,
     ),
     "FarWall": Piece(
         "FarWall", ("far",), (-1000.0, -8.0, -1462.0), (1000.0, 148.0, -1282.0), 2.0, 6.0, 2.0, 1.4, WALL,
-        tris=18000, plan_close=9.0, smear_axis=0, smear=14.0,
+        tris=18000, plan_close=9.0, smear_axis=0, smear=14.0, min_chunks=4,
     ),
 }
 

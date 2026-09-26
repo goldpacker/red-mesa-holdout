@@ -32,6 +32,17 @@ Whole pipeline (ENV-2; inputs committed under assets/source/landscape/):
   5. publish.py   upload, Studio harvest, assets/roblox/Landscape_*.rbxmx
   6. preview.py   Blender renders from the beauty cameras (optional)
 In game: src/server/Landscape.luau.
+
+Checklist after ANY change to the mesa (shape, strata, LOS constants):
+  - Blender ... probe.py -- los must print ALL PASS, and in a Studio playtest
+    RedMesaDebug losCheck must be ALL PASS: the mesa's runtime precise
+    collision sits ~1 stud proud of the render mesh, so the LOS margin is a
+    design rule (pieces.LOS_CLEARANCE, TOP_EXTRA_CLEARANCE), not physics.
+  - groundCheck digests must stay Road 18060, ScrubLeft/Right 16400,
+    WashLeft -34191, WashRight -34501.
+After a TerrainBuilder change: re-capture terrain_ops.txt and the probes.
+Clearance: the mesh is never inside the live terrain; the minimum clearance
+is 0.35 studs (MIN_CLEAR), typical ~1, median camera-ray gap ~6.
 """
 from __future__ import annotations
 
@@ -53,12 +64,12 @@ import fast_simplification  # noqa: E402
 import ops as opsmod  # noqa: E402
 import strata  # noqa: E402
 from noise import fbm2, smoothstep, value3  # noqa: E402
-from pieces import PIECES, TURRET_PIVOT, LOS_CLEARANCE, Piece, needed_density  # noqa: E402,F401
+from pieces import CLOSE_RANGE, PIECES, TURRET_PIVOT, LOS_CLEARANCE, Piece, close_view, needed_density  # noqa: E402,F401
 
 OUT = opsmod.ROOT / "assets" / "source" / "landscape" / "build"
 CHUNK_TRIS = 15000
 TEX = 1024
-PACK_EFFICIENCY = 0.5  # share of the 1024^2 atlas the packed islands really cover (measured 0.45-0.6)
+PACK_EFFICIENCY = 0.58  # share of the 1024^2 atlas the packed islands really cover (measured ~0.6 on the mesa)
 FLOOR_DROP = 2.5  # the talus fillet blends into a plane this far under the floor
 MIN_CLEAR = 0.35  # the mesh surface never comes closer than this to the terrain
 TOP_EXTRA_CLEARANCE = 0.8  # studs, extra LOS clearance on the mesa's top 15 studs of radius
@@ -391,39 +402,55 @@ def face_areas(v, f):
 
 
 def density_at(piece: Piece, c: np.ndarray) -> np.ndarray:
-    return np.minimum(needed_density(c), piece.max_density)
+    d = np.minimum(needed_density(c, slack=piece.density_slack, cap=piece.max_density), piece.max_density)
+    if piece.close_density > 0:
+        d = np.where(close_view(c, CLOSE_RANGE), np.maximum(d, piece.close_density), d)
+    return d
 
 
 def split(piece: Piece, v, f):
-    """Recursive median split of faces into chunks under the triangle and
-    texture-area limits; returns a chunk id per face."""
+    """Split faces into chunks under the triangle and texture-area limits:
+    n = enough chunks for both, then a recursive k-d split that divides the
+    texels in proportion to the chunk counts on each side, so every chunk's
+    atlas ends up about equally full. Returns a chunk id per face and the
+    density each chunk's atlas can hold relative to the need."""
     cent = v[f].mean(axis=1)
     area = face_areas(v, f)
     dens = density_at(piece, cent)
     texels = area * dens * dens  # px^2 each face needs
     budget = TEX * TEX * PACK_EFFICIENCY
+    n_total = max(int(np.ceil(texels.sum() / budget * 1.04)), piece.min_chunks, 1)
     ids = np.zeros(len(f), dtype=np.int32)
-    todo = [np.arange(len(f))]
+    todo = [(np.arange(len(f)), n_total)]
     done = []
     while todo:
-        idx = todo.pop()
-        if len(idx) <= CHUNK_TRIS and texels[idx].sum() <= budget:
+        idx, n = todo.pop()
+        if n <= 1:
             done.append(idx)
             continue
         c = cent[idx]
         axis = int(np.argmax(c.max(axis=0) - c.min(axis=0)))
-        # Split where half the texture area (or half the faces) falls.
         order = idx[np.argsort(c[:, axis])]
+        n1 = n // 2
         w = np.cumsum(texels[order])
-        cut = int(np.searchsorted(w, w[-1] / 2))
-        if texels[idx].sum() <= budget:
-            cut = len(order) // 2
+        cut = int(np.searchsorted(w, w[-1] * n1 / n))
         cut = min(max(cut, 1), len(order) - 1)
-        todo += [order[:cut], order[cut:]]
+        todo += [(order[:cut], n1), (order[cut:], n - n1)]
+    # Parts over the triangle cap (dense, low-texel regions) split by count.
+    final = []
+    for idx in done:
+        k = int(np.ceil(len(idx) / CHUNK_TRIS))
+        if k <= 1:
+            final.append(idx)
+            continue
+        c = cent[idx]
+        axis = int(np.argmax(c.max(axis=0) - c.min(axis=0)))
+        final += list(np.array_split(idx[np.argsort(c[:, axis])], k))
+    done = final
     done.sort(key=lambda a: tuple(np.round(cent[a].mean(axis=0) / 50.0)))
-    for n, idx in enumerate(done):
-        ids[idx] = n
-    return ids, [float(np.sqrt(budget / max(texels[i].sum() / dens[i].mean() ** 2, 1e-6))) for i in done]
+    for k, idx in enumerate(done):
+        ids[idx] = k
+    return ids, [float(np.sqrt(min(1.0, budget / max(texels[i].sum(), 1e-6)))) for i in done]
 
 
 def build(piece: Piece, ops):
@@ -440,7 +467,7 @@ def build(piece: Piece, ops):
     chunk, dens = split(piece, lv, lf)
     n = int(chunk.max()) + 1
     log(f"  {n} chunks: tris {[int((chunk == i).sum()) for i in range(n)]}")
-    log(f"  texel density px/stud {[round(d, 1) for d in dens]}")
+    log(f"  atlas fill vs need (1.0 = full density) {[round(d, 2) for d in dens]}")
     OUT.mkdir(parents=True, exist_ok=True)
     # The analytic terrain surface (for probe.py's coverage check), decimated.
     tlv, tlf = fast_simplification.simplify(tv, tf.astype(np.int32), target_count=min(len(tf), 150000), agg=5.0)

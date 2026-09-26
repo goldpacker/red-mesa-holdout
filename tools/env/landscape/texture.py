@@ -133,8 +133,10 @@ def bed_colour(k, f, P):
     return c * grad
 
 
-def composite(P, N, ao, point, edge, floor_y=0.0):
-    """Returns (colour sRGB 0..1, roughness 0..1) for texels (arrays of n)."""
+def composite(P, N, ao, point, edge, floor_y=0.0, joint=None, cell=None):
+    """Returns (colour sRGB 0..1, roughness 0..1) for texels (arrays of n).
+    `joint` (1 in a rock joint) and `cell` (random per joint-bounded slab)
+    come from the bake's fracture network."""
     N = N / (np.linalg.norm(N, axis=1, keepdims=True) + 1e-9)
     k, f = strata.bed_at(P[:, 0], P[:, 1], P[:, 2])
     col = bed_colour(k, f, P)
@@ -146,11 +148,15 @@ def composite(P, N, ao, point, edge, floor_y=0.0):
     # Rock detail: layered sandstone grain + fracture photo.
     slick = photo("rock_face_03", "diff")
     d1 = triplanar(photo("cliff_side", "diff"), P, N, 26.0, k, top=slick, top_scale=34.0)
-    d2 = triplanar(slick, P, N, 15.0, k)
+    d2 = triplanar(slick, P, N, 15.0, k, top=slick, top_scale=6.0)
     d3 = triplanar(photo("cliff_side", "diff"), P, N, 7.5, k, top=photo("gravelly_sand", "diff"), top_scale=9.0)
     detail = 0.45 * d1 + 0.3 * d2 + 0.25 * d3
-    col = col * np.clip(1.0 + 0.75 * (detail - 1.0), 0.45, 1.6)[:, None]
     steep = 1.0 - smoothstep(0.35, 0.75, np.abs(N[:, 1]))
+    gain = 0.75 + 0.35 * (1.0 - steep)  # flat tops need more grain to read
+    col = col * np.clip(1.0 + gain * (detail - 1.0), 0.45, 1.7)[:, None]
+    if cell is not None:
+        # Joint-bounded slabs: each weathers to its own tone, most on the tops.
+        col = col * (1.0 + (0.1 + 0.12 * (1.0 - steep)) * (cell - 0.5) * 2.0)[:, None]
     # Desert varnish: dark vertical streaks down steep faces.
     sv = fbm3(P[:, 0] / 3.2, P[:, 1] / 38.0, P[:, 2] / 3.2, octaves=3, seed=95)
     region = smoothstep(-0.1, 0.45, fbm3(P[:, 0] / 60.0, P[:, 1] / 50.0, P[:, 2] / 60.0, octaves=2, seed=96))
@@ -163,6 +169,12 @@ def composite(P, N, ao, point, edge, floor_y=0.0):
     occl = 0.5 + 0.5 * np.clip(ao, 0, 1) ** 1.2
     col = col * (occl * (1.0 - 0.35 * cav))[:, None]
     col = col + (BLEACH - col) * (0.18 * convex * (0.5 + 0.5 * np.clip(ao, 0, 1)))[:, None]
+    if joint is not None:
+        # Joints: dark open cracks; on steep faces only in hard beds.
+        hardness = smoothstep(0.35, 0.7, strata.HARD[k])
+        flat = smoothstep(0.75, 0.95, N[:, 1])
+        jw = np.clip(joint, 0.0, 1.0) * (flat + steep * 0.6 * hardness)
+        col = col * (1.0 - 0.4 * jw)[:, None]
     # Wind-blown sand on ledge tops and at the foot; rubble on the talus.
     grain = triplanar(photo("gravelly_sand", "diff"), P, N, 6.0)
     up = smoothstep(0.55, 0.92, N[:, 1])

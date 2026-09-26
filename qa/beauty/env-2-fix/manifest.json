@@ -1,0 +1,191 @@
+{
+ "afternoon_1-title": {
+  "captured": "2026-09-26T15:51:10",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "92ee957"
+ },
+ "afternoon_2-turret": {
+  "captured": "2026-09-26T15:53:33",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "92ee957"
+ },
+ "afternoon_4-flank": {
+  "captured": "2026-09-26T15:53:37",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "92ee957"
+ },
+ "afternoon_5-night": {
+  "captured": "2026-09-26T15:53:40",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "92ee957"
+ },
+ "afternoon_6-boss": {
+  "captured": "2026-09-26T15:53:53",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "92ee957"
+ },
+ "check_mesa_front_c04_texture_fetch_failed": {
+  "captured": "2026-09-26T15:52:10",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "92ee957"
+ },
+ "check_mesa_front_c04_texture_fetch_failed_2": {
+  "captured": "2026-09-26T15:52:52",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "92ee957"
+ },
+ "check_mesa_front_c04_texture_reloaded": {
+  "captured": "2026-09-26T15:53:01",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "92ee957"
+ },
+ "check_mesa_front_fresh_play": {
+  "captured": "2026-09-26T16:17:52",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "92ee957"
+ },
+ "check_terraces_skyline_fresh": {
+  "captured": "2026-09-26T16:17:54",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "92ee957"
+ },
+ "check_terraces_skyline_sunset": {
+  "captured": "2026-09-26T15:51:53",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "92ee957"
+ },
+ "dusk_1-title": {
+  "captured": "2026-09-26T15:51:27",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "92ee957"
+ },
+ "lateafternoon_1-title": {
+  "captured": "2026-09-26T15:51:20",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "92ee957"
+ },
+ "night_1-title": {
+  "captured": "2026-09-26T15:51:31",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "92ee957"
+ },
+ "sunset_1-title": {
+  "captured": "2026-09-26T15:51:24",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "92ee957"
+ },
+ "sunset_5-night": {
+  "captured": "2026-09-26T15:53:44",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "92ee957"
+ },
+ "sweep_basin_to_rear_wall": {
+  "captured": "2026-09-26T15:54:05",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "92ee957"
+ },
+ "sweep_buttes_and_far_wall": {
+  "captured": "2026-09-26T15:54:18",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "92ee957"
+ },
+ "sweep_left_flank_wall": {
+  "captured": "2026-09-26T15:54:15",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "92ee957"
+ },
+ "sweep_right_flank_wall": {
+  "captured": "2026-09-26T15:54:12",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "92ee957"
+ },
+ "sweep_turret_looking_back": {
+  "captured": "2026-09-26T15:54:21",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "92ee957"
+ }
+}

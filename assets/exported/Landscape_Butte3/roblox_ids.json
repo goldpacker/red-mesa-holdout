@@ -1,17 +1,17 @@
 {
  "hashes": {
-  "c00/color": "78be51d9ee8013a5",
-  "c00/normal": "6187e073d577b65b",
-  "glb": "cbc12ed9b2f159be"
+  "c00/color": "8e897559fd14ada0",
+  "c00/normal": "6c70e2421dafd59f",
+  "glb": "17e1a14db56a17ec"
  },
  "meshes": {
-  "Butte3_C00": "rbxassetid://72196488660684"
+  "Butte3_C00": "rbxassetid://96071822733839"
  },
- "model": "124593326468323",
+ "model": "106519394003589",
  "textures": {
   "c00": {
-   "color": "rbxassetid://112117371731439",
-   "normal": "rbxassetid://83057616535453"
+   "color": "rbxassetid://134569521676235",
+   "normal": "rbxassetid://116357156649443"
   }
  }
 }

@@ -29,7 +29,7 @@ EXPORTED = os.path.join(ROOT, "assets", "exported")
 
 # Roblox cameras: (position, look-at, vertical FOV)
 SHOTS = {
-    "title": ((-70, 128, 150), (90, 0, -420), 60),
+    "title": ((-62, 122, 122), (90, 0, -420), 60),
     "turret": ((0, 80, 22), (0, 80 - math.tan(math.radians(7.5)) * 100, -78), 70),
     "flank": ((430, 70, -700), (-20, 25, -190), 45),
     "night": ((95, 30, -560), (-50, 70, -40), 45),
@@ -39,6 +39,18 @@ SHOTS = {
     "corner": ((500, 60, -100), (800, 60, 150), 60),
     "rim": ((60, 110, -260), (-70, 125, 140), 30),
     "butte": ((100, 40, -900), (260, 50, -1150), 40),
+    # Sweep views (ENV-2 fix): walls and buttes from the basin, flanks, turret.
+    "terraces": ((60, 110, -180), (-80, 120, 140), 40),
+    "basin_rear": ((0, 10, -400), (0, 90, 200), 60),
+    "basin_rear_l": ((-400, 10, -300), (-400, 90, 200), 60),
+    "basin_rear_r": ((400, 10, -300), (400, 90, 200), 60),
+    "flankL_close": ((-450, 10, -400), (-800, 80, -400), 60),
+    "flankR_close": ((450, 10, -400), (800, 80, -400), 60),
+    "far_close": ((0, 10, -900), (0, 70, -1400), 60),
+    "buttes_low": ((200, 20, -850), (0, 50, -1150), 60),
+    "turret_back": ((0, 80, 13), (0, 90, 200), 70),
+    "turret_left": ((0, 80, 13), (-800, 80, -300), 70),
+    "turret_right": ((0, 80, 13), (800, 80, -300), 70),
 }
 ALL = ["Mesa", "RearWall", "FlankLeft", "FlankRight", "FarWall", "Butte1", "Butte2", "Butte3", "Butte4"]
 

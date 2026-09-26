@@ -13,17 +13,17 @@
    "name": "RearWall_C00",
    "path": "",
    "center": [
-    -555.5914,
+    -564.4293,
     79.05,
     191.465
    ],
    "size": [
-    548.8173,
+    531.1414,
     158.9,
     150.93
    ],
    "tex": "c00",
-   "tris": 9551,
+   "tris": 9132,
    "query": false,
    "collide": false,
    "shadow": true,
@@ -33,17 +33,17 @@
    "name": "RearWall_C01",
    "path": "",
    "center": [
-    -141.6078,
+    -153.7095,
     79.0501,
     193.715
    ],
    "size": [
-    336.3488,
+    358.4447,
     158.8998,
     146.43
    ],
    "tex": "c01",
-   "tris": 4904,
+   "tris": 5568,
    "query": false,
    "collide": false,
    "shadow": true,
@@ -53,17 +53,17 @@
    "name": "RearWall_C02",
    "path": "",
    "center": [
-    131.2441,
+    161.7209,
     79.05,
     194.6545
    ],
    "size": [
-    366.2343,
+    353.1584,
     158.9,
     144.6273
    ],
    "tex": "c02",
-   "tris": 5332,
+   "tris": 5424,
    "query": false,
    "collide": false,
    "shadow": true,
@@ -73,17 +73,17 @@
    "name": "RearWall_C03",
    "path": "",
    "center": [
-    564.1051,
+    565.0202,
     79.05,
     194.2521
    ],
    "size": [
-    532.7899,
+    530.9596,
     158.9,
     145.3558
    ],
    "tex": "c03",
-   "tris": 10211,
+   "tris": 9875,
    "query": false,
    "collide": false,
    "shadow": true,
@@ -111,16 +111,16 @@
   }
  },
  "texel_density": {
-  "c00": 0.72,
-  "c01": 1.03,
-  "c02": 0.9,
-  "c03": 0.69
+  "c00": 0.75,
+  "c01": 0.99,
+  "c02": 0.83,
+  "c03": 0.73
  },
  "previews": [],
- "triangles": 29998,
+ "triangles": 29999,
  "meta": {
   "kit": "landscape",
   "no_primary": true,
-  "high_tris": 622208
+  "high_tris": 615256
  }
 }

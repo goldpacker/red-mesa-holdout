@@ -89,13 +89,17 @@ end
 
 -- Roughens a vertical rock mass: bulges along its outline and a few notches
 -- (gullies) cut in, at varied heights. `outline(angleOrT)` returns a surface
--- point and outward normal (XZ).
-local function erode(samples: { { pos: Vector3, normal: Vector3 } }, bottom: number, top: number, material: Enum.Material, strength: number)
+-- point and outward normal (XZ). With `ceiling`, a bulge that would rise
+-- above it (a round knob on a cliff's rim) is left out; the random draws are
+-- unchanged, so every other shape stays where it was.
+local function erode(samples: { { pos: Vector3, normal: Vector3 } }, bottom: number, top: number, material: Enum.Material, strength: number, ceiling: number?)
 	for _, s in samples do
 		local h = rng:NextNumber(bottom, top)
 		local r = rng:NextNumber(4, 10) * strength
 		-- Bulge: centred just inside the face so it protrudes a little.
-		ball(Vector3.new(s.pos.X, h, s.pos.Z) + s.normal * (r * 0.35), r, material)
+		if ceiling == nil or h + r <= ceiling then
+			ball(Vector3.new(s.pos.X, h, s.pos.Z) + s.normal * (r * 0.35), r, material)
+		end
 		if rng:NextNumber() < 0.28 then
 			-- Notch: carve a gully slightly outside the face.
 			local nr = rng:NextNumber(3, 7) * strength
@@ -210,19 +214,21 @@ local function buildMesa()
 end
 
 local function buildCliffs()
-	-- Rear cliff wall protects the back of the position.
+	-- Rear cliff wall protects the back of the position. Wall and butte
+	-- bulges stay under the rim/cap tops (ceilings), so no round knob breaks
+	-- the skyline (the landscape meshes wrap this terrain).
 	block(Vector3.new(0, 60, 260), Vector3.new(FLOOR_HALF_X * 2, 150, 220), M.Sandstone)
 	block(Vector3.new(0, 120, 330), Vector3.new(FLOOR_HALF_X * 2, 60, 120), M.Rock)
-	erode(lineSamples(Vector3.new(-FLOOR_HALF_X, 0, 150), Vector3.new(FLOOR_HALF_X, 0, 150), Vector3.new(0, 0, -1), 90), 0, 130, M.Sandstone, 1.6)
+	erode(lineSamples(Vector3.new(-FLOOR_HALF_X, 0, 150), Vector3.new(FLOOR_HALF_X, 0, 150), Vector3.new(0, 0, -1), 90), 0, 130, M.Sandstone, 1.6, 135)
 
 	-- Flank canyon walls with a lower limestone shelf in front.
 	for _, side in { -1, 1 } do
 		block(Vector3.new(side * 900, 70, -400), Vector3.new(200, 170, 1600), M.Sandstone)
 		block(Vector3.new(side * 780, 35, -300), Vector3.new(80, 90, 900), M.Limestone)
 		local faceX = side * 740
-		erode(lineSamples(Vector3.new(faceX, 0, -760), Vector3.new(faceX, 0, 150), Vector3.new(-side, 0, 0), 70), 2, 76, M.Limestone, 1.4)
-		erode(lineSamples(Vector3.new(side * 800, 0, -1180), Vector3.new(side * 800, 0, -760), Vector3.new(-side, 0, 0), 40), 2, 150, M.Sandstone, 1.8)
-		erode(lineSamples(Vector3.new(side * 820, 0, -740), Vector3.new(side * 820, 0, 150), Vector3.new(-side, 0, 0), 60), 80, 150, M.Sandstone, 1.6)
+		erode(lineSamples(Vector3.new(faceX, 0, -760), Vector3.new(faceX, 0, 150), Vector3.new(-side, 0, 0), 70), 2, 76, M.Limestone, 1.4, 162)
+		erode(lineSamples(Vector3.new(side * 800, 0, -1180), Vector3.new(side * 800, 0, -760), Vector3.new(-side, 0, 0), 40), 2, 150, M.Sandstone, 1.8, 162)
+		erode(lineSamples(Vector3.new(side * 820, 0, -740), Vector3.new(side * 820, 0, 150), Vector3.new(-side, 0, 0), 60), 80, 150, M.Sandstone, 1.6, 162)
 		scree(lineSamples(Vector3.new(faceX, 0, -760), Vector3.new(faceX, 0, 150), Vector3.new(-side, 0, 0), 90), 0, 18)
 		-- Dark cap rock along the rim.
 		block(Vector3.new(side * 900, 158, -400), Vector3.new(210, 8, 1600), M.Slate)
@@ -231,7 +237,7 @@ local function buildCliffs()
 	-- Far canyon wall closes the horizon at the end of the basin.
 	block(Vector3.new(0, 50, -1420), Vector3.new(FLOOR_HALF_X * 2, 150, 160), M.Sandstone)
 	block(Vector3.new(0, 110, -1480), Vector3.new(FLOOR_HALF_X * 2, 60, 80), M.Limestone)
-	erode(lineSamples(Vector3.new(-FLOOR_HALF_X, 0, -1340), Vector3.new(FLOOR_HALF_X, 0, -1340), Vector3.new(0, 0, 1), 110), 0, 120, M.Sandstone, 2.0)
+	erode(lineSamples(Vector3.new(-FLOOR_HALF_X, 0, -1340), Vector3.new(FLOOR_HALF_X, 0, -1340), Vector3.new(0, 0, 1), 110), 0, 120, M.Sandstone, 2.0, 125)
 end
 
 local function buildButtes()
@@ -247,8 +253,8 @@ local function buildButtes()
 		terrain:FillCylinder(CFrame.new(base + Vector3.new(0, height * 0.35, 0)), height * 0.7, radius, M.Sandstone)
 		terrain:FillCylinder(CFrame.new(base + Vector3.new(0, height * 0.82, 0)), height * 0.3, radius * 0.86, M.Limestone)
 		terrain:FillCylinder(CFrame.new(base + Vector3.new(0, height + 2, 0)), 5, radius * 0.8, M.Slate)
-		erode(ringSamples(base, radius * 0.95, math.floor(radius * 0.45)), 4, height * 0.68, M.Sandstone, 1.5)
-		erode(ringSamples(base, radius * 0.82, math.floor(radius * 0.35)), height * 0.7, height * 0.95, M.Limestone, 1.1)
+		erode(ringSamples(base, radius * 0.95, math.floor(radius * 0.45)), 4, height * 0.68, M.Sandstone, 1.5, height + 4.5)
+		erode(ringSamples(base, radius * 0.82, math.floor(radius * 0.35)), height * 0.7, height * 0.95, M.Limestone, 1.1, height + 4.5)
 		scree(ringSamples(base, radius + 4, math.floor(radius * 0.5)), 0, 22)
 	end
 end

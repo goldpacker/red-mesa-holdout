@@ -39,13 +39,13 @@
   }
  },
  "texel_density": {
-  "c00": 1.23
+  "c00": 1.25
  },
  "previews": [],
  "triangles": 5500,
  "meta": {
   "kit": "landscape",
   "no_primary": true,
-  "high_tris": 113228
+  "high_tris": 113512
  }
 }
