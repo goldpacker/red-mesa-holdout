@@ -1,0 +1,33 @@
+{
+ "hashes": {
+  "chute/color": "2a678de8ff4f124c",
+  "chute/metal": "9a334c89c9511a9c",
+  "chute/normal": "40b7440eb630c677",
+  "chute/rough": "0cffa7fc580b5dd0",
+  "glb": "77764d80e18a93f7",
+  "main/color": "90aa5c309ce02091",
+  "main/metal": "e431f998472a09e5",
+  "main/normal": "e094b2f68272819a",
+  "main/rough": "9e389697f7ae7557"
+ },
+ "meshes": {
+  "Canopy": "rbxassetid://122319893166654",
+  "Lines": "rbxassetid://130943964014480",
+  "Root": "rbxassetid://132850699260414"
+ },
+ "model": "116407268224811",
+ "textures": {
+  "chute": {
+   "color": "rbxassetid://140040736398734",
+   "metal": "rbxassetid://108836269797768",
+   "normal": "rbxassetid://105249963074815",
+   "rough": "rbxassetid://73594152234826"
+  },
+  "main": {
+   "color": "rbxassetid://73209436041062",
+   "metal": "rbxassetid://134684642630387",
+   "normal": "rbxassetid://107665647166257",
+   "rough": "rbxassetid://135979901582421"
+  }
+ }
+}

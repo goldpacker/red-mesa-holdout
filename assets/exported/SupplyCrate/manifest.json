@@ -1,0 +1,114 @@
+{
+ "name": "SupplyCrate",
+ "primary": "Root",
+ "pivots": {
+  "": [
+   0.0,
+   0.0,
+   -0.0
+  ],
+  "Parachute": [
+   0.0,
+   3.45,
+   -0.0
+  ]
+ },
+ "parts": [
+  {
+   "name": "Root",
+   "path": "",
+   "center": [
+    0.0,
+    1.8325,
+    0.0475
+   ],
+   "size": [
+    4.76,
+    3.665,
+    4.085
+   ],
+   "tex": "main",
+   "tris": 5936,
+   "query": true,
+   "collide": true,
+   "material": "Wood"
+  },
+  {
+   "name": "Canopy",
+   "path": "Parachute",
+   "center": [
+    0.0,
+    16.7819,
+    -0.0
+   ],
+   "size": [
+    15.461,
+    5.7638,
+    15.461
+   ],
+   "tex": "chute",
+   "tris": 2112,
+   "query": false,
+   "collide": false,
+   "material": "Fabric"
+  },
+  {
+   "name": "Lines",
+   "path": "Parachute",
+   "center": [
+    0.0,
+    8.7756,
+    -0.0
+   ],
+   "size": [
+    14.6061,
+    10.4962,
+    14.6061
+   ],
+   "tex": "chute",
+   "tris": 284,
+   "query": false,
+   "collide": false,
+   "material": "Fabric",
+   "shadow": false
+  }
+ ],
+ "attachments": [
+  {
+   "name": "Top",
+   "part": "Root",
+   "pos": [
+    0.0,
+    3.65,
+    -0.0
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ]
+  }
+ ],
+ "markers": [],
+ "textures": {
+  "main": {
+   "color": "SupplyCrate_main_color.png",
+   "rough": "SupplyCrate_main_rough.png",
+   "metal": "SupplyCrate_main_metal.png",
+   "normal": "SupplyCrate_main_normal.png"
+  },
+  "chute": {
+   "color": "SupplyCrate_chute_color.png",
+   "rough": "SupplyCrate_chute_rough.png",
+   "metal": "SupplyCrate_chute_metal.png",
+   "normal": "SupplyCrate_chute_normal.png"
+  }
+ },
+ "previews": [
+  "assets/previews/SupplyCrate.png",
+  "assets/previews/SupplyCrate_rear.png",
+  "assets/previews/SupplyCrate_crate.png"
+ ],
+ "triangles": 8332,
+ "meta": {}
+}

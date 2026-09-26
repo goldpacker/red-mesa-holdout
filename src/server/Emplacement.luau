@@ -1,17 +1,25 @@
 --!strict
--- Player emplacement on the mesa top: sandbag ring, platform and the
--- three-weapon turret. Placeholder primitive geometry until the Blender
--- hero asset replaces it; part names are the contract the client uses.
+-- Player emplacement on the mesa top: bunker, sandbag parapet, props and
+-- the three-weapon turret. Uses the Blender hero asset
+-- (ReplicatedStorage.Assets.Emplacement, docs/ASSET_CONTRACTS.md) and falls
+-- back to primitive geometry when it is missing or incomplete; part names
+-- are the contract the client uses.
 --
 -- Workspace.Battlefield.Emplacement
---   Static        (sandbags, platform, props)
+--   Static        (bunker, sandbags, props)
 --   TurretYaw     (Model, pivot = Aim.cframe(yaw, 0))
---   TurretGun     (Model, pivot = Aim.cframe(yaw, pitch)), contains Muzzle
+--   TurretGun     (Model, pivot = Aim.cframe(yaw, pitch)), contains Muzzle and
+--                 sub-models MachineGun / RocketPod (RocketMuzzle) /
+--                 MissileRack (MissileMuzzle, Missile1, Missile2)
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Config = require(ReplicatedStorage.Shared.Config)
 local Aim = require(ReplicatedStorage.Shared.Aim)
+local AssetLibrary = require(ReplicatedStorage.Shared.AssetLibrary)
+
+-- Descendants the hero asset must have before it replaces the fallback.
+local REQUIRED = { "Static", "TurretYaw", "TurretGun", "Muzzle", "MachineGun", "RocketPod", "MissileRack" }
 
 local Emplacement = {}
 
@@ -177,7 +185,46 @@ local function buildTurretGun(parent: Instance): Model
 	return model
 end
 
+-- Places the hero asset (origin = turret pivot) or returns nil.
+local function buildFromAsset(parent: Instance): Instance?
+	local asset = AssetLibrary.clone("Emplacement")
+	if not asset or not asset:IsA("Model") then
+		if asset then
+			asset:Destroy()
+		end
+		return nil
+	end
+	for _, name in REQUIRED do
+		if not asset:FindFirstChild(name, true) then
+			warn(string.format("[RedMesa] Emplacement asset lacks %s; using primitive fallback", name))
+			asset:Destroy()
+			return nil
+		end
+	end
+	asset.Name = "Emplacement"
+	asset:PivotTo(CFrame.new(Config.TURRET_PIVOT))
+	-- Re-assert the pivots the client rotates about (turret at yaw 0, pitch 0).
+	local pivot = Aim.cframe(0, 0)
+	for _, name in { "TurretYaw", "TurretGun", "MachineGun" } do
+		local model = asset:FindFirstChild(name, true)
+		if model and model:IsA("Model") then
+			model.WorldPivot = pivot
+		end
+	end
+	for _, d in asset:GetDescendants() do
+		if d:IsA("BasePart") then
+			d.Anchored = true
+			d.CanTouch = false
+		end
+	end
+	asset.Parent = parent
+	return asset
+end
+
 function Emplacement.build(parent: Instance)
+	if buildFromAsset(parent) then
+		return
+	end
 	local folder = Instance.new("Folder")
 	folder.Name = "Emplacement"
 	folder.Parent = parent

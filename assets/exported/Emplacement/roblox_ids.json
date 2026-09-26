@@ -1,0 +1,65 @@
+{
+ "hashes": {
+  "bags/color": "4eaf0c6c1c4bf36a",
+  "bags/metal": "1a5e57350822bcd0",
+  "bags/normal": "60cdaf7085274c0a",
+  "bags/rough": "133f1754c1a989d5",
+  "glb": "19efa05aa4d41bd3",
+  "props/color": "813222fbce28cac3",
+  "props/metal": "09628fa062d5ba06",
+  "props/normal": "035e572acf13f18d",
+  "props/rough": "ea21693997c13438",
+  "static/color": "733dafc4308608f0",
+  "static/metal": "946eedcd219fbad1",
+  "static/normal": "f4a45f000f3194ad",
+  "static/rough": "8d1071affac03258",
+  "turret/color": "1982c863142cc355",
+  "turret/metal": "1d7f60b501694ac6",
+  "turret/normal": "50586b930ab616bc",
+  "turret/rough": "1379926ebbdd20ca"
+ },
+ "meshes": {
+  "Bunker": "rbxassetid://82754215858233",
+  "Casings": "rbxassetid://80578797603409",
+  "Cradle": "rbxassetid://110099912849267",
+  "Gun": "rbxassetid://119842800862462",
+  "Missile1": "rbxassetid://111022779696080",
+  "Missile2": "rbxassetid://130067997593237",
+  "Mount": "rbxassetid://96122005791741",
+  "Pedestal": "rbxassetid://80883546068697",
+  "Pod": "rbxassetid://126536130133758",
+  "Props": "rbxassetid://84051795627960",
+  "Rail": "rbxassetid://91051187211403",
+  "SandbagsFront": "rbxassetid://118498015706427",
+  "SandbagsLeft": "rbxassetid://80413612720130",
+  "SandbagsRight": "rbxassetid://103244846655239",
+  "Searchlight": "rbxassetid://126989521434373"
+ },
+ "model": "98270106261276",
+ "textures": {
+  "bags": {
+   "color": "rbxassetid://70965706188833",
+   "metal": "rbxassetid://131302705177763",
+   "normal": "rbxassetid://77325827579038",
+   "rough": "rbxassetid://122686746765262"
+  },
+  "props": {
+   "color": "rbxassetid://136274477153724",
+   "metal": "rbxassetid://89519577184772",
+   "normal": "rbxassetid://89853097243065",
+   "rough": "rbxassetid://116028700567429"
+  },
+  "static": {
+   "color": "rbxassetid://80428538734850",
+   "metal": "rbxassetid://86841883592449",
+   "normal": "rbxassetid://114622194379857",
+   "rough": "rbxassetid://70699689726360"
+  },
+  "turret": {
+   "color": "rbxassetid://84531402310242",
+   "metal": "rbxassetid://135096698303034",
+   "normal": "rbxassetid://106194963730574",
+   "rough": "rbxassetid://117704142348652"
+  }
+ }
+}
