@@ -35,25 +35,26 @@ Contracts: `docs/ARCHITECTURE.md`, `docs/ASSET_CONTRACTS.md`.
   organic boulders; turret line of sight to every lane end verified.
 - **Title loading gate:** START enabled once the battlefield replicated.
 
+- **Enemies (agent):** buggy, tank, helicopter, jet, Siege Crawler,
+  human-scale infantry, destruction and night-readability FX.
+- **Assets (agent):** Blender→Open Cloud→Rojo pipeline; SupplyCrate,
+  Emplacement, Infantry, Tank, Buggy, Helicopter, Jet, SiegeCrawler, rock kit.
+- **Balance:** waves 3/8/9 and the boss tuned from bot runs.
+- **Final end-to-end playthrough succeeded** (see DONE.md).
+
 ## Current work
-- Enemies agent: buggy, tank, helicopter, jet, Siege Crawler, human-scale
-  infantry, destruction FX.
-- Assets agent: Blender→Roblox pipeline (SupplyCrate), emplacement,
-  infantry, vehicles, rock kit, boss.
-- Lead: integration, full-run playtests, polish.
+- None. The game meets GAME_SPEC.md; see DONE.md for the final report.
 
 ## Known bugs / gaps
-- Emplacement/turret and enemies use primitive placeholders until assets land.
+- Real mouse play and audio not yet checked by a human (see DONE.md).
 - Wash/road material edges show 4-stud voxel steps (Roblox terrain limit).
 - The Mac display idles when unattended, pausing Studio rendering; a
   12 h `caffeinate -d` assertion is running and playtests run
   `caffeinate -u` first.
 
 ## Last successful playtest
-- 2026-09-26: night wave 9 visuals (searchlights, flares), crate drop,
-  sound sheet loads in Studio, terrain v2 LOS check; weapons agent's
-  rocket/missile/lock tests against dummies. No console errors.
+- 2026-09-26: fresh-start 10-wave run to victory (15.7 min, no errors),
+  then Play Again, Retry Wave and Restart verified.
 
 ## Next planned task
-- Integrate enemy types and assets as they land; balance waves; full
-  10-wave end-to-end run; visual QA of all screens and times of day; DONE.md.
+- Human playtest for aim feel, audio mix and difficulty.
