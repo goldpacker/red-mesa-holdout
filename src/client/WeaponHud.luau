@@ -1,9 +1,16 @@
 --!strict
--- Weapon HUD: weapon strip (slots, ammo, heat, reload), crosshair, hit
--- markers and the gunsight overlay. Owned by the weapons workstream; the
--- core Hud creates the root frame and calls build/update.
+-- Weapon HUD: weapon strip (slots, ammo, heat, reload), per-weapon
+-- crosshairs, lock-on box, hit markers, status callouts and the per-weapon
+-- gunsight overlays (machine-gun iron sight, rocket scope, AA seeker).
+-- Owned by the weapons workstream; the core Hud creates the root frame
+-- and calls build/update.
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
+
+local WeaponConfig = require(ReplicatedStorage.Shared.WeaponConfig)
 local AimController = require(script.Parent.AimController)
+local LockOn = require(script.Parent.LockOn)
 local Ui = require(script.Parent.Ui)
 local WeaponController = require(script.Parent.WeaponController)
 
@@ -11,50 +18,136 @@ local WeaponHud = {}
 
 local C = Ui.Colors
 local F = Ui.Fonts
+local DIM = Color3.fromRGB(120, 120, 110)
+local INK = Color3.fromRGB(16, 16, 12)
+local SEEKER = Color3.fromRGB(150, 230, 120)
+local SLOTS = WeaponConfig.SLOTS
 local refs: { [string]: any } = {}
 
-function WeaponHud.build(root: Frame)
-	-- Weapon strip (bottom centre).
-	local strip = Ui.panel({ Name = "Weapons", AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -16), Size = UDim2.fromOffset(420, 86), Parent = root })
-	local slots = { { "1", "MACHINE GUN", "∞" }, { "2", "ROCKETS", "--" }, { "3", "AA MISSILES", "--" } }
+local statusText = ""
+local statusColor = C.Amber
+local statusUntil = 0
+
+local function bar(parent: Instance, props: { [string]: any }): Frame
+	local defaults = { BackgroundColor3 = C.Amber, BorderSizePixel = 0, AnchorPoint = Vector2.new(0.5, 0.5) }
+	for k, v in props do
+		defaults[k] = v
+	end
+	defaults.Parent = parent
+	return Ui.new("Frame", defaults)
+end
+
+local function ring(parent: Instance, props: { [string]: any }, stroke: { [string]: any }): Frame
+	local defaults = { BackgroundTransparency = 1, AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5) }
+	for k, v in props do
+		defaults[k] = v
+	end
+	defaults.Parent = parent
+	return Ui.new("Frame", defaults, {
+		Ui.new("UICorner", { CornerRadius = UDim.new(0.5, 0) }),
+		Ui.new("UIStroke", stroke),
+	})
+end
+
+-- Four L-shaped corner brackets filling `parent`.
+local function brackets(parent: Instance, color: Color3, length: number, thickness: number)
+	for _, corner in { Vector2.new(0, 0), Vector2.new(1, 0), Vector2.new(0, 1), Vector2.new(1, 1) } do
+		local pos = UDim2.fromScale(corner.X, corner.Y)
+		bar(parent, { Name = "H", BackgroundColor3 = color, AnchorPoint = corner, Position = pos, Size = UDim2.fromOffset(length, thickness) })
+		bar(parent, { Name = "V", BackgroundColor3 = color, AnchorPoint = corner, Position = pos, Size = UDim2.fromOffset(thickness, length) })
+	end
+end
+
+local function setColor(frame: Instance, color: Color3)
+	for _, d in frame:GetDescendants() do
+		if d:IsA("Frame") and (d.Name == "H" or d.Name == "V") then
+			d.BackgroundColor3 = color
+		end
+	end
+end
+
+local function buildSlots(root: Frame)
+	local strip = Ui.panel({ Name = "Weapons", AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -16), Size = UDim2.fromOffset(436, 96), Parent = root })
 	refs.slots = {}
-	for i, slot in slots do
+	for i, weapon in SLOTS do
 		local frame = Ui.new("Frame", {
 			Name = "Slot" .. i,
-			BackgroundColor3 = if i == 1 then C.OliveDark else C.Panel,
-			BackgroundTransparency = if i == 1 then 0.1 else 0.5,
+			BackgroundColor3 = C.Panel,
+			BackgroundTransparency = 0.5,
 			BorderSizePixel = 0,
-			Position = UDim2.fromOffset(8 + (i - 1) * 136, 8),
-			Size = UDim2.fromOffset(130, 44),
+			Position = UDim2.fromOffset(8 + (i - 1) * 140, 8),
+			Size = UDim2.fromOffset(134, 52),
 			Parent = strip,
-		}, {
-			Ui.new("UIStroke", { Color = if i == 1 then C.Amber else C.OliveDark, Thickness = 2 }),
 		})
-		Ui.label({ Text = slot[1], FontFace = F.Header, TextSize = 18, TextColor3 = C.Amber, Position = UDim2.fromOffset(6, 2), Size = UDim2.fromOffset(16, 18), Parent = frame })
-		Ui.label({ Text = slot[2], FontFace = F.Label, TextSize = 14, TextColor3 = if i == 1 then C.Text else Color3.fromRGB(120, 120, 110), Position = UDim2.fromOffset(24, 3), Size = UDim2.fromOffset(104, 16), Parent = frame })
-		Ui.label({ Name = "Ammo", Text = slot[3], FontFace = F.Mono, TextSize = 18, TextColor3 = if i == 1 then C.Amber else Color3.fromRGB(120, 120, 110), TextXAlignment = Enum.TextXAlignment.Right, Position = UDim2.fromOffset(0, 20), Size = UDim2.new(1, -8, 0, 20), Parent = frame })
-		refs.slots[i] = frame
+		local slot = {
+			frame = frame,
+			stroke = Ui.new("UIStroke", { Color = C.OliveDark, Thickness = 2, Parent = frame }),
+			name = Ui.label({ Text = WeaponConfig.SLOT_NAMES[weapon], FontFace = F.Label, TextSize = 14, TextColor3 = DIM, Position = UDim2.fromOffset(24, 3), Size = UDim2.fromOffset(106, 16), Parent = frame }),
+			ammo = Ui.label({ Text = if weapon == "MG" then "∞" else "--", FontFace = F.Mono, TextSize = 20, TextColor3 = DIM, TextXAlignment = Enum.TextXAlignment.Right, Position = UDim2.fromOffset(0, 20), Size = UDim2.new(1, -8, 0, 22), Parent = frame }),
+			status = Ui.label({ Text = "", FontFace = F.Label, TextSize = 13, TextColor3 = C.Amber, Position = UDim2.fromOffset(8, 24), Size = UDim2.fromOffset(80, 18), Parent = frame }),
+			reloadBack = Ui.new("Frame", { BackgroundColor3 = Color3.fromRGB(30, 30, 24), BorderSizePixel = 0, Position = UDim2.new(0, 4, 1, -6), Size = UDim2.new(1, -8, 0, 3), Visible = weapon ~= "MG", Parent = frame }),
+		}
+		Ui.label({ Text = tostring(i), FontFace = F.Header, TextSize = 18, TextColor3 = C.Amber, Position = UDim2.fromOffset(6, 2), Size = UDim2.fromOffset(16, 18), Parent = frame })
+		slot.reload = Ui.new("Frame", { BackgroundColor3 = C.Amber, BorderSizePixel = 0, Size = UDim2.fromScale(1, 1), Parent = slot.reloadBack })
+		refs.slots[i] = slot
 	end
-	Ui.label({ Text = "HEAT", FontFace = F.Label, TextSize = 14, TextColor3 = C.Olive, Position = UDim2.fromOffset(10, 58), Size = UDim2.fromOffset(40, 18), Parent = strip })
-	local heatBack = Ui.new("Frame", { BackgroundColor3 = Color3.fromRGB(30, 30, 24), BorderSizePixel = 0, Position = UDim2.fromOffset(52, 60), Size = UDim2.new(1, -62, 0, 14), Parent = strip })
+	Ui.label({ Text = "HEAT", FontFace = F.Label, TextSize = 14, TextColor3 = C.Olive, Position = UDim2.fromOffset(10, 68), Size = UDim2.fromOffset(40, 18), Parent = strip })
+	local heatBack = Ui.new("Frame", { BackgroundColor3 = Color3.fromRGB(30, 30, 24), BorderSizePixel = 0, Position = UDim2.fromOffset(52, 70), Size = UDim2.new(1, -62, 0, 14), Parent = strip })
 	refs.heatBar = Ui.new("Frame", { BackgroundColor3 = C.Amber, BorderSizePixel = 0, Size = UDim2.fromScale(0, 1), Parent = heatBack })
 	refs.overheat = Ui.label({ Text = "OVERHEAT", FontFace = F.Header, TextSize = 14, TextColor3 = C.White, TextXAlignment = Enum.TextXAlignment.Center, Size = UDim2.fromScale(1, 1), Visible = false, Parent = heatBack })
+end
 
-	-- Crosshair + hit marker + gunsight overlay.
-	refs.crosshair = Ui.new("Frame", { Name = "Crosshair", BackgroundTransparency = 1, AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromOffset(40, 40), Parent = root })
-	for _, spec in { { 0, -13, 2, 10 }, { 0, 13, 2, 10 }, { -13, 0, 10, 2 }, { 13, 0, 10, 2 } } do
-		Ui.new("Frame", {
-			BackgroundColor3 = C.Amber,
-			BorderSizePixel = 0,
-			AnchorPoint = Vector2.new(0.5, 0.5),
-			Position = UDim2.new(0.5, spec[1], 0.5, spec[2]),
-			Size = UDim2.fromOffset(spec[3], spec[4]),
-			Parent = refs.crosshair,
-		}, { Ui.new("UIStroke", { Color = Color3.new(0, 0, 0), Thickness = 1, Transparency = 0.3 }) })
+local function outlined(parent: Instance): { [string]: any }
+	return { Parent = parent, Color = Color3.new(0, 0, 0), Thickness = 1, Transparency = 0.3 }
+end
+
+local function buildCrosshairs(root: Frame)
+	local function holder(name: string): Frame
+		return Ui.new("Frame", { Name = name, BackgroundTransparency = 1, AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromOffset(160, 160), ZIndex = 3, Parent = root })
 	end
-	Ui.new("Frame", { BackgroundColor3 = C.Amber, BorderSizePixel = 0, AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromOffset(3, 3), Parent = refs.crosshair })
+	-- Machine gun: open cross.
+	refs.crossMG = holder("CrosshairMG")
+	for _, spec in { { 0, -13, 2, 10 }, { 0, 13, 2, 10 }, { -13, 0, 10, 2 }, { 13, 0, 10, 2 } } do
+		local b = bar(refs.crossMG, { Position = UDim2.new(0.5, spec[1], 0.5, spec[2]), Size = UDim2.fromOffset(spec[3], spec[4]) })
+		Ui.new("UIStroke", outlined(b))
+	end
+	bar(refs.crossMG, { Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromOffset(3, 3) })
 
-	refs.hitmarker = Ui.new("Frame", { Name = "HitMarker", BackgroundTransparency = 1, AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromOffset(44, 44), Visible = false, Parent = root })
+	-- Rockets: stadia line with lead ticks and drop chevrons below.
+	refs.crossRocket = holder("CrosshairRocket")
+	for _, side in { -1, 1 } do
+		local b = bar(refs.crossRocket, { Position = UDim2.new(0.5, side * 30, 0.5, 0), Size = UDim2.fromOffset(40, 2) })
+		Ui.new("UIStroke", outlined(b))
+		for _, x in { 22, 44 } do
+			bar(refs.crossRocket, { Position = UDim2.new(0.5, side * x, 0.5, 4), Size = UDim2.fromOffset(2, 6) })
+		end
+	end
+	for i, y in { 14, 24, 34 } do
+		local b = bar(refs.crossRocket, { Position = UDim2.new(0.5, 0, 0.5, y), Size = UDim2.fromOffset(16 - i * 3, 2) })
+		Ui.new("UIStroke", outlined(b))
+	end
+	ring(refs.crossRocket, { Size = UDim2.fromOffset(10, 10) }, { Color = C.Amber, Thickness = 2 })
+
+	-- AA missiles: seeker circle sized to the acquire cone + centre pip.
+	refs.crossMissile = holder("CrosshairMissile")
+	refs.seekerRing = ring(refs.crossMissile, { Size = UDim2.fromOffset(80, 80) }, { Color = SEEKER, Thickness = 1.5, Transparency = 0.2 })
+	for _, spec in { { 0, -6, 2, 6 }, { 0, 6, 2, 6 }, { -6, 0, 6, 2 }, { 6, 0, 6, 2 } } do
+		bar(refs.crossMissile, { BackgroundColor3 = SEEKER, Position = UDim2.new(0.5, spec[1], 0.5, spec[2]), Size = UDim2.fromOffset(spec[3], spec[4]) })
+	end
+
+	-- Lock box (tracks the target on screen).
+	refs.lockBox = Ui.new("Frame", { Name = "LockBox", BackgroundTransparency = 1, AnchorPoint = Vector2.new(0.5, 0.5), Size = UDim2.fromOffset(100, 100), Visible = false, ZIndex = 3, Parent = root })
+	brackets(refs.lockBox, C.Amber, 14, 3)
+	refs.lockLabel = Ui.label({ Text = "", FontFace = F.Header, TextSize = 16, TextColor3 = C.Amber, TextXAlignment = Enum.TextXAlignment.Center, AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 1, 4), Size = UDim2.fromOffset(120, 18), Parent = refs.lockBox })
+	Ui.outline(refs.lockLabel, 1.5)
+
+	-- Status callout under the crosshair.
+	refs.status = Ui.label({ Text = "", FontFace = F.Header, TextSize = 18, TextColor3 = C.Amber, TextXAlignment = Enum.TextXAlignment.Center, AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0.5, 48), Size = UDim2.fromOffset(320, 22), ZIndex = 3, Parent = root })
+	Ui.outline(refs.status, 2)
+end
+
+local function buildHitMarker(root: Frame)
+	refs.hitmarker = Ui.new("Frame", { Name = "HitMarker", BackgroundTransparency = 1, AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromOffset(44, 44), Visible = false, ZIndex = 4, Parent = root })
 	for _, rot in { 45, -45, 135, -135 } do
 		local rad = math.rad(rot)
 		Ui.new("Frame", {
@@ -68,22 +161,88 @@ function WeaponHud.build(root: Frame)
 			Parent = refs.hitmarker,
 		})
 	end
+end
 
-	refs.sight = Ui.new("Frame", { Name = "Gunsight", BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), Visible = false, Parent = root })
-	local ring = Ui.new("Frame", { BackgroundTransparency = 1, AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromOffset(220, 220), Parent = refs.sight }, {
-		Ui.new("UICorner", { CornerRadius = UDim.new(0.5, 0) }),
-		Ui.new("UIStroke", { Color = Color3.fromRGB(20, 20, 16), Thickness = 6 }),
-	})
-	Ui.new("Frame", { BackgroundTransparency = 1, AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromOffset(120, 120), Parent = ring }, {
-		Ui.new("UICorner", { CornerRadius = UDim.new(0.5, 0) }),
-		Ui.new("UIStroke", { Color = Color3.fromRGB(20, 20, 16), Thickness = 2, Transparency = 0.3 }),
-	})
-	-- Iron-sight post.
-	Ui.new("Frame", { BackgroundColor3 = Color3.fromRGB(20, 20, 16), BorderSizePixel = 0, AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0.5, 6), Size = UDim2.fromOffset(6, 110), Parent = refs.sight })
+local function buildIronSight(parent: Frame): Frame
+	local sight = Ui.new("Frame", { Name = "IronSight", BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), Parent = parent })
+	local outer = ring(sight, { Size = UDim2.fromOffset(220, 220) }, { Color = INK, Thickness = 6 })
+	ring(outer, { Size = UDim2.fromOffset(120, 120) }, { Color = INK, Thickness = 2, Transparency = 0.3 })
+	bar(sight, { BackgroundColor3 = INK, AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0.5, 6), Size = UDim2.fromOffset(6, 110) })
 	for _, side in { -1, 1 } do
-		Ui.new("Frame", { BackgroundColor3 = Color3.fromRGB(20, 20, 16), BorderSizePixel = 0, AnchorPoint = Vector2.new(if side < 0 then 1 else 0, 0.5), Position = UDim2.new(0.5, side * 118, 0.5, 0), Size = UDim2.new(0.5, -118, 0, 4), Parent = refs.sight })
+		bar(sight, { BackgroundColor3 = INK, AnchorPoint = Vector2.new(if side < 0 then 1 else 0, 0.5), Position = UDim2.new(0.5, side * 118, 0.5, 0), Size = UDim2.new(0.5, -118, 0, 4) })
 	end
+	return sight
+end
 
+-- Rocket scope: black mask around a round lens, mil reticle with lead and
+-- range marks.
+local function buildRocketScope(parent: Frame): Frame
+	local scope = Ui.new("Frame", { Name = "RocketScope", BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), Parent = parent })
+	local lens = ring(scope, { Size = UDim2.fromScale(0.62, 0.62), SizeConstraint = Enum.SizeConstraint.RelativeYY }, { Color = Color3.new(0, 0, 0), Thickness = 1600 })
+	ring(lens, { Size = UDim2.fromScale(1, 1) }, { Color = Color3.fromRGB(10, 10, 8), Thickness = 26, Transparency = 0.35, ApplyStrokeMode = Enum.ApplyStrokeMode.Border })
+	ring(lens, { Size = UDim2.new(1, -6, 1, -6) }, { Color = C.AmberDim, Thickness = 1.5, Transparency = 0.3 })
+	-- Horizontal stadia with lead ticks every 30 px, vertical post below.
+	for _, side in { -1, 1 } do
+		bar(lens, { BackgroundColor3 = INK, AnchorPoint = Vector2.new(if side < 0 then 1 else 0, 0.5), Position = UDim2.new(0.5, side * 14, 0.5, 0), Size = UDim2.new(0.5, -14, 0, 2) })
+		for k = 1, 5 do
+			bar(lens, { BackgroundColor3 = INK, Position = UDim2.new(0.5, side * k * 30, 0.5, 0), Size = UDim2.fromOffset(2, if k % 2 == 0 then 14 else 8) })
+		end
+	end
+	bar(lens, { BackgroundColor3 = INK, AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0.5, 14), Size = UDim2.new(0, 2, 0.5, -14) })
+	for k, label in { "2", "4", "6" } do
+		local y = 14 + k * 26
+		bar(lens, { BackgroundColor3 = INK, Position = UDim2.new(0.5, 0, 0.5, y), Size = UDim2.fromOffset(22 - k * 4, 2) })
+		Ui.label({ Text = label, FontFace = F.Mono, TextSize = 12, TextColor3 = INK, Position = UDim2.new(0.5, 14, 0.5, y - 8), Size = UDim2.fromOffset(20, 14), Parent = lens })
+	end
+	ring(lens, { Size = UDim2.fromOffset(8, 8) }, { Color = C.Red, Thickness = 2 })
+	Ui.label({ Text = "RKT · 1.5 RELOAD", FontFace = F.Mono, TextSize = 13, TextColor3 = C.AmberDim, AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 40), Size = UDim2.fromOffset(200, 16), TextXAlignment = Enum.TextXAlignment.Center, Parent = lens })
+	return scope
+end
+
+-- AA seeker display: green-tinted glass, frame brackets, horizon ladder.
+local function buildSeeker(parent: Frame): Frame
+	local seeker = Ui.new("Frame", { Name = "AASeeker", BackgroundColor3 = Color3.fromRGB(20, 60, 30), BackgroundTransparency = 0.86, BorderSizePixel = 0, Size = UDim2.fromScale(1, 1), Parent = parent })
+	local box = Ui.new("Frame", { BackgroundTransparency = 1, AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromScale(0.62, 0.62), SizeConstraint = Enum.SizeConstraint.RelativeYY, Parent = seeker })
+	brackets(box, SEEKER, 40, 2)
+	for _, side in { -1, 1 } do
+		for k = -2, 2 do
+			bar(seeker, { BackgroundColor3 = SEEKER, BackgroundTransparency = 0.3, Position = UDim2.new(0.5, side * 220, 0.5, k * 48), Size = UDim2.fromOffset(if k == 0 then 60 else 30, 2) })
+		end
+	end
+	Ui.label({ Text = "IR SEEKER · AIR TARGETS ONLY", FontFace = F.Mono, TextSize = 14, TextColor3 = SEEKER, TextXAlignment = Enum.TextXAlignment.Center, AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0.19, 12), Size = UDim2.fromOffset(320, 18), Parent = seeker })
+	return seeker
+end
+
+function WeaponHud.build(root: Frame)
+	-- Sights sit behind every other HUD panel (ZIndex 0).
+	refs.sight = Ui.new("Frame", { Name = "Gunsight", BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), Visible = false, ZIndex = 0, Parent = root })
+	refs.sights = {
+		MG = buildIronSight(refs.sight),
+		Rocket = buildRocketScope(refs.sight),
+		Missile = buildSeeker(refs.sight),
+	}
+	buildSlots(root)
+	buildCrosshairs(root)
+	buildHitMarker(root)
+
+	WeaponController.on("Switched", function(weapon)
+		WeaponHud.flash(WeaponConfig.SLOT_NAMES[weapon], C.Text, 0.7)
+	end)
+	WeaponController.on("Empty", function(weapon)
+		WeaponHud.flash(if weapon == "Rocket" then "NO ROCKETS" else "NO MISSILES", C.Red, 1)
+	end)
+	WeaponController.on("NoLock", function()
+		WeaponHud.flash("NO LOCK — HOLD ON AN AIRCRAFT", C.Red, 1.1)
+	end)
+	WeaponController.on("Hold", function()
+		WeaponHud.flash("HOLD FIRE", C.Amber, 0.8)
+	end)
+end
+
+function WeaponHud.flash(text: string, color: Color3, duration: number)
+	statusText = text
+	statusColor = color
+	statusUntil = os.clock() + duration
 end
 
 local function updateHeat()
@@ -100,10 +259,107 @@ local function updateHeat()
 	end
 end
 
+local function updateSlots(current: string, lockState: string)
+	for i, weapon in SLOTS do
+		local slot = refs.slots[i]
+		local selected = weapon == current
+		slot.frame.BackgroundColor3 = if selected then C.OliveDark else C.Panel
+		slot.frame.BackgroundTransparency = if selected then 0.1 else 0.5
+		slot.stroke.Color = if selected then C.Amber else C.OliveDark
+		slot.name.TextColor3 = if selected then C.Text else DIM
+		if weapon == "MG" then
+			slot.ammo.TextColor3 = if selected then C.Amber else DIM
+			slot.status.Text = if WeaponController.getLockRemaining() > 0 then "OVERHEAT" else ""
+			slot.status.TextColor3 = C.Red
+			continue
+		end
+		local ammo = WeaponController.getAmmo(weapon)
+		local reload = WeaponController.getReload(weapon)
+		slot.ammo.Text = tostring(ammo)
+		slot.ammo.TextColor3 = if ammo == 0 then C.Red elseif selected then C.Amber else DIM
+		slot.reload.Size = UDim2.fromScale(if ammo == 0 then 0 else 1 - reload, 1)
+		slot.reload.BackgroundColor3 = if reload > 0 then C.AmberDim else C.Olive
+		local status, color = "", C.Amber
+		if ammo == 0 then
+			status, color = "EMPTY", C.Red
+		elseif reload > 0 then
+			status = "RELOAD"
+		elseif weapon == "Missile" and selected and lockState ~= "Idle" then
+			status, color = if lockState == "Locked" then "LOCKED" else "LOCKING", if lockState == "Locked" then C.Red else C.Amber
+		end
+		slot.status.Text = status
+		slot.status.TextColor3 = color
+	end
+end
+
+local function coneRadius(): number
+	local camera = Workspace.CurrentCamera
+	local half = math.rad(camera.FieldOfView / 2)
+	return math.tan(math.rad(WeaponConfig.Missile.ACQUIRE_DEG)) / math.tan(half) * camera.ViewportSize.Y / 2
+end
+
+local function updateLockBox(current: string, state: string, target: Model?, progress: number)
+	local box = refs.lockBox :: Frame
+	local root = target and target.PrimaryPart
+	if current ~= "Missile" or state == "Idle" or not root then
+		box.Visible = false
+		return
+	end
+	local screen, onScreen = Workspace.CurrentCamera:WorldToViewportPoint(root.Position)
+	if not onScreen then
+		box.Visible = false
+		return
+	end
+	box.Visible = true
+	box.Position = UDim2.fromOffset(screen.X, screen.Y)
+	local locked = state == "Locked"
+	local size = if locked then 40 else 110 - 64 * progress
+	box.Size = UDim2.fromOffset(size, size)
+	local blink = math.floor(os.clock() * (if locked then 4 else 10)) % 2 == 0
+	local color = if locked then C.Red elseif blink then C.Amber else C.AmberDim
+	setColor(box, color)
+	refs.lockLabel.Text = if locked then "LOCK" else string.format("%d%%", math.floor(progress * 100))
+	refs.lockLabel.TextColor3 = color
+end
+
+local function updateStatus(current: string, state: string)
+	local label = refs.status :: TextLabel
+	if os.clock() < statusUntil then
+		label.Text = statusText
+		label.TextColor3 = statusColor
+	elseif current == "Missile" then
+		label.Text = if state == "Locked" then "LOCKED — FIRE" elseif state == "Acquiring" then "ACQUIRING" else "SEEKING AIR TARGET"
+		label.TextColor3 = if state == "Locked" then C.Red elseif state == "Acquiring" then C.Amber else SEEKER
+	else
+		label.Text = ""
+	end
+end
+
 function WeaponHud.update()
+	local current = WeaponController.getWeapon()
+	local state, target, progress = LockOn.getState()
+	local aiming = AimController.isAiming()
 	updateHeat()
-	refs.sight.Visible = AimController.isAiming()
-	refs.crosshair.Visible = true
+	updateSlots(current, state)
+	updateLockBox(current, state, target, progress)
+	updateStatus(current, state)
+
+	refs.sight.Visible = aiming
+	for weapon, sight in refs.sights do
+		sight.Visible = weapon == current
+	end
+	-- The scope and seeker carry their own reticle.
+	refs.crossMG.Visible = current == "MG"
+	refs.crossRocket.Visible = current == "Rocket" and not aiming
+	refs.crossMissile.Visible = current == "Missile"
+	if current == "Missile" then
+		local r = coneRadius()
+		refs.seekerRing.Size = UDim2.fromOffset(r * 2, r * 2)
+	end
+	-- Swap animation: crosshair fades in as the new weapon comes up.
+	local swap = WeaponController.getSwitchProgress()
+	refs.crossMG.Rotation = (1 - swap) * 45
+	refs.crossRocket.Position = UDim2.new(0.5, 0, 0.5, (1 - swap) * 20)
 end
 
 function WeaponHud.showHitMarker(killed: boolean)

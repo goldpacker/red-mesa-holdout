@@ -71,6 +71,7 @@ Existing: `WaveStart`, `WaveClear`, `Kill {kind, points, multiplier, position}`,
 Reserved for new work: `JetWarning {id, eta}`, `BossUpdate {weakPoints, core}`,
 `BossCharge {duration}`, `CrateSpawned`, `CratePickup {contents, amount}`,
 `AmmoUpdate` (weapons may instead use player attributes).
+Weapons: `Projectile {id, kind, origin, dir, speed, t0, owner, token, targetId}`, `ProjectileEnd {id, kind, position, exploded, air, enemy}`, `Ricochet {position}` (to the shooter only).
 Add new kinds to this list when you introduce them.
 
 ### Game state (`ReplicatedStorage.GameState` attributes)
