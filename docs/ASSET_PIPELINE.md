@@ -174,3 +174,107 @@ Workspace, `screen_capture`, check pivots and orientation.
 3. `publish.py upload <Name>` → harvest in Studio → `publish.py meshes`.
 4. Check in Studio, append to `docs/ASSET_STATUS.md`, commit
    (`assets/`, `tools/assets/`).
+
+## Skinned meshes (Character workstream, verified in Studio 2026-09-26)
+
+One deforming mesh per variant on a shared skeleton, posed from code with
+`Bone.Transform` (GAME_SPEC §14.1 item 8). Library `tools/assets/rmh/skin.py`
+(`SkinnedAsset`, `Bone`, `Pose`, `sweep`), publisher
+`tools/assets/skin_publish.py`. Assets: `InfantrySpike`
+(`models/infantry_spike.py`, the 3-bone test bar, also the regression test)
+and `InfantrySkinned` (`models/infantry_skinned.py`, the soldier).
+
+```
+models/<name>.py (SkinnedAsset)  --build.sh-->  assets/blender/<Name>.blend (bake stage)
+                                                assets/exported/<Name>/{<Name>.glb, <Name>_main_{color,normal,rough,metal}.png, manifest.json}
+                                                assets/previews/<Name>_*.png (posed with the manifest poses)
+  --skin_publish.py upload-->    Open Cloud: GLB as Model, maps as Image (publish.upload; ids in roblox_ids.json)
+  --skin_publish.py harvest-->   Studio snippet (Edit datamodel) -> JSON {parts, bones, root}
+  --skin_publish.py meshes <Name> <json>-->  checks + assets/roblox/<prefix>_<Variant>.rbxmx
+  --in game, once per template--> Body:ApplyMesh(AssetService:CreateMeshPartAsync(...))   (see gotcha 1)
+```
+
+### What the pipeline does (exact settings that work)
+- **Skeleton:** every bone points straight up (+Z) with roll 0, so every
+  glTF joint has an identity rotation; a bone's `head` is its pivot. The
+  bone's `start`/`end` segment is only used for skin weights.
+- **Weights:** set per piece in `SkinnedAsset.add` — a bone name (rigid),
+  a list of candidate bones (inverse distance to their segments, power
+  4–6, top 3, normalised) or a `weight_fn(co)`. Mirrored copies swap
+  Left/Right bone names.
+- **Export:** `export_scene.gltf(export_format="GLB", use_selection=True`
+  (armature + meshes)`, export_apply=False, export_skins=True,
+  export_animations=False, export_rest_position_armature=True,
+  export_yup=True, export_materials="NONE")`. **No** 180° pre-rotation
+  (rigid assets have one). FBX was not needed.
+- **Upload:** GLB as assetType `Model` through `opencloud.upload`, like
+  rigid assets.
+- **What the importer builds** (`InsertService:LoadAsset` in Edit): a
+  Model with one MeshPart per glTF *mesh* (named after the mesh data, so
+  avoid `.001` suffixes; `HasSkinnedMesh = true`; plus a `<Mesh>Motor6D`),
+  the Bone hierarchy with the Blender bone names — under a `RootPart`
+  Part at the glTF origin when there are several meshes, under the
+  MeshPart itself when there is one — an `AnimationController` and an
+  `InitialPoses` folder. The asset is turned 180° about up: the root bone
+  carries that rotation, child bones are identity relative to it.
+  **Bones that no vertex is weighted to are dropped**; `skin.py` keeps
+  marker bones (muzzle, support hand, lamp) alive by giving one vertex
+  rigidly on the parent a 5 % share.
+- **rbxmx** (`skin_publish.py`), per variant: Model `<prefix>_<Variant>`
+  (PrimaryPart `Root`, WorldPivot = asset pivot) containing `Root` (Part,
+  invisible, 2×2×1, CanQuery false, at the pivot, identity rotation; holds
+  the Bone tree), `Body` (the skinned MeshPart + SurfaceAppearance,
+  CanQuery false, Material Fabric) and optionally `BodyLOD` (Transparency
+  1). Everything is turned back 180° about up, so the model faces −Z and
+  every bone's rest rotation is identity in model space. `meshes` checks
+  imported sizes against the manifest and that every turned bone lands on
+  its manifest head with identity rotation.
+- **UVs:** tubes from `sweep()` (limbs, torso, straps) carry their own
+  one-island UVs; the other faces are smart-projected; then all islands
+  get the same texel density (`average_islands_scale`) and are packed into
+  one atlas shared by every variant. Non-shared layers are moved 30 studs
+  apart during the bake so AO/cavity don't see other variants' gear.
+- **Materials:** `rmh.materials` kinds, plus `garment` (registered by
+  `skin.py`): fabric with compression folds around joints baked into the
+  normal map (`folds=[{centre, axis, radius, wavelength, depth}]`).
+
+### Gotchas (all reproduced in Studio)
+1. **A MeshPart made from an rbxmx is not skinned.** Rojo (or any plugin
+   setting `MeshId`) creates it with `HasSkinnedMesh = false`, and it does
+   not deform; the property is NotAccessible (can't be written). Fix, once
+   per template before cloning (server or client):
+   ```lua
+   local mp = AssetService:CreateMeshPartAsync(Content.fromUri(body.MeshId), { CollisionFidelity = Enum.CollisionFidelity.Box })
+   body:ApplyMesh(mp); mp:Destroy()   -- body.HasSkinnedMesh is now true
+   ```
+   Done on the server on the ReplicatedStorage template, clones replicate
+   to clients already skinned. 6 meshes took 1.8 s in a playtest.
+2. **Same assembly.** The skinned MeshPart only follows bones held by a
+   part in its own assembly: bones under the MeshPart, or a
+   Weld/WeldConstraint/Motor6D between `Root` and `Body`. Two separately
+   anchored parts: no deformation.
+3. `Bone.Transform` is local (not replicated) and renders in Edit too.
+   `Bone.WorldCFrame` ignores Transform; posed positions come from
+   `Bone.TransformedWorldCFrame`.
+
+### Posing convention
+`bone.Transform = CFrame.new(x, y, z) * CFrame.Angles(rx, ry, rz)` means
+the same as a Motor6D.Transform on a rig with unrotated C0/C1 (model
+faces −Z): +X swings a hanging limb forward, +Y turns left, +Z swings a
+hanging limb towards +X. `rmh.skin.Pose` builds poses in Blender with FK
+and analytic two-bone IK and writes them to `manifest.json` → `poses` as
+`{bone: [rx, ry, rz(, [x, y, z])]}` degrees/studs; previews are rendered
+from the same tables, so a pose that looks right in the preview looks the
+same in Roblox (checked side by side: `qa/beauty/char-1/`).
+
+### Commands
+```sh
+tools/blender-lock.sh acquire <you>; tools/assets/build.sh InfantrySkinned; tools/blender-lock.sh release <you>
+set -a; . ./.env.local; set +a
+python3 tools/assets/skin_publish.py upload InfantrySkinned
+python3 tools/assets/skin_publish.py harvest InfantrySkinned     # run the printed snippet in Studio (Edit), save its JSON
+python3 tools/assets/skin_publish.py meshes InfantrySkinned harvest.json
+```
+The spike (`InfantrySpike`) runs the same commands; its rbxmx
+(`InfantrySpike_Bar`) is a test object — delete it from `assets/roblox/`
+after checking, it is not shipped.

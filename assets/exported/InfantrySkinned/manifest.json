@@ -1,0 +1,518 @@
+{
+ "name": "InfantrySkinned",
+ "skinned": true,
+ "variants": [
+  "Rifleman",
+  "Grenadier",
+  "Radio"
+ ],
+ "bones": [
+  {
+   "name": "Hips",
+   "parent": null,
+   "head": [
+    0.0,
+    3.45,
+    -0.0
+   ]
+  },
+  {
+   "name": "Spine",
+   "parent": "Hips",
+   "head": [
+    0.0,
+    3.95,
+    -0.0
+   ]
+  },
+  {
+   "name": "Chest",
+   "parent": "Spine",
+   "head": [
+    0.0,
+    4.55,
+    -0.0
+   ]
+  },
+  {
+   "name": "NeckBone",
+   "parent": "Chest",
+   "head": [
+    0.0,
+    5.5,
+    -0.03
+   ]
+  },
+  {
+   "name": "HeadBone",
+   "parent": "NeckBone",
+   "head": [
+    0.0,
+    5.78,
+    -0.05
+   ]
+  },
+  {
+   "name": "RightUpperArm",
+   "parent": "Chest",
+   "head": [
+    0.72,
+    5.25,
+    0.02
+   ]
+  },
+  {
+   "name": "RightLowerArm",
+   "parent": "RightUpperArm",
+   "head": [
+    1.1167,
+    4.16,
+    0.02
+   ]
+  },
+  {
+   "name": "RightHand",
+   "parent": "RightLowerArm",
+   "head": [
+    1.4343,
+    3.3228,
+    -0.3264
+   ]
+  },
+  {
+   "name": "LeftUpperArm",
+   "parent": "Chest",
+   "head": [
+    -0.72,
+    5.25,
+    0.02
+   ]
+  },
+  {
+   "name": "LeftLowerArm",
+   "parent": "LeftUpperArm",
+   "head": [
+    -1.1167,
+    4.16,
+    0.02
+   ]
+  },
+  {
+   "name": "LeftHand",
+   "parent": "LeftLowerArm",
+   "head": [
+    -1.4343,
+    3.3228,
+    -0.3264
+   ]
+  },
+  {
+   "name": "RightUpperLeg",
+   "parent": "Hips",
+   "head": [
+    0.31,
+    3.38,
+    -0.0
+   ]
+  },
+  {
+   "name": "RightLowerLeg",
+   "parent": "RightUpperLeg",
+   "head": [
+    0.31,
+    1.83,
+    -0.04
+   ]
+  },
+  {
+   "name": "RightFoot",
+   "parent": "RightLowerLeg",
+   "head": [
+    0.31,
+    0.36,
+    0.02
+   ]
+  },
+  {
+   "name": "LeftUpperLeg",
+   "parent": "Hips",
+   "head": [
+    -0.31,
+    3.38,
+    -0.0
+   ]
+  },
+  {
+   "name": "LeftLowerLeg",
+   "parent": "LeftUpperLeg",
+   "head": [
+    -0.31,
+    1.83,
+    -0.04
+   ]
+  },
+  {
+   "name": "LeftFoot",
+   "parent": "LeftLowerLeg",
+   "head": [
+    -0.31,
+    0.36,
+    0.02
+   ]
+  },
+  {
+   "name": "RifleBone",
+   "parent": "RightHand",
+   "head": [
+    1.5055,
+    3.0506,
+    -0.4346
+   ]
+  },
+  {
+   "name": "MuzzleBone",
+   "parent": "RifleBone",
+   "head": [
+    2.1003,
+    1.4823,
+    -1.4481
+   ]
+  },
+  {
+   "name": "SupportBone",
+   "parent": "RifleBone",
+   "head": [
+    1.7515,
+    2.4019,
+    -1.0248
+   ]
+  },
+  {
+   "name": "LampBone",
+   "parent": "HeadBone",
+   "head": [
+    0.0,
+    6.19,
+    -0.5
+   ]
+  }
+ ],
+ "meshes": {
+  "Rifleman": {
+   "variant": "Rifleman",
+   "lod": false,
+   "tris": 4902,
+   "center": [
+    0.1815,
+    3.2299,
+    -0.245
+   ],
+   "size": [
+    3.9029,
+    6.4598,
+    2.4701
+   ]
+  },
+  "Grenadier": {
+   "variant": "Grenadier",
+   "lod": false,
+   "tris": 4890,
+   "center": [
+    0.1815,
+    3.2242,
+    -0.39
+   ],
+   "size": [
+    3.9029,
+    6.4484,
+    2.1801
+   ]
+  },
+  "Radio": {
+   "variant": "Radio",
+   "lod": false,
+   "tris": 4946,
+   "center": [
+    0.1815,
+    3.8006,
+    -0.2586
+   ],
+   "size": [
+    3.9029,
+    7.6012,
+    2.443
+   ]
+  },
+  "RiflemanLOD": {
+   "variant": "Rifleman",
+   "lod": true,
+   "tris": 1560,
+   "center": [
+    0.195,
+    3.2314,
+    -0.2459
+   ],
+   "size": [
+    3.8768,
+    6.4549,
+    2.4719
+   ]
+  },
+  "GrenadierLOD": {
+   "variant": "Grenadier",
+   "lod": true,
+   "tris": 1560,
+   "center": [
+    0.195,
+    3.2257,
+    -0.4081
+   ],
+   "size": [
+    3.8768,
+    6.4436,
+    2.1475
+   ]
+  },
+  "RadioLOD": {
+   "variant": "Radio",
+   "lod": true,
+   "tris": 1575,
+   "center": [
+    0.195,
+    3.802,
+    -0.2659
+   ],
+   "size": [
+    3.8768,
+    7.5961,
+    2.4319
+   ]
+  }
+ },
+ "textures": {
+  "main": {
+   "color": "InfantrySkinned_main_color.png",
+   "rough": "InfantrySkinned_main_rough.png",
+   "metal": "InfantrySkinned_main_metal.png",
+   "normal": "InfantrySkinned_main_normal.png"
+  }
+ },
+ "previews": [
+  "assets/previews/InfantrySkinned_front.png",
+  "assets/previews/InfantrySkinned_side.png",
+  "assets/previews/InfantrySkinned_rear.png",
+  "assets/previews/InfantrySkinned_aim.png",
+  "assets/previews/InfantrySkinned_bind.png",
+  "assets/previews/InfantrySkinned_Rifleman.png",
+  "assets/previews/InfantrySkinned_Grenadier.png",
+  "assets/previews/InfantrySkinned_Radio.png",
+  "assets/previews/InfantrySkinned_thumb500.png"
+ ],
+ "poses": {
+  "Patrol": {
+   "Spine": [
+    -5.0,
+    4.0,
+    -0.0
+   ],
+   "Chest": [
+    -3.0,
+    4.0,
+    -0.0
+   ],
+   "NeckBone": [
+    4.0,
+    -5.0,
+    -0.0
+   ],
+   "HeadBone": [
+    3.0,
+    -3.0,
+    -0.0
+   ],
+   "RightUpperLeg": [
+    10.0,
+    0.0,
+    4.0
+   ],
+   "RightLowerLeg": [
+    -16.0,
+    0.0,
+    -0.0
+   ],
+   "RightFoot": [
+    6.0,
+    0.0,
+    -4.0
+   ],
+   "LeftUpperLeg": [
+    -4.0,
+    0.0,
+    -4.0
+   ],
+   "LeftLowerLeg": [
+    -10.0,
+    0.0,
+    -0.0
+   ],
+   "LeftFoot": [
+    14.0,
+    0.0,
+    4.0
+   ],
+   "RightUpperArm": [
+    -22.35,
+    25.39,
+    -10.96
+   ],
+   "RightLowerArm": [
+    117.82,
+    4.89,
+    -35.82
+   ],
+   "RightHand": [
+    -53.23,
+    -10.31,
+    20.93
+   ],
+   "LeftUpperArm": [
+    60.72,
+    -63.63,
+    42.15
+   ],
+   "LeftLowerArm": [
+    38.63,
+    -15.29,
+    0.35
+   ],
+   "LeftHand": [
+    48.08,
+    120.54,
+    69.12
+   ],
+   "Hips": [
+    0.0,
+    0.0,
+    0.0,
+    [
+     0.0,
+     -0.08,
+     -0.0
+    ]
+   ]
+  },
+  "Aim": {
+   "Spine": [
+    -4.0,
+    14.0,
+    -0.0
+   ],
+   "Chest": [
+    -4.0,
+    10.0,
+    -0.0
+   ],
+   "NeckBone": [
+    -6.0,
+    -12.0,
+    -0.0
+   ],
+   "HeadBone": [
+    -10.0,
+    -10.0,
+    4.0
+   ],
+   "LeftUpperLeg": [
+    16.0,
+    0.0,
+    -4.0
+   ],
+   "LeftLowerLeg": [
+    -14.0,
+    0.0,
+    -0.0
+   ],
+   "LeftFoot": [
+    -2.0,
+    0.0,
+    -0.0
+   ],
+   "RightUpperLeg": [
+    -12.0,
+    0.0,
+    5.0
+   ],
+   "RightLowerLeg": [
+    -8.0,
+    0.0,
+    -0.0
+   ],
+   "RightFoot": [
+    20.0,
+    0.0,
+    -0.0
+   ],
+   "RightUpperArm": [
+    35.62,
+    17.33,
+    -19.66
+   ],
+   "RightLowerArm": [
+    116.68,
+    -20.7,
+    -51.66
+   ],
+   "RightHand": [
+    -59.41,
+    -43.85,
+    71.28
+   ],
+   "LeftUpperArm": [
+    144.39,
+    -22.79,
+    78.3
+   ],
+   "LeftLowerArm": [
+    -15.38,
+    5.79,
+    7.25
+   ],
+   "LeftHand": [
+    103.9,
+    138.5,
+    20.33
+   ],
+   "Hips": [
+    0.0,
+    0.0,
+    0.0,
+    [
+     0.0,
+     -0.1,
+     -0.0
+    ]
+   ]
+  }
+ },
+ "pivot": [
+  0.0,
+  3.45,
+  -0.0
+ ],
+ "meta": {
+  "rbxmx_prefix": "Infantry_Skinned",
+  "hip_height": 3.45,
+  "rifle_rest": {
+   "forward": [
+    0.3308,
+    -0.872,
+    -0.3608
+   ],
+   "up": [
+    -0.128,
+    0.3374,
+    -0.9326
+   ]
+  }
+ }
+}

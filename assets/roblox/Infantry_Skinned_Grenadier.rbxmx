@@ -1,0 +1,204 @@
+<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" version="4">
+  <Item class="Model" referent="RBX00000001">
+    <Properties>
+      <string name="Name">Infantry_Skinned_Grenadier</string>
+      <Ref name="PrimaryPart">RBX00000002</Ref>
+      <OptionalCoordinateFrame name="WorldPivotData"><CFrame><X>0</X><Y>3.45</Y><Z>-0</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CFrame></OptionalCoordinateFrame>
+    </Properties>
+    <Item class="Part" referent="RBX00000002">
+      <Properties>
+        <string name="Name">Root</string>
+        <Vector3 name="size"><X>2</X><Y>2</Y><Z>1</Z></Vector3>
+        <CoordinateFrame name="CFrame"><X>0</X><Y>3.45</Y><Z>-0</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">false</bool>
+        <float name="Transparency">1</float>
+        <token name="Material">272</token>
+        <Color3uint8 name="Color3uint8">4281545523</Color3uint8>
+      </Properties>
+      <Item class="Bone" referent="RBX00000007">
+        <Properties>
+          <string name="Name">Hips</string>
+          <CoordinateFrame name="CFrame"><X>0</X><Y>0</Y><Z>0</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+        </Properties>
+        <Item class="Bone" referent="RBX00000008">
+          <Properties>
+            <string name="Name">LeftUpperLeg</string>
+            <CoordinateFrame name="CFrame"><X>-0.31</X><Y>-0.07</Y><Z>0</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+          </Properties>
+          <Item class="Bone" referent="RBX00000009">
+            <Properties>
+              <string name="Name">LeftLowerLeg</string>
+              <CoordinateFrame name="CFrame"><X>0</X><Y>-1.55</Y><Z>-0.04</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+            </Properties>
+            <Item class="Bone" referent="RBX0000000A">
+              <Properties>
+                <string name="Name">LeftFoot</string>
+                <CoordinateFrame name="CFrame"><X>0</X><Y>-1.47</Y><Z>0.06</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+              </Properties>
+            </Item>
+          </Item>
+        </Item>
+        <Item class="Bone" referent="RBX0000000B">
+          <Properties>
+            <string name="Name">RightUpperLeg</string>
+            <CoordinateFrame name="CFrame"><X>0.31</X><Y>-0.07</Y><Z>0</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+          </Properties>
+          <Item class="Bone" referent="RBX0000000C">
+            <Properties>
+              <string name="Name">RightLowerLeg</string>
+              <CoordinateFrame name="CFrame"><X>0</X><Y>-1.55</Y><Z>-0.04</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+            </Properties>
+            <Item class="Bone" referent="RBX0000000D">
+              <Properties>
+                <string name="Name">RightFoot</string>
+                <CoordinateFrame name="CFrame"><X>0</X><Y>-1.47</Y><Z>0.06</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+              </Properties>
+            </Item>
+          </Item>
+        </Item>
+        <Item class="Bone" referent="RBX0000000E">
+          <Properties>
+            <string name="Name">Spine</string>
+            <CoordinateFrame name="CFrame"><X>0</X><Y>0.5</Y><Z>0</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+          </Properties>
+          <Item class="Bone" referent="RBX0000000F">
+            <Properties>
+              <string name="Name">Chest</string>
+              <CoordinateFrame name="CFrame"><X>0</X><Y>0.6</Y><Z>0</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+            </Properties>
+            <Item class="Bone" referent="RBX00000010">
+              <Properties>
+                <string name="Name">LeftUpperArm</string>
+                <CoordinateFrame name="CFrame"><X>-0.72</X><Y>0.7</Y><Z>0.02</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+              </Properties>
+              <Item class="Bone" referent="RBX00000011">
+                <Properties>
+                  <string name="Name">LeftLowerArm</string>
+                  <CoordinateFrame name="CFrame"><X>-0.39674</X><Y>-1.09004</Y><Z>0</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+                </Properties>
+                <Item class="Bone" referent="RBX00000012">
+                  <Properties>
+                    <string name="Name">LeftHand</string>
+                    <CoordinateFrame name="CFrame"><X>-0.31753</X><Y>-0.83713</Y><Z>-0.3464</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+                  </Properties>
+                </Item>
+              </Item>
+            </Item>
+            <Item class="Bone" referent="RBX00000013">
+              <Properties>
+                <string name="Name">NeckBone</string>
+                <CoordinateFrame name="CFrame"><X>0</X><Y>0.95</Y><Z>-0.03</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+              </Properties>
+              <Item class="Bone" referent="RBX00000014">
+                <Properties>
+                  <string name="Name">HeadBone</string>
+                  <CoordinateFrame name="CFrame"><X>0</X><Y>0.28</Y><Z>-0.02</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+                </Properties>
+                <Item class="Bone" referent="RBX00000015">
+                  <Properties>
+                    <string name="Name">LampBone</string>
+                    <CoordinateFrame name="CFrame"><X>0</X><Y>0.41</Y><Z>-0.45</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+                  </Properties>
+                </Item>
+              </Item>
+            </Item>
+            <Item class="Bone" referent="RBX00000016">
+              <Properties>
+                <string name="Name">RightUpperArm</string>
+                <CoordinateFrame name="CFrame"><X>0.72</X><Y>0.7</Y><Z>0.02</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+              </Properties>
+              <Item class="Bone" referent="RBX00000017">
+                <Properties>
+                  <string name="Name">RightLowerArm</string>
+                  <CoordinateFrame name="CFrame"><X>0.39674</X><Y>-1.09004</Y><Z>0</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+                </Properties>
+                <Item class="Bone" referent="RBX00000018">
+                  <Properties>
+                    <string name="Name">RightHand</string>
+                    <CoordinateFrame name="CFrame"><X>0.31753</X><Y>-0.83713</Y><Z>-0.3464</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+                  </Properties>
+                  <Item class="Bone" referent="RBX00000019">
+                    <Properties>
+                      <string name="Name">RifleBone</string>
+                      <CoordinateFrame name="CFrame"><X>0.07118</X><Y>-0.27224</Y><Z>-0.10825</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+                    </Properties>
+                    <Item class="Bone" referent="RBX0000001A">
+                      <Properties>
+                        <string name="Name">MuzzleBone</string>
+                        <CoordinateFrame name="CFrame"><X>0.59486</X><Y>-1.56827</Y><Z>-1.0135</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+                      </Properties>
+                    </Item>
+                    <Item class="Bone" referent="RBX0000001B">
+                      <Properties>
+                        <string name="Name">SupportBone</string>
+                        <CoordinateFrame name="CFrame"><X>0.24606</X><Y>-0.64871</Y><Z>-0.5901</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+                      </Properties>
+                    </Item>
+                  </Item>
+                </Item>
+              </Item>
+            </Item>
+          </Item>
+        </Item>
+      </Item>
+    </Item>
+    <Item class="MeshPart" referent="RBX00000003">
+      <Properties>
+        <string name="Name">Body</string>
+        <Content name="MeshId"><url>rbxassetid://78636417379981</url></Content>
+        <Vector3 name="InitialSize"><X>3.90287</X><Y>6.4484</Y><Z>2.1801</Z></Vector3>
+        <Vector3 name="size"><X>3.90287</X><Y>6.4484</Y><Z>2.1801</Z></Vector3>
+        <CoordinateFrame name="CFrame"><X>0.18153</X><Y>3.2242</Y><Z>-0.39005</Z><R00>-1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>-1</R22></CoordinateFrame>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="CollisionFidelity">2</token>
+        <float name="Transparency">0</float>
+        <token name="Material">1312</token>
+        <Color3uint8 name="Color3uint8">4294967295</Color3uint8>
+      </Properties>
+      <Item class="SurfaceAppearance" referent="RBX00000004">
+        <Properties>
+          <string name="Name">SurfaceAppearance</string>
+          <Content name="ColorMap"><url>rbxassetid://110069412680405</url></Content>
+          <Content name="NormalMap"><url>rbxassetid://140525862519973</url></Content>
+          <Content name="RoughnessMap"><url>rbxassetid://95714093053526</url></Content>
+          <Content name="MetalnessMap"><url>rbxassetid://120098758670067</url></Content>
+        </Properties>
+      </Item>
+    </Item>
+    <Item class="MeshPart" referent="RBX00000005">
+      <Properties>
+        <string name="Name">BodyLOD</string>
+        <Content name="MeshId"><url>rbxassetid://103704132601449</url></Content>
+        <Vector3 name="InitialSize"><X>3.8768</X><Y>6.44356</Y><Z>2.14749</Z></Vector3>
+        <Vector3 name="size"><X>3.8768</X><Y>6.44356</Y><Z>2.14749</Z></Vector3>
+        <CoordinateFrame name="CFrame"><X>0.19496</X><Y>3.22569</Y><Z>-0.40813</Z><R00>-1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>-1</R22></CoordinateFrame>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="CollisionFidelity">2</token>
+        <float name="Transparency">1</float>
+        <token name="Material">1312</token>
+        <Color3uint8 name="Color3uint8">4294967295</Color3uint8>
+      </Properties>
+      <Item class="SurfaceAppearance" referent="RBX00000006">
+        <Properties>
+          <string name="Name">SurfaceAppearance</string>
+          <Content name="ColorMap"><url>rbxassetid://110069412680405</url></Content>
+          <Content name="NormalMap"><url>rbxassetid://140525862519973</url></Content>
+          <Content name="RoughnessMap"><url>rbxassetid://95714093053526</url></Content>
+          <Content name="MetalnessMap"><url>rbxassetid://120098758670067</url></Content>
+        </Properties>
+      </Item>
+    </Item>
+  </Item>
+</roblox>
