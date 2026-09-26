@@ -42,7 +42,11 @@ Contracts: `docs/ARCHITECTURE.md`, `docs/ASSET_CONTRACTS.md`.
 - **Final end-to-end playthrough succeeded** (see DONE.md).
 
 ## Current work
-- None. The game meets GAME_SPEC.md; see DONE.md for the final report.
+- **Visual face-lift** (`docs/FACELIFT_PLAN.md`, all phases 0–9), built by
+  a lead plus QA-tools, Environment, Hard-surface, Character, VFX and Look
+  agents under `docs/FACELIFT_TEAM.md`. User decisions 2026-09-26: CC0
+  inputs allowed (spec §14.2 amended), hybrid landscape, full scope.
+- Phase 0 (beauty-shot rig, art bible, perf budget) in progress.
 
 ## Known bugs / gaps
 - Real mouse play and audio not yet checked by a human (see DONE.md).

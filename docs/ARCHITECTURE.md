@@ -19,6 +19,9 @@ Edits sync to the Edit datamodel; restart the playtest to pick them up.
 
 ## Ownership
 
+> During the visual face-lift, `docs/FACELIFT_TEAM.md` overrides the table
+> below (workstreams ENV, HS, CHAR, VFX, Look, QA-tools).
+
 Edit only files you own. If you need a change in someone else's file, keep
 it minimal and additive (a new function, a new event handler line) and say so
 in your final report. Never reformat or restructure another owner's file.

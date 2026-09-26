@@ -319,7 +319,7 @@ These carry the game's visual identity and should be modeled in Blender via Pyth
 5. **Jet.**
 6. **Siege Crawler**, with its weak points as separable parts so they can be destroyed individually.
 7. **Mesa rock formation kit** — modular rock/cliff meshes for the mesa, canyon walls, and scattered boulders.
-8. **Infantry soldier:** a human-proportioned soldier split into limb meshes (head, torso, arms, legs, rifle) so it can be animated procedurally with Motor6D joints (march, aim, throw, die). No full rigging/animation pipeline required.
+8. **Infantry soldier:** a human-proportioned soldier animated procedurally from code (march, aim, throw, die): either split into limb meshes (head, torso, arms, legs, rifle) on Motor6D joints, or one skinned mesh whose bones are posed with `Bone.Transform`. No animation upload pipeline required.
 
 ### 14.2 Non-Blender assets
 
@@ -327,7 +327,7 @@ These carry the game's visual identity and should be modeled in Blender via Pyth
 - **Small props:** sandbags, barriers, crates, parachutes, wreck debris, searchlights — simple meshes with textures (primitives acceptable only for tiny or distant details).
 - **Textures and particles:** original or generated textures; particle flipbooks for fire, smoke, dust, and sparks.
 
-All assets must be original. Free assets owned by Roblox may be used where they fit the style. Paid assets may not be used.
+All assets must be original. CC0 (public-domain) source material, such as Poly Haven textures and HDRIs, may be used as raw input when it is substantially modified and baked into the game's own assets; every such source is credited in `assets/source/CC0_CREDITS.md`. Free assets owned by Roblox may be used where they fit the style. Paid assets may not be used.
 
 ---
 
