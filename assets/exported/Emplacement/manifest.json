@@ -76,17 +76,17 @@
    "name": "Drifts",
    "path": "Static",
    "center": [
-    -0.0046,
-    -6.02,
-    -0.7429
+    0.0695,
+    -5.9239,
+    -0.7633
    ],
    "size": [
-    22.581,
-    0.5055,
-    21.3094
+    23.1304,
+    0.2722,
+    21.8402
    ],
    "tex": "outer",
-   "tris": 1200,
+   "tris": 1580,
    "query": false,
    "material": "Sand"
   },
@@ -549,7 +549,7 @@
  },
  "texel_density": {
   "floor": 42.0,
-  "outer": 21.7,
+  "outer": 21.8,
   "turret": 45.8,
   "bags": 84.1,
   "props": 55.8,
@@ -569,6 +569,6 @@
   "assets/previews/Emplacement_close_gun.png",
   "assets/previews/Emplacement_close_net.png"
  ],
- "triangles": 69164,
+ "triangles": 69544,
  "meta": {}
 }

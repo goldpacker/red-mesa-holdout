@@ -80,6 +80,16 @@ def upload(name: str) -> None:
     else:
         print(f"model unchanged: {ids['model']}")
     tex = ids.setdefault("textures", {})
+    # Forget maps of groups/channels the current build no longer has, so a
+    # stale id (e.g. a dropped metalness map) never reaches the rbxmx.
+    for group in list(tex):
+        want = manifest["textures"].get(group, {})
+        for ch in list(tex[group]):
+            if ch not in want:
+                del tex[group][ch]
+                hashes.pop(f"{group}/{ch}", None)
+        if not tex[group]:
+            del tex[group]
     for group, files in manifest["textures"].items():
         for ch, fname in files.items():
             f = out / fname

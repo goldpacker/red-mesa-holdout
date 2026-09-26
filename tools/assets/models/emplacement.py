@@ -159,7 +159,8 @@ def bunker(a):
                photo=dict(photo, scale=9.0, color=0.7))
     a.material("ladder_p", base="olive_dark", photo={"id": "green_metal_rust", "scale": 3.0, "color": 0.8, "sat": 0.5},
                wear=0.75, under="#6a6660", under_rough=0.4)
-    a.material("sand_drift", kind="flat", color="#b58a60", rough=0.95, dust=0.4, bump=0.5)
+    a.material("sand_drift", kind="flat", color="#a9845e", rough=0.97, dust=0.0, grime=0.25, bump=0.35, var_scale=9.0,
+               photo={"id": "concrete_floor_worn_001", "scale": 4.0, "height": 0.6, "rough": 0.3})
 
     b = a.part("Bunker", path="Static", tex="floor", collide=True, query=True, material="Concrete")
     rings = [(0.0, FLOOR), (2.4, FLOOR), (5.0, FLOOR), (8.0, FLOOR), (INNER_R, FLOOR)]
@@ -191,7 +192,9 @@ def bunker(a):
     for i in range(10):
         deg = 180 + GAP_DEG + 8 + i * (360 - 2 * GAP_DEG - 16) / 9
         x, y, _ = polar(10.6, deg)
-        d.add(geo.sphere(1.0, 12, 6, scale=(rng.uniform(1.5, 2.6), rng.uniform(0.7, 1.0), rng.uniform(0.16, 0.26))), "sand_drift",
+        h = rng.uniform(0.14, 0.24)
+        mound = geo.lathe([(0.0, h), (0.35, h * 0.9), (0.7, h * 0.62), (1.05, h * 0.3), (1.35, h * 0.1), (1.6, -0.04)], verts=16, close_bottom=False)
+        d.add(mound, "sand_drift", scale=(rng.uniform(1.2, 1.9), rng.uniform(0.6, 0.85), 1.0),
               at=(x, y, FLOOR - 0.02), rot=(0, 0, -deg + rng.uniform(-8, 8)))
 
     p = a.part("Pedestal", path="Static", tex="turret", query=False, material="Metal")
@@ -219,7 +222,7 @@ SHAPES = {
 }
 # Art bible: burlap #A8916B, sun-bleached tops #CDB88F; kept a notch darker
 # so close muzzle flashes and searchlights don't blow them out at night.
-TINTS = {"a": ("#9a8560", 0.65), "b": ("#8c8367", 0.85), "c": ("#a48b61", 0.5), "d": ("#76634a", 0.35)}
+TINTS = {"a": ("#9a8560", 0.8), "b": ("#8c8367", 0.95), "c": ("#a48b61", 0.65), "d": ("#76634a", 0.45)}
 
 
 def sandbag_templates(a):

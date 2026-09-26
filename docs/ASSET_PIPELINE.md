@@ -1,6 +1,6 @@
 # Asset pipeline (Blender → Roblox)
 
-Owner: Assets agent. Contracts: `docs/ASSET_CONTRACTS.md`. Status of each
+Owner: Assets agent (face-lift: Hard-surface workstream). Contracts: `docs/ASSET_CONTRACTS.md`. Status of each
 asset (ids, notes): `docs/ASSET_STATUS.md`.
 
 ```
@@ -53,7 +53,52 @@ Each asset is a Python module `tools/assets/models/<snake_name>.py` exposing
   sizes in Roblox space, sub-model pivots, attachments, markers, texture
   files, triangle counts).
 
-Build logs: `logs/assets/<Name>.log`. Typical build: 30–120 s.
+Build logs: `logs/assets/<Name>.log`. Typical build: 30–120 s (the
+Emplacement, with cloth sims and nine atlases, ~4 min). Wrap every build in
+`tools/blender-lock.sh acquire <you>` / `release <you>` (it bakes).
+
+### Opt-in pipeline features (face-lift, HS-1)
+
+None of these change an asset that doesn't ask for them.
+
+- **Sheet texture groups** (`a.texture_group(name, px, sheet=True)`): the
+  atlas holds a few *templates* (`t = a.template(name, group, low, mat,
+  high=None, uv="smart"|"seams")`) instead of every part's surface; parts
+  place rigid copies with `part.add_template(t, at, rot, scale)` (no
+  mirroring) which share the template's UVs. When a template has a dense
+  `high` mesh the group is baked selected-to-active (all templates joined,
+  far from the asset so AO/bevel never see it; cage 0.06, ray 0.4).
+  `uv="seams"` unwraps angle-based along the mesh's marked seams (the cloth
+  sacks mark theirs). Used for the Emplacement's 14 sandbag templates (≈200
+  bags at 84 px/stud from one 1024² atlas) and its casings/belt rounds.
+- **`metal=False`** on a texture group skips the metalness map (and its
+  upload); the rbxmx then has no `MetalnessMap` (= 0).
+- **Cloth sims** (`rmh/cloth.py`): `cloth.sandbag(seed, size, press,
+  neck, load, …)` inflates a flat two-sheet sack with cloth pressure and
+  slumps it on the ground (optionally squeezed by a plate), returns
+  `(high, low)` where `low` samples the same simulated lattice (so it lies
+  on the high surface) and has UV seams marked. `cloth.drape(sheet, nx, ny,
+  colliders, pinned)` drops a `cloth.grid_sheet` over collider bmeshes with
+  pinned tie points (the camo net). Deterministic for the same arguments.
+- **CC0 photo layers** (`photo={"id", "scale", "color", "sat", "rough",
+  "height"}` on paint/metal/fabric/concrete/flat materials): box-projects a
+  Poly Haven map set from `assets/source/cc0/<id>/` (fetch with
+  `python3 tools/assets/cc0.py fetch`) and multiplies only its variation
+  into the palette colour; roughness/height add their deviation. Credit
+  every id in `assets/source/CC0_CREDITS.md`.
+- **Wear keys:** fabric `bleach`, `damp`/`damp_height`, `seam_dust`,
+  `weave_amount`, `net={cell, gap}` (garnished camo net); paint
+  `chip_style="blotch"` (+`chip_bevel`, `ring`, `ring_color`), `fade`,
+  `patches`; any material `zmin` (its own ground height) and `dust_color`.
+- **Stencils:** `images.get("text", text="7.62", wear=0.4, seed=1)` — our
+  own stencil stroke font (digits, `. - /`, most capitals); the image is
+  not square, so project it with a decal of the same aspect
+  (`models/emplacement.py: stencil()` does this).
+- **Camera previews:** a view may be a dict `{"label", "pos", "look",
+  "fov" (vertical, like Roblox FieldOfView), "res", "hide"}` to render
+  from an exact camera (e.g. the in-game turret camera).
+- **Texel density:** the manifest records `texel_density` (px/stud) per
+  texture group, and the build log prints it.
 
 - The rock kit is one module building ten assets:
   `tools/assets/build.sh RockKit` (or `BUILD_ARGS="--only Rock_Spire,Cliff_Wall_A" tools/assets/build.sh RockKit`).
@@ -105,6 +150,8 @@ python3 tools/assets/publish.py meshes /path/to/harvest.json
 
 This checks every imported mesh size against the manifest (catches axis
 or scale errors), stores the ids and writes `assets/roblox/<Name>.rbxmx`.
+`upload` also forgets cached map ids for texture groups/channels that the
+current manifest no longer has.
 `python3 tools/assets/publish.py rbxmx <Name>` regenerates from cached ids.
 
 ## 4. In game
