@@ -8,7 +8,8 @@
 -- searchlights (Workspace.Battlefield.Searchlights) enabled here.
 --
 -- ClockTime and LightingRig's GeographicLatitude (30) set the sun path the
--- ENV skyboxes are painted for; keep them unless the skies are re-rendered.
+-- ENV skyboxes are painted for; keep them unless the skies are re-rendered
+-- (LateAfternoon runs at 16.85, ~4° below the 16.6 its sky was painted for).
 --
 -- Roblox darkens the skybox as soon as the sun is below the horizon, so a
 -- painted night sky is invisible at a real night ClockTime. Night is
@@ -61,18 +62,19 @@ local PRESETS: { [string]: Preset } = {
 		rays = { Intensity = 0.04, Spread = 0.5 },
 		searchlights = false,
 	},
-	-- Lower amber-white sun; shadows start to rake, haze layers the far wall.
+	-- Lower, golden sun (16.85, ~17° up): warm amber key, longer shadows
+	-- raking across the basin, haze layering the far wall and buttes.
 	LateAfternoon = {
 		lighting = {
-			ClockTime = 16.6, Brightness = 3.7, ExposureCompensation = 0.05,
-			Ambient = rgb(74, 70, 86), OutdoorAmbient = rgb(92, 92, 124),
-			ColorShift_Top = rgb(255, 212, 160), ColorShift_Bottom = rgb(84, 86, 132),
+			ClockTime = 16.85, Brightness = 3.5, ExposureCompensation = 0,
+			Ambient = rgb(76, 68, 84), OutdoorAmbient = rgb(94, 90, 124),
+			ColorShift_Top = rgb(255, 196, 132), ColorShift_Bottom = rgb(88, 86, 136),
 			EnvironmentDiffuseScale = 0.58, EnvironmentSpecularScale = 1, ShadowSoftness = 0.1,
 		},
-		atmosphere = { Density = 0.25, Offset = 0.1, Haze = 1.1, Glare = 0.4, Color = rgb(234, 186, 150), Decay = rgb(146, 100, 92) },
-		grade = { Contrast = 0.19, Saturation = 0.04, TintColor = rgb(255, 242, 230), Brightness = -0.015 },
+		atmosphere = { Density = 0.26, Offset = 0.1, Haze = 1.4, Glare = 0.6, Color = rgb(238, 182, 138), Decay = rgb(150, 96, 84) },
+		grade = { Contrast = 0.2, Saturation = 0.06, TintColor = rgb(255, 236, 216), Brightness = -0.015 },
 		bloom = { Intensity = 0.55, Size = 24, Threshold = 2.2 },
-		rays = { Intensity = 0.08, Spread = 0.55 },
+		rays = { Intensity = 0.1, Spread = 0.55 },
 		searchlights = false,
 	},
 	-- Long raking shadows, orange key, violet bounce, strong horizon glow.
@@ -89,19 +91,22 @@ local PRESETS: { [string]: Preset } = {
 		rays = { Intensity = 0.14, Spread = 0.6 },
 		searchlights = false,
 	},
-	-- Sun at the canyon rim: violet-magenta sky with the first stars, cool
-	-- sky light, no hard sun shadows; artificial lights take over. The clock
-	-- stays just above the horizon (17.7) because Roblox blacks out the
-	-- skybox once the sun sets. Lifted so dark enemies stay readable.
+	-- Sun at the canyon rim: the violet-magenta sky and horizon carry the
+	-- colour; the basin falls into cool dusk (low ambient, soft sun, little
+	-- haze) so the artificial lights - searchlight cones and pools,
+	-- headlights, flares, the warm pit lamp - read as the keys. Enemies
+	-- stay dark silhouettes against the ground and the light pools. The
+	-- clock stays just above the horizon (17.7) because Roblox blacks out
+	-- the skybox once the sun sets.
 	Dusk = {
 		lighting = {
-			ClockTime = 17.7, Brightness = 2.6, ExposureCompensation = 1.15,
-			Ambient = rgb(80, 78, 108), OutdoorAmbient = rgb(128, 122, 178),
-			ColorShift_Top = rgb(225, 170, 200), ColorShift_Bottom = rgb(72, 80, 126),
+			ClockTime = 17.7, Brightness = 1.2, ExposureCompensation = 0.5,
+			Ambient = rgb(66, 68, 96), OutdoorAmbient = rgb(98, 100, 156),
+			ColorShift_Top = rgb(230, 150, 160), ColorShift_Bottom = rgb(60, 66, 110),
 			EnvironmentDiffuseScale = 0.45, EnvironmentSpecularScale = 0.9, ShadowSoftness = 0.4,
 		},
-		atmosphere = { Density = 0.26, Offset = 0.08, Haze = 2, Glare = 0.6, Color = rgb(170, 128, 168), Decay = rgb(84, 66, 116) },
-		grade = { Contrast = 0.3, Saturation = -0.24, TintColor = rgb(230, 228, 255), Brightness = 0 },
+		atmosphere = { Density = 0.24, Offset = 0.1, Haze = 0.9, Glare = 0.5, Color = rgb(190, 124, 150), Decay = rgb(60, 52, 96) },
+		grade = { Contrast = 0.36, Saturation = -0.12, TintColor = rgb(232, 228, 255), Brightness = 0 },
 		bloom = { Intensity = 0.9, Size = 26, Threshold = 1.25 },
 		rays = { Intensity = 0.03, Spread = 0.5 },
 		searchlights = true,

@@ -1,0 +1,128 @@
+{
+ "afternoon_2-turret": {
+  "captured": "2026-09-26T12:34:22",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "015fc1b"
+ },
+ "afternoon_5-night": {
+  "captured": "2026-09-26T12:34:25",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "015fc1b"
+ },
+ "dusk_1-title": {
+  "captured": "2026-09-26T12:33:00",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "015fc1b"
+ },
+ "dusk_2-turret": {
+  "captured": "2026-09-26T12:33:17",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "015fc1b"
+ },
+ "dusk_3-gunsight": {
+  "captured": "2026-09-26T12:33:29",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "015fc1b"
+ },
+ "dusk_4-flank": {
+  "captured": "2026-09-26T12:33:40",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "015fc1b"
+ },
+ "dusk_5-night": {
+  "captured": "2026-09-26T12:33:51",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "015fc1b"
+ },
+ "dusk_6-boss": {
+  "captured": "2026-09-26T12:34:08",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "015fc1b"
+ },
+ "lateafternoon_1-title": {
+  "captured": "2026-09-26T12:33:04",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "015fc1b"
+ },
+ "lateafternoon_2-turret": {
+  "captured": "2026-09-26T12:33:20",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "015fc1b"
+ },
+ "lateafternoon_3-gunsight": {
+  "captured": "2026-09-26T12:33:33",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "015fc1b"
+ },
+ "lateafternoon_4-flank": {
+  "captured": "2026-09-26T12:33:44",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "015fc1b"
+ },
+ "lateafternoon_5-night": {
+  "captured": "2026-09-26T12:33:55",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "015fc1b"
+ },
+ "lateafternoon_6-boss": {
+  "captured": "2026-09-26T12:34:11",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "015fc1b"
+ }
+}
