@@ -1,0 +1,29 @@
+# CC0 source credits
+
+Raw inputs from [Poly Haven](https://polyhaven.com) (all **CC0 1.0**,
+public domain; no attribution is required, we credit them anyway). Per
+GAME_SPEC §14.2 they are only raw material: every one is substantially
+modified and baked into the game's own textures. Downloads live in
+`assets/source/cc0/<id>/` (git-ignored); re-fetch with the owning
+workstream's fetch script. Add a row for every source you use.
+
+## Environment (ENV) — `python3 tools/env/cc0.py fetch`
+
+Terrain MaterialVariants built by `tools/env/terrain_textures.py`
+(outputs `assets/textures/terrain/<Name>/`). All are downsampled to 1024²,
+re-tinted to the art-bible palette (the source keeps only its luminance
+detail and a fraction of its own colour variation), relit-flattened
+(large-scale photo lighting removed) and combined with procedural layers.
+
+| Poly Haven id | Name / authors | URL | Licence | Used for | What we did to it |
+|---|---|---|---|---|---|
+| `aerial_beach_01` | Aerial Beach 01 — Rob Tuytel | https://polyhaven.com/a/aerial_beach_01 | CC0 | `Sand` (and drift sand in `Wash`) | Colour re-tinted to ochre `#C9824F`; fine ripple normals kept under new procedural asymmetric wind ripples; procedural pebble scatter added; ripple-sorted grain tint |
+| `gravelly_sand` | Gravelly Sand — Dario Barresi | https://polyhaven.com/a/gravelly_sand | CC0 | `SandCoarse` (Mud patches), `Road` grain | Re-tinted (coarse sand `#B8703F`, road dirt `#9A6B48`); procedural pebbles, faint ripples; for the road, procedural tyre ruts, tread, berms and crown pebbles on top |
+| `mud_cracked_dry_03` | Mud Cracked Dry 03 — Dario Barresi, Dimitrios Savva | https://polyhaven.com/a/mud_cracked_dry_03 | CC0 | `Wash` (Salt) | Re-tinted to bleached `#D9B98C`, cracks darkened from the height map, procedural wind-drift sand patches that flatten the normals |
+| `rock_face_03` | Rock Face 03 — Dario Barresi, Rico Cilliers | https://polyhaven.com/a/rock_face_03 | CC0 | `Rock` | Re-tinted to shadow-strata rust `#7A3D2B`, cavity darkening, large relief flattened to hide tiling |
+| `cliff_side` | Cliff Side — James Ray Cock, Jenelle van Heerden, Dario Barresi | https://polyhaven.com/a/cliff_side | CC0 | `Sandstone` | Re-tinted to cliff rust-red `#9E4A2E`, procedural horizontal strata banding, cavity darkening |
+| `marble_cliff_04` | Marble Cliff 04 — Amal Kumar | https://polyhaven.com/a/marble_cliff_04 | CC0 | `Limestone` | Rotated 90° (strata horizontal, normals re-oriented), re-tinted to light strata `#BA6A44`, strata banding |
+| `dark_rock_02` | Dark Rock 02 — Amal Kumar | https://polyhaven.com/a/dark_rock_02 | CC0 | `Slate` | Re-tinted to cap rock `#5A3226`, strata banding |
+
+The skyboxes (`tools/env/sky.py`) use no external sources: Blender's
+physical Sky Texture plus our own OSL shader (clouds, haze, stars).

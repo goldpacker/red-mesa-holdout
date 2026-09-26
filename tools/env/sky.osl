@@ -1,0 +1,180 @@
+// Red Mesa procedural sky (Cycles OSL, world shader). Rendered to cube faces
+// by tools/env/sky.py. Blender world space: +Z up. All colours linear.
+//
+// Layers: physical base sky (Blender Sky Texture, passed in as Base) or a
+// night gradient, horizon haze, a cumulus/altocumulus deck, a cirrus veil,
+// and at night stars plus a Milky Way band. The sun disc is never drawn
+// (Roblox draws the sun and moon itself); only its glow is in Base.
+
+float fbm2(point p, int octaves, float gain)
+{
+    float sum = 0.0;
+    float amp = 0.5;
+    float norm = 0.0;
+    point q = p;
+    for (int i = 0; i < octaves; i++) {
+        sum += amp * noise("perlin", q);
+        norm += amp;
+        amp *= gain;
+        q = q * 2.03 + point(17.1, 3.7, 9.2);
+    }
+    return sum / norm;  // about [-1, 1]
+}
+
+float sstep(float a, float b, float x)
+{
+    return smoothstep(a, b, x);
+}
+
+// One layer of stars: jittered point per cell of a 3D grid around the unit
+// sphere; returns radiance.
+color starLayer(vector d, float scale, float prob, float radius, float seed)
+{
+    point p = point(d * scale);
+    point cell = floor(p);
+    color acc = 0;
+    for (int i = -1; i <= 1; i++)
+    for (int j = -1; j <= 1; j++)
+    for (int k = -1; k <= 1; k++) {
+        point c = cell + point(i, j, k);
+        float r0 = cellnoise(c + point(seed, 0, 0));
+        if (r0 > prob)
+            continue;
+        point jit = c + point(cellnoise(c + point(seed, 11.3, 0)),
+                              cellnoise(c + point(seed, 0, 23.7)),
+                              cellnoise(c + point(seed + 5.1, 7.7, 1.3)));
+        vector sd = normalize(vector(jit) / scale);
+        float ang = acos(clamp(dot(sd, d), -1.0, 1.0));
+        float mag = cellnoise(c + point(seed + 3.3, 1.1, 2.2));
+        float b = pow(mag, 12.0) * 20.0 + 0.06;  // few bright, many dim
+        float w = radius * (0.8 + 0.8 * pow(mag, 4.0));
+        float s = exp(-(ang * ang) / (w * w));
+        float t = cellnoise(c + point(seed + 9.9, 4.4, 6.6));
+        color tint = mix(color(1.0, 0.82, 0.66), color(0.72, 0.82, 1.0), t);
+        acc += tint * b * s;
+    }
+    return acc;
+}
+
+shader redmesa_sky(
+    color Base = 0,
+    float BaseScale = 1.0,
+    vector SunDir = vector(0, 0, 1),
+    color SunColor = color(1.0, 0.85, 0.7),
+    float SunGlow = 0.0,
+    float SunGlowPower = 16.0,
+    // Night gradient (used when NightMix > 0)
+    float NightMix = 0.0,
+    color NightZenith = color(0.002, 0.003, 0.009),
+    color NightHorizon = color(0.012, 0.014, 0.024),
+    vector MoonDir = vector(0, 0, 1),
+    color MoonGlowColor = color(0.05, 0.06, 0.09),
+    float MoonGlow = 0.0,
+    // Haze toward the horizon and below it
+    color HazeColor = color(0.8, 0.6, 0.45),
+    float HazeAmount = 0.5,
+    float HazeFalloff = 10.0,
+    color GroundColor = color(0.3, 0.2, 0.15),
+    // Cloud deck
+    float CloudCover = 0.0,
+    float CloudSoftness = 0.25,
+    float CloudScale = 1.0,
+    vector CloudOffset = vector(0, 0, 0),
+    float CloudStretch = 1.0,
+    color CloudLit = color(1.0, 0.95, 0.9),
+    color CloudShadow = color(0.45, 0.5, 0.6),
+    float CloudOpacity = 1.0,
+    float CloudSilver = 0.0,
+    float CloudFadeZ = 0.08,
+    // Cirrus veil
+    float CirrusCover = 0.0,
+    float CirrusScale = 1.0,
+    color CirrusColor = color(1.0, 0.95, 0.9),
+    float CirrusOpacity = 0.5,
+    // Stars / Milky Way
+    float Stars = 0.0,
+    float StarScale = 60.0,
+    float MilkyWay = 0.0,
+    vector MilkyNormal = vector(0.3, 0.8, 0.5),
+    color MilkyColor = color(0.05, 0.05, 0.06),
+    output color Col = 0)
+{
+    vector d = -normalize(I);
+    vector s = normalize(SunDir);
+    float z = d[2];
+    float mu = dot(d, s);
+
+    // ---- base sky
+    color sky = Base * BaseScale;
+    if (NightMix > 0.0) {
+        float hz = pow(1.0 - clamp(z, 0.0, 1.0), 3.0);
+        color night = mix(NightZenith, NightHorizon, hz);
+        float mm = max(dot(d, normalize(MoonDir)), 0.0);
+        night += MoonGlowColor * MoonGlow * (pow(mm, 60.0) * 3.0 + pow(mm, 6.0) * 0.6);
+        sky = mix(sky, night, NightMix);
+    }
+    sky += SunColor * SunGlow * pow(max(mu, 0.0), SunGlowPower);
+
+    // ---- stars and Milky Way (above the horizon, dimmed by haze)
+    if (Stars > 0.0 && z > -0.05) {
+        vector mn = normalize(MilkyNormal);
+        float t = dot(d, mn);
+        float band = exp(-(t * t) / (0.2 * 0.2));
+        float core = exp(-(t * t) / (0.07 * 0.07));
+        float clump = fbm2(point(d * 3.2), 5, 0.55) * 0.5 + 0.5;
+        float lanes = sstep(0.1, 0.7, fbm2(point(d * 7.0 + point(4, 2, 1)), 4, 0.6) * 0.5 + 0.5);
+        float mw = band * (0.4 + 0.9 * clump) * (1.0 - 0.75 * core * lanes);
+        color stars = starLayer(d, StarScale, 0.2, 0.0017, 1.0);
+        stars += starLayer(d, StarScale * 2.1, 0.12 + 0.6 * band, 0.0014, 7.0) * 0.35;
+        float horizonDim = sstep(-0.02, 0.25, z);
+        sky += (stars * Stars + MilkyColor * MilkyWay * mw) * horizonDim;
+    }
+
+    // ---- clouds (planar layer seen from below)
+    if (z > 0.0 && (CloudCover > 0.0 || CirrusCover > 0.0)) {
+        float h = 1.0 / (z + 0.035);
+        point p = point(d[0] * h, d[1] * h, 0) * CloudScale + point(CloudOffset);
+        p = point(p[0], p[1] * CloudStretch, 0);
+        vector sxy = normalize(vector(s[0], s[1] * CloudStretch, 0) + vector(1e-4, 0, 0));
+        float fade = sstep(0.0, CloudFadeZ, z);
+        float distFog = 1.0 - exp(-z * HazeFalloff * 0.6);
+
+        if (CloudCover > 0.0) {
+            float warp = fbm2(p * 0.35 + point(0, 0, 3.1), 3, 0.5);
+            point q = p + point(warp * 0.8, warp * 0.5, 0);
+            // Large soft heaps (low octaves) with a little crisp detail on top.
+            float big = fbm2(q * 0.55, 4, 0.5);
+            float n0 = clamp((big * 1.5 + fbm2(q * 2.0, 5, 0.5) * 0.35) * 1.1 + 0.5, 0.0, 1.0);
+            float thr = 1.0 - CloudCover;
+            float dens = sstep(thr, thr + CloudSoftness, n0);
+            point q1 = q + point(sxy * 0.12);
+            float n1 = clamp((fbm2(q1 * 0.55, 4, 0.5) * 1.5 + fbm2(q1 * 2.0, 5, 0.5) * 0.35) * 1.1 + 0.5, 0.0, 1.0);
+            float shade = clamp(0.6 + (n0 - n1) * 5.0 - (dens * 0.3), 0.0, 1.0);
+            color cc = mix(CloudShadow, CloudLit, shade);
+            cc += SunColor * CloudSilver * pow(max(mu, 0.0), 10.0) * (1.0 - dens) * dens * 4.0;
+            float a = dens * CloudOpacity * fade;
+            cc = mix(HazeColor, cc, distFog);
+            sky = mix(sky, cc, a);
+        }
+        if (CirrusCover > 0.0) {
+            point pc = point(d[0] * h, d[1] * h, 0) * CirrusScale * 0.5 + point(CloudOffset) * 0.3;
+            pc = point(pc[0] * 0.25, pc[1] * 2.5, pc[0] * 0.3);
+            float c0 = clamp(fbm2(pc + point(fbm2(pc * 0.5, 3, 0.5), 0, 0), 6, 0.6) * 1.25 + 0.5, 0.0, 1.0);
+            float thr = 1.0 - CirrusCover;
+            float cd = sstep(thr, thr + 0.35, c0);
+            color ccol = CirrusColor + SunColor * CloudSilver * 0.6 * pow(max(mu, 0.0), 6.0);
+            ccol = mix(HazeColor, ccol, distFog);
+            sky = mix(sky, ccol, cd * CirrusOpacity * fade);
+        }
+    }
+
+    // ---- horizon haze and below-horizon ground haze
+    float above = max(z, 0.0);
+    float haze = exp(-above * HazeFalloff) * HazeAmount;
+    sky = mix(sky, HazeColor, clamp(haze, 0.0, 1.0));
+    if (z < 0.0) {
+        float g = sstep(0.0, -0.25, z);
+        sky = mix(mix(sky, HazeColor, HazeAmount), GroundColor, g);
+    }
+    Col = sky;
+}

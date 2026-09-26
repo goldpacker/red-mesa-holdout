@@ -1,0 +1,441 @@
+{
+  "Test": {
+    "test": true,
+    "sun": [
+      0.6,
+      0.6,
+      -0.5
+    ],
+    "samples": 8,
+    "view": {
+      "transform": "Standard"
+    },
+    "shader": {
+      "NightMix": 1.0,
+      "NightZenith": [
+        "#2040A0",
+        1.0
+      ],
+      "NightHorizon": [
+        "#A04020",
+        1.0
+      ],
+      "HazeAmount": 0.0,
+      "GroundColor": [
+        "#206020",
+        1.0
+      ],
+      "Stars": 0.0
+    }
+  },
+  "Afternoon": {
+    "clock": 15.2,
+    "sun": [
+      0.6124,
+      0.7071,
+      0.3536
+    ],
+    "physical": {
+      "type": "MULTIPLE_SCATTERING",
+      "altitude": 1200,
+      "air": 1.0,
+      "aerosol": 2.2,
+      "ozone": 1.0
+    },
+    "view": {
+      "transform": "AgX",
+      "exposure": 0.0
+    },
+    "shader": {
+      "BaseScale": 0.07,
+      "SunColor": [
+        "#FFE6C4",
+        1.0
+      ],
+      "HazeColor": [
+        "#E9C9A8",
+        0.9
+      ],
+      "HazeAmount": 0.35,
+      "HazeFalloff": 10.0,
+      "GroundColor": [
+        "#8E6A52",
+        0.5
+      ],
+      "CloudCover": 0.34,
+      "CloudSoftness": 0.28,
+      "CloudScale": 1.8,
+      "CloudOffset": [
+        3.0,
+        7.0,
+        0.0
+      ],
+      "CloudStretch": 1.5,
+      "CloudLit": [
+        "#FFFFFF",
+        1.3
+      ],
+      "CloudShadow": [
+        "#9AA4B8",
+        0.75
+      ],
+      "CloudOpacity": 0.95,
+      "CloudSilver": 0.4,
+      "CloudFadeZ": 0.1,
+      "CirrusCover": 0.3,
+      "CirrusScale": 0.8,
+      "CirrusColor": [
+        "#FFFFFF",
+        1.1
+      ],
+      "CirrusOpacity": 0.3
+    },
+    "roblox": {
+      "sky": {
+        "CelestialBodiesShown": true,
+        "SunAngularSize": 11,
+        "MoonAngularSize": 9,
+        "StarCount": 0
+      },
+      "clouds": {
+        "Enabled": true,
+        "Cover": 0.55,
+        "Density": 0.35,
+        "Color": "#FFF6EE"
+      }
+    }
+  },
+  "LateAfternoon": {
+    "clock": 16.6,
+    "sun": [
+      0.8297,
+      0.4695,
+      0.302
+    ],
+    "physical": {
+      "type": "MULTIPLE_SCATTERING",
+      "altitude": 1200,
+      "air": 1.0,
+      "aerosol": 2.6,
+      "ozone": 1.0
+    },
+    "view": {
+      "transform": "AgX",
+      "exposure": 0.1
+    },
+    "shader": {
+      "BaseScale": 0.07,
+      "SunColor": [
+        "#FFD9A8",
+        1.0
+      ],
+      "HazeColor": [
+        "#F0BC8E",
+        0.8
+      ],
+      "HazeAmount": 0.5,
+      "HazeFalloff": 10.0,
+      "GroundColor": [
+        "#8E6A52",
+        0.5
+      ],
+      "CloudCover": 0.3,
+      "CloudSoftness": 0.28,
+      "CloudScale": 1.8,
+      "CloudOffset": [
+        3.0,
+        7.0,
+        0.0
+      ],
+      "CloudStretch": 1.5,
+      "CloudLit": [
+        "#FFF1DE",
+        1.2
+      ],
+      "CloudShadow": [
+        "#9C98A8",
+        0.65
+      ],
+      "CloudOpacity": 0.95,
+      "CloudSilver": 0.7,
+      "CloudFadeZ": 0.1,
+      "CirrusCover": 0.35,
+      "CirrusScale": 0.8,
+      "CirrusColor": [
+        "#FFF0DC",
+        1.0
+      ],
+      "CirrusOpacity": 0.35
+    },
+    "roblox": {
+      "sky": {
+        "CelestialBodiesShown": true,
+        "SunAngularSize": 12,
+        "MoonAngularSize": 9,
+        "StarCount": 0
+      },
+      "clouds": {
+        "Enabled": true,
+        "Cover": 0.45,
+        "Density": 0.3,
+        "Color": "#FFE7CE"
+      }
+    }
+  },
+  "Sunset": {
+    "clock": 17.25,
+    "sun": [
+      0.9794,
+      0.1045,
+      0.1727
+    ],
+    "physical": {
+      "type": "MULTIPLE_SCATTERING",
+      "altitude": 1200,
+      "air": 1.0,
+      "aerosol": 3.2,
+      "ozone": 1.0
+    },
+    "view": {
+      "transform": "AgX",
+      "exposure": 0.3
+    },
+    "shader": {
+      "BaseScale": 0.07,
+      "SunColor": [
+        "#FFB070",
+        1.0
+      ],
+      "SunGlow": 0.0,
+      "HazeColor": [
+        "#F2A070",
+        0.7
+      ],
+      "HazeAmount": 0.45,
+      "HazeFalloff": 8.0,
+      "GroundColor": [
+        "#6A4032",
+        0.35
+      ],
+      "CloudCover": 0.22,
+      "CloudSoftness": 0.3,
+      "CloudScale": 1.8,
+      "CloudOffset": [
+        11.0,
+        2.0,
+        0.0
+      ],
+      "CloudStretch": 2.2,
+      "CloudLit": [
+        "#FFB27A",
+        1.1
+      ],
+      "CloudShadow": [
+        "#7A5E78",
+        0.45
+      ],
+      "CloudOpacity": 0.9,
+      "CloudSilver": 1.4,
+      "CloudFadeZ": 0.08,
+      "CirrusCover": 0.45,
+      "CirrusScale": 0.7,
+      "CirrusColor": [
+        "#FFB888",
+        0.9
+      ],
+      "CirrusOpacity": 0.55
+    },
+    "roblox": {
+      "sky": {
+        "CelestialBodiesShown": true,
+        "SunAngularSize": 14,
+        "MoonAngularSize": 9,
+        "StarCount": 0
+      },
+      "clouds": {
+        "Enabled": true,
+        "Cover": 0.3,
+        "Density": 0.22,
+        "Color": "#FFC196"
+      }
+    }
+  },
+  "Dusk": {
+    "clock": 18.1,
+    "sun": [
+      0.9948,
+      -0.0523,
+      0.087
+    ],
+    "moon": [
+      -0.9254,
+      0.342,
+      -0.1632
+    ],
+    "physical": {
+      "type": "MULTIPLE_SCATTERING",
+      "altitude": 1200,
+      "air": 1.0,
+      "aerosol": 2.5,
+      "ozone": 1.4
+    },
+    "view": {
+      "transform": "AgX",
+      "exposure": 2.6
+    },
+    "shader": {
+      "BaseScale": 0.07,
+      "SunColor": [
+        "#FF7A8A",
+        0.03
+      ],
+      "SunGlow": 1.0,
+      "NightMix": 0.0,
+      "HazeColor": [
+        "#B07898",
+        0.07
+      ],
+      "HazeAmount": 0.4,
+      "HazeFalloff": 6.0,
+      "GroundColor": [
+        "#3A2A34",
+        0.03
+      ],
+      "CloudCover": 0.16,
+      "CloudSoftness": 0.25,
+      "CloudScale": 2.0,
+      "CloudOffset": [
+        5.0,
+        9.0,
+        0.0
+      ],
+      "CloudStretch": 2.5,
+      "CloudLit": [
+        "#E892A0",
+        0.1
+      ],
+      "CloudShadow": [
+        "#4A3A58",
+        0.04
+      ],
+      "CloudOpacity": 0.85,
+      "CloudSilver": 0.4,
+      "CloudFadeZ": 0.08,
+      "CirrusCover": 0.3,
+      "CirrusScale": 0.7,
+      "CirrusColor": [
+        "#F0A0A0",
+        0.09
+      ],
+      "CirrusOpacity": 0.5,
+      "Stars": 0.0006,
+      "StarScale": 60.0,
+      "MilkyWay": 0.0,
+      "SunGlowPower": 3.0
+    },
+    "roblox": {
+      "sky": {
+        "CelestialBodiesShown": true,
+        "SunAngularSize": 14,
+        "MoonAngularSize": 10,
+        "StarCount": 0
+      },
+      "clouds": {
+        "Enabled": true,
+        "Cover": 0.2,
+        "Density": 0.2,
+        "Color": "#B48CA0"
+      }
+    }
+  },
+  "Night": {
+    "clock": 0.4,
+    "sun": [
+      -0.633,
+      -0.766,
+      -0.1116
+    ],
+    "moon": [
+      0.4967,
+      0.8192,
+      -0.2868
+    ],
+    "view": {
+      "transform": "Standard",
+      "exposure": 0.0
+    },
+    "shader": {
+      "BaseScale": 0.0,
+      "NightMix": 1.0,
+      "NightZenith": [
+        "#101830",
+        1.0
+      ],
+      "NightHorizon": [
+        "#2A3454",
+        1.0
+      ],
+      "MoonGlowColor": [
+        "#7088C0",
+        0.25
+      ],
+      "MoonGlow": 1.0,
+      "HazeColor": [
+        "#2A3452",
+        1.0
+      ],
+      "HazeAmount": 0.3,
+      "HazeFalloff": 7.0,
+      "GroundColor": [
+        "#0E1018",
+        1.0
+      ],
+      "CloudCover": 0.12,
+      "CloudSoftness": 0.3,
+      "CloudScale": 2.0,
+      "CloudOffset": [
+        2.0,
+        4.0,
+        0.0
+      ],
+      "CloudStretch": 2.0,
+      "CloudLit": [
+        "#56648A",
+        1.0
+      ],
+      "CloudShadow": [
+        "#1A2034",
+        1.0
+      ],
+      "CloudOpacity": 0.7,
+      "CloudSilver": 0.0,
+      "CloudFadeZ": 0.1,
+      "Stars": 0.06,
+      "StarScale": 60.0,
+      "MilkyWay": 1.0,
+      "MilkyNormal": [
+        0.35,
+        0.55,
+        0.75
+      ],
+      "MilkyColor": [
+        "#C0C8E8",
+        0.05
+      ]
+    },
+    "roblox": {
+      "sky": {
+        "CelestialBodiesShown": true,
+        "SunAngularSize": 11,
+        "MoonAngularSize": 11,
+        "StarCount": 0
+      },
+      "clouds": {
+        "Enabled": true,
+        "Cover": 0.18,
+        "Density": 0.15,
+        "Color": "#3C4664"
+      }
+    }
+  }
+}
