@@ -431,9 +431,14 @@
       "CloudOpacity": 0.7,
       "CloudSilver": 0.0,
       "CloudFadeZ": 0.1,
-      "Stars": 0.045,
+      "Stars": 0.075,
       "StarScale": 60.0,
-      "MilkyWay": 1.4,
+      "StarRadius": 0.00095,
+      "StarProb": 0.1,
+      "StarProb2": 0.035,
+      "StarBand2": 0.3,
+      "StarDim2": 0.3,
+      "MilkyWay": 0.8,
       "MilkyNormal": [
         0.8314,
         -0.3612,
@@ -442,7 +447,8 @@
       "MilkyColor": [
         "#C0C8E8",
         0.05
-      ]
+      ],
+      "MilkyWidth": 0.15
     },
     "roblox": {
       "sky": {

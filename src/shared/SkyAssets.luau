@@ -121,12 +121,12 @@ local PRESETS: { [string]: Preset } = {
 	},
 	Night = {
 		faces = {
-			SkyboxBk = "rbxassetid://97812057976457",
-			SkyboxDn = "rbxassetid://119677271876009",
-			SkyboxFt = "rbxassetid://71169618373133",
-			SkyboxLf = "rbxassetid://86562086661468",
-			SkyboxRt = "rbxassetid://85568030841391",
-			SkyboxUp = "rbxassetid://108816511091085",
+			SkyboxBk = "rbxassetid://80528693145027",
+			SkyboxDn = "rbxassetid://137029846965178",
+			SkyboxFt = "rbxassetid://97174712243099",
+			SkyboxLf = "rbxassetid://101429890100827",
+			SkyboxRt = "rbxassetid://82416406427355",
+			SkyboxUp = "rbxassetid://105806034285628",
 		},
 		sky = {
 			CelestialBodiesShown = true,

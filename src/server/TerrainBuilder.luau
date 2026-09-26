@@ -289,9 +289,17 @@ local function applyMaterialVariants(): { [Enum.Material]: boolean }
 	end
 	local folder = MaterialService:FindFirstChild(VARIANT_FOLDER)
 	if not folder then
-		folder = source:Clone()
-		folder.Name = VARIANT_FOLDER
-		folder.Parent = MaterialService
+		local ok, result = pcall(function()
+			local copy = source:Clone()
+			copy.Name = VARIANT_FOLDER
+			copy.Parent = MaterialService
+			return copy
+		end)
+		if not ok or not result then
+			print(string.format("[RedMesa] terrain materials unavailable (%s); stock look kept", tostring(result)))
+			return covered
+		end
+		folder = result
 	end
 	local failures = 0
 	local lastError = ""
