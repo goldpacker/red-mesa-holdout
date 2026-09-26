@@ -1,0 +1,48 @@
+{
+ "name": "Rock_Slab",
+ "primary": "Root",
+ "pivots": {
+  "": [
+   0.0,
+   0.0,
+   -0.0
+  ]
+ },
+ "parts": [
+  {
+   "name": "Root",
+   "path": "",
+   "center": [
+    -0.124,
+    1.6222,
+    -0.1502
+   ],
+   "size": [
+    15.4933,
+    4.0445,
+    10.865
+   ],
+   "tex": "main",
+   "tris": 1876,
+   "collide": true,
+   "material": "Sandstone"
+  }
+ ],
+ "attachments": [],
+ "markers": [],
+ "textures": {
+  "main": {
+   "color": "Rock_Slab_main_color.png",
+   "rough": "Rock_Slab_main_rough.png",
+   "metal": "Rock_Slab_main_metal.png",
+   "normal": "Rock_Slab_main_normal.png"
+  }
+ },
+ "previews": [
+  "assets/previews/Rock_Slab.png"
+ ],
+ "triangles": 1876,
+ "meta": {
+  "kit": "rock"
+ }
+}

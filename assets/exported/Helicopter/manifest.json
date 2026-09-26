@@ -1,0 +1,148 @@
+{
+ "name": "Helicopter",
+ "primary": "Root",
+ "pivots": {
+  "": [
+   0.0,
+   0.0,
+   -0.0
+  ]
+ },
+ "parts": [
+  {
+   "name": "Root",
+   "path": "",
+   "center": [
+    0.0,
+    1.5977,
+    4.1462
+   ],
+   "size": [
+    12.1778,
+    10.5955,
+    37.4925
+   ],
+   "tex": "body",
+   "tris": 4148,
+   "material": "Metal"
+  },
+  {
+   "name": "MainRotor",
+   "path": "",
+   "center": [
+    0.0,
+    4.9,
+    -0.0
+   ],
+   "size": [
+    27.8044,
+    1.6,
+    27.8044
+   ],
+   "tex": "rotor",
+   "tris": 614,
+   "query": false,
+   "material": "Metal"
+  },
+  {
+   "name": "TailRotor",
+   "path": "",
+   "center": [
+    0.95,
+    4.7,
+    21.3
+   ],
+   "size": [
+    0.7,
+    4.0274,
+    4.0274
+   ],
+   "tex": "rotor",
+   "tris": 250,
+   "query": false,
+   "material": "Metal"
+  }
+ ],
+ "attachments": [
+  {
+   "name": "RocketMuzzleL",
+   "part": "Root",
+   "pos": [
+    -5.4,
+    -1.25,
+    -1.95
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "name": "RocketMuzzleR",
+   "part": "Root",
+   "pos": [
+    5.4,
+    -1.25,
+    -1.95
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "name": "GunMuzzle",
+   "part": "Root",
+   "pos": [
+    0.0,
+    -2.05,
+    -14.15
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "name": "Searchlight",
+   "part": "Root",
+   "pos": [
+    1.0,
+    -2.32,
+    -9.9
+   ],
+   "axis": [
+    0.0,
+    -0.4104,
+    -0.9119
+   ]
+  }
+ ],
+ "markers": [],
+ "textures": {
+  "body": {
+   "color": "Helicopter_body_color.png",
+   "rough": "Helicopter_body_rough.png",
+   "metal": "Helicopter_body_metal.png",
+   "normal": "Helicopter_body_normal.png"
+  },
+  "rotor": {
+   "color": "Helicopter_rotor_color.png",
+   "rough": "Helicopter_rotor_rough.png",
+   "metal": "Helicopter_rotor_metal.png",
+   "normal": "Helicopter_rotor_normal.png"
+  }
+ },
+ "previews": [
+  "assets/previews/Helicopter.png",
+  "assets/previews/Helicopter_rear.png",
+  "assets/previews/Helicopter_side.png"
+ ],
+ "triangles": 5012,
+ "meta": {
+  "no_ground": false
+ }
+}

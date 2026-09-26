@@ -1,26 +1,26 @@
 {
  "hashes": {
-  "bags/color": "4eaf0c6c1c4bf36a",
-  "bags/metal": "1a5e57350822bcd0",
-  "bags/normal": "60cdaf7085274c0a",
-  "bags/rough": "133f1754c1a989d5",
-  "glb": "19efa05aa4d41bd3",
-  "props/color": "813222fbce28cac3",
-  "props/metal": "09628fa062d5ba06",
-  "props/normal": "035e572acf13f18d",
-  "props/rough": "ea21693997c13438",
-  "static/color": "733dafc4308608f0",
-  "static/metal": "946eedcd219fbad1",
-  "static/normal": "f4a45f000f3194ad",
-  "static/rough": "8d1071affac03258",
-  "turret/color": "1982c863142cc355",
-  "turret/metal": "1d7f60b501694ac6",
-  "turret/normal": "50586b930ab616bc",
-  "turret/rough": "1379926ebbdd20ca"
+  "bags/color": "450e5b26617491ca",
+  "bags/metal": "01752f6818c10a6c",
+  "bags/normal": "95036a205fb35d7f",
+  "bags/rough": "af007e11d4c0779d",
+  "glb": "b2ed6ecb52a29a85",
+  "props/color": "f4c562c4aa466acd",
+  "props/metal": "4e5291d883596a7f",
+  "props/normal": "b0dc021b5faba2a3",
+  "props/rough": "966aca00acded4d5",
+  "static/color": "7dcbe32b0ebd676c",
+  "static/metal": "ec7edcb2f169e37f",
+  "static/normal": "37d55ad205fc92b3",
+  "static/rough": "2f6436fc3f814bc7",
+  "turret/color": "f9c6e084757a2ff4",
+  "turret/metal": "00ff41eff5e31bef",
+  "turret/normal": "6912ed557b6006a7",
+  "turret/rough": "834ee6ffa54d2688"
  },
  "meshes": {
   "Bunker": "rbxassetid://82754215858233",
-  "Casings": "rbxassetid://80578797603409",
+  "Casings": "rbxassetid://82083951073210",
   "Cradle": "rbxassetid://110099912849267",
   "Gun": "rbxassetid://119842800862462",
   "Missile1": "rbxassetid://111022779696080",
@@ -28,38 +28,38 @@
   "Mount": "rbxassetid://96122005791741",
   "Pedestal": "rbxassetid://80883546068697",
   "Pod": "rbxassetid://126536130133758",
-  "Props": "rbxassetid://84051795627960",
+  "Props": "rbxassetid://116416879846610",
   "Rail": "rbxassetid://91051187211403",
   "SandbagsFront": "rbxassetid://118498015706427",
   "SandbagsLeft": "rbxassetid://80413612720130",
   "SandbagsRight": "rbxassetid://103244846655239",
-  "Searchlight": "rbxassetid://126989521434373"
+  "Searchlight": "rbxassetid://111730563496563"
  },
- "model": "98270106261276",
+ "model": "91820343938141",
  "textures": {
   "bags": {
-   "color": "rbxassetid://70965706188833",
-   "metal": "rbxassetid://131302705177763",
-   "normal": "rbxassetid://77325827579038",
-   "rough": "rbxassetid://122686746765262"
+   "color": "rbxassetid://138734161410326",
+   "metal": "rbxassetid://134785783012802",
+   "normal": "rbxassetid://88415220898742",
+   "rough": "rbxassetid://118821045633380"
   },
   "props": {
-   "color": "rbxassetid://136274477153724",
-   "metal": "rbxassetid://89519577184772",
-   "normal": "rbxassetid://89853097243065",
-   "rough": "rbxassetid://116028700567429"
+   "color": "rbxassetid://117107662728985",
+   "metal": "rbxassetid://121947610149643",
+   "normal": "rbxassetid://97300123935760",
+   "rough": "rbxassetid://87264346543033"
   },
   "static": {
-   "color": "rbxassetid://80428538734850",
-   "metal": "rbxassetid://86841883592449",
-   "normal": "rbxassetid://114622194379857",
-   "rough": "rbxassetid://70699689726360"
+   "color": "rbxassetid://92492873289942",
+   "metal": "rbxassetid://78035865441166",
+   "normal": "rbxassetid://137119892991610",
+   "rough": "rbxassetid://130095766741377"
   },
   "turret": {
-   "color": "rbxassetid://84531402310242",
-   "metal": "rbxassetid://135096698303034",
-   "normal": "rbxassetid://106194963730574",
-   "rough": "rbxassetid://117704142348652"
+   "color": "rbxassetid://124455324072816",
+   "metal": "rbxassetid://108445111659635",
+   "normal": "rbxassetid://116512830833302",
+   "rough": "rbxassetid://120767719247023"
   }
  }
 }

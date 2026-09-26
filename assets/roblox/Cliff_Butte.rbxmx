@@ -1,0 +1,37 @@
+<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" version="4">
+  <Item class="Model" referent="RBX00000001">
+    <Properties>
+      <string name="Name">Cliff_Butte</string>
+      <OptionalCoordinateFrame name="WorldPivotData"><CFrame><X>0</X><Y>0</Y><Z>-0</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CFrame></OptionalCoordinateFrame>
+      <Ref name="PrimaryPart">RBX00000002</Ref>
+    </Properties>
+    <Item class="MeshPart" referent="RBX00000002">
+      <Properties>
+        <string name="Name">Root</string>
+        <Content name="MeshId"><url>rbxassetid://82500970688968</url></Content>
+        <Vector3 name="InitialSize"><X>42.2845</X><Y>34.4559</Y><Z>34.6071</Z></Vector3>
+        <Vector3 name="size"><X>42.2845</X><Y>34.4559</Y><Z>34.6071</Z></Vector3>
+        <CoordinateFrame name="CFrame"><X>0.1302</X><Y>16.828</Y><Z>0.4519</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="CollisionFidelity">2</token>
+        <float name="Transparency">0</float>
+        <token name="Material">912</token>
+        <Color3uint8 name="Color3uint8">4294967295</Color3uint8>
+        <CoordinateFrame name="PivotOffset"><X>-0.1302</X><Y>-16.828</Y><Z>-0.4519</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+      </Properties>
+      <Item class="SurfaceAppearance" referent="RBX00000003">
+        <Properties>
+          <string name="Name">SurfaceAppearance</string>
+          <Content name="ColorMap"><url>rbxassetid://118946478278363</url></Content>
+          <Content name="NormalMap"><url>rbxassetid://112960789480164</url></Content>
+          <Content name="RoughnessMap"><url>rbxassetid://79882650670622</url></Content>
+          <Content name="MetalnessMap"><url>rbxassetid://83634162201425</url></Content>
+        </Properties>
+      </Item>
+    </Item>
+  </Item>
+</roblox>

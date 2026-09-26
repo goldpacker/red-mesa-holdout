@@ -1,0 +1,47 @@
+{
+ "name": "Rock_Rubble",
+ "primary": "Root",
+ "pivots": {
+  "": [
+   0.0,
+   0.0,
+   -0.0
+  ]
+ },
+ "parts": [
+  {
+   "name": "Root",
+   "path": "",
+   "center": [
+    -1.0879,
+    0.5583,
+    0.6572
+   ],
+   "size": [
+    7.4328,
+    1.9957,
+    6.8031
+   ],
+   "tex": "main",
+   "tris": 1844,
+   "material": "Sandstone"
+  }
+ ],
+ "attachments": [],
+ "markers": [],
+ "textures": {
+  "main": {
+   "color": "Rock_Rubble_main_color.png",
+   "rough": "Rock_Rubble_main_rough.png",
+   "metal": "Rock_Rubble_main_metal.png",
+   "normal": "Rock_Rubble_main_normal.png"
+  }
+ },
+ "previews": [
+  "assets/previews/Rock_Rubble.png"
+ ],
+ "triangles": 1844,
+ "meta": {
+  "kit": "rock"
+ }
+}

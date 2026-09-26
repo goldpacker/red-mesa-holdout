@@ -1,0 +1,135 @@
+{
+ "name": "Jet",
+ "primary": "Root",
+ "pivots": {
+  "": [
+   0.0,
+   0.0,
+   -0.0
+  ]
+ },
+ "parts": [
+  {
+   "name": "Root",
+   "path": "",
+   "center": [
+    0.0,
+    3.2951,
+    -0.9
+   ],
+   "size": [
+    32.38,
+    9.1901,
+    48.2
+   ],
+   "tex": "body",
+   "tris": 1740,
+   "material": "Metal"
+  },
+  {
+   "name": "Bombs",
+   "path": "",
+   "center": [
+    0.0,
+    -1.075,
+    3.3
+   ],
+   "size": [
+    21.9,
+    1.35,
+    3.8
+   ],
+   "tex": "body",
+   "tris": 560,
+   "material": "Metal"
+  }
+ ],
+ "attachments": [
+  {
+   "name": "NavLightL",
+   "part": "Root",
+   "pos": [
+    -16.1,
+    0.84,
+    10.2
+   ],
+   "axis": [
+    -1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "NavLightR",
+   "part": "Root",
+   "pos": [
+    16.1,
+    0.84,
+    10.2
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Exhaust",
+   "part": "Root",
+   "pos": [
+    0.0,
+    0.3,
+    23.4
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "name": "BombBay",
+   "part": "Root",
+   "pos": [
+    0.0,
+    -1.6,
+    2.0
+   ],
+   "axis": [
+    0.0,
+    -1.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Cockpit",
+   "part": "Root",
+   "pos": [
+    0.0,
+    1.9,
+    -14.2
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ]
+  }
+ ],
+ "markers": [],
+ "textures": {
+  "body": {
+   "color": "Jet_body_color.png",
+   "rough": "Jet_body_rough.png",
+   "metal": "Jet_body_metal.png",
+   "normal": "Jet_body_normal.png"
+  }
+ },
+ "previews": [
+  "assets/previews/Jet.png",
+  "assets/previews/Jet_rear.png",
+  "assets/previews/Jet_top.png"
+ ],
+ "triangles": 2300,
+ "meta": {}
+}

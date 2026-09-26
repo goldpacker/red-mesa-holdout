@@ -1,0 +1,33 @@
+{
+ "hashes": {
+  "body/color": "0a228a22c216c2c6",
+  "body/metal": "15508bd6e17a04b3",
+  "body/normal": "b80528df0cceac4b",
+  "body/rough": "60c3bd6c7a96be79",
+  "glb": "a23d454fe6790276",
+  "rotor/color": "9a3a0069c4678321",
+  "rotor/metal": "626877b9fdf9e767",
+  "rotor/normal": "3a03ffc0f6668e04",
+  "rotor/rough": "0a32a3da6d83dccb"
+ },
+ "meshes": {
+  "MainRotor": "rbxassetid://98024580022340",
+  "Root": "rbxassetid://109598113994482",
+  "TailRotor": "rbxassetid://82671619287409"
+ },
+ "model": "74665553782031",
+ "textures": {
+  "body": {
+   "color": "rbxassetid://102957730687700",
+   "metal": "rbxassetid://109427556726871",
+   "normal": "rbxassetid://102531073135414",
+   "rough": "rbxassetid://123604164333870"
+  },
+  "rotor": {
+   "color": "rbxassetid://95936905043488",
+   "metal": "rbxassetid://125337006243073",
+   "normal": "rbxassetid://110873654318893",
+   "rough": "rbxassetid://71812270559682"
+  }
+ }
+}

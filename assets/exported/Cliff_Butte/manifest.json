@@ -1,0 +1,48 @@
+{
+ "name": "Cliff_Butte",
+ "primary": "Root",
+ "pivots": {
+  "": [
+   0.0,
+   0.0,
+   -0.0
+  ]
+ },
+ "parts": [
+  {
+   "name": "Root",
+   "path": "",
+   "center": [
+    0.1302,
+    16.828,
+    0.4519
+   ],
+   "size": [
+    42.2845,
+    34.4559,
+    34.6071
+   ],
+   "tex": "main",
+   "tris": 7604,
+   "collide": true,
+   "material": "Sandstone"
+  }
+ ],
+ "attachments": [],
+ "markers": [],
+ "textures": {
+  "main": {
+   "color": "Cliff_Butte_main_color.png",
+   "rough": "Cliff_Butte_main_rough.png",
+   "metal": "Cliff_Butte_main_metal.png",
+   "normal": "Cliff_Butte_main_normal.png"
+  }
+ },
+ "previews": [
+  "assets/previews/Cliff_Butte.png"
+ ],
+ "triangles": 7604,
+ "meta": {
+  "kit": "rock"
+ }
+}

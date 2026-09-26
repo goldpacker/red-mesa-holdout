@@ -238,3 +238,46 @@ def mirror_x(bm):
     bmesh.ops.scale(out, vec=(-1, 1, 1), verts=out.verts)
     bmesh.ops.reverse_faces(out, faces=out.faces)
     return out
+
+
+def _superellipse_ring(w, h, zc, e, n, x0=0.0):
+    pts = []
+    for k in range(n):
+        t = TAU * k / n
+        c, s = math.cos(t), math.sin(t)
+        x = w / 2 * math.copysign(abs(c) ** (2 / e), c)
+        z = zc + h / 2 * math.copysign(abs(s) ** (2 / e), s)
+        pts.append((x0 + x, z))
+    return pts
+
+
+def loft(sections, n=16, cap_start=True, cap_end=True):
+    """Loft along +Y through superellipse cross-sections.
+
+    sections: list of (y, width, height, z_centre, exponent[, x_centre]).
+    exponent 2 = ellipse, higher = squarer. A width/height of ~0 makes a tip.
+    """
+    bm = bmesh.new()
+    rings = []
+    for sec in sections:
+        y, w, h, zc, e = sec[:5]
+        x0 = sec[5] if len(sec) > 5 else 0.0
+        rings.append([bm.verts.new((x, y, z)) for x, z in _superellipse_ring(max(w, 1e-3), max(h, 1e-3), zc, e, n, x0)])
+    for i in range(len(rings) - 1):
+        a, b = rings[i], rings[i + 1]
+        for k in range(n):
+            j = (k + 1) % n
+            bm.faces.new((a[k], a[j], b[j], b[k]))
+    if cap_start:
+        bm.faces.new(list(reversed(rings[0])))
+    if cap_end:
+        bm.faces.new(rings[-1])
+    bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=1e-4)
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    return bm
+
+
+def blade(length, root_chord, tip_chord, thickness, sweep=0.0):
+    """Flat aerofoil blade/fin from the origin along +X (chord along Y)."""
+    pts = [(0.0, -root_chord / 2), (length, -tip_chord / 2 + sweep), (length, tip_chord / 2 + sweep), (0.0, root_chord / 2)]
+    return prism(pts, thickness, bevel=min(thickness * 0.4, 0.04), segments=1)

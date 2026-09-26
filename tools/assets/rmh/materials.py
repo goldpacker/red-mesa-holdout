@@ -314,8 +314,27 @@ def _paint(g, spec, decals, zmin):
     metal = spec.get("metal", 0.0)
     edge, bevn = g.edge_mask(spec.get("bevel", 0.05))
     height = g.math("MULTIPLY", g.noise(co, scale=40.0, detail=2.0), 0.15)
+    if spec.get("panels"):
+        lines = _panel_lines(g, co, spec["panels"], spec.get("panel_width", 0.035))
+        color = g.mix(g.math("MULTIPLY", lines, 0.55), color, scale_rgb(base, 0.45))
+        height = g.math("SUBTRACT", height, g.math("MULTIPLY", lines, 0.6))
     color, rough, metal, height = _wear_layers(g, spec, co, color, rough, metal, height, edge, zmin)
     _finish(g, color, rough, metal, height, bevn, bump=spec.get("bump", 0.18))
+
+
+def _panel_lines(g, co, spacing, width):
+    """Thin grooves every `spacing` studs along each axis (panel seams)."""
+    xyz = g.sep(co)
+    total = None
+    for i, sp in enumerate(spacing):
+        if not sp:
+            continue
+        # Offset per axis so seams do not all line up.
+        v = g.math("ADD", g.math("DIVIDE", xyz[i], sp), 0.37 * (i + 1))
+        f = g.math("PINGPONG", v, 0.5)
+        line = g.maprange(f, 0.0, width / sp, 1.0, 0.0)
+        total = line if total is None else g.math("MAXIMUM", total, line)
+    return total
 
 
 def _metal(g, spec, decals, zmin):
@@ -400,26 +419,29 @@ def _wood(g, spec, decals, zmin):
 
 def _rock(g, spec, decals, zmin):
     co = g.coords()
-    xyz = g.sep(co)
-    warp = g.noise(co, scale=spec.get("warp_scale", 0.35), detail=3.0, color=True)
-    wco = g.vmath("ADD", co, warp)
-    strata = g.wave(g.mapping(wco, scale=(0.0, 0.0, spec.get("strata", 0.9))), scale=1.0, distortion=3.0, detail=4.0, direction="Z")
+    warp = g.noise(co, scale=spec.get("warp_scale", 0.25), detail=3.0, color=True)
+    wco = g.vmath("ADD", co, g.vmath("SUBTRACT", warp, (0.5, 0.5, 0.5)))
+    strata = g.wave(g.mapping(wco, scale=(0.0, 0.0, spec.get("strata", 0.5))), scale=1.0, distortion=4.0, detail=3.0, direction="Z")
+    blotch = g.noise(co, scale=spec.get("blotch_scale", 0.35), detail=4.0, rough=0.6)
+    fac = g.math("ADD", g.math("MULTIPLY", strata, 0.55), g.math("MULTIPLY", blotch, 0.45))
     colors = spec.get("colors", ["#7a3a24", "#a2502e", "#c07a4a", "#8c4a30", "#d19a6a"])
     stops = [(i / (len(colors) - 1), c) for i, c in enumerate(colors)]
-    color = g.ramp(strata, stops)
+    color = g.ramp(fac, stops)
     n = g.noise(co, scale=1.8, detail=8.0, rough=0.65)
-    color = g.multiply_color(g.maprange(n, 0.3, 0.7, 0.0, 0.35), color, rgb("#6a5040"))
-    cracks = g.voronoi(co, scale=spec.get("crack_scale", 0.9), feature="DISTANCE_TO_EDGE")
-    crack = g.maprange(cracks, 0.0, 0.05, 1.0, 0.0)
-    color = g.mix(g.math("MULTIPLY", crack, 0.6), color, rgb("#3a2016"))
-    height = g.math("ADD", g.math("MULTIPLY", n, 1.0), g.math("MULTIPLY", g.math("SUBTRACT", 0.0, crack), 0.6))
-    height = g.math("ADD", height, g.math("MULTIPLY", strata, 0.4))
-    edge, bevn = g.edge_mask(0.2)
-    color = g.mix(g.math("MULTIPLY", edge, 0.35), color, rgb("#d9a97a"))
+    color = g.multiply_color(g.maprange(n, 0.3, 0.7, 0.0, 0.3), color, rgb("#6a5040"))
+    cracks = g.voronoi(g.vmath("ADD", co, warp), scale=spec.get("crack_scale", 0.6), feature="DISTANCE_TO_EDGE")
+    patch = g.maprange(g.noise(co, scale=0.3, detail=2.0), 0.5, 0.6)
+    crack = g.math("MULTIPLY", g.maprange(cracks, 0.0, 0.025, 1.0, 0.0), patch)
+    color = g.mix(g.math("MULTIPLY", crack, 0.45), color, rgb("#3a2016"))
+    grain = g.noise(co, scale=9.0, detail=6.0)
+    height = g.math("ADD", g.math("MULTIPLY", n, 0.8), g.math("MULTIPLY", grain, 0.3))
+    height = g.math("SUBTRACT", height, g.math("MULTIPLY", crack, 0.6))
+    height = g.math("ADD", height, g.math("MULTIPLY", strata, 0.35))
+    edge, bevn = g.edge_mask(0.25)
+    color = g.mix(g.math("MULTIPLY", edge, 0.3), color, rgb("#cf9468"))
     spec2 = dict({"wear": 0.0, "dust": 0.6, "grime": 0.6, "dust_height": 0.0}, **spec)
     color, rough, metal, height = _wear_layers(g, spec2, co, color, 0.9, 0.0, height, edge, zmin)
-    del xyz
-    _finish(g, color, rough, 0.0, height, bevn, bump=spec.get("bump", 0.6), bump_distance=0.2)
+    _finish(g, color, rough, 0.0, height, bevn, bump=spec.get("bump", 0.55), bump_distance=0.2)
 
 
 def _flat(g, spec, decals, zmin):

@@ -22,6 +22,8 @@ def main():
     kw = {}
     if "--no-preview" in argv:
         kw["preview"] = False
+    if "--only" in argv:
+        kw["only"] = argv[argv.index("--only") + 1].split(",")
     if "--samples" in argv:
         kw["samples"] = int(argv[argv.index("--samples") + 1])
     module = re.sub(r"(?<!^)(?=[A-Z])", "_", name).lower()

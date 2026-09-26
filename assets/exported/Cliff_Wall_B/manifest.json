@@ -1,0 +1,48 @@
+{
+ "name": "Cliff_Wall_B",
+ "primary": "Root",
+ "pivots": {
+  "": [
+   0.0,
+   0.0,
+   -0.0
+  ]
+ },
+ "parts": [
+  {
+   "name": "Root",
+   "path": "",
+   "center": [
+    1.7364,
+    19.4571,
+    -1.4835
+   ],
+   "size": [
+    53.2693,
+    39.7142,
+    22.626
+   ],
+   "tex": "main",
+   "tris": 6280,
+   "collide": true,
+   "material": "Sandstone"
+  }
+ ],
+ "attachments": [],
+ "markers": [],
+ "textures": {
+  "main": {
+   "color": "Cliff_Wall_B_main_color.png",
+   "rough": "Cliff_Wall_B_main_rough.png",
+   "metal": "Cliff_Wall_B_main_metal.png",
+   "normal": "Cliff_Wall_B_main_normal.png"
+  }
+ },
+ "previews": [
+  "assets/previews/Cliff_Wall_B.png"
+ ],
+ "triangles": 6280,
+ "meta": {
+  "kit": "rock"
+ }
+}

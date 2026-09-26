@@ -1,0 +1,48 @@
+{
+ "name": "Rock_Boulder_B",
+ "primary": "Root",
+ "pivots": {
+  "": [
+   0.0,
+   0.0,
+   -0.0
+  ]
+ },
+ "parts": [
+  {
+   "name": "Root",
+   "path": "",
+   "center": [
+    0.2753,
+    3.2826,
+    0.6534
+   ],
+   "size": [
+    12.1722,
+    7.3653,
+    8.259
+   ],
+   "tex": "main",
+   "tris": 2492,
+   "collide": true,
+   "material": "Sandstone"
+  }
+ ],
+ "attachments": [],
+ "markers": [],
+ "textures": {
+  "main": {
+   "color": "Rock_Boulder_B_main_color.png",
+   "rough": "Rock_Boulder_B_main_rough.png",
+   "metal": "Rock_Boulder_B_main_metal.png",
+   "normal": "Rock_Boulder_B_main_normal.png"
+  }
+ },
+ "previews": [
+  "assets/previews/Rock_Boulder_B.png"
+ ],
+ "triangles": 2492,
+ "meta": {
+  "kit": "rock"
+ }
+}

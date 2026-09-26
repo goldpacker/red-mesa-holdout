@@ -65,7 +65,7 @@ def cartridge(p, at, rot, scale=1.0):
 # --- static -------------------------------------------------------------------
 
 def bunker(a):
-    a.material("bunker_concrete", base="concrete", color="#a08c6c", grime=0.9, dust=0.8, dust_height=3.0)
+    a.material("bunker_concrete", base="concrete", color="#8e7c60", grime=0.9, dust=0.8, dust_height=3.0)
     a.material("pedestal", base="olive_dark", wear=0.6)
     a.material("ladder", base="steel_dark", dust=0.5)
     b = a.part("Bunker", path="Static", tex="static", collide=True, query=True, material="Concrete")
@@ -99,9 +99,10 @@ def bunker(a):
 
 
 def sandbags(a):
-    a.material("bag_a", base="sandbag")
-    a.material("bag_b", base="sandbag", color="#a08a60")
-    a.material("bag_c", base="sandbag", color="#bca77c", wrinkle=1.0)
+    # Kept mid-value (not pale) so close muzzle-flash light doesn't blow them out.
+    a.material("bag_a", base="sandbag", color="#978158")
+    a.material("bag_b", base="sandbag", color="#85704d")
+    a.material("bag_c", base="sandbag", color="#a18c65", wrinkle=1.0)
     sections = {"SandbagsLeft": [], "SandbagsFront": [], "SandbagsRight": []}
     rows = [(11.55, 0.0), (12.75, 0.5)]
     for course in range(4):

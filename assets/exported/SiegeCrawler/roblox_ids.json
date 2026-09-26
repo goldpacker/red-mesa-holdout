@@ -1,0 +1,72 @@
+{
+ "hashes": {
+  "armor/color": "f32e1e0e687fb5a2",
+  "armor/metal": "0cf06d16499ce05f",
+  "armor/normal": "511863181cd46e73",
+  "armor/rough": "c9e24acc211c9e52",
+  "deck/color": "8a73399908598fe9",
+  "deck/metal": "7fcf16e124e09974",
+  "deck/normal": "23e77ad18462af86",
+  "deck/rough": "0ee536cf6404ed09",
+  "glb": "68e2e7d40f568fb8",
+  "hull/color": "ea85c0327b910e32",
+  "hull/metal": "9bc08f007bb38e2c",
+  "hull/normal": "a2e8d099ce1e6e30",
+  "hull/rough": "057115cba0532d17",
+  "tracks/color": "7ea5bf4af9d4feb7",
+  "tracks/metal": "61a16627f9cd473f",
+  "tracks/normal": "b737c823b06d71fb",
+  "tracks/rough": "2b727b9d41b32241",
+  "turrets/color": "a67b0a9fa681007e",
+  "turrets/metal": "cddae4f4b6998208",
+  "turrets/normal": "33e968db4fc8febe",
+  "turrets/rough": "d857fdf6109a645a"
+ },
+ "meshes": {
+  "Beacons": "rbxassetid://108281081476468",
+  "CannonBarrel": "rbxassetid://135400965959614",
+  "CannonGlow": "rbxassetid://94318915374000",
+  "CannonTurret": "rbxassetid://99555004241388",
+  "Core": "rbxassetid://72255519214629",
+  "CoreArmor": "rbxassetid://84614773068903",
+  "Deck": "rbxassetid://120915165204622",
+  "Root": "rbxassetid://131708036585002",
+  "TrackL": "rbxassetid://81038877345731",
+  "TrackR": "rbxassetid://103950080934124",
+  "TurretLeftBody": "rbxassetid://112160847894299",
+  "TurretRightBody": "rbxassetid://94730608912016"
+ },
+ "model": "78159105760275",
+ "textures": {
+  "armor": {
+   "color": "rbxassetid://86506370695647",
+   "metal": "rbxassetid://108766965351361",
+   "normal": "rbxassetid://98455690766088",
+   "rough": "rbxassetid://74056890835591"
+  },
+  "deck": {
+   "color": "rbxassetid://111420039477136",
+   "metal": "rbxassetid://96791405165324",
+   "normal": "rbxassetid://128546266927779",
+   "rough": "rbxassetid://91629209825856"
+  },
+  "hull": {
+   "color": "rbxassetid://127199337947562",
+   "metal": "rbxassetid://94521152058203",
+   "normal": "rbxassetid://80122640951497",
+   "rough": "rbxassetid://79607178670808"
+  },
+  "tracks": {
+   "color": "rbxassetid://104861474304253",
+   "metal": "rbxassetid://140568200341764",
+   "normal": "rbxassetid://85491104815141",
+   "rough": "rbxassetid://92358131234015"
+  },
+  "turrets": {
+   "color": "rbxassetid://96413864430668",
+   "metal": "rbxassetid://126227870077827",
+   "normal": "rbxassetid://128023712352456",
+   "rough": "rbxassetid://85837885604413"
+  }
+ }
+}

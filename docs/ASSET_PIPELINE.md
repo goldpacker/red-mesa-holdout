@@ -55,6 +55,15 @@ Each asset is a Python module `tools/assets/models/<snake_name>.py` exposing
 
 Build logs: `logs/assets/<Name>.log`. Typical build: 30–120 s.
 
+- The rock kit is one module building ten assets:
+  `tools/assets/build.sh RockKit` (or `BUILD_ARGS="--only Rock_Spire,Cliff_Wall_A" tools/assets/build.sh RockKit`).
+- Contact sheet of previews for review:
+  `Blender -b --factory-startup -P tools/assets/montage.py -- out.png a.png b.png ...`
+- Cycles on Metal very occasionally crashes compiling kernels
+  (`/var/folders/.../T/<Name>.crash.txt`); just rerun the build.
+- UV packing is not byte-deterministic, so any rebuild changes the GLB and
+  needs a model re-upload + harvest, even for material-only changes.
+
 ### Axis handling (verified in Studio)
 Roblox's glTF importer turns an asset 180° about up. `export_glb` rotates
 mesh data 180° about Z just for the export, so a model built facing +Y in

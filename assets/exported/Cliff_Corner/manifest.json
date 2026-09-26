@@ -1,0 +1,48 @@
+{
+ "name": "Cliff_Corner",
+ "primary": "Root",
+ "pivots": {
+  "": [
+   0.0,
+   0.0,
+   -0.0
+  ]
+ },
+ "parts": [
+  {
+   "name": "Root",
+   "path": "",
+   "center": [
+    1.3177,
+    21.1117,
+    1.2947
+   ],
+   "size": [
+    37.8817,
+    43.0233,
+    37.4752
+   ],
+   "tex": "main",
+   "tris": 7452,
+   "collide": true,
+   "material": "Sandstone"
+  }
+ ],
+ "attachments": [],
+ "markers": [],
+ "textures": {
+  "main": {
+   "color": "Cliff_Corner_main_color.png",
+   "rough": "Cliff_Corner_main_rough.png",
+   "metal": "Cliff_Corner_main_metal.png",
+   "normal": "Cliff_Corner_main_normal.png"
+  }
+ },
+ "previews": [
+  "assets/previews/Cliff_Corner.png"
+ ],
+ "triangles": 7452,
+ "meta": {
+  "kit": "rock"
+ }
+}

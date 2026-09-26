@@ -1,0 +1,48 @@
+{
+ "name": "Rock_Spire",
+ "primary": "Root",
+ "pivots": {
+  "": [
+   0.0,
+   0.0,
+   -0.0
+  ]
+ },
+ "parts": [
+  {
+   "name": "Root",
+   "path": "",
+   "center": [
+    0.6019,
+    9.6751,
+    0.1504
+   ],
+   "size": [
+    8.6958,
+    20.1503,
+    8.5495
+   ],
+   "tex": "main",
+   "tris": 4828,
+   "collide": true,
+   "material": "Sandstone"
+  }
+ ],
+ "attachments": [],
+ "markers": [],
+ "textures": {
+  "main": {
+   "color": "Rock_Spire_main_color.png",
+   "rough": "Rock_Spire_main_rough.png",
+   "metal": "Rock_Spire_main_metal.png",
+   "normal": "Rock_Spire_main_normal.png"
+  }
+ },
+ "previews": [
+  "assets/previews/Rock_Spire.png"
+ ],
+ "triangles": 4828,
+ "meta": {
+  "kit": "rock"
+ }
+}

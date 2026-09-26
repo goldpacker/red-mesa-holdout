@@ -1,0 +1,21 @@
+{
+ "hashes": {
+  "glb": "19ff51448f1f100b",
+  "main/color": "813076d28bf1c568",
+  "main/metal": "feb68cc501704235",
+  "main/normal": "5cbce080066ae533",
+  "main/rough": "3c39bdee7f3521d3"
+ },
+ "meshes": {
+  "Root": "rbxassetid://129720419569469"
+ },
+ "model": "113438742504655",
+ "textures": {
+  "main": {
+   "color": "rbxassetid://77115967640883",
+   "metal": "rbxassetid://119109932323791",
+   "normal": "rbxassetid://135693927190764",
+   "rough": "rbxassetid://140353743957102"
+  }
+ }
+}
