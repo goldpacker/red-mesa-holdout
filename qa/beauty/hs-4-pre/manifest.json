@@ -1,0 +1,164 @@
+{
+ "afternoon_2-turret": {
+  "captured": "2026-09-26T15:29:31",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "4a44fb3"
+ },
+ "afternoon_3-gunsight": {
+  "captured": "2026-09-26T15:29:23",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "4a44fb3"
+ },
+ "afternoon_heli-far": {
+  "captured": "2026-09-26T15:30:33",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "4a44fb3"
+ },
+ "afternoon_heli-mid": {
+  "captured": "2026-09-26T15:30:26",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "4a44fb3"
+ },
+ "afternoon_jet-far": {
+  "captured": "2026-09-26T15:30:47",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "4a44fb3"
+ },
+ "afternoon_jet-mid": {
+  "captured": "2026-09-26T15:30:39",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "4a44fb3"
+ },
+ "night_2-turret": {
+  "captured": "2026-09-26T15:29:59",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "4a44fb3"
+ },
+ "night_3-gunsight": {
+  "captured": "2026-09-26T15:29:52",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "4a44fb3"
+ },
+ "night_heli-far": {
+  "captured": "2026-09-26T15:31:21",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "4a44fb3"
+ },
+ "night_heli-mid": {
+  "captured": "2026-09-26T15:31:14",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "4a44fb3"
+ },
+ "night_jet-far": {
+  "captured": "2026-09-26T15:31:29",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "4a44fb3"
+ },
+ "night_jet-mid": {
+  "captured": "2026-09-26T15:31:23",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "4a44fb3"
+ },
+ "sunset_2-turret": {
+  "captured": "2026-09-26T15:29:45",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "4a44fb3"
+ },
+ "sunset_3-gunsight": {
+  "captured": "2026-09-26T15:29:38",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "4a44fb3"
+ },
+ "sunset_heli-far": {
+  "captured": "2026-09-26T15:31:02",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "4a44fb3"
+ },
+ "sunset_heli-mid": {
+  "captured": "2026-09-26T15:30:55",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "4a44fb3"
+ },
+ "sunset_jet-far": {
+  "captured": "2026-09-26T15:31:10",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "4a44fb3"
+ },
+ "sunset_jet-mid": {
+  "captured": "2026-09-26T15:31:04",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "4a44fb3"
+ }
+}
