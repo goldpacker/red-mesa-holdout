@@ -1,0 +1,23 @@
+{
+  "name": "Sandstone",
+  "variant": "RedMesaSandstone",
+  "base_material": "Sandstone",
+  "studs_per_tile": 64,
+  "pattern": "Regular",
+  "size": 1024,
+  "files": {
+    "color": "Sandstone_color.png",
+    "normal": "Sandstone_normal.png",
+    "roughness": "Sandstone_rough.png"
+  },
+  "mean_color": "#9E4A2E",
+  "roughness_mean": 0.865,
+  "seam_ratio": {
+    "color": 1.17,
+    "normal": 1.73,
+    "roughness": 1.19
+  },
+  "cc0_sources": [
+    "cliff_side"
+  ]
+}

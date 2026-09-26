@@ -31,9 +31,9 @@
   "Afternoon": {
     "clock": 15.2,
     "sun": [
-      0.6124,
-      0.7071,
-      0.3536
+      -0.7384,
+      0.6648,
+      0.1132
     ],
     "physical": {
       "type": "MULTIPLE_SCATTERING",
@@ -103,14 +103,20 @@
         "Density": 0.35,
         "Color": "#FFF6EE"
       }
-    }
+    },
+    "moon": [
+      0.7384,
+      -0.6648,
+      0.1132
+    ],
+    "latitude": 30
   },
   "LateAfternoon": {
     "clock": 16.6,
     "sun": [
-      0.8297,
-      0.4695,
-      0.302
+      -0.9276,
+      0.3561,
+      0.1132
     ],
     "physical": {
       "type": "MULTIPLE_SCATTERING",
@@ -180,14 +186,20 @@
         "Density": 0.3,
         "Color": "#FFE7CE"
       }
-    }
+    },
+    "moon": [
+      0.9276,
+      -0.3561,
+      0.1132
+    ],
+    "latitude": 30
   },
   "Sunset": {
     "clock": 17.25,
     "sun": [
-      0.9794,
-      0.1045,
-      0.1727
+      -0.9745,
+      0.1938,
+      0.1132
     ],
     "physical": {
       "type": "MULTIPLE_SCATTERING",
@@ -198,21 +210,21 @@
     },
     "view": {
       "transform": "AgX",
-      "exposure": 0.3
+      "exposure": 0.15
     },
     "shader": {
       "BaseScale": 0.07,
       "SunColor": [
-        "#FFB070",
-        1.0
+        "#FF9050",
+        0.35
       ],
-      "SunGlow": 0.0,
+      "SunGlow": 1.0,
       "HazeColor": [
-        "#F2A070",
-        0.7
+        "#F5A26A",
+        0.9
       ],
-      "HazeAmount": 0.45,
-      "HazeFalloff": 8.0,
+      "HazeAmount": 0.55,
+      "HazeFalloff": 5.0,
       "GroundColor": [
         "#6A4032",
         0.35
@@ -243,7 +255,8 @@
         "#FFB888",
         0.9
       ],
-      "CirrusOpacity": 0.55
+      "CirrusOpacity": 0.55,
+      "SunGlowPower": 4.0
     },
     "roblox": {
       "sky": {
@@ -258,19 +271,25 @@
         "Density": 0.22,
         "Color": "#FFC196"
       }
-    }
+    },
+    "moon": [
+      0.9745,
+      -0.1938,
+      0.1132
+    ],
+    "latitude": 30
   },
   "Dusk": {
     "clock": 18.1,
     "sun": [
-      0.9948,
-      -0.0523,
-      0.087
+      -0.9932,
+      -0.026,
+      0.1132
     ],
     "moon": [
-      -0.9254,
-      0.342,
-      -0.1632
+      0.9932,
+      0.026,
+      0.1132
     ],
     "physical": {
       "type": "MULTIPLE_SCATTERING",
@@ -281,7 +300,7 @@
     },
     "view": {
       "transform": "AgX",
-      "exposure": 2.6
+      "exposure": 3.6
     },
     "shader": {
       "BaseScale": 0.07,
@@ -328,10 +347,11 @@
         0.09
       ],
       "CirrusOpacity": 0.5,
-      "Stars": 0.0006,
-      "StarScale": 60.0,
+      "Stars": 0.00025,
+      "StarScale": 50.0,
       "MilkyWay": 0.0,
-      "SunGlowPower": 3.0
+      "SunGlowPower": 3.0,
+      "StarRadius": 0.0012
     },
     "roblox": {
       "sky": {
@@ -346,19 +366,20 @@
         "Density": 0.2,
         "Color": "#B48CA0"
       }
-    }
+    },
+    "latitude": 30
   },
   "Night": {
     "clock": 0.4,
     "sun": [
-      -0.633,
-      -0.766,
-      -0.1116
+      0.1039,
+      -0.9881,
+      0.1132
     ],
     "moon": [
-      0.4967,
-      0.8192,
-      -0.2868
+      -0.1039,
+      0.9881,
+      0.1132
     ],
     "view": {
       "transform": "Standard",
@@ -410,13 +431,13 @@
       "CloudOpacity": 0.7,
       "CloudSilver": 0.0,
       "CloudFadeZ": 0.1,
-      "Stars": 0.06,
+      "Stars": 0.045,
       "StarScale": 60.0,
-      "MilkyWay": 1.0,
+      "MilkyWay": 1.4,
       "MilkyNormal": [
-        0.35,
-        0.55,
-        0.75
+        0.8314,
+        -0.3612,
+        -0.4223
       ],
       "MilkyColor": [
         "#C0C8E8",
@@ -428,7 +449,7 @@
         "CelestialBodiesShown": true,
         "SunAngularSize": 11,
         "MoonAngularSize": 11,
-        "StarCount": 0
+        "StarCount": 3000
       },
       "clouds": {
         "Enabled": true,
@@ -436,6 +457,8 @@
         "Density": 0.15,
         "Color": "#3C4664"
       }
-    }
+    },
+    "latitude": 30,
+    "note": "Roblox renders the skybox black when the sun is far below the horizon (ClockTime 0.4); engine stars (StarCount) carry the night sky. The baked stars/Milky Way show only if the night ClockTime keeps the sun near the horizon."
   }
 }

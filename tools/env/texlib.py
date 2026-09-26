@@ -93,7 +93,8 @@ def tint(srgb: np.ndarray, factor: np.ndarray) -> np.ndarray:
     return linear_to_srgb(lin * factor)
 
 
-def mix(a: np.ndarray, b: np.ndarray, t: np.ndarray) -> np.ndarray:
+def mix(a: np.ndarray, b: np.ndarray, t) -> np.ndarray:
+    t = np.asarray(t, dtype=np.float32)
     if t.ndim == 2 and a.ndim == 3:
         t = t[..., None]
     return a + (b - a) * t
@@ -141,6 +142,16 @@ def blur(a: np.ndarray, sigma: float) -> np.ndarray:
     fy, fx = _freq(n)
     k = np.exp(-2 * (np.pi * sigma) ** 2 * (fx ** 2 + fy ** 2))
     return np.real(np.fft.ifft2(np.fft.fft2(a) * k)).astype(np.float32)
+
+
+def blur_aniso(a: np.ndarray, sigma_x: float, sigma_y: float) -> np.ndarray:
+    """Periodic anisotropic Gaussian blur (HxW or HxWxC), sigmas in px."""
+    n = a.shape[0]
+    fy, fx = _freq(n)
+    k = np.exp(-2 * np.pi ** 2 * ((sigma_x * fx) ** 2 + (sigma_y * fy) ** 2))
+    if a.ndim == 2:
+        return np.real(np.fft.ifft2(np.fft.fft2(a) * k)).astype(np.float32)
+    return np.stack([np.real(np.fft.ifft2(np.fft.fft2(a[..., c]) * k)) for c in range(a.shape[2])], axis=-1).astype(np.float32)
 
 
 def fbm(n: int, seed: int, beta: float = 2.0, min_period: float = 2.0,

@@ -1,0 +1,23 @@
+{
+  "name": "Slate",
+  "variant": "RedMesaSlate",
+  "base_material": "Slate",
+  "studs_per_tile": 36,
+  "pattern": "Regular",
+  "size": 1024,
+  "files": {
+    "color": "Slate_color.png",
+    "normal": "Slate_normal.png",
+    "roughness": "Slate_rough.png"
+  },
+  "mean_color": "#5A3226",
+  "roughness_mean": 0.795,
+  "seam_ratio": {
+    "color": 1.03,
+    "normal": 1.1,
+    "roughness": 1.06
+  },
+  "cc0_sources": [
+    "dark_rock_02"
+  ]
+}

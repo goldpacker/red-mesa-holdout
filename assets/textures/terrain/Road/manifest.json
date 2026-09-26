@@ -1,0 +1,23 @@
+{
+  "name": "Road",
+  "variant": "RedMesaRoad",
+  "base_material": "Ground",
+  "studs_per_tile": 32,
+  "pattern": "Regular",
+  "size": 1024,
+  "files": {
+    "color": "Road_color.png",
+    "normal": "Road_normal.png",
+    "roughness": "Road_rough.png"
+  },
+  "mean_color": "#9B6C49",
+  "roughness_mean": 0.888,
+  "seam_ratio": {
+    "color": 1.0,
+    "normal": 1.09,
+    "roughness": 1.0
+  },
+  "cc0_sources": [
+    "gravelly_sand"
+  ]
+}

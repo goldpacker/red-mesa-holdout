@@ -2,7 +2,7 @@
 
     tools/blender-lock.sh acquire env
     /Applications/Blender.app/Contents/MacOS/Blender -b --factory-startup \
-        -P tools/env/sky.py -- [Preset ...] [--test] [--preview-only]
+        -P tools/env/sky.py -- [Preset ...] [--test] [--preview-only] [--views]
     tools/blender-lock.sh release env
 
 A Cycles world shader (tools/env/sky.osl) layers Blender's physical Sky
@@ -16,8 +16,10 @@ Sun/moon directions come from Roblox (Lighting:GetSunDirection() at the
 preset's ClockTime and GeographicLatitude, measured in Studio), in Roblox
 world space; Roblox (x, y, z) = Blender (x, -z, y).
 
---test renders an orientation test sky (labelled directions + grid) used
-to verify face orientation and seams in Studio.
+--test renders an orientation test sky (labelled directions) used to
+verify face orientation in Studio; --views renders a preset from the
+STUDIO_VIEWS cameras (Roblox default 70° FOV) to compare with Studio
+captures taken from the same directions (orientation and seams).
 """
 import json
 import math
@@ -34,14 +36,16 @@ PREVIEW = os.path.join(ROOT, "assets", "previews", "sky")
 FACE = 1024
 
 # Roblox skybox face -> (camera forward, camera up) in Roblox world space.
-# Verified in Studio with the --test sky (see docs in the ENV-1 report).
+# Measured in Studio with the --test sky (labelled directions): Roblox shows
+# SkyboxLf when looking +X and SkyboxRt when looking -X; SkyboxUp's image
+# top points to +X and SkyboxDn's to -X.
 FACES = {
     "Ft": ((0, 0, -1), (0, 1, 0)),
     "Bk": ((0, 0, 1), (0, 1, 0)),
-    "Lf": ((-1, 0, 0), (0, 1, 0)),
-    "Rt": ((1, 0, 0), (0, 1, 0)),
-    "Up": ((0, 1, 0), (0, 0, 1)),
-    "Dn": ((0, -1, 0), (0, 0, -1)),
+    "Lf": ((1, 0, 0), (0, 1, 0)),
+    "Rt": ((-1, 0, 0), (0, 1, 0)),
+    "Up": ((0, 1, 0), (1, 0, 0)),
+    "Dn": ((0, -1, 0), (-1, 0, 0)),
 }
 
 
@@ -137,16 +141,16 @@ def sun_rotation_for(sun_b: Vector) -> float:
     return math.atan2(sun_b.x, sun_b.y)
 
 
-def face_camera(sc, forward_rb, up_rb):
+def face_camera(sc, forward_rb, up_rb, fov_deg: float = 90.0, fit: str = "HORIZONTAL"):
     cam = bpy.data.objects.new("cam", bpy.data.cameras.new("cam"))
     cam.data.type = "PERSP"
-    cam.data.sensor_fit = "HORIZONTAL"
-    cam.data.angle = math.pi / 2
+    cam.data.sensor_fit = fit
+    cam.data.angle = math.radians(fov_deg)
     cam.data.clip_start = 0.01
     cam.data.clip_end = 1000
     f = rb(forward_rb).normalized()
-    u = rb(up_rb).normalized()
-    r = f.cross(u).normalized()
+    r = f.cross(rb(up_rb).normalized()).normalized()
+    u = r.cross(f).normalized()
     m = Matrix((r, u, -f)).transposed().to_4x4()
     cam.matrix_world = m
     sc.collection.objects.link(cam)
@@ -220,6 +224,34 @@ def add_test_labels(sc):
         sc.collection.objects.link(ob)
 
 
+# Studio comparison views: (yaw from -Z toward +X, pitch) in degrees, seen
+# with Roblox's default camera (70° vertical FOV) at the capture size.
+STUDIO_VIEWS = {
+    "v1_front": (0, 10), "v2_back": (180, 10), "v3_left": (-90, 10), "v4_right": (90, 10),
+    "v5_up": (0, 60), "v6_down": (0, -60), "v7_corner": (-45, 45), "v8_corner": (135, 30),
+}
+STUDIO_SIZE = (1190, 1080)
+
+
+def view_dir(yaw: float, pitch: float):
+    y, p = math.radians(yaw), math.radians(pitch)
+    return (math.sin(y) * math.cos(p), math.sin(p), -math.cos(y) * math.cos(p))
+
+
+def render_views(name: str, p: dict, samples: int):
+    """Renders the Studio comparison views of a preset for orientation/seam checks."""
+    sc = scene_setup(samples)
+    build_world(sc, p)
+    colour_management(sc, p)
+    if p.get("test"):
+        add_test_labels(sc)
+    d = os.path.join(PREVIEW, "views", name)
+    os.makedirs(d, exist_ok=True)
+    for vname, (yaw, pitch) in STUDIO_VIEWS.items():
+        face_camera(sc, view_dir(yaw, pitch), (0, 1, 0), 70.0, "VERTICAL")
+        render_to(sc, os.path.join(d, f"{vname}.png"), *STUDIO_SIZE)
+
+
 def render_preset(name: str, p: dict, preview_only: bool, samples: int):
     sc = scene_setup(samples)
     build_world(sc, p)
@@ -248,6 +280,9 @@ def main():
     samples = 32
     for name in names:
         print(f"[sky] rendering {name}")
+        if "--views" in argv:
+            render_views(name, PRESETS[name], PRESETS[name].get("samples", samples))
+            continue
         render_preset(name, PRESETS[name], preview_only, PRESETS[name].get("samples", samples))
 
 

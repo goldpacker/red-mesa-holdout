@@ -1,0 +1,23 @@
+{
+  "name": "Limestone",
+  "variant": "RedMesaLimestone",
+  "base_material": "Limestone",
+  "studs_per_tile": 64,
+  "pattern": "Regular",
+  "size": 1024,
+  "files": {
+    "color": "Limestone_color.png",
+    "normal": "Limestone_normal.png",
+    "roughness": "Limestone_rough.png"
+  },
+  "mean_color": "#BA6A44",
+  "roughness_mean": 0.838,
+  "seam_ratio": {
+    "color": 0.85,
+    "normal": 1.02,
+    "roughness": 0.86
+  },
+  "cc0_sources": [
+    "marble_cliff_04"
+  ]
+}

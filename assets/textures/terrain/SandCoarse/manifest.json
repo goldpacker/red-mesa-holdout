@@ -1,0 +1,23 @@
+{
+  "name": "SandCoarse",
+  "variant": "RedMesaSandCoarse",
+  "base_material": "Mud",
+  "studs_per_tile": 40,
+  "pattern": "Organic",
+  "size": 1024,
+  "files": {
+    "color": "SandCoarse_color.png",
+    "normal": "SandCoarse_normal.png",
+    "roughness": "SandCoarse_rough.png"
+  },
+  "mean_color": "#BE7747",
+  "roughness_mean": 0.905,
+  "seam_ratio": {
+    "color": 0.97,
+    "normal": 1.09,
+    "roughness": 0.98
+  },
+  "cc0_sources": [
+    "gravelly_sand"
+  ]
+}

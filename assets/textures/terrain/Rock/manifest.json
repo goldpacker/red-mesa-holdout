@@ -1,0 +1,23 @@
+{
+  "name": "Rock",
+  "variant": "RedMesaRock",
+  "base_material": "Rock",
+  "studs_per_tile": 30,
+  "pattern": "Organic",
+  "size": 1024,
+  "files": {
+    "color": "Rock_color.png",
+    "normal": "Rock_normal.png",
+    "roughness": "Rock_rough.png"
+  },
+  "mean_color": "#7A3D2B",
+  "roughness_mean": 0.849,
+  "seam_ratio": {
+    "color": 0.95,
+    "normal": 1.1,
+    "roughness": 0.93
+  },
+  "cc0_sources": [
+    "rock_face_03"
+  ]
+}

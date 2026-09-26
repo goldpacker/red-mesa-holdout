@@ -1,0 +1,24 @@
+{
+  "name": "Wash",
+  "variant": "RedMesaWash",
+  "base_material": "Salt",
+  "studs_per_tile": 24,
+  "pattern": "Organic",
+  "size": 1024,
+  "files": {
+    "color": "Wash_color.png",
+    "normal": "Wash_normal.png",
+    "roughness": "Wash_rough.png"
+  },
+  "mean_color": "#D6B587",
+  "roughness_mean": 0.904,
+  "seam_ratio": {
+    "color": 0.94,
+    "normal": 1.11,
+    "roughness": 0.94
+  },
+  "cc0_sources": [
+    "mud_cracked_dry_03",
+    "aerial_beach_01"
+  ]
+}

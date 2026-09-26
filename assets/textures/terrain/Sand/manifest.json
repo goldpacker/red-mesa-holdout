@@ -1,0 +1,24 @@
+{
+  "name": "Sand",
+  "variant": "RedMesaSand",
+  "base_material": "Sand",
+  "studs_per_tile": 48,
+  "pattern": "Organic",
+  "size": 1024,
+  "files": {
+    "color": "Sand_color.png",
+    "normal": "Sand_normal.png",
+    "roughness": "Sand_rough.png"
+  },
+  "mean_color": "#C8814F",
+  "roughness_mean": 0.905,
+  "seam_ratio": {
+    "color": 0.97,
+    "normal": 1.12,
+    "roughness": 0.96
+  },
+  "cc0_sources": [
+    "aerial_beach_01",
+    "gravelly_sand"
+  ]
+}

@@ -27,7 +27,7 @@ N = 1024
 # #C9824F, bleached washes #D9B98C. Values are albedo means.
 PALETTE = {
     "sand": "#C9824F",         # ochre sand
-    "sand_coarse": "#B8703F",  # darker gravel-lag patches
+    "sand_coarse": "#C07847",  # gravel-lag patches, a shade darker than the sand
     "road": "#9A6B48",         # packed road dirt
     "wash": "#D9B98C",         # bleached wash
     "rock": "#7A3D2B",         # between cliff shadow strata #6E3322 and rust-red
@@ -160,8 +160,10 @@ def road():
     out = T.recolor(col, PALETTE["road"], contrast=1.3, chroma_keep=0.2, flatten_sigma=96)
     out = T.tint(out, 1.0 + 0.04 * T.fbm(N, 33, beta=2.5, min_period=48))
     # Ruts compacted and darker; berms of loose pale dust.
-    out = T.tint(out, 1.0 - 0.22 * rut_mask + 0.18 * berm_mask)
-    out = T.mix(out, np.broadcast_to(T.hex_rgb("#C49066"), out.shape), 0.25 * berm_mask)
+    # Subtle in the albedo (the texture is world-projected, so ruts cross
+    # the road where it bends; at range they must not read as hatching).
+    out = T.tint(out, 1.0 - 0.12 * rut_mask + 0.08 * berm_mask)
+    out = T.mix(out, np.broadcast_to(T.hex_rgb("#C49066"), out.shape), 0.15 * berm_mask)
     crown = T.smoothstep(0.35, 0.0, rut_mask)
     ph, pc, tone = T.scatter_stamps(N, 900, 34, 1.5, 4.0, mask=0.15 + 0.85 * crown)
     out = T.mix(out, pebble_colors(ph, tone, "#5A3223", "#C29A74"), pc * 0.9)
@@ -222,11 +224,16 @@ def strata_bands(seed: int, strength: float) -> np.ndarray:
 def sandstone():
     """Rust-red layered sandstone with horizontal strata (cliffs, mesa)."""
     col, nor, disp, rough = src_set("cliff_side")
-    out = T.recolor(col, PALETTE["sandstone"], contrast=1.25, chroma_keep=0.6, flatten_sigma=96)
-    out = T.tint(out, strata_bands(61, 0.10))
-    cav = T.normalize01(T.highpass(disp, 16))
+    # Stretch the source's blocky fractures into long horizontal layers so
+    # the tile doesn't read as brickwork across a 2 km wall.
+    col = T.mix(col, T.blur_aniso(col, 28, 0), 0.45)
+    disp_h = T.blur_aniso(disp, 48, 1.5)
+    out = T.recolor(col, PALETTE["sandstone"], contrast=1.1, chroma_keep=0.5, flatten_sigma=96)
+    out = T.tint(out, strata_bands(61, 0.16))
+    cav = T.normalize01(T.highpass(disp_h, 12))
     out = T.tint(out, 0.84 + 0.32 * cav)
-    n = T.scale_normal(nor, 1.15)
+    ledges = T.height_to_normal(disp_h * 40.0, 1.0)
+    n = T.blend_normals(T.scale_normal(nor, 0.7), ledges)
     r = remap(rough, 0.74, 0.95)
     return out, n, r
 
@@ -237,9 +244,10 @@ def limestone():
     col, nor, disp, rough = T.rot90(col), T.rot90(nor), T.rot90(disp[..., None])[..., 0], T.rot90(rough[..., None])[..., 0]
     # Rotating the image 90° counter-clockwise rotates the tangent frame too.
     nor = np.stack([-nor[..., 1], nor[..., 0], nor[..., 2]], axis=-1)
+    col = T.mix(col, T.blur_aniso(col, 40, 0), 0.5)
     out = T.recolor(col, PALETTE["limestone"], contrast=1.1, chroma_keep=0.3, flatten_sigma=96)
-    out = T.tint(out, strata_bands(71, 0.08))
-    n = T.scale_normal(nor, 1.2)
+    out = T.tint(out, strata_bands(71, 0.12))
+    n = T.scale_normal(nor, 1.0)
     r = remap(rough, 0.72, 0.94)
     return out, n, r
 
@@ -261,8 +269,8 @@ MATERIALS = {
     "Road": (road, "Ground", 32, "Regular", ["gravelly_sand"]),
     "Wash": (wash, "Salt", 24, "Organic", ["mud_cracked_dry_03", "aerial_beach_01"]),
     "Rock": (rock, "Rock", 30, "Organic", ["rock_face_03"]),
-    "Sandstone": (sandstone, "Sandstone", 48, "Regular", ["cliff_side"]),
-    "Limestone": (limestone, "Limestone", 48, "Regular", ["marble_cliff_04"]),
+    "Sandstone": (sandstone, "Sandstone", 64, "Regular", ["cliff_side"]),
+    "Limestone": (limestone, "Limestone", 64, "Regular", ["marble_cliff_04"]),
     "Slate": (slate, "Slate", 36, "Regular", ["dark_rock_02"]),
 }
 
