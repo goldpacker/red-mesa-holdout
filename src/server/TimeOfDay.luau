@@ -8,8 +8,8 @@
 -- searchlights (Workspace.Battlefield.Searchlights) enabled here.
 --
 -- ClockTime and LightingRig's GeographicLatitude (30) set the sun path the
--- ENV skyboxes are painted for; keep them unless the skies are re-rendered
--- (LateAfternoon runs at 16.85, ~4° below the 16.6 its sky was painted for).
+-- ENV skyboxes are painted for (SkyAssets clockTime/authoredSun); keep
+-- them in step with ENV if either side changes.
 --
 -- Roblox darkens the skybox as soon as the sun is below the horizon, so a
 -- painted night sky is invisible at a real night ClockTime. Night is
