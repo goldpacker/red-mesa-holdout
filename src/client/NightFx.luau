@@ -5,9 +5,13 @@
 -- volumetric look here (textured cone + soft outer glow, LOOK-1); the tower
 -- meshes and the server-side beam/light instances belong to WorldBuilder.
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
+local Aim = require(ReplicatedStorage.Shared.Aim)
+local Config = require(ReplicatedStorage.Shared.Config)
+local AimController = require(script.Parent.AimController)
 local GameState = require(script.Parent.GameState)
 local PostFxAssets = require(script.Parent.PostFxAssets)
 
@@ -38,6 +42,19 @@ local CONE_BODY = {
 		NumberSequenceKeypoint.new(0.85, 0.8),
 		NumberSequenceKeypoint.new(1, 1),
 	}),
+}
+
+-- Warm work lamp in the gun pit at dusk and night: fills the back of the
+-- gun and the sandbag ring the turret camera always sees, so they read as
+-- olive and burlap against the cool moonlight instead of a silhouette.
+-- Sits behind and above the gun, following the turret yaw.
+local PIT_LAMP = {
+	back = 10,
+	up = 6.5,
+	range = 22,
+	angle = 80,
+	brightness = 1.6,
+	color = Color3.fromRGB(255, 200, 146),
 }
 
 local FLARE_INTERVAL = { 7, 12 }
@@ -193,6 +210,42 @@ local function launchFlare(color: Color3?)
 	end)
 end
 
+local pitLamp: SpotLight? = nil
+local pitLampPart: Part? = nil
+
+local function updatePitLamp(active: boolean)
+	if not pitLamp or not pitLampPart or not pitLampPart.Parent then
+		local part = Instance.new("Part")
+		part.Name = "PitLamp"
+		part.Size = Vector3.new(0.2, 0.2, 0.2)
+		part.Transparency = 1
+		part.Anchored = true
+		part.CanCollide = false
+		part.CanQuery = false
+		part.CanTouch = false
+		part.CastShadow = false
+		local light = Instance.new("SpotLight")
+		light.Face = Enum.NormalId.Front
+		light.Range = PIT_LAMP.range
+		light.Angle = PIT_LAMP.angle
+		light.Brightness = PIT_LAMP.brightness
+		light.Color = PIT_LAMP.color
+		light.Shadows = true
+		light.Parent = part
+		part.Parent = Workspace
+		pitLampPart = part
+		pitLamp = light
+	end
+	local lamp = pitLamp :: SpotLight
+	lamp.Enabled = active
+	if active then
+		local yaw = AimController.getAngles()
+		local forward = Aim.direction(yaw, 0)
+		local pos = Config.TURRET_PIVOT - forward * PIT_LAMP.back + Vector3.new(0, PIT_LAMP.up, 0);
+		(pitLampPart :: Part).CFrame = CFrame.lookAt(pos, Config.TURRET_PIVOT - Vector3.new(0, 1.5, 0))
+	end
+end
+
 -- Victory celebration: a volley of coloured flares over the basin.
 function NightFx.celebrate()
 	local colors = { Color3.fromRGB(120, 255, 120), Color3.fromRGB(255, 190, 60), Color3.fromRGB(255, 90, 70), Color3.fromRGB(255, 245, 220) }
@@ -221,6 +274,7 @@ function NightFx.start()
 				light.glow.TextureSpeed = if beauty then 0 else CONE_BODY.speed
 			end
 		end
+		updatePitLamp(isNight())
 		-- Studio beauty-shot rig (shared/BeautyShots) pins the lights and flares.
 		if Workspace:GetAttribute("BeautyShot") ~= nil then
 			return

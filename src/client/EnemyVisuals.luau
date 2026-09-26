@@ -77,6 +77,12 @@ local function animate(model: Model, rig: Rig, t: number)
 end
 
 local function isNight(): boolean
+	-- TimeOfDay publishes the preset; Night keeps a noon ClockTime for its
+	-- painted sky (LOOK-1 day-for-night), so ClockTime alone can't tell.
+	local preset = Workspace:GetAttribute("TimeOfDay")
+	if preset ~= nil then
+		return preset == "Night"
+	end
 	local t = Lighting.ClockTime
 	return t >= 18.3 or t < 6
 end

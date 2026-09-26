@@ -117,7 +117,9 @@ local function entryFor(name: string): SkyEntry
 end
 
 -- Resolved sky for a preset: SkyAssets values over the fallback, per field.
-local function resolve(name: string): ({ [string]: string }, { [string]: any }, { [string]: any })
+-- `sunAsMoon` (TimeOfDay's day-for-night) draws the sun disc with the moon
+-- texture and size, since the sun then stands in for the moon.
+local function resolve(name: string, sunAsMoon: boolean?): ({ [string]: string }, { [string]: any }, { [string]: any })
 	local entry = entryFor(name)
 	local faces = table.clone(fallback.faces)
 	for face, id in entry.faces or {} do
@@ -126,6 +128,10 @@ local function resolve(name: string): ({ [string]: string }, { [string]: any }, 
 	local props = table.clone(fallback.sky)
 	for key, value in entry.sky or {} do
 		props[key] = value
+	end
+	if sunAsMoon then
+		props.SunTextureId = props.MoonTextureId
+		props.SunAngularSize = props.MoonAngularSize
 	end
 	local cloud = table.clone(fallback.clouds)
 	for key, value in entry.clouds or {} do
@@ -152,8 +158,8 @@ end
 
 -- True when switching to `name` changes the skybox faces (the swap needs
 -- hiding behind the haze swell).
-function LightingRig.skyChanges(name: string): boolean
-	local faces = resolve(name)
+function LightingRig.skyChanges(name: string, sunAsMoon: boolean?): boolean
+	local faces = resolve(name, sunAsMoon)
 	for face, id in faces do
 		if currentFaces[face] ~= id then
 			return true
@@ -163,8 +169,8 @@ function LightingRig.skyChanges(name: string): boolean
 end
 
 -- Moves sky and clouds to preset `name`; duration 0 snaps.
-function LightingRig.setSky(name: string, duration: number)
-	local faces, props, cloud = resolve(name)
+function LightingRig.setSky(name: string, duration: number, sunAsMoon: boolean?)
+	local faces, props, cloud = resolve(name, sunAsMoon)
 	swapToken += 1
 	local token = swapToken
 	if duration <= 0 then
