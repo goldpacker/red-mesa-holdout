@@ -1,0 +1,14 @@
+$ grep -n "rbxasset://" <6 owned effect files>
+(no matches)
+
+$ grep -nE Instance.new("(Fire|Smoke|Sparkles|Explosion)") ...
+(no matches)
+
+$ grep -nE "PartType.Ball|Material.Neon" ...
+(no matches)
+
+$ grep -nE "Texture = " ... (every texture the effect files assign)
+src/client/WeaponFx.luau:159:	trail.Texture = Flipbooks.texture("TracerBeam") or ""
+src/client/Effects.luau:410:		b.Texture = tracerTex or ""
+src/client/VehicleFxParticles.luau:183:	decal.Texture = scorchTex
+src/client/VehicleFxParticles.luau:613:		beam.Texture = tex

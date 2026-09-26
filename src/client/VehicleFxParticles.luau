@@ -181,7 +181,7 @@ function Particles.scorch(position: Vector3, size: number)
 	local decal = Instance.new("Decal")
 	decal.Face = Enum.NormalId.Top
 	decal.Texture = scorchTex
-	decal.Transparency = 0.1
+	decal.Transparency = 0.3 -- lets the ground show through (reads as a hole at night otherwise)
 	decal.Parent = p
 	p.Parent = Effects.folder()
 	table.insert(scorches, p)

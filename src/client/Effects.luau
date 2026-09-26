@@ -8,9 +8,8 @@
 --   * our machine-gun muzzle flash, bullet impacts chosen by the surface
 --     the raycast hit (sand, rock, metal, soldier), enemy muzzle flashes,
 --     rifle shots and grenades.
--- Explosions, debris, scorch marks and fires live in VehicleFxParticles
--- (required lazily here to avoid a require cycle).
--- Cap: MAX_LIVE (tracers); particle counts drop with camera distance.
+-- Explosions, debris, scorch and fires: VehicleFxParticles (required lazily,
+-- it requires this module). Cap: MAX_LIVE tracers; LOD by camera distance.
 -- Studio QA: Workspace attribute FxFreeze pauses tracer/debris motion so a
 -- capture can hold a frame (tools/vfx/qa).
 
@@ -483,6 +482,13 @@ local function stepTracers(dt: number)
 			if tail >= head - 0.1 then
 				tr.dot.Enabled = false
 			end
+			-- A streak seen almost end-on degenerates into a flat band across
+			-- the screen (gunsight view, enemy rounds coming at us): show only
+			-- the head dot then.
+			local toHead = headPos - cam.Position
+			local endOn = toHead.Magnitude > 1 and math.abs(tr.dir:Dot(toHead.Unit)) > 0.996
+			tr.glow.Enabled = not endOn
+			tr.core.Enabled = not endOn
 		end
 	end
 end
