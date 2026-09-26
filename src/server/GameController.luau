@@ -97,7 +97,9 @@ end
 
 local function victory()
 	director = nil
-	clearBattlefield()
+	-- Keep the burning boss wreck on screen for the victory sequence; the
+	-- next run's startWave clears the battlefield.
+	Crates.clearAll()
 	setPhase("Victory")
 	emit("Victory", endStats())
 end
@@ -133,7 +135,9 @@ local function waveCleared()
 
 	Crates.clearAll()
 	after(if isLast then 3 else Config.Timing.INTERMISSION, function()
-		clearBattlefield()
+		if not isLast then
+			clearBattlefield()
+		end
 		if isLast then
 			victory()
 		else

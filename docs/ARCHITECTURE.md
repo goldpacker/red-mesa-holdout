@@ -66,7 +66,7 @@ lanes and **waves** (lead). Weapon and enemy tuning go in
 ### Events (server → client, `Remotes.GameEvent`, `(kind, payload)`)
 Existing: `WaveStart`, `WaveClear`, `Kill {kind, points, multiplier, position}`,
 `Hit {position, killed, headshot}`, `Damage {amount, from, heavy, integrity}`,
-`EnemyFire {kind, attack, from, to, id}`, `Points {points, position, label}`,
+`EnemyFire {kind, attack, from, to, id}` (attacks: `Rifle`, `Grenade`, `BuggyBurst`, `TankAim`, `Shell`, `SalvoWarn`, `Rocket`, `Bombs`, `BossTurret`, `BossCannon`), `Points {points, position, label}`,
 `Defeat`, `Victory`.
 Reserved for new work: `JetWarning {id, eta}`, `BossUpdate {weakPoints, core}`,
 `BossCharge {duration}`, `CrateSpawned`, `CratePickup {contents, amount}`,
