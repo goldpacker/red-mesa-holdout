@@ -34,7 +34,6 @@ Contracts: `docs/ARCHITECTURE.md`, `docs/ASSET_CONTRACTS.md`.
 - **Terrain v2:** eroded mesa/buttes/canyon walls, dunes, smooth washes,
   organic boulders; turret line of sight to every lane end verified.
 - **Title loading gate:** START enabled once the battlefield replicated.
-
 - **Enemies (agent):** buggy, tank, helicopter, jet, Siege Crawler,
   human-scale infantry, destruction and night-readability FX.
 - **Assets (agent):** Blender→Open Cloud→Rojo pipeline; SupplyCrate,
