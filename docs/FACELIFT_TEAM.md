@@ -78,7 +78,10 @@ Never change a default another asset relies on.
 
 - **Studio (one instance).** `tools/studio-lock.sh acquire <you>` before
   any playtest, `screen_capture`, Edit-datamodel harvest or other Studio
-  write; release right after. Keep sessions short, never leave a playtest
+  write; release right after. Waiters are served first-come first-served;
+  if an acquire call is cut off by a tool timeout, run it again (your place
+  is kept). Do offline work while you wait rather than holding the lock
+  through long thinking or builds. Keep sessions short, never leave a playtest
   running. Before a playtest: `caffeinate -u -t 2`, and bring Studio to the
   front with computer-use `open_application("RobloxStudio")`. For visual QA
   set `settings().Rendering.QualityLevel = Enum.QualityLevel.Level15` in the

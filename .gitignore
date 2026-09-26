@@ -6,3 +6,4 @@ assets/audio/*.wav
 .blender-lock/
 assets/source/cc0/
 .venv-qa/
+.studio-lock-queue/
