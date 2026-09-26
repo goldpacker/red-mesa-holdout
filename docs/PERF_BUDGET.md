@@ -89,3 +89,4 @@ Reading it:
 | 2026-09-26 | 9206a52 visuals | Title | 308,734 | 193 | 5.66 / 8.92 | 86 | Phase 0 baseline |
 | 2026-09-26 | 9206a52 visuals | Wave 1 afternoon | 322,228 | 193 | 3.28 / 4.13 | 86 | Phase 0 baseline |
 | 2026-09-26 | 9206a52 visuals | Wave 9 night | 327,941 | 212 | 2.76 / 2.97 | 86 | Phase 0 baseline |
+| 2026-09-26 | HS-1 (a921ce0 + rbxmx) | Turret view, night (beauty shot 2 stage, staged enemies) | 388,057 | 250 | 2.57 / 5.07 | 128 (emplacement 16.0) | HS-1 emplacement: 69.5k tris in the asset (was 46.4k, budget note ≤ ~80k); 9 texture groups (7×1024², 512², 256²; no metalness map on concrete/bags/net). Emplacement texture share measured by detaching it client-side: 128.4 → 112.4 MB. Scene totals include ENV/Look changes landed since P0. fps 60.0 / 1 %-low 56.0 |

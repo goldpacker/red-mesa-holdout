@@ -34,6 +34,29 @@
   "weapons/normal": "188f646680405098",
   "weapons/rough": "afbba35504a5361c"
  },
+ "meshes": {
+  "Belt": "rbxassetid://122458962840954",
+  "Bunker": "rbxassetid://75731905174788",
+  "BunkerWall": "rbxassetid://99565733649125",
+  "Casings": "rbxassetid://122828373005090",
+  "Cradle": "rbxassetid://117549881305633",
+  "Drifts": "rbxassetid://83858096798947",
+  "Gun": "rbxassetid://98296648660519",
+  "Missile1": "rbxassetid://135975871907489",
+  "Missile2": "rbxassetid://87053387706570",
+  "Mount": "rbxassetid://110436145451635",
+  "Net": "rbxassetid://91595826867322",
+  "Pedestal": "rbxassetid://89626203325118",
+  "Pod": "rbxassetid://122940570753014",
+  "Props": "rbxassetid://79341273118112",
+  "Rail": "rbxassetid://97894003627341",
+  "SandbagsFront": "rbxassetid://110802466787266",
+  "SandbagsLeft": "rbxassetid://111711653621180",
+  "SandbagsRight": "rbxassetid://71481534805522",
+  "Searchlight": "rbxassetid://115795020102579",
+  "Stores": "rbxassetid://86365460802624",
+  "Whip": "rbxassetid://78706587235288"
+ },
  "model": "118963178481237",
  "textures": {
   "bags": {
