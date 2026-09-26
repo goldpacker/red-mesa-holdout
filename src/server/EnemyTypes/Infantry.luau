@@ -1,10 +1,15 @@
 --!strict
 -- Infantry: human-sized soldiers that advance along a lane, snipe with
 -- rifles from mid range and lob grenades once they reach the foot of the
--- mesa. The server owns position and behaviour; clients animate limbs via
--- the Motor6D joints (see client/EnemyVisuals). Uses the Blender
--- "Infantry" asset when present, else a primitive soldier.
+-- mesa. The server owns position and behaviour. The rigid Blender
+-- "Infantry" parts are the hit volumes (Head = headshot); when the skinned
+-- soldier (Infantry_Skinned_<Variant>, face-lift CHAR-2) is available they
+-- turn invisible and the skinned mesh, welded to the same Root, is what
+-- players see. Clients pose its bones from the "State" attribute
+-- (client/InfantryRig); without it they animate the rigid limbs' Motor6Ds
+-- (client/EnemyVisuals). Falls back to a primitive soldier.
 
+local AssetService = game:GetService("AssetService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
@@ -28,6 +33,15 @@ local TARGET_HEIGHT = 7.2
 local ASSET_SCALE = 1.1
 local CFG = Config.Infantry
 local LIMBS = { "Torso", "Head", "LeftArm", "RightArm", "LeftLeg", "RightLeg" }
+
+-- Skinned soldier variants, dealt round-robin from a shuffled deck so a
+-- squad mixes gear (Rifleman twice as often). Uses its own Random: the
+-- gameplay rng passed to spawn() is never touched.
+local SKIN_PREFIX = "Infantry_Skinned_"
+local SKIN_DECK = { "Rifleman", "Grenadier", "Rifleman", "Radio", "Rifleman", "Grenadier", "Rifleman", "Radio" }
+local skinTemplates: { [string]: Model } = {}
+local skinRandom = Random.new()
+local skinCursor = skinRandom:NextInteger(1, #SKIN_DECK)
 
 local groundParams = RaycastParams.new()
 groundParams.FilterType = Enum.RaycastFilterType.Include
@@ -175,6 +189,116 @@ local function rigAsset(model: Model): boolean
 	return true
 end
 
+-- A MeshPart that Rojo builds from an rbxmx is not skinned (ASSET_PIPELINE
+-- "Skinned meshes", gotcha 1): re-apply each template's mesh once, here on
+-- the server, so every clone replicates to clients already skinned.
+local function prepareSkin(template: Model): boolean
+	for _, name in { "Body", "BodyLOD" } do
+		local part = template:FindFirstChild(name)
+		if part and part:IsA("MeshPart") then
+			local ok, err = pcall(function()
+				if not part.HasSkinnedMesh then
+					local fresh = AssetService:CreateMeshPartAsync(Content.fromUri(part.MeshId), {
+						CollisionFidelity = Enum.CollisionFidelity.Box,
+					})
+					part:ApplyMesh(fresh)
+					fresh:Destroy()
+				end
+			end)
+			if not ok or not part.HasSkinnedMesh then
+				warn(string.format("[RedMesa] %s.%s could not be skinned (%s); using the rigid soldier", template.Name, name, tostring(err)))
+				return false
+			end
+		elseif name == "Body" then
+			return false
+		end
+	end
+	return template:FindFirstChild("Root") ~= nil
+end
+
+task.spawn(function()
+	local assets = ReplicatedStorage:FindFirstChild("Assets")
+	if not assets then
+		return
+	end
+	for _, variant in { "Rifleman", "Grenadier", "Radio" } do
+		local template = assets:FindFirstChild(SKIN_PREFIX .. variant)
+		if template and template:IsA("Model") and prepareSkin(template) then
+			skinTemplates[variant] = template
+		end
+	end
+end)
+
+local function nextSkin(): (string?, Model?)
+	for _ = 1, #SKIN_DECK do
+		skinCursor = skinCursor % #SKIN_DECK + 1
+		local variant = SKIN_DECK[skinCursor]
+		if skinTemplates[variant] then
+			return variant, skinTemplates[variant]
+		end
+	end
+	return nil, nil
+end
+
+-- Swaps the visible soldier for a skinned variant: the rigid parts stay
+-- exactly where they are as invisible hit volumes (names, sizes, CanQuery
+-- unchanged); SkinRoot (holding the bone tree), Body and BodyLOD are
+-- welded to Root at the same pivot. Returns the variant or nil.
+local function attachSkin(model: Model, root: BasePart, scale: number): string?
+	local variant, template = nextSkin()
+	if not (variant and template) then
+		return nil
+	end
+	local skin = template:Clone()
+	local skinRoot = skin:FindFirstChild("Root")
+	local body = skin:FindFirstChild("Body")
+	if not (skinRoot and skinRoot:IsA("BasePart") and body and body:IsA("MeshPart")) then
+		skin:Destroy()
+		return nil
+	end
+	-- PrimaryPart can be nil after a live Rojo sync; the pivot is the Root.
+	skin.PrimaryPart = skinRoot
+	if math.abs(scale - 1) > 1e-3 then
+		skin:ScaleTo(scale)
+	end
+	skin:PivotTo(root.CFrame)
+	for _, d in model:GetDescendants() do
+		if d:IsA("BasePart") then
+			d.Transparency = 1
+			d.CastShadow = false
+		elseif d:IsA("SurfaceAppearance") then
+			-- Nothing draws these parts any more; don't keep their maps loaded.
+			d:Destroy()
+		end
+	end
+	-- The helmet lamp moves to the skinned head's LampBone (client side).
+	local lamp = model:FindFirstChild("HelmetLamp")
+	if lamp then
+		lamp:Destroy()
+	end
+	skinRoot.Name = "SkinRoot"
+	-- The skinned meshes must be jointed straight to the part that holds
+	-- their bones: Root -> SkinRoot -> Body/BodyLOD. (Body welded to Root
+	-- beside SkinRoot shares the assembly but does not deform.)
+	for _, name in { "SkinRoot", "Body", "BodyLOD" } do
+		local p = skin:FindFirstChild(name)
+		if p and p:IsA("BasePart") then
+			p.Anchored = false
+			p.CanCollide = false
+			p.CanTouch = false
+			p.CanQuery = false
+			p.Massless = true
+			local host = if p == skinRoot then root else skinRoot
+			joint(name .. "Weld", host, p, host.CFrame:ToObjectSpace(p.CFrame), CFrame.new(), "Weld")
+			p.Parent = model
+		end
+	end
+	skin:Destroy()
+	model:SetAttribute("Skin", variant)
+	model:SetAttribute("SkinScale", scale)
+	return variant
+end
+
 local function buildModel(): (Model, BasePart, number)
 	local model = Kit.loadAsset("Infantry", { "Root", "Torso", "Head", "LeftArm", "RightArm", "LeftLeg", "RightLeg", "Rifle" })
 	if model and not rigAsset(model) then
@@ -195,9 +319,15 @@ local function buildModel(): (Model, BasePart, number)
 			m:ScaleTo(m:GetScale() * TARGET_HEIGHT / size.Y)
 		end
 	end
-	-- How far the root sits above the feet.
+	-- How far the root sits above the feet (from the rigid parts only).
 	local box, scaled = m:GetBoundingBox()
 	local hip = root.Position.Y - (box.Position.Y - scaled.Y / 2)
+	if model then
+		local ok, err = pcall(attachSkin, m, root, m:GetScale())
+		if not ok then
+			warn("[RedMesa] skinned infantry failed, keeping the rigid soldier: " .. tostring(err))
+		end
+	end
 	root.Anchored = true
 	return m, root, hip
 end
@@ -316,10 +446,15 @@ function Infantry.spawn(ctx: Types.Context, laneName: string, rng: Random): Type
 	end
 
 	function enemy.die()
-		model:SetAttribute("State", "Dead")
 		local fallDir = if math.random() < 0.5 then 1 else -1
-		local fallen = root.CFrame * CFrame.new(0, -HIP_HEIGHT + 1.2, 0) * CFrame.Angles(math.rad(85) * fallDir, 0, 0)
-		TweenService:Create(root, TweenInfo.new(0.45, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { CFrame = fallen }):Play()
+		-- +1 falls backward, -1 forward. The skinned soldier falls with its
+		-- bones on the client (InfantryRig death clips), so its root stays.
+		model:SetAttribute("DeathFall", fallDir)
+		model:SetAttribute("State", "Dead")
+		if model:GetAttribute("Skin") == nil then
+			local fallen = root.CFrame * CFrame.new(0, -HIP_HEIGHT + 1.2, 0) * CFrame.Angles(math.rad(85) * fallDir, 0, 0)
+			TweenService:Create(root, TweenInfo.new(0.45, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { CFrame = fallen }):Play()
+		end
 		for _, d in model:GetDescendants() do
 			if d:IsA("BasePart") then
 				d.CanQuery = false

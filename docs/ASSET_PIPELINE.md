@@ -249,13 +249,40 @@ models/<name>.py (SkinnedAsset)  --build.sh-->  assets/blender/<Name>.blend (bak
    ```
    Done on the server on the ReplicatedStorage template, clones replicate
    to clients already skinned. 6 meshes took 1.8 s in a playtest.
-2. **Same assembly.** The skinned MeshPart only follows bones held by a
-   part in its own assembly: bones under the MeshPart, or a
-   Weld/WeldConstraint/Motor6D between `Root` and `Body`. Two separately
-   anchored parts: no deformation.
+2. **Joint the mesh straight to its bone holder.** The skinned MeshPart
+   only follows bones under itself or under a part it is jointed to
+   *directly* (Weld/WeldConstraint/Motor6D between the bone holder and
+   `Body`). Being in the same assembly is not enough: CHAR-2 first welded
+   `Body` and the bone holder each to a third part (the rigid soldier's
+   `Root`) and the mesh stayed in its bind pose while the bones moved
+   (`qa/beauty/char-2/extra/weld_to_hub_no_deform.jpg` vs
+   `weld_to_bone_holder_deforms.jpg`). Chain it: hub → `SkinRoot` →
+   `Body`/`BodyLOD`. Two separately anchored parts: no deformation either.
 3. `Bone.Transform` is local (not replicated) and renders in Edit too.
    `Bone.WorldCFrame` ignores Transform; posed positions come from
    `Bone.TransformedWorldCFrame`.
+4. **`PrimaryPart` can be nil** on a template right after Rojo's first live
+   sync, although the rbxmx carries the ref. Set
+   `model.PrimaryPart = model.Root` in code before `PivotTo`/`ScaleTo`.
+5. **`Model:ScaleTo` works with skinned meshes** (verified in a playtest,
+   `qa/beauty/char-2/extra/scaleto_test_client_clones.jpg`): it scales the
+   MeshPart and every `Bone.CFrame` (e.g. `LeftUpperLeg` −0.31 → −0.341 at
+   1.1×), and the scaled mesh still deforms. It does **not** scale what you
+   write into `Bone.Transform`: multiply any Transform translation (the
+   Hips offset) by the model scale yourself.
+6. **`ApplyMesh` on the server template is enough**: clones made on the
+   server afterwards replicate with `HasSkinnedMesh = true` and deform on
+   every client (CHAR-2 in-game soldiers). Keep a rigid fallback if
+   `CreateMeshPartAsync` fails.
+7. **Two-bone IK with a rotated parent** (`rmh.skin_pose.Pose.ik`): fixed
+   in CHAR-2. It used to set the upper bone's world rotation to `Du`
+   instead of `Du @ Dp`, so hands/feet missed their targets whenever the
+   parent (chest/hips) was rotated: with the Patrol/Aim chest angles the
+   right hand (and muzzle) sat 0.10/0.17 studs off and the support hand
+   0.33/0.60 studs off the handguard; for a falling body, whole studs. The
+   manifest's Patrol/Aim tables predate the fix; `infantry_anim.py`
+   re-solves them, and the client uses its tables (a rebuild of
+   `InfantrySkinned` would refresh the manifest's copy).
 
 ### Posing convention
 `bone.Transform = CFrame.new(x, y, z) * CFrame.Angles(rx, ry, rz)` means
@@ -266,6 +293,24 @@ and analytic two-bone IK and writes them to `manifest.json` → `poses` as
 `{bone: [rx, ry, rz(, [x, y, z])]}` degrees/studs; previews are rendered
 from the same tables, so a pose that looks right in the preview looks the
 same in Roblox (checked side by side: `qa/beauty/char-1/`).
+
+### Animation clips (CHAR-2)
+`tools/assets/models/infantry_anim.py` authors the infantry's clips with
+the same FK + IK pose builder, from a handful of rig controls per key
+(hips offset/rotation, spine/chest/neck/head angles, ankle targets with
+knee poles in the hips' frame, hand targets or FK arm angles). Every
+sampled frame (20 fps) re-runs the IK, so planted feet stay planted; the
+script prints the worst IK miss (0.000 studs now). The jog cycle is 16
+frames over `WALK_CYCLE` = 7.2 studs of travel, played by distance moved,
+not time. Output: `assets/exported/InfantrySkinned/anim.json`, the
+generated client module `src/client/InfantryRigClips.luau` (don't edit;
+re-run the script) and filmstrip previews
+`assets/previews/InfantryAnim_*.png` (Workbench render of the shipped GLB,
+a few seconds, no bake). Runtime: `src/client/InfantryRigPose.luau`
+(compile/sample) and `InfantryRig.luau` (state machine, blends, layers).
+```sh
+/Applications/Blender.app/Contents/MacOS/Blender -b --factory-startup -P tools/assets/models/infantry_anim.py -- [--no-preview] [--only Walk,Throw,DeathBack,DeathFront,Poses]
+```
 
 ### Commands
 ```sh

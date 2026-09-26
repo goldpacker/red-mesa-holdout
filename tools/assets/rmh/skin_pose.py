@@ -101,9 +101,14 @@ class Pose:
         n_new.normalize()
         Du = _frame(u_new, n_new) @ _frame(u_rest, n_rest).transposed()
         Dl = _frame(f_new, n_new) @ _frame(f_rest, n_rest).transposed()
-        self.local[upper] = Dp.transposed() @ Du
-        self.local[lower] = Du.transposed() @ Dl
-        self.local[hand] = Dl.transposed() @ Matrix(hand_rot).to_3x3()
+        # Du/Dl turn the parent-rotated rest segments (u_rest, f_rest) onto
+        # the solution, so the bones' world rotations are Du @ Dp, Dl @ Dp.
+        # (Before CHAR-2 this used Du, Dl alone, which is only right when the
+        # parent is unrotated; the manifest's Patrol/Aim came from that.)
+        Wu, Wl = Du @ Dp, Dl @ Dp
+        self.local[upper] = Dp.transposed() @ Wu
+        self.local[lower] = Wu.transposed() @ Wl
+        self.local[hand] = Wl.transposed() @ Matrix(hand_rot).to_3x3()
         return E
 
     def angles(self):
