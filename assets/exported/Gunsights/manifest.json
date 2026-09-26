@@ -1,0 +1,217 @@
+{
+ "name": "Gunsights",
+ "primary": null,
+ "pivots": {
+  "": [
+   0.0,
+   0.0,
+   -0.0
+  ],
+  "IronSight": [
+   0.0,
+   0.0,
+   -0.0
+  ],
+  "RocketScope": [
+   0.0,
+   0.0,
+   -0.0
+  ],
+  "AASeeker": [
+   0.0,
+   0.0,
+   -0.0
+  ]
+ },
+ "parts": [
+  {
+   "name": "Ring",
+   "path": "IronSight",
+   "center": [
+    0.0,
+    -0.6608,
+    -4.0473
+   ],
+   "size": [
+    0.58,
+    1.8185,
+    0.1166
+   ],
+   "tex": "sights",
+   "tris": 1068,
+   "query": false,
+   "material": "Metal",
+   "shadow": false
+  },
+  {
+   "name": "Rear",
+   "path": "IronSight",
+   "center": [
+    0.0,
+    -0.2222,
+    -0.7158
+   ],
+   "size": [
+    0.13,
+    0.1575,
+    0.0537
+   ],
+   "tex": "sights",
+   "tris": 288,
+   "query": false,
+   "material": "Metal",
+   "shadow": false
+  },
+  {
+   "name": "Housing",
+   "path": "RocketScope",
+   "center": [
+    0.0,
+    -0.085,
+    -1.1157
+   ],
+   "size": [
+    0.66,
+    0.73,
+    0.3047
+   ],
+   "tex": "rocket",
+   "tris": 3291,
+   "query": false,
+   "material": "Metal",
+   "shadow": false
+  },
+  {
+   "name": "Top",
+   "path": "AASeeker",
+   "center": [
+    0.0,
+    0.215,
+    -0.621
+   ],
+   "size": [
+    1.2982,
+    0.102,
+    0.202
+   ],
+   "tex": "sights",
+   "tris": 496,
+   "query": false,
+   "material": "Metal",
+   "shadow": false
+  },
+  {
+   "name": "Lamp",
+   "path": "AASeeker",
+   "center": [
+    0.13,
+    0.185,
+    -0.68
+   ],
+   "size": [
+    0.0196,
+    0.0196,
+    0.004
+   ],
+   "tex": null,
+   "tris": 76,
+   "query": false,
+   "neon": [
+    0.49,
+    0.82,
+    0.31
+   ],
+   "material": "Neon",
+   "transparency": 0.2,
+   "shadow": false
+  },
+  {
+   "name": "Bottom",
+   "path": "AASeeker",
+   "center": [
+    0.0,
+    -0.218,
+    -0.706
+   ],
+   "size": [
+    1.2982,
+    0.094,
+    0.032
+   ],
+   "tex": "sights",
+   "tris": 112,
+   "query": false,
+   "material": "Metal",
+   "shadow": false
+  },
+  {
+   "name": "Left",
+   "path": "AASeeker",
+   "center": [
+    -0.2255,
+    0.0,
+    -0.6238
+   ],
+   "size": [
+    0.061,
+    0.6,
+    0.2077
+   ],
+   "tex": "sights",
+   "tris": 300,
+   "query": false,
+   "material": "Metal",
+   "shadow": false
+  },
+  {
+   "name": "Right",
+   "path": "AASeeker",
+   "center": [
+    0.2255,
+    0.0,
+    -0.6238
+   ],
+   "size": [
+    0.061,
+    0.6,
+    0.2077
+   ],
+   "tex": "sights",
+   "tris": 300,
+   "query": false,
+   "material": "Metal",
+   "shadow": false
+  }
+ ],
+ "attachments": [],
+ "markers": [],
+ "textures": {
+  "sights": {
+   "color": "Gunsights_sights_color.png",
+   "rough": "Gunsights_sights_rough.png",
+   "metal": "Gunsights_sights_metal.png",
+   "normal": "Gunsights_sights_normal.png"
+  },
+  "rocket": {
+   "color": "Gunsights_rocket_color.png",
+   "rough": "Gunsights_rocket_rough.png",
+   "metal": "Gunsights_rocket_metal.png",
+   "normal": "Gunsights_rocket_normal.png"
+  }
+ },
+ "texel_density": {
+  "sights": 594.7,
+  "rocket": 905.7
+ },
+ "previews": [
+  "assets/previews/Gunsights_iron.png",
+  "assets/previews/Gunsights_rocket.png",
+  "assets/previews/Gunsights_aa.png",
+  "assets/previews/Gunsights_rocket_wide.png",
+  "assets/previews/Gunsights_all.png"
+ ],
+ "triangles": 5931,
+ "meta": {
+  "no_ground": true
+ }
+}

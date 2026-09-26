@@ -1,0 +1,38 @@
+{
+ "hashes": {
+  "glb": "e2823d1a7c96d4ab",
+  "rocket/color": "b8489b21b08af673",
+  "rocket/metal": "0acc811371ede6df",
+  "rocket/normal": "0bd89e2814a08964",
+  "rocket/rough": "3e726587f06a8f07",
+  "sights/color": "f9990f7d3a37d9d5",
+  "sights/metal": "2553fe7f252a2b98",
+  "sights/normal": "ff9871b968a7c0b7",
+  "sights/rough": "b22565aa87d0a4c8"
+ },
+ "meshes": {
+  "Bottom": "rbxassetid://89282757494160",
+  "Housing": "rbxassetid://123325313116983",
+  "Lamp": "rbxassetid://99868108348580",
+  "Left": "rbxassetid://76344546836565",
+  "Rear": "rbxassetid://99141678377379",
+  "Right": "rbxassetid://119244771079195",
+  "Ring": "rbxassetid://87984401261319",
+  "Top": "rbxassetid://110422177744203"
+ },
+ "model": "120891367211443",
+ "textures": {
+  "rocket": {
+   "color": "rbxassetid://136851691827623",
+   "metal": "rbxassetid://103152298743434",
+   "normal": "rbxassetid://112792165586801",
+   "rough": "rbxassetid://84182259143761"
+  },
+  "sights": {
+   "color": "rbxassetid://78654677627215",
+   "metal": "rbxassetid://98760321441577",
+   "normal": "rbxassetid://79687005427053",
+   "rough": "rbxassetid://115652032362744"
+  }
+ }
+}
