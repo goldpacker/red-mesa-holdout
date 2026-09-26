@@ -1,0 +1,172 @@
+{
+ "name": "Buggy",
+ "primary": "Root",
+ "pivots": {
+  "": [
+   0.0,
+   0.0,
+   -0.0
+  ],
+  "Gun": [
+   0.0,
+   5.35,
+   1.6
+  ]
+ },
+ "parts": [
+  {
+   "name": "Root",
+   "path": "",
+   "center": [
+    0.0,
+    3.375,
+    -0.5657
+   ],
+   "size": [
+    7.6,
+    4.95,
+    12.9472
+   ],
+   "tex": "body",
+   "tris": 2452,
+   "material": "Metal"
+  },
+  {
+   "name": "WheelFL",
+   "path": "",
+   "center": [
+    -3.35,
+    1.35,
+    -4.3
+   ],
+   "size": [
+    1.15,
+    2.9,
+    2.9011
+   ],
+   "tex": "wheels",
+   "tris": 1204,
+   "material": "Plastic"
+  },
+  {
+   "name": "WheelFR",
+   "path": "",
+   "center": [
+    3.35,
+    1.35,
+    -4.3
+   ],
+   "size": [
+    1.15,
+    2.9,
+    2.9011
+   ],
+   "tex": "wheels",
+   "tris": 1204,
+   "material": "Plastic"
+  },
+  {
+   "name": "WheelRL",
+   "path": "",
+   "center": [
+    -3.35,
+    1.35,
+    4.3
+   ],
+   "size": [
+    1.15,
+    2.9,
+    2.9011
+   ],
+   "tex": "wheels",
+   "tris": 1204,
+   "material": "Plastic"
+  },
+  {
+   "name": "WheelRR",
+   "path": "",
+   "center": [
+    3.35,
+    1.35,
+    4.3
+   ],
+   "size": [
+    1.15,
+    2.9,
+    2.9011
+   ],
+   "tex": "wheels",
+   "tris": 1204,
+   "material": "Plastic"
+  },
+  {
+   "name": "GunBody",
+   "path": "Gun",
+   "center": [
+    0.0,
+    5.9365,
+    -0.0448
+   ],
+   "size": [
+    1.5905,
+    1.5229,
+    5.4603
+   ],
+   "tex": "body",
+   "tris": 452,
+   "material": "Metal"
+  }
+ ],
+ "attachments": [
+  {
+   "name": "Headlight",
+   "part": "Root",
+   "pos": [
+    0.0,
+    5.65,
+    -1.8
+   ],
+   "axis": [
+    0.0,
+    -0.1191,
+    -0.9929
+   ]
+  },
+  {
+   "name": "Muzzle",
+   "part": "GunBody",
+   "pos": [
+    0.0,
+    6.1,
+    -2.85
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ]
+  }
+ ],
+ "markers": [],
+ "textures": {
+  "body": {
+   "color": "Buggy_body_color.png",
+   "rough": "Buggy_body_rough.png",
+   "metal": "Buggy_body_metal.png",
+   "normal": "Buggy_body_normal.png"
+  },
+  "wheels": {
+   "color": "Buggy_wheels_color.png",
+   "rough": "Buggy_wheels_rough.png",
+   "metal": "Buggy_wheels_metal.png",
+   "normal": "Buggy_wheels_normal.png"
+  }
+ },
+ "previews": [
+  "assets/previews/Buggy.png",
+  "assets/previews/Buggy_rear.png",
+  "assets/previews/Buggy_side.png"
+ ],
+ "triangles": 7720,
+ "meta": {}
+}

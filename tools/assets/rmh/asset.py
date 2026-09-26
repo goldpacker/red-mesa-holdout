@@ -19,6 +19,22 @@ from mathutils import Matrix, Vector
 from . import geo, images, materials
 
 
+def _pad_to_joint(bm, joint, e=0.004):
+    """Add two tiny triangles so the mesh bounding box is centred on `joint`.
+    Roblox places a MeshPart's origin at its bbox centre; this makes limb
+    origins sit at their joints (hip/shoulder) as the contract requires."""
+    xs = [v.co for v in bm.verts]
+    lo = Vector((min(c.x for c in xs), min(c.y for c in xs), min(c.z for c in xs)))
+    hi = Vector((max(c.x for c in xs), max(c.y for c in xs), max(c.z for c in xs)))
+    lo2 = Vector([min(lo[i], 2 * joint[i] - hi[i]) for i in range(3)])
+    hi2 = Vector([max(hi[i], 2 * joint[i] - lo[i]) for i in range(3)])
+    for corner, sign in ((lo2, 1), (hi2, -1)):
+        a = bm.verts.new(corner)
+        b = bm.verts.new(corner + Vector((sign * e, 0, 0)))
+        c = bm.verts.new(corner + Vector((0, sign * e, 0)))
+        bm.faces.new((a, b, c))
+
+
 class Part:
     def __init__(self, asset, name, path="", tex="main", **flags):
         self.asset = asset
@@ -46,6 +62,12 @@ class Part:
             piece.free()
             self.bm.from_mesh(tmp)
             bpy.data.meshes.remove(tmp)
+        return self
+
+    def rotate(self, rot, center):
+        """Rotate everything added so far about `center` (degrees XYZ)."""
+        m = geo.euler_matrix(rot)
+        bmesh.ops.rotate(self.bm, cent=Vector(center), matrix=m.to_3x3(), verts=self.bm.verts)
         return self
 
     def triangles(self):
@@ -124,6 +146,8 @@ class Asset:
         for p in self.parts:
             me = bpy.data.meshes.new(p.name)
             bmesh.ops.remove_doubles(p.bm, verts=p.bm.verts, dist=1e-4)
+            if p.flags.get("joint") is not None:
+                _pad_to_joint(p.bm, Vector(p.flags["joint"]))
             p.bm.to_mesh(me)
             p.bm.free()
             obj = bpy.data.objects.new(p.name, me)

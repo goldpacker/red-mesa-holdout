@@ -1,0 +1,36 @@
+{
+ "hashes": {
+  "body/color": "2326e0d0a1efa0dd",
+  "body/metal": "5352ad5e886c5756",
+  "body/normal": "dc7afd1368dbe139",
+  "body/rough": "9470de609ed58606",
+  "glb": "edc4752c19c99e3e",
+  "wheels/color": "bba57bd65fe85fe6",
+  "wheels/metal": "0320a6caae2bc093",
+  "wheels/normal": "8332496edcf73967",
+  "wheels/rough": "1edbafc3de9e2031"
+ },
+ "meshes": {
+  "GunBody": "rbxassetid://98071964450742",
+  "Root": "rbxassetid://127639466657331",
+  "WheelFL": "rbxassetid://82259143880425",
+  "WheelFR": "rbxassetid://139100647933578",
+  "WheelRL": "rbxassetid://116170748213545",
+  "WheelRR": "rbxassetid://95798902032744"
+ },
+ "model": "129795986212385",
+ "textures": {
+  "body": {
+   "color": "rbxassetid://77583335255573",
+   "metal": "rbxassetid://109577595593844",
+   "normal": "rbxassetid://113783279823527",
+   "rough": "rbxassetid://93168868945425"
+  },
+  "wheels": {
+   "color": "rbxassetid://76693501592668",
+   "metal": "rbxassetid://107509165137299",
+   "normal": "rbxassetid://100135925125424",
+   "rough": "rbxassetid://102451784141739"
+  }
+ }
+}

@@ -255,7 +255,7 @@ def _wear_layers(g, spec, co, color, rough, metal, height, edge, zmin):
         z = g.sep(co)[2]
         low = g.maprange(z, zmin, zmin + spec.get("dust_height", 2.5), 1.0, 0.0)
         dn = g.noise(co, scale=2.2, detail=6.0, rough=0.6)
-        base = g.math("MAXIMUM", g.math("MULTIPLY", up, 0.8), low)
+        base = g.math("MAXIMUM", g.math("MULTIPLY", up, spec.get("dust_up", 0.8)), low)
         dm = g.maprange(g.math("MULTIPLY", base, g.math("ADD", dn, 0.2)), 0.25, 0.75, 0.0, dust)
         color = g.mix(dm, color, rgb(spec.get("dust_color", DUST)))
         rough = g.mixf(dm, rough, 0.93)

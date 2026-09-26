@@ -1,0 +1,147 @@
+{
+ "name": "Tank",
+ "primary": "Root",
+ "pivots": {
+  "": [
+   0.0,
+   0.0,
+   -0.0
+  ],
+  "Turret": [
+   0.0,
+   5.0,
+   -0.6
+  ]
+ },
+ "parts": [
+  {
+   "name": "Root",
+   "path": "",
+   "center": [
+    0.0,
+    3.4,
+    0.7408
+   ],
+   "size": [
+    11.52,
+    3.8,
+    26.6184
+   ],
+   "tex": "hull",
+   "tris": 3160,
+   "material": "Metal"
+  },
+  {
+   "name": "TrackL",
+   "path": "",
+   "center": [
+    -4.35,
+    1.695,
+    0.2693
+   ],
+   "size": [
+    2.28,
+    3.49,
+    23.2385
+   ],
+   "tex": "gear",
+   "tris": 4232,
+   "material": "Metal"
+  },
+  {
+   "name": "TrackR",
+   "path": "",
+   "center": [
+    4.35,
+    1.695,
+    0.2693
+   ],
+   "size": [
+    2.28,
+    3.49,
+    23.2385
+   ],
+   "tex": "gear",
+   "tris": 4232,
+   "material": "Metal"
+  },
+  {
+   "name": "TurretBody",
+   "path": "Turret",
+   "center": [
+    0.0,
+    8.325,
+    0.9789
+   ],
+   "size": [
+    8.8316,
+    6.75,
+    13.2422
+   ],
+   "tex": "turret",
+   "tris": 1552,
+   "material": "Metal"
+  },
+  {
+   "name": "Barrel",
+   "path": "Turret",
+   "center": [
+    0.0,
+    6.35,
+    -11.475
+   ],
+   "size": [
+    1.1,
+    1.0724,
+    12.55
+   ],
+   "tex": "turret",
+   "tris": 656,
+   "material": "Metal"
+  }
+ ],
+ "attachments": [
+  {
+   "name": "Muzzle",
+   "part": "Barrel",
+   "pos": [
+    0.0,
+    6.35,
+    -17.8
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ]
+  }
+ ],
+ "markers": [],
+ "textures": {
+  "hull": {
+   "color": "Tank_hull_color.png",
+   "rough": "Tank_hull_rough.png",
+   "metal": "Tank_hull_metal.png",
+   "normal": "Tank_hull_normal.png"
+  },
+  "gear": {
+   "color": "Tank_gear_color.png",
+   "rough": "Tank_gear_rough.png",
+   "metal": "Tank_gear_metal.png",
+   "normal": "Tank_gear_normal.png"
+  },
+  "turret": {
+   "color": "Tank_turret_color.png",
+   "rough": "Tank_turret_rough.png",
+   "metal": "Tank_turret_metal.png",
+   "normal": "Tank_turret_normal.png"
+  }
+ },
+ "previews": [
+  "assets/previews/Tank.png",
+  "assets/previews/Tank_rear.png",
+  "assets/previews/Tank_side.png"
+ ],
+ "triangles": 13832,
+ "meta": {}
+}

@@ -1,0 +1,184 @@
+{
+ "name": "Infantry",
+ "primary": "Root",
+ "pivots": {
+  "": [
+   0.0,
+   3.45,
+   -0.0
+  ]
+ },
+ "parts": [
+  {
+   "name": "LeftLeg",
+   "path": "",
+   "center": [
+    -0.32,
+    3.45,
+    -0.0
+   ],
+   "size": [
+    0.86,
+    6.9,
+    1.5
+   ],
+   "tex": "main",
+   "tris": 566,
+   "material": "Fabric"
+  },
+  {
+   "name": "RightLeg",
+   "path": "",
+   "center": [
+    0.32,
+    3.45,
+    -0.0
+   ],
+   "size": [
+    0.86,
+    6.9,
+    1.5
+   ],
+   "tex": "main",
+   "tris": 566,
+   "material": "Fabric"
+  },
+  {
+   "name": "Torso",
+   "path": "",
+   "center": [
+    0.0,
+    4.75,
+    0.165
+   ],
+   "size": [
+    2.0106,
+    3.1,
+    1.91
+   ],
+   "tex": "main",
+   "tris": 1084,
+   "material": "Fabric"
+  },
+  {
+   "name": "Head",
+   "path": "",
+   "center": [
+    0.0,
+    6.0589,
+    0.0001
+   ],
+   "size": [
+    0.95,
+    0.9242,
+    1.0401
+   ],
+   "tex": "main",
+   "tris": 594,
+   "material": "Fabric"
+  },
+  {
+   "name": "LeftArm",
+   "path": "",
+   "center": [
+    -0.8,
+    5.3,
+    -0.0
+   ],
+   "size": [
+    0.6253,
+    4.624,
+    0.752
+   ],
+   "tex": "main",
+   "tris": 286,
+   "material": "Fabric"
+  },
+  {
+   "name": "RightArm",
+   "path": "",
+   "center": [
+    0.8,
+    5.3,
+    -0.0
+   ],
+   "size": [
+    0.6489,
+    4.624,
+    0.752
+   ],
+   "tex": "main",
+   "tris": 286,
+   "material": "Fabric"
+  },
+  {
+   "name": "Rifle",
+   "path": "",
+   "center": [
+    0.92,
+    2.613,
+    -0.3627
+   ],
+   "size": [
+    0.22,
+    3.046,
+    1.0146
+   ],
+   "tex": "main",
+   "tris": 608,
+   "material": "Metal"
+  }
+ ],
+ "attachments": [
+  {
+   "name": "RifleMuzzle",
+   "part": "Rifle",
+   "pos": [
+    0.92,
+    1.06,
+    -0.52
+   ],
+   "axis": [
+    0.0,
+    -1.0,
+    -0.0
+   ]
+  }
+ ],
+ "markers": [
+  {
+   "name": "Root",
+   "path": "",
+   "pos": [
+    0.0,
+    3.45,
+    -0.0
+   ],
+   "size": [
+    2.0,
+    2.0,
+    1.0
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ]
+  }
+ ],
+ "textures": {
+  "main": {
+   "color": "Infantry_main_color.png",
+   "rough": "Infantry_main_rough.png",
+   "metal": "Infantry_main_metal.png",
+   "normal": "Infantry_main_normal.png"
+  }
+ },
+ "previews": [
+  "assets/previews/Infantry.png",
+  "assets/previews/Infantry_rear.png",
+  "assets/previews/Infantry_side.png"
+ ],
+ "triangles": 3990,
+ "meta": {}
+}
