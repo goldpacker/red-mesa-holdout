@@ -53,6 +53,18 @@ def along_y(bm, at):
     return geo.transform(bm, at, rot=(-90, 0, 0))
 
 
+def face_up(bm):
+    """Open sheets (floor disc, mounds): make every face point up. Roblox
+    culls back faces, Cycles previews don't, so a flipped disc vanishes only
+    in game."""
+    bm.normal_update()
+    for f in bm.faces:
+        if f.normal.z < 0:
+            f.normal_flip()
+    bm.normal_update()
+    return bm
+
+
 def polar(r, deg, z=0.0):
     th = math.radians(deg)
     return (r * math.sin(th), r * math.cos(th), z)
@@ -137,9 +149,9 @@ def materials(a):
 
 def burlap(a, name, color, bleach):
     a.material(name, kind="fabric", color=color, rough=0.95, weave_amount=0.05, wrinkle=0.12, wrinkle_scale=6.0,
-               photo={"id": "hessian_230", "scale": 2.4, "color": 1.0, "sat": 0.6, "rough": 0.35, "height": 2.2},
-               bleach=bleach, bleach_color="#b8a784", damp=0.85, damp_height=0.2, damp_color="#46382a",
-               seam_dust=1.0, seam_color="#c3a77d", seam_distance=0.22, weather_scale=2.2,
+               photo={"id": "hessian_230", "scale": 2.4, "color": 0.75, "sat": 0.85, "rough": 0.35, "height": 2.0},
+               bleach=bleach, bleach_color="#bda67c", damp=0.85, damp_height=0.2, damp_color="#46382a",
+               seam_dust=0.8, seam_color="#b3936a", seam_distance=0.22, weather_scale=2.2,
                dust=0.5, dust_up=0.55, dust_height=0.12, dust_color="#b89068", grime=0.45, zmin=0.0, decals=False, bump=0.45)
 
 
@@ -147,8 +159,8 @@ def burlap(a, name, color, bleach):
 
 def bunker(a):
     photo = {"id": "concrete_floor_worn_001", "scale": 10.7, "color": 0.8, "sat": 0.25, "rough": 0.5, "height": 0.8}
-    a.material("floor_concrete", base="concrete", color="#837d70", grime=0.9, dust=0.55, dust_height=1.2, photo=photo,
-               dust_color=DUST_OCHRE,
+    a.material("floor_concrete", base="concrete", color="#837d70", grime=0.9, dust=0.3, dust_height=1.2, photo=photo,
+               dust_color="#a08d74",
                stain="#463a2c", joint=5.5,
                marks=[
                    {"lo": (-2.6, -9.5, -9), "hi": (2.4, -3.0, -5.5), "color": "#3f3930", "soft": 1.6},  # rocket backblast soot
@@ -164,7 +176,7 @@ def bunker(a):
 
     b = a.part("Bunker", path="Static", tex="floor", collide=True, query=True, material="Concrete")
     rings = [(0.0, FLOOR), (2.4, FLOOR), (5.0, FLOOR), (8.0, FLOOR), (INNER_R, FLOOR)]
-    b.add(geo.lathe(rings, verts=64, close_top=False, close_bottom=False), "floor_concrete")
+    b.add(face_up(geo.lathe(rings, verts=64, close_top=False, close_bottom=False)), "floor_concrete")
     b.add(geo.cylinder(2.6, 0.3, verts=32, bevel=0.08), "floor_concrete", at=(0, 0, FLOOR + 0.15))
     # Floor drain grate at the rear and cast-in tie-down rings.
     b.add(geo.box(1.4, 0.7, 0.06, bevel=0.02), "ladder_p", at=(0, -9.8, FLOOR + 0.02))
@@ -193,7 +205,7 @@ def bunker(a):
         deg = 180 + GAP_DEG + 8 + i * (360 - 2 * GAP_DEG - 16) / 9
         x, y, _ = polar(10.6, deg)
         h = rng.uniform(0.14, 0.24)
-        mound = geo.lathe([(0.0, h), (0.35, h * 0.9), (0.7, h * 0.62), (1.05, h * 0.3), (1.35, h * 0.1), (1.6, -0.04)], verts=16, close_bottom=False)
+        mound = face_up(geo.lathe([(0.0, h), (0.35, h * 0.9), (0.7, h * 0.62), (1.05, h * 0.3), (1.35, h * 0.1), (1.6, -0.04)], verts=16, close_bottom=False))
         d.add(mound, "sand_drift", scale=(rng.uniform(1.2, 1.9), rng.uniform(0.6, 0.85), 1.0),
               at=(x, y, FLOOR - 0.02), rot=(0, 0, -deg + rng.uniform(-8, 8)))
 
@@ -222,7 +234,7 @@ SHAPES = {
 }
 # Art bible: burlap #A8916B, sun-bleached tops #CDB88F; kept a notch darker
 # so close muzzle flashes and searchlights don't blow them out at night.
-TINTS = {"a": ("#9a8560", 0.8), "b": ("#8c8367", 0.95), "c": ("#a48b61", 0.65), "d": ("#76634a", 0.45)}
+TINTS = {"a": ("#9a8460", 0.45), "b": ("#8d8266", 0.55), "c": ("#a38a5f", 0.35), "d": ("#76634a", 0.25)}
 
 
 def sandbag_templates(a):
@@ -512,7 +524,7 @@ def turret_gun(a, smalls):
     a.material("grip", base="rubber", color="#1c1a16")
     a.material("pod", base="olive_p", wear=0.5, marks=[{"lo": (1.5, 1.2, -2.0), "hi": (5.0, 1.45, 2.0), "color": "#c9a227"}])
     a.material("rocket_nose", base="olive_dark_p", color="#4d5236", marks=[{"lo": (1.5, 2.02, -2.0), "hi": (5.0, 2.09, 2.0), "color": "#c9a227"}])
-    a.material("missile_body", kind="paint", color="#b3a887", rough=0.5, wear=0.35, dust=0.45, grime=0.5, dust_color=DUST_OCHRE,
+    a.material("missile_body", kind="paint", color="#a39a7c", rough=0.5, wear=0.35, dust=0.45, grime=0.5, dust_color=DUST_OCHRE,
                chip_style="blotch", chip_scale=7.0, under="#7a7b78",
                marks=[{"lo": (-5, 1.35, -1), "hi": (-1, 1.5, 2), "color": "#c9a227"}, {"lo": (-5, -0.2, -1), "hi": (-1, -0.05, 2), "color": "#5a3a22"}])
     a.material("seeker", base="glass", color="#20282c", rough=0.05)

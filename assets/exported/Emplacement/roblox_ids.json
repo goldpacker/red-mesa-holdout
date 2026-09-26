@@ -1,90 +1,90 @@
 {
  "hashes": {
-  "bags/color": "fe1aafc66e17bb7a",
-  "bags/normal": "6eaecb0eb7bfc102",
-  "bags/rough": "9fbeebd4e2217356",
-  "floor/color": "cfce1191c77021ba",
-  "floor/normal": "015002697ddc02ce",
-  "floor/rough": "969e493381a83b51",
-  "glb": "473a803f00169b73",
-  "net/color": "d0843baff28d67dc",
-  "net/normal": "1638c1f4548401cb",
+  "bags/color": "a4552c4cb489285a",
+  "bags/normal": "be00bb832c387a8d",
+  "bags/rough": "3c8aebb483c0fdcf",
+  "floor/color": "00b8e104008f6aa4",
+  "floor/normal": "5de3fef55236e910",
+  "floor/rough": "c3d618ad4a6dbf50",
+  "glb": "d9c2303cfe207857",
+  "net/color": "716433bf606dd35c",
+  "net/normal": "8386075b411d6151",
   "net/rough": "5730e305e8a8ea15",
-  "outer/color": "64fdee45ef687a0c",
-  "outer/normal": "9b6bd5d002a2192f",
-  "outer/rough": "6a1e6ab2a1e837dd",
-  "props/color": "430e68d4503d57f3",
-  "props/metal": "cbe98c9ecd590f0a",
-  "props/normal": "ab87c1ef4382e218",
-  "props/rough": "45a0d9f5de5d08bd",
-  "smalls/color": "6f78b6a22f46d79a",
+  "outer/color": "73f88d20ecac5715",
+  "outer/normal": "1746d88e92bca1ab",
+  "outer/rough": "f20513e25fbbefc7",
+  "props/color": "a648bdcacc7f1abd",
+  "props/metal": "725603756bf72b40",
+  "props/normal": "cb5c71711c0dcb9a",
+  "props/rough": "6fd41a6518d0eadc",
+  "smalls/color": "5ef333d92d8ce638",
   "smalls/metal": "67f24dc234a7c7d3",
-  "smalls/normal": "5c2f4be815c5de64",
-  "smalls/rough": "cbfbf1d48eb12e25",
-  "stores/color": "9dc6d20d9d82b774",
-  "stores/metal": "c100bf4bc3b0c5cc",
-  "stores/normal": "10b27ec98a7bd224",
-  "stores/rough": "a56a20cefcd4c9f1",
-  "turret/color": "80efdf9fe9ea9d37",
-  "turret/metal": "99c7e97d7ec6bf30",
-  "turret/normal": "6ef02490d0a08a50",
-  "turret/rough": "6d52d81ac29a3f0b",
-  "weapons/color": "654f03274ec51af5",
-  "weapons/metal": "40cfb0a34a457f91",
-  "weapons/normal": "742d7d5b3e75edb9",
-  "weapons/rough": "895b0d34d42be56e"
+  "smalls/normal": "d44686b91be10528",
+  "smalls/rough": "976616744f1c7caa",
+  "stores/color": "d8eb8342d1b2026b",
+  "stores/metal": "20300afed839448e",
+  "stores/normal": "10e977c934f68398",
+  "stores/rough": "08284ee8c5a3ed6e",
+  "turret/color": "feeb5c7e035c0f1b",
+  "turret/metal": "a58d9f790f40a321",
+  "turret/normal": "70f6cb0774a58f24",
+  "turret/rough": "890ece37b55aab33",
+  "weapons/color": "c6eb9d4000384bc9",
+  "weapons/metal": "847745eaa47fa2d5",
+  "weapons/normal": "188f646680405098",
+  "weapons/rough": "afbba35504a5361c"
  },
- "model": "122330361700670",
+ "model": "118963178481237",
  "textures": {
   "bags": {
-   "color": "rbxassetid://120735158243669",
-   "normal": "rbxassetid://137770337884457",
-   "rough": "rbxassetid://73493989555271"
+   "color": "rbxassetid://78609385623339",
+   "normal": "rbxassetid://98621557185251",
+   "rough": "rbxassetid://98309152526175"
   },
   "floor": {
-   "color": "rbxassetid://107034224464129",
-   "normal": "rbxassetid://73793900002314",
-   "rough": "rbxassetid://126997586957159"
+   "color": "rbxassetid://132571225808827",
+   "normal": "rbxassetid://99651130997680",
+   "rough": "rbxassetid://99859838536921"
   },
   "net": {
-   "color": "rbxassetid://108342964033993",
-   "normal": "rbxassetid://132950050786549",
+   "color": "rbxassetid://108033448733474",
+   "normal": "rbxassetid://114549947018338",
    "rough": "rbxassetid://74081710555067"
   },
   "outer": {
-   "color": "rbxassetid://123303151499069",
-   "normal": "rbxassetid://81713415483387",
-   "rough": "rbxassetid://105690119599390"
+   "color": "rbxassetid://90139974605116",
+   "normal": "rbxassetid://91210978054554",
+   "rough": "rbxassetid://128733737453828"
   },
   "props": {
-   "color": "rbxassetid://92645308459060",
-   "metal": "rbxassetid://136903148909471",
-   "normal": "rbxassetid://111349174188447",
-   "rough": "rbxassetid://83809353740030"
+   "color": "rbxassetid://118809635446091",
+   "metal": "rbxassetid://107188435788444",
+   "normal": "rbxassetid://124849843575885",
+   "rough": "rbxassetid://124529597178283"
   },
   "smalls": {
-   "color": "rbxassetid://125550216562328",
+   "color": "rbxassetid://121854793369235",
    "metal": "rbxassetid://138219811235497",
-   "normal": "rbxassetid://122992023394515",
-   "rough": "rbxassetid://80762257186706"
+   "normal": "rbxassetid://130792804450997",
+   "rough": "rbxassetid://78162689993923"
   },
   "stores": {
-   "color": "rbxassetid://89773629306570",
-   "metal": "rbxassetid://101530902972003",
-   "normal": "rbxassetid://109520934675874",
-   "rough": "rbxassetid://117374767741350"
+   "color": "rbxassetid://81886038868273",
+   "metal": "rbxassetid://80515279433727",
+   "normal": "rbxassetid://84044223074992",
+   "rough": "rbxassetid://133181776938567"
   },
   "turret": {
-   "color": "rbxassetid://117100332431248",
-   "metal": "rbxassetid://103069947076893",
-   "normal": "rbxassetid://102833546797033",
-   "rough": "rbxassetid://83787109828523"
+   "color": "rbxassetid://99366020944883",
+   "metal": "rbxassetid://111251121529854",
+   "normal": "rbxassetid://88964548700779",
+   "rough": "rbxassetid://135936569784397"
   },
   "weapons": {
-   "color": "rbxassetid://103132114900536",
-   "metal": "rbxassetid://75991164209719",
-   "normal": "rbxassetid://94538820491984",
-   "rough": "rbxassetid://71941056148335"
+   "color": "rbxassetid://139922255627326",
+   "metal": "rbxassetid://128901630866502",
+   "normal": "rbxassetid://83270134271711",
+   "rough": "rbxassetid://77229837766048"
   }
  }
 }

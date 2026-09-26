@@ -152,6 +152,10 @@ def build(manifest, ids):
                 for key, prop_name in (("color", "ColorMap"), ("normal", "NormalMap"), ("rough", "RoughnessMap"), ("metal", "MetalnessMap")):
                     if maps.get(key):
                         sa.props.append(prop("Content", prop_name, maps[key]))
+                    else:
+                        # Explicitly empty, so a live Rojo sync clears a map an
+                        # earlier build had (absent properties are left as-is).
+                        sa.props.append(f'<Content name="{prop_name}"><null></null></Content>')
                 node.children.append(sa)
         if p.get("pivot_offset") is not None:
             node.props.append(cframe_xml("CoordinateFrame", "PivotOffset", p["pivot_offset"]))
