@@ -261,6 +261,22 @@ local function installDebugHooks()
 	if not RunService:IsStudio() then
 		return
 	end
+	-- QA-tools commands (LOS/ground checks, beauty-shot staging): server/QaDebug.
+	local QaDebug = require(script.Parent.QaDebug)
+	QaDebug.init({
+		context = GameController.context,
+		clearBattlefield = clearBattlefield,
+		freeze = function(newPhase: string, wave: number)
+			director = nil
+			waveNumber = wave
+			integrity = Config.Integrity.MAX
+			setPhase(newPhase)
+		end,
+		setScore = function(score: number)
+			scoring.stats.score = score
+			publish()
+		end,
+	})
 	local debugFn = Instance.new("BindableFunction")
 	debugFn.Name = "RedMesaDebug"
 	debugFn.OnInvoke = function(cmd: string, arg: any): any
@@ -293,6 +309,8 @@ local function installDebugHooks()
 			return enemy ~= nil
 		elseif cmd == "crate" then
 			GameController.context.dropCrate(arg)
+		elseif QaDebug.has(cmd) then
+			return QaDebug.run(cmd, arg)
 		end
 		return true
 	end

@@ -134,6 +134,10 @@ function NightFx.start()
 		if (#lights == 0 or not lights[1].model.Parent) and Workspace:FindFirstChild("Battlefield") then
 			collect()
 		end
+		-- Studio beauty-shot rig (shared/BeautyShots) pins the lights and flares.
+		if Workspace:GetAttribute("BeautyShot") ~= nil then
+			return
+		end
 		local night = isNight()
 		if night then
 			sweep(os.clock())
