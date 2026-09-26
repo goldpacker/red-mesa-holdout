@@ -1,0 +1,237 @@
+# Beauty shots, comparisons, LOS check and perf probe
+
+QA tooling for the visual face-lift (`docs/FACELIFT_PLAN.md` §5,
+`docs/FACELIFT_TEAM.md` quality gates). Owner: QA-tools. Everything here
+works from an agent session with the Roblox Studio MCP, the computer-use
+tools (to bring Studio forward) and Bash.
+
+| What | Command |
+|---|---|
+| Capture a set (full or subset) | §2 — `python3 tools/qa/beauty_plan.py <set> [--shots 2,4] [--tods sunset,night]` prints the steps |
+| File the captures | `tools/qa/py tools/qa/beauty_save.py --set <set> --since <epoch> <names…>` |
+| Before/after pairs + contact sheet | `tools/qa/py tools/qa/beauty_compare.py p0-baseline <set> [--gray]` |
+| Grayscale readability sheet | `tools/qa/py tools/qa/grayscale.py --set <set>` or `… <images> --out <dir>` |
+| Turret line of sight to every lane end | `ServerStorage.RedMesaDebug:Invoke("losCheck")` (Server) |
+| Lane ground heights | `ServerStorage.RedMesaDebug:Invoke("groundCheck", { verbose = true })` (Server) |
+| Perf probe | paste `tools/qa/perf_probe.client.luau` into execute_luau (Client) |
+
+`tools/qa/py` runs the Python tools in a project-local venv (`.venv-qa`,
+git-ignored) and creates it with Pillow on first use. Nothing else is
+needed. Baseline set: `qa/beauty/p0-baseline/` (contact sheet
+`contact.jpg`); LOS/ground baseline: `tools/qa/baselines/p0-los-ground.txt`;
+perf baseline: `docs/PERF_BUDGET.md`.
+
+---
+
+## 1. The six shots
+
+Defined in `src/shared/BeautyShots.luau` (camera, FOV, mode, staging),
+captured at each of the five time-of-day presets → 30 images per full set,
+named `qa/beauty/<set>/<tod>_<n>-<shot>.jpg` at **1190×1080**.
+
+| # | Name | Mode | What it shows | HUD |
+|---|---|---|---|---|
+| 1 | `title` | title screen, camera = the title pan frozen at t = 0 | title UI over the mesa, basin, washes and far wall | title UI |
+| 2 | `turret` | player turret camera, yaw −2°, pitch −7.5° | the normal third-person view over the gun: road column, helicopter, basin, cliffs, sky | yes |
+| 3 | `gunsight` | machine-gun gunsight (aiming), yaw −3.5°, pitch −13.5° | infantry, buggy and tank on the road at 220–410 studs | yes |
+| 4 | `flank` | free camera (430, 70, −700) → (−20, 25, −190), FOV 45 | the basin from the right flank: mesa + emplacement, rear/flank cliffs, basin floor, the column | hidden |
+| 5 | `night` | free camera (95, 30, −560) → (−50, 70, −40), FOV 45 | from the basin back up at the mesa: searchlights, emplacement lights, flares, enemy lights | hidden |
+| 6 | `boss` | player turret camera, yaw −1°, pitch −6° | the Siege Crawler coming up the road (425 studs) with three escorts; boss bar | yes |
+
+ToD tags: `afternoon`, `lateafternoon`, `sunset`, `dusk`, `night` (the
+`TimeOfDay` presets `Afternoon`, `LateAfternoon`, `Sunset`, `Dusk`,
+`Night`). The HUD shows wave 3/4/7/8/9 by preset (10 for the boss) and a
+fixed score of 12480.
+
+**Staged subjects** (frozen: no movement, firing, damage or despawn):
+- shots 2–5: 5 infantry (aim pose) on the road, a buggy, a tank, a hovering
+  helicopter; at dusk and night three fixed flares.
+- shot 6: the Siege Crawler + 3 infantry.
+
+What makes it deterministic: the preset is set directly (no tween); the
+wave director is stopped so `Enemies.update` never runs; positions and
+headings are fixed; the searchlights are pinned to fixed angles and
+NightFx's random flares are replaced by fixed ones; first-encounter tips
+are waited out. Two captures of the same shot in different play sessions
+differ by a mean of 1.4/255 (rotor angle, dust particles, shadow jitter).
+
+---
+
+## 2. Capture procedure (full set or subset)
+
+A subset of 4–6 images takes about 3–4 minutes including setup.
+
+### 2.1 Setup (once per Studio session)
+
+```bash
+tools/studio-lock.sh acquire <you>      # waits for the lock
+caffeinate -u -t 2                      # wake the display
+```
+- computer-use: `open_application("RobloxStudio")` (Studio must be visible
+  or it stops rendering and `screen_capture` hangs). Leave the Studio window
+  and panel layout alone: the viewport must stay 1190×1080 (see §6).
+- `list_roblox_studios` → the id of "Place1".
+- `start_stop_play(true)`, then in the **Client** datamodel:
+  ```lua
+  settings().Rendering.QualityLevel = Enum.QualityLevel.Level15
+  task.wait(40) -- terrain meshing
+  return "ready"
+  ```
+- Sessions over 15 minutes count as stale: run
+  `tools/studio-lock.sh refresh <you>` between batches.
+
+### 2.2 Capture
+
+Print the exact steps for your set:
+```bash
+python3 tools/qa/beauty_plan.py p1-env --shots 2,4,5 --tods sunset,night
+```
+It prints a `SINCE=<epoch>` line, then for each image two MCP calls:
+
+1. `execute_luau` in the **Server** datamodel:
+   ```lua
+   return game.ServerStorage.RedMesaDebug:Invoke("beauty", { shot = 4, tod = "Sunset" })
+   ```
+   It stages the shot, waits for the client to settle (2 s, or 7.5 s the
+   first time a kind of enemy appears so its tip fades) and returns
+   `staged sunset_4-flank (waited 2.0s)`. `shot` takes a number or a
+   name, `tod` a preset or tag; `settle = <seconds>` overrides the wait.
+2. `screen_capture` (any `capture_id`). **Look at the image** it returns.
+
+Then file every capture since `SINCE`, in order:
+```bash
+tools/qa/py tools/qa/beauty_save.py --set p1-env --since 1790436000 \
+    sunset_2-turret night_2-turret sunset_4-flank night_4-flank sunset_5-night night_5-night
+```
+This copies the MCP's image blobs (saved by Claude Code under
+`~/.claude/projects/-Users-xichaowang-projects-beach-head-opus/**/tool-results/mcp-Roblox_Studio-blob-*.jpg`)
+into `qa/beauty/p1-env/`, normalises them to 1190×1080, records
+`manifest.json` (capture time, source size, git HEAD) and rebuilds
+`contact.jpg`. It refuses if the number of captures since `SINCE` differs
+from the number of names (a failed or extra capture): re-run with a later
+`--since`, or file a single newest capture with no `--since`.
+View `contact.jpg` and redo anything wrong.
+
+### 2.3 Finish
+
+```lua
+-- Server datamodel
+return game.ServerStorage.RedMesaDebug:Invoke("beautyEnd")
+```
+then `start_stop_play(false)` and `tools/studio-lock.sh release <you>`.
+
+### 2.4 Full set
+
+`python3 tools/qa/beauty_plan.py <set>` (all 6 shots × 5 presets, 30
+captures, ~6 minutes). Commit the set folder with your milestone:
+`git add qa/beauty/<set> && git commit -m "…" -- qa/beauty/<set>`.
+
+---
+
+## 3. Compare and readability
+
+```bash
+tools/qa/py tools/qa/beauty_compare.py p0-baseline p1-env          # colour
+tools/qa/py tools/qa/beauty_compare.py p0-baseline p1-env --gray   # grayscale
+```
+Writes `qa/beauty/compare/p0-baseline_vs_p1-env[_gray]/`: one labelled
+side-by-side per image present in both sets, plus `contact.jpg` (rows =
+time of day, columns = shots, before above after). Works for subsets.
+
+```bash
+tools/qa/py tools/qa/grayscale.py --set p1-env                      # whole set -> qa/beauty/p1-env/gray/
+tools/qa/py tools/qa/grayscale.py qa/beauty/p1-env/*_3-gunsight.jpg --out qa/beauty/p1-env/gray --width 480
+```
+Writes `<name>_gray.jpg` thumbnails and `readability.jpg` (colour | gray
+pairs, three per row) and prints each image's luminance spread
+(p5..p95). Smaller `--width` = a harsher engagement-distance test. The
+rule it checks is in `docs/ART_BIBLE.md` §6. Baseline reference:
+`qa/beauty/p0-baseline/gray/readability.jpg`.
+
+---
+
+## 4. Line-of-sight and ground checks
+
+Server datamodel, during a playtest (the world is built at server start):
+```lua
+local dbg = game.ServerStorage.RedMesaDebug
+local pass, report = dbg:Invoke("losCheck")
+return report
+```
+- Sight lines run from the turret muzzle (`Config.TURRET_PIVOT` +
+  `MUZZLE_OFFSET` toward the target) to each lane end at three heights
+  above the terrain: feet (+0.5), **hip (+3, the pass criterion)**, head
+  (+6.5), and at hip height every 20 studs along each lane.
+- Everything blocks except the emplacement, `Enemies`, `Projectiles`,
+  `Wrecks`, `Crates` and characters. Visible parts with `CanQuery = false`
+  (landscape/dressing meshes, scrub) are made queryable for the duration of
+  the check, so a mesh blocks the view even if bullets pass through it.
+- Output per lane: `PASS/FAIL`, `feet+ hip+ head+`, samples visible along
+  the lane, and on failure the blocking instance and hit point. The third
+  return value is the same data as a table.
+
+```lua
+return game.ServerStorage.RedMesaDebug:Invoke("groundCheck", { verbose = true })
+```
+Samples every 20 studs along each lane: the terrain height enemies snap to
+(same ray as `Kit.groundY`), min/max/mean, a `digest` that changes if any
+sample moves by 0.1 stud, and the largest gap between the visible surface
+(meshes included) and the terrain. Compare with
+`tools/qa/baselines/p0-los-ground.txt` (Phase 0: all PASS, digests Road
+18060, ScrubLeft/Right 16400, WashLeft −34191, WashRight −34501).
+
+---
+
+## 5. Perf probe
+
+Paste `tools/qa/perf_probe.client.luau` into execute_luau (**Client**),
+after changing `LABEL`. It samples for 8 s and returns: fps (avg, 1 % low,
+worst frame), scene/shadow triangles and draw calls, render CPU/GPU frame
+time, memory by tag (Graphics* are the budget tags), instance/effect
+counts and enemies on screen. Scenes and baseline numbers:
+`docs/PERF_BUDGET.md`. For a busy wave: `RedMesaDebug:Invoke("startWave",
+9)`, keep integrity up with `Invoke("setIntegrity", 100)` in a loop, run
+`tools/qa/autoplay.client.luau` and probe ~50 s in (prefix the probe with
+`task.wait(47)`).
+
+---
+
+## 6. Rig internals and contracts (read before changing related code)
+
+- **Server:** `src/server/QaDebug.luau` implements `beauty`, `beautyEnd`,
+  `losCheck`, `groundCheck`; `GameController.installDebugHooks` installs it
+  **only when `RunService:IsStudio()`**. `beauty` stops the wave director,
+  publishes the phase (`Title` or `Wave`), snaps `TimeOfDay.set(preset, 0)`,
+  spawns the stage's subjects through `Enemies.spawn` and places them
+  (`root.CFrame = frame * root.PivotOffset:Inverse()`, ground frames as in
+  each `EnemyTypes/<Kind>.place()`), then sets the Workspace attributes
+  `BeautyShot` (1–6) and `BeautyToD`.
+- **Client:** `BeautyShots.startClient()` (called from `init.client`,
+  no-op outside Studio) reacts to those attributes: sets
+  `DebugYaw/DebugPitch/DebugAiming` for turret shots, binds a camera
+  override at `RenderPriority.Last + 10` for title/free shots, disables
+  every `ScreenGui` for free shots, hides the `BossBar` for non-boss shots,
+  pins the searchlights (`Battlefield.Searchlights.SearchlightN` with
+  `Head`/`Lens`/`Pool`) and creates the fixed flares at dusk/night.
+- **Contract for other workstreams:** client visuals that are driven by the
+  clock or randomness should pause while `Workspace:GetAttribute("BeautyShot")`
+  is set (NightFx does: its sweep and random flares stop). If you rename or
+  restructure the searchlights, the `BossBar`, the flare look
+  (`BeautyShots.makeFlare` mirrors NightFx's flare) or the title camera
+  (`SHOTS[1].camera` mirrors AimController's title pan at t = 0), update
+  `BeautyShots.luau` in the same change or tell QA-tools.
+- Changing a shot's camera or staging invalidates comparisons with earlier
+  sets for that shot: only QA-tools changes them, and then recaptures the
+  baseline for that shot.
+
+## 7. Troubleshooting
+
+| Symptom | Fix |
+|---|---|
+| `screen_capture` hangs or the image is black / frozen | Studio is hidden or the display slept: `caffeinate -u -t 2`, `open_application("RobloxStudio")`, retry |
+| Far terrain missing or blurry | QualityLevel not set in the Client datamodel, or captured < 40 s after Play |
+| A "new enemy" tip in the frame | pass `settle = 8` to `beauty` for that capture |
+| `[resized]`/`[cropped …]` after a file name | the Studio viewport changed size (panels opened, window resized); restore the layout so captures are 1190×1080, then recapture |
+| `found N captures since …` | a capture failed or an extra one was taken; re-file with a later `--since` or one at a time |
+| Code changes don't show | Rojo syncs to Edit only: stop and restart Play |
+| `RedMesaDebug` missing | not a Studio playtest, or the server errored at start: check `get_console_output` |

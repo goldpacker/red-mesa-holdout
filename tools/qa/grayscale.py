@@ -28,6 +28,7 @@ def main() -> None:
     ap.add_argument("--set", help="use every <tod>_<n>-<shot>.jpg in qa/beauty/<set>")
     ap.add_argument("--out", type=Path, help="output folder (default: <set>/gray or next to the first image)")
     ap.add_argument("--width", type=int, default=640, help="thumbnail width in px")
+    ap.add_argument("--pairs", type=int, default=3, help="colour|gray pairs per sheet row")
     args = ap.parse_args()
 
     images = list(args.images)
@@ -39,7 +40,7 @@ def main() -> None:
     out = args.out or ((qaimg.BEAUTY / args.set / "gray") if args.set else images[0].parent / "gray")
     out = out if out.is_absolute() else qaimg.REPO / out
 
-    rows = []
+    pairs = []
     for path in images:
         color = qaimg.thumb(Image.open(path), args.width)
         gray = ImageOps.grayscale(color)
@@ -53,8 +54,15 @@ def main() -> None:
                 p95 = value
         qaimg.save_jpg(gray, out / f"{path.stem}_gray.jpg")
         print(f"{path.stem:28s} luminance p5..p95 = {p5}..{p95} (spread {p95 - p5})")
-        rows.append([qaimg.label(color, path.stem, 16), qaimg.label(gray.convert("RGB"), "gray", 16)])
-    tile_h = rows[0][0].height
+        pairs.append((qaimg.label(color, path.stem, 16), qaimg.label(gray.convert("RGB"), "gray", 16)))
+    # Lay the colour|gray pairs out `--pairs` to a row.
+    rows = []
+    for i in range(0, len(pairs), args.pairs):
+        row: list = []
+        for color, gray in pairs[i:i + args.pairs]:
+            row += [color, gray]
+        rows.append(row)
+    tile_h = pairs[0][0].height
     sheet = qaimg.grid(rows, args.width, tile_h, title="readability: colour | grayscale")
     qaimg.save_jpg(sheet, out / "readability.jpg")
     print(f"-> {out.relative_to(qaimg.REPO) if out.is_relative_to(qaimg.REPO) else out}/readability.jpg")

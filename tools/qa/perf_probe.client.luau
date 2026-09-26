@@ -77,12 +77,19 @@ for _, name in RENDER_STATS do
 		for _, v in list do
 			sum += v
 		end
-		table.insert(render, string.format("%s %.1f", name, sum / #list))
+		local mean = sum / #list
+		if string.find(name, "FrameTime") then
+			table.insert(render, string.format("%s %.2f ms", name, mean * 1000))
+		else
+			table.insert(render, string.format("%s %.0f", name, mean))
+		end
 	end
 end
 add("render: %s", if #render > 0 then table.concat(render, "  ") else "not readable from scripts (use Shift+F2 screenshot)")
 
 -- Memory by tag (MB).
+-- In Studio the totals include the Studio process and both DataModels; the
+-- Graphics* tags are the ones to track against the budget.
 add("memory total %.0f MB", Stats:GetTotalMemoryUsageMb())
 local tags = {}
 for _, tag in Enum.DeveloperMemoryTag:GetEnumItems() do

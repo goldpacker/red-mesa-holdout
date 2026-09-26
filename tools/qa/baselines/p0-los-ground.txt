@@ -1,0 +1,22 @@
+# Phase 0 baseline (terrain at 9206a52), 2026-09-26, Studio playtest.
+# RedMesaDebug:Invoke("losCheck") and ("groundCheck", { verbose = true }).
+# Identical in two separate play sessions (terrain is seeded).
+
+LOS check from turret muzzle 0, 72, 0 (hip = ground+3.0; 74 non-query visible parts included): ALL PASS
+Road       end (0,-92) ground 2.0  PASS  feet+ hip+ head+  | along lane: 42/42 samples visible
+ScrubLeft  end (-50,-85) ground 2.0  PASS  feet+ hip+ head+  | along lane: 40/40 samples visible
+ScrubRight end (50,-85) ground 2.0  PASS  feet+ hip+ head+  | along lane: 40/40 samples visible
+WashLeft   end (-90,-40) ground -3.3  PASS  feet+ hip+ head+  | along lane: 45/45 samples visible
+WashRight  end (90,-40) ground -3.3  PASS  feet+ hip+ head+  | along lane: 45/45 samples visible
+
+Ground check: terrain height enemies snap to, every 20 studs along each lane
+Road       42 samples  terrain y min 2.0 max 2.0 mean 2.0  digest 18060  max surface-above-terrain 0.0
+           y: 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0
+ScrubLeft  40 samples  terrain y min 2.0 max 2.0 mean 2.0  digest 16400  max surface-above-terrain 0.0
+           y: 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0
+ScrubRight 40 samples  terrain y min 2.0 max 2.0 mean 2.0  digest 16400  max surface-above-terrain 0.0
+           y: 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0
+WashLeft   45 samples  terrain y min -3.4 max -3.1 mean -3.3  digest -34191  max surface-above-terrain 0.0
+           y: -3.3 -3.3 -3.2 -3.3 -3.3 -3.3 -3.3 -3.3 -3.3 -3.3 -3.3 -3.3 -3.3 -3.4 -3.3 -3.3 -3.3 -3.4 -3.2 -3.4 -3.3 -3.3 -3.1 -3.3 -3.3 -3.3 -3.3 -3.3 -3.2 -3.4 -3.2 -3.3 -3.3 -3.4 -3.3 -3.3 -3.3 -3.3 -3.2 -3.3 -3.3 -3.3 -3.4 -3.4 -3.3
+WashRight  45 samples  terrain y min -3.4 max -3.2 mean -3.3  digest -34501  max surface-above-terrain 0.0
+           y: -3.4 -3.3 -3.3 -3.4 -3.3 -3.4 -3.3 -3.2 -3.4 -3.4 -3.4 -3.3 -3.4 -3.4 -3.3 -3.4 -3.3 -3.3 -3.3 -3.4 -3.4 -3.4 -3.3 -3.3 -3.3 -3.3 -3.4 -3.4 -3.3 -3.4 -3.3 -3.2 -3.4 -3.3 -3.3 -3.4 -3.3 -3.3 -3.3 -3.3 -3.4 -3.3 -3.3 -3.4 -3.3
