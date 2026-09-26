@@ -288,15 +288,18 @@ Required elements (placement is a suggestion):
 
 ## 13. Visual Style
 
-**Faceted low-poly with modern lighting** — deliberate and attractive, evoking an early-2000s PC arcade game without looking dated or cheap.
+**Grounded semi-realistic.** The game should look like a decent, modern Roblox military shooter — believable hardware, weathered desert terrain, and cinematic lighting — while keeping arcade readability. Target: the best-looking military games on Roblox, not AAA photorealism. It must **not** look like a bulky, blocky, default-Roblox game.
 
-- **Models:** flat-shaded, chunky, low-poly geometry with exaggerated, readable silhouettes (big tires, oversized tank turrets, bulky helicopters).
+- **Models:** custom meshes with realistic proportions and believable detail (panel lines, bolts, hatches, tracks, tread, bevelled edges). No visible stacked-primitive construction on anything the player looks at. Silhouettes stay distinct per enemy type through real design differences (tank vs buggy vs helicopter), not through exaggerated scale.
+- **Materials:** PBR surfaces (color, normal, roughness, metalness via `SurfaceAppearance`) with wear — dust, chipped paint, scorch, grime. Avoid flat `SmoothPlastic` on hero objects.
+- **Terrain:** custom terrain material variants (`MaterialService`) for sand, packed dirt road, layered sandstone, and rock, so the desert reads as real ground with visible strata and texture. Mesa and canyon walls use modeled rock meshes where Roblox terrain looks too smooth.
+- **Scale:** real-world proportions (soldiers are human-sized). Readability at distance comes from contrast, silhouette, lighting (e.g. glints, headlights, rotor blur), and HUD support (radar, indicators) — not from oversizing.
 - **Palettes:**
-  - The player's outpost uses sand, tan, and olive.
-  - The fictional enemy force uses dark gunmetal with red markings and an original emblem.
+  - The player's outpost uses sand, tan, and olive drab.
+  - The fictional enemy force uses dark gunmetal/charcoal with red markings and an original emblem.
   - Enemies must contrast strongly against the orange-red terrain.
-- **Lighting:** modern Roblox lighting with bloom, atmospheric haze, sun rays, and color grading that shifts with the time of day.
-- **Effects:** stylized and punchy — big fireballs, chunky debris, thick dark smoke columns, bright tracers, muzzle flashes, dust kicks, scorch marks. Screen shake used with restraint and scaled to proximity/intensity.
+- **Lighting:** Roblox Future lighting with shadows, atmosphere, a proper sky, bloom, sun rays, and per-time-of-day color grading. Lighting is tuned per scene, not left at defaults.
+- **Effects:** particle-based and grounded — layered fireballs, sparks, dust kicks, thick smoke columns, heat shimmer where cheap, bright tracers, muzzle flashes, debris, and decals for scorch marks. Punchy enough for arcade satisfaction without cartoon shapes. Screen shake used with restraint and scaled to proximity/intensity.
 - **Consistency:** vehicles, weapons, environment, effects, and UI must look like they belong to the same game.
 
 No assets, logos, emblems, or names from Beach Head 2000 or any other existing game may be used or imitated.
@@ -307,7 +310,7 @@ No assets, logos, emblems, or names from Beach Head 2000 or any other existing g
 
 ### 14.1 Hero assets (custom-built in Blender)
 
-These carry the game's visual identity and should be modeled in Blender via Python/CLI, with sources saved to `assets/blender/`, exports to `assets/exported/`, and rendered previews to `assets/previews/`:
+These carry the game's visual identity and should be modeled in Blender via Python/CLI, with sources saved to `assets/blender/`, exports to `assets/exported/`, and rendered previews to `assets/previews/`. Each ships with PBR textures and a reasonable triangle budget for Roblox:
 
 1. **Player emplacement and turret:** a single mount carrying all three weapons (machine gun, rocket pod, AA missile rack), with sandbagged/fortified surroundings.
 2. **Tank.**
@@ -315,13 +318,14 @@ These carry the game's visual identity and should be modeled in Blender via Pyth
 4. **Helicopter** (with a rotor that can spin).
 5. **Jet.**
 6. **Siege Crawler**, with its weak points as separable parts so they can be destroyed individually.
-7. **Mesa rock formation kit** — a few modular rock pieces for building the canyon, mesa, and basin.
+7. **Mesa rock formation kit** — modular rock/cliff meshes for the mesa, canyon walls, and scattered boulders.
+8. **Infantry soldier:** a human-proportioned soldier split into limb meshes (head, torso, arms, legs, rifle) so it can be animated procedurally with Motor6D joints (march, aim, throw, die). No full rigging/animation pipeline required.
 
 ### 14.2 Non-Blender assets
 
-- **Infantry:** stylized blocky soldiers built from Roblox primitives, with simple procedural animation (march, aim, throw, die). No rigging/animation pipeline required.
-- **Terrain:** Roblox terrain for the basin floor, roads, and riverbeds.
-- **Small props:** sandbags, barriers, crates, parachutes, wreck debris, searchlights — built from primitives or simple generated geometry.
+- **Terrain:** Roblox terrain for the basin floor, roads, and riverbeds, using custom PBR material variants.
+- **Small props:** sandbags, barriers, crates, parachutes, wreck debris, searchlights — simple meshes with textures (primitives acceptable only for tiny or distant details).
+- **Textures and particles:** original or generated textures; particle flipbooks for fire, smoke, dust, and sparks.
 
 All assets must be original. Free assets owned by Roblox may be used where they fit the style. Paid assets may not be used.
 
