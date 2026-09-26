@@ -1,292 +1,128 @@
 --!strict
--- Particle recipes for weapon effects (rocket/missile trails, explosions,
--- ricochet sparks, launch backblast). Uses Roblox built-in particle
--- textures only. One-shot bursts live on Attachments in Terrain, so no
--- parts are created for them; everything is capped and self-cleaning.
+-- Particle recipes for our heavy weapons (VFX-2): rocket/missile exhaust
+-- and smoke trails, their explosions, ricochet sparks off armour and the
+-- launch backblast (flash plus dust blown back and down into the gun pit).
+-- Custom flipbooks only (client/Effects); everything is short-lived.
 
-local Debris = game:GetService("Debris")
-local TweenService = game:GetService("TweenService")
-local Workspace = game:GetService("Workspace")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Config = require(ReplicatedStorage.Shared.Config)
+local Effects = require(script.Parent.Effects)
+local Blasts = require(script.Parent.VehicleFxParticles)
 
 local Particles = {}
 
-local TEX = {
-	smoke = "rbxasset://textures/particles/smoke_main.dds",
-	fire = "rbxasset://textures/particles/fire_main.dds",
-	sparks = "rbxasset://textures/particles/sparkles_main.dds",
-	core = "rbxasset://textures/particles/explosion01_core_main.dds",
-	shock = "rbxasset://textures/particles/explosion01_shockwave_main.dds",
-	exSmoke = "rbxasset://textures/particles/explosion01_smoke_main.dds",
-}
-Particles.TEX = TEX
-
-local MAX_BURSTS = 24
-local liveBursts = 0
-
-local function seq(...: number): NumberSequence
-	local values = { ... }
-	if #values == 1 then
-		return NumberSequence.new(values[1])
-	end
-	local keys = {}
-	for i, v in values do
-		table.insert(keys, NumberSequenceKeypoint.new((i - 1) / (#values - 1), v))
-	end
-	return NumberSequence.new(keys)
-end
+local seq, slot, emitAt, rig, upFrame = Effects.seq, Effects.slot, Effects.emitAt, Effects.rig, Effects.upFrame
+local emitter = Effects.emitter
 Particles.seq = seq
 
-local function colors(...: Color3): ColorSequence
-	local values = { ... }
-	if #values == 1 then
-		return ColorSequence.new(values[1])
-	end
-	local keys = {}
-	for i, v in values do
-		table.insert(keys, ColorSequenceKeypoint.new((i - 1) / (#values - 1), v))
-	end
-	return ColorSequence.new(keys)
-end
-Particles.colors = colors
-
--- Creates a ParticleEmitter with sensible defaults, disabled unless
--- props.Enabled is set.
-function Particles.emitter(parent: Instance, props: { [string]: any }): ParticleEmitter
-	local e = Instance.new("ParticleEmitter")
-	e.Enabled = false
-	e.LightInfluence = 0
-	e.Rate = 0
-	e.RotSpeed = NumberRange.new(-60, 60)
-	e.Rotation = NumberRange.new(0, 360)
-	for k, v in props do
-		(e :: any)[k] = v
-	end
-	e.Parent = parent
-	return e
-end
-
-local function flashLight(parent: Instance, color: Color3, range: number, brightness: number, duration: number)
-	local light = Instance.new("PointLight")
-	light.Color = color
-	light.Range = range
-	light.Brightness = brightness
-	light.Shadows = false
-	light.Parent = parent
-	TweenService:Create(light, TweenInfo.new(duration, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Brightness = 0 }):Play()
-end
-
--- A world-space attachment for a one-shot burst; nil when over budget.
-local function burstAnchor(position: Vector3, lifetime: number, up: Vector3?): Attachment?
-	if liveBursts >= MAX_BURSTS then
-		return nil
-	end
-	liveBursts += 1
-	local a = Instance.new("Attachment")
-	a.Name = "WeaponFx"
-	if up and up.Magnitude > 0.01 then
-		-- Emitters shoot along the attachment's +Y.
-		local axis = up.Unit
-		local ref = if math.abs(axis.Y) < 0.95 then Vector3.yAxis else Vector3.xAxis
-		local right = ref:Cross(axis).Unit
-		a.WorldCFrame = CFrame.fromMatrix(position, right, axis)
-	else
-		a.WorldPosition = position
-	end
-	a.Parent = Workspace.Terrain
-	Debris:AddItem(a, lifetime)
-	task.delay(lifetime, function()
-		liveBursts -= 1
-	end)
-	return a
-end
-
--- Big layered explosion. `air` skips the ground dust and throws debris
--- outward; `scale` 1 = rocket.
+-- Our rocket (scale 1) or missile air burst.
 function Particles.explosion(position: Vector3, scale: number, air: boolean)
-	local a = burstAnchor(position, 5, nil)
-	if not a then
-		return
-	end
-	flashLight(a, Color3.fromRGB(255, 160, 80), 45 * scale, 6, 0.45)
-
-	local core = Particles.emitter(a, {
-		Texture = TEX.core,
-		Color = colors(Color3.fromRGB(255, 244, 200), Color3.fromRGB(255, 150, 50), Color3.fromRGB(120, 40, 20)),
-		LightEmission = 1,
-		Size = seq(5 * scale, 16 * scale, 20 * scale),
-		Transparency = seq(0, 0.2, 1),
-		Lifetime = NumberRange.new(0.25, 0.45),
-		Speed = NumberRange.new(4 * scale, 18 * scale),
-		SpreadAngle = Vector2.new(180, 180),
-		Drag = 6,
-		ZOffset = 2,
-	})
-	core:Emit(14)
-
-	local flames = Particles.emitter(a, {
-		Texture = TEX.fire,
-		Color = colors(Color3.fromRGB(255, 210, 120), Color3.fromRGB(255, 110, 30), Color3.fromRGB(60, 30, 20)),
-		LightEmission = 0.8,
-		Size = seq(6 * scale, 13 * scale, 6 * scale),
-		Transparency = seq(0.1, 0.3, 1),
-		Lifetime = NumberRange.new(0.4, 0.9),
-		Speed = NumberRange.new(12 * scale, 34 * scale),
-		SpreadAngle = Vector2.new(180, 180),
-		Acceleration = Vector3.new(0, 14, 0),
-		Drag = 4,
-		ZOffset = 1,
-	})
-	flames:Emit(18)
-
-	local smoke = Particles.emitter(a, {
-		Texture = TEX.smoke,
-		Color = colors(Color3.fromRGB(58, 50, 44), Color3.fromRGB(96, 88, 80)),
-		LightInfluence = 0.8,
-		Size = seq(7 * scale, 18 * scale, 28 * scale),
-		Transparency = seq(0.15, 0.45, 1),
-		Lifetime = NumberRange.new(2.4, 3.8),
-		Speed = NumberRange.new(6 * scale, 16 * scale),
-		SpreadAngle = Vector2.new(180, 180),
-		Acceleration = Vector3.new(0, 7, 0),
-		Drag = 1.6,
-		RotSpeed = NumberRange.new(-25, 25),
-	})
-	smoke:Emit(12)
-
-	local debris = Particles.emitter(a, {
-		Texture = TEX.sparks,
-		Color = colors(Color3.fromRGB(255, 230, 160), Color3.fromRGB(255, 120, 40)),
-		LightEmission = 1,
-		Size = seq(0.9 * scale, 0.3 * scale),
-		Lifetime = NumberRange.new(0.6, 1.3),
-		Speed = NumberRange.new(50 * scale, 110 * scale),
-		SpreadAngle = Vector2.new(180, 180),
-		Acceleration = Vector3.new(0, -110, 0),
-		Drag = 1.2,
-	})
-	debris:Emit(if air then 34 else 24)
-
-	if not air then
-		local dust = Particles.emitter(a, {
-			Texture = TEX.smoke,
-			Color = colors(Color3.fromRGB(196, 150, 104), Color3.fromRGB(176, 136, 98)),
-			LightInfluence = 1,
-			Size = seq(5 * scale, 14 * scale, 20 * scale),
-			Transparency = seq(0.2, 0.5, 1),
-			Lifetime = NumberRange.new(1.4, 2.4),
-			Speed = NumberRange.new(30 * scale, 48 * scale),
-			SpreadAngle = Vector2.new(80, 80),
-			Drag = 3.5,
-		})
-		dust:Emit(10)
-	else
-		local shock = Particles.emitter(a, {
-			Texture = TEX.shock,
-			Color = colors(Color3.fromRGB(255, 220, 170)),
-			LightEmission = 1,
-			Size = seq(2 * scale, 22 * scale),
-			Transparency = seq(0.3, 1),
-			Lifetime = NumberRange.new(0.25, 0.25),
-			Speed = NumberRange.new(0, 0),
-			RotSpeed = NumberRange.new(0, 0),
-		})
-		shock:Emit(1)
-	end
+	Blasts.explosion(position, scale, { air = air, set = "surface" })
 end
 
--- Hot sparks glancing off armour.
-function Particles.ricochet(position: Vector3, normal: Vector3?)
-	local a = burstAnchor(position, 0.8, normal)
-	if not a then
-		return
-	end
-	local sparks = Particles.emitter(a, {
-		Texture = TEX.sparks,
-		Color = colors(Color3.fromRGB(255, 250, 220), Color3.fromRGB(255, 170, 60)),
-		LightEmission = 1,
-		Size = seq(0.5, 0.15),
-		Lifetime = NumberRange.new(0.15, 0.35),
-		Speed = NumberRange.new(35, 75),
-		SpreadAngle = Vector2.new(if normal then 60 else 180, if normal then 60 else 180),
-		Acceleration = Vector3.new(0, -80, 0),
-		Drag = 2,
-	})
-	sparks:Emit(10)
-	flashLight(a, Color3.fromRGB(255, 220, 150), 8, 3, 0.1)
+-- Hot sparks glancing off armour (the server's Ricochet event).
+function Particles.ricochet(position: Vector3, _normal: Vector3?)
+	Effects.impact(position, true, nil, "Metal")
 end
 
--- Launch backblast: flash and a puff of smoke at the muzzle, a smaller puff
--- blown out behind the tube.
+local function buildBackblast(): { [string]: ParticleEmitter? }
+	return {
+		flash = slot("MuzzleFlashBurst", 0.75, { Lifetime = NumberRange.new(0.06, 0.1) }),
+		side = slot("MuzzleFlashSide", 1.1, { Speed = NumberRange.new(0.5), EmissionDirection = Enum.NormalId.Top }),
+		-- Launch smoke hanging at the tube mouth.
+		smoke = slot("MissileTrail", 1.1, {
+			Color = ColorSequence.new(Color3.fromRGB(214, 206, 194)),
+			Transparency = seq(0.3, 0.5, 1),
+			Lifetime = NumberRange.new(1.2, 1.8),
+			Speed = NumberRange.new(4, 10),
+			SpreadAngle = Vector2.new(30, 30),
+			Drag = 3,
+			Acceleration = Vector3.new(0, 2, 0),
+		}),
+		-- Backblast dust thrown back and down into the pit, rolling out low.
+		dust = slot("DustPuff", 0.7, {
+			Color = ColorSequence.new(Effects.DUST),
+			Transparency = seq(0.35, 0.55, 1),
+			Lifetime = NumberRange.new(1.0, 1.6),
+			Speed = NumberRange.new(9, 16),
+			SpreadAngle = Vector2.new(45, 45),
+			Drag = 4,
+			Acceleration = Effects.WIND * 0.5 + Vector3.new(0, 1.5, 0),
+		}),
+	}
+end
+
+-- Launch effects at the muzzle; `dir` is the flight direction and
+-- `bright` marks the missile (whiter flash, white smoke).
 function Particles.backblast(position: Vector3, dir: Vector3, bright: boolean)
-	local a = burstAnchor(position, 3, dir)
-	if not a then
-		return
+	local r = rig("Backblast", buildBackblast, 14, 2)
+	local d = if dir.Magnitude > 1e-3 then dir.Unit else Vector3.zAxis
+	local k = Effects.exposure()
+	local e = r.e
+	local mouth = upFrame(position + d * 1.1, d)
+	for _, name in { "flash", "side" } do
+		local em = e[name]
+		if em then
+			em.Brightness = (if bright then 1.3 else 1.1) * k
+		end
 	end
-	flashLight(a, if bright then Color3.fromRGB(255, 240, 210) else Color3.fromRGB(255, 170, 90), 22, 6, 0.25)
-	local flash = Particles.emitter(a, {
-		Texture = TEX.fire,
-		Color = colors(Color3.fromRGB(255, 230, 170), Color3.fromRGB(255, 130, 40)),
-		LightEmission = 1,
-		Size = seq(2.2, 4),
-		Transparency = seq(0, 1),
-		Lifetime = NumberRange.new(0.08, 0.14),
-		Speed = NumberRange.new(10, 20),
-		SpreadAngle = Vector2.new(20, 20),
-		ZOffset = 1,
-	})
-	flash:Emit(5)
-	local smoke = Particles.emitter(a, {
-		Texture = TEX.smoke,
-		Color = colors(Color3.fromRGB(206, 200, 190), Color3.fromRGB(160, 154, 146)),
-		LightInfluence = 1,
-		Size = seq(2, 6, 9),
-		Transparency = seq(0.35, 0.6, 1),
-		Lifetime = NumberRange.new(1.2, 2),
-		Speed = NumberRange.new(4, 14),
-		SpreadAngle = Vector2.new(40, 40),
-		Drag = 3,
-		Acceleration = Vector3.new(0, 3, 0),
-	})
-	smoke:Emit(8)
+	-- Down the gunsight the camera sits at the tubes: no sprites in its face.
+	local sighted = Effects.camDistance(position) < 10
+	if not sighted then
+		emitAt(e.flash, mouth, 1)
+		emitAt(e.side, mouth, 1)
+		emitAt(e.smoke, mouth, if bright then 4 else 3)
+	end
+	-- The pod's exhaust leaves the rear of the tubes: aim the dust back
+	-- and down into the gun pit so it stays under the camera's view.
+	local back = Vector3.new(-d.X, 0, -d.Z)
+	back = if back.Magnitude > 1e-3 then back.Unit else Vector3.zAxis
+	local rear = Config.TURRET_PIVOT + back * 3 + Vector3.new(0, -3.5, 0)
+	emitAt(e.dust, upFrame(rear, (back - Vector3.new(0, 1.2, 0)).Unit), if bright then 2 else 4)
+	Effects.placeLight(r.light, mouth)
+	Effects.pulse(r.light, if bright then Color3.fromRGB(255, 236, 206) else Color3.fromRGB(255, 176, 96), 2.6 * k, 0.12)
 end
 
--- Continuous emitters on a projectile's tail attachment. Returns them so
--- the caller can disable them on impact.
+-- Continuous emitters on a projectile's tail attachment (+Y points out of
+-- the back). Returned so the caller can disable them on impact.
 function Particles.trail(tail: Attachment, kind: string): { ParticleEmitter }
 	local missile = kind == "Missile"
-	local flame = Particles.emitter(tail, {
-		Enabled = true,
-		Texture = TEX.fire,
-		Color = if missile
-			then colors(Color3.fromRGB(255, 255, 240), Color3.fromRGB(255, 200, 120))
-			else colors(Color3.fromRGB(255, 220, 150), Color3.fromRGB(255, 120, 40)),
-		LightEmission = 1,
-		Size = if missile then seq(1.6, 0.4) else seq(1.3, 0.3),
-		Transparency = seq(0, 1),
-		Lifetime = NumberRange.new(0.04, 0.08),
-		Rate = 120,
-		Speed = NumberRange.new(0, 0),
+	local k = Effects.exposure()
+	local out = {}
+	local flame = emitter(tail, "RocketExhaust", if missile then 0.8 else 0.6, {
+		Speed = NumberRange.new(1),
 		LockedToPart = true,
-		ZOffset = 1,
+		Brightness = 1.2 * k,
+		Rate = 45,
 	})
-	local smoke = Particles.emitter(tail, {
-		Enabled = true,
-		Texture = TEX.smoke,
-		Color = if missile
-			then colors(Color3.fromRGB(236, 234, 230), Color3.fromRGB(200, 198, 194))
-			else colors(Color3.fromRGB(190, 184, 176), Color3.fromRGB(140, 134, 128)),
-		LightInfluence = 1,
-		Size = if missile then seq(1.2, 4, 7) else seq(1.4, 4.5, 8),
-		Transparency = if missile then seq(0.25, 0.55, 1) else seq(0.3, 0.6, 1),
-		Lifetime = if missile then NumberRange.new(1.8, 2.6) else NumberRange.new(1.1, 1.8),
-		Rate = if missile then 110 else 90,
-		Speed = NumberRange.new(0.5, 2.5),
-		SpreadAngle = Vector2.new(12, 12),
+	-- Seen from the gun the trail runs along the line of sight and its puffs
+	-- stack up: keep the rocket's short and thin (the missile's curves away).
+	local smoke = emitter(tail, "MissileTrail", if missile then 1 else 0.7, {
+		Color = ColorSequence.new(if missile then Color3.fromRGB(226, 224, 218) else Color3.fromRGB(168, 160, 148)),
+		Transparency = if missile then seq(0.1, 0.35, 1) else seq(0.5, 0.7, 1),
+		Lifetime = if missile then NumberRange.new(1.8, 2.6) else NumberRange.new(0.7, 1.1),
+		Rate = if missile then 70 else 28,
+		Speed = NumberRange.new(0.5, 2),
+		SpreadAngle = Vector2.new(10, 10),
 		Drag = 1,
-		Acceleration = Vector3.new(0, 1.5, 0),
-		RotSpeed = NumberRange.new(-40, 40),
+		Acceleration = Vector3.new(0, 1.2, 0),
 	})
-	return { flame, smoke }
+	if flame then
+		flame.Enabled = true
+		table.insert(out, flame)
+	end
+	if smoke then
+		table.insert(out, smoke)
+		-- Start the smoke trail a few dozen studs out so it never drifts
+		-- across the gunsight the round was fired from.
+		task.delay(if missile then 0.16 else 0.09, function()
+			if smoke.Parent and tail.Parent and not tail:GetAttribute("Done") then
+				smoke.Enabled = true
+			end
+		end)
+	end
+	return out
 end
 
 return Particles

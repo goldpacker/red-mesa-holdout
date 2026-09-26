@@ -46,6 +46,8 @@ same sheet (Mantaflow aside, which can differ slightly between runs).
 | MuzzleFlashBurst | painted, 64 variants | random variant per particle | baked | centre |
 | RocketExhaust | painted, seamless 64-frame loop | Loop | baked | nozzle at 85% down |
 | Sparks | painted ballistic streaks | OneShot | baked | centre |
+| Flames | painted, seamless 64-frame loop (`sheets/fire.py`, VFX-2) | Loop | baked | base at 89% down |
+| RockChips | painted chips + dust cloud (`sheets/fire.py`, VFX-2) | OneShot | greyscale, tint | centre |
 | TracerBeam | painted 512x128 Beam texture (U along beam, tiles) | - | white, tint | - |
 | ShockwaveRing | painted 1024² top-down ring | - | white, tint | centre |
 | ScorchMark | painted 1024² top-down decal | - | baked | centre |
@@ -117,3 +119,34 @@ alpha reaching 0 before the image edge.
    `assets/vfx/previews/<Name>.png`, iterate; then a full render.
 4. `python3 tools/vfx/upload.py <Name>`, add its entry to `ENTRIES` in
    `src/shared/Flipbooks.luau`, test with a temporary emitter in Studio.
+
+## In game (VFX-2)
+
+The effect code uses these textures only (no built-in particle textures):
+
+| Module | What |
+|---|---|
+| `src/client/Effects.luau` | shared helpers (`emitter`, pooled `rig`s, `anchor`, `flash`, `pulse`, `exposure`, `lod`, `groundBelow`, `surfaceOf`), pooled Beam tracers, our MG muzzle flash, bullet impacts by surface, enemy muzzle flashes / rifle shots / grenades |
+| `src/client/VehicleFxParticles.luau` | layered explosion, debris meshes, scorch decals, lasting fires, trails, enemy projectiles/bombs, glints |
+| `src/client/WeaponFxParticles.luau` | rocket/missile exhaust + smoke, backblast, ricochets |
+| `src/client/WeaponFx.luau`, `EnemyFireFx.luau`, `VehicleFx.luau` | drive the above from game events |
+
+Debris meshes (`Shard1-4`, `Chunk1-2`, `Clod1-2`, `Bomb`, `Rocket`) come
+from the `VfxDebris` asset: `tools/assets/models/vfx_debris.py`, built and
+published with the standard asset pipeline (`docs/ASSET_PIPELINE.md`) into
+`assets/roblox/VfxDebris.rbxmx` (ReplicatedStorage.Assets.VfxDebris).
+
+Brightness: emissive sprites, beams and flash lights scale by
+`Effects.exposure()` = `2^(-0.85 * Lighting.ExposureCompensation)` so the
+dusk/night exposure boost doesn't blow them out against the bloom.
+
+### Capture harness (`tools/vfx/qa/`)
+
+`fxharness.client.luau` / `fxharness.server.luau`: paste each into MCP
+`execute_luau` (Client / Server) once per Play session. They install
+`ReplicatedStorage.FxHarness` (aim, fire, weapon, freeze/unfreeze, probe)
+and `ServerStorage.FxHarnessServer` (enemy fire through the real
+`EnemyFire` GameEvent: `shell`, `bombs`, `heliRockets`, `volley`). Stage
+with `RedMesaDebug:Invoke("beauty", {shot = 2, tod = ...})`, trigger, then
+`H.freeze()` (particle `TimeScale` 0 + `FxFreeze`) to hold a phase for
+`screen_capture`. Captures: `qa/beauty/vfx-2/`.

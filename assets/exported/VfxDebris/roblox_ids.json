@@ -1,0 +1,30 @@
+{
+ "hashes": {
+  "glb": "57bce46255bb6f6e",
+  "main/color": "f3a762853104d124",
+  "main/metal": "aa72d7cd1adb1f0d",
+  "main/normal": "d99ac656ee93133a",
+  "main/rough": "4083c64537232931"
+ },
+ "meshes": {
+  "Bomb": "rbxassetid://83040285855916",
+  "Chunk1": "rbxassetid://82801685155123",
+  "Chunk2": "rbxassetid://81585532872734",
+  "Clod1": "rbxassetid://97250411592498",
+  "Clod2": "rbxassetid://74854120259845",
+  "Rocket": "rbxassetid://105449910371621",
+  "Shard1": "rbxassetid://81709962529979",
+  "Shard2": "rbxassetid://114932225321956",
+  "Shard3": "rbxassetid://117412649412072",
+  "Shard4": "rbxassetid://114573200151493"
+ },
+ "model": "104498773011448",
+ "textures": {
+  "main": {
+   "color": "rbxassetid://109435103168248",
+   "metal": "rbxassetid://81215834459528",
+   "normal": "rbxassetid://102552230643784",
+   "rough": "rbxassetid://88890466724347"
+  }
+ }
+}

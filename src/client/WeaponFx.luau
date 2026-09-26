@@ -1,6 +1,8 @@
 --!strict
 -- Client rendering of server-simulated rockets and missiles, their
--- explosions, and machine-gun ricochets on armour.
+-- explosions, and machine-gun ricochets on armour. VFX-2: the rocket is
+-- the VfxDebris.Rocket mesh and the missile a copy of the rack's missile,
+-- with flipbook exhaust, smoke trails and layered explosions.
 --
 -- Server events (Remotes.GameEvent):
 --   Projectile    {id, kind, origin, dir, speed, t0, owner, token, targetId}
@@ -15,7 +17,10 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local WeaponConfig = require(ReplicatedStorage.Shared.WeaponConfig)
+local Flipbooks = require(ReplicatedStorage.Shared.Flipbooks)
 local AimController = require(script.Parent.AimController)
+local Blasts = require(script.Parent.VehicleFxParticles)
+local Effects = require(script.Parent.Effects)
 local GameState = require(script.Parent.GameState)
 local Particles = require(script.Parent.WeaponFxParticles)
 local Sfx = require(script.Parent.Sfx)
@@ -88,30 +93,60 @@ local function enemyModel(id: number?): Model?
 	return nil
 end
 
+-- The rack's own missile mesh (HS asset), so the round that leaves the
+-- rail looks like the one that was on it.
+local function missileMesh(): BasePart?
+	local battlefield = Workspace:FindFirstChild("Battlefield")
+	local emplacement = battlefield and battlefield:FindFirstChild("Emplacement")
+	local rack = emplacement and emplacement:FindFirstChild("Missile1", true)
+	if rack and rack:IsA("BasePart") then
+		local copy = rack:Clone()
+		copy:ClearAllChildren()
+		for _, name in { "SurfaceAppearance" } do
+			local sa = rack:FindFirstChildOfClass(name)
+			if sa then
+				sa:Clone().Parent = copy
+			end
+		end
+		copy.Transparency = 0
+		copy.LocalTransparencyModifier = 0
+		return copy
+	end
+	return nil
+end
+
 local function buildBody(kind: string): (BasePart, { ParticleEmitter })
 	local missile = kind == "Missile"
-	local body = Instance.new("Part")
+	local mesh = if missile then missileMesh() else Blasts.piece("Rocket")
+	local body: BasePart
+	if mesh then
+		body = mesh
+	else
+		-- No mesh available: an invisible carrier (the exhaust carries the look).
+		local p = Instance.new("Part")
+		p.Size = if missile then Vector3.new(0.45, 0.45, 3.4) else Vector3.new(0.5, 0.5, 2.6)
+		p.Transparency = 1
+		body = p
+	end
 	body.Name = kind
 	body.Anchored = true
 	body.CanCollide = false
 	body.CanQuery = false
 	body.CanTouch = false
 	body.CastShadow = false
-	body.Material = Enum.Material.Metal
-	body.Color = if missile then Color3.fromRGB(226, 226, 216) else Color3.fromRGB(78, 84, 56)
-	body.Size = if missile then Vector3.new(0.45, 0.45, 3.4) else Vector3.new(0.6, 0.6, 2.6)
 	local tail = Instance.new("Attachment")
 	tail.Name = "Tail"
 	-- Emitters shoot along +Y; point it out of the back (+Z).
 	tail.CFrame = CFrame.new(0, 0, body.Size.Z / 2) * CFrame.Angles(math.rad(90), 0, 0)
 	tail.Parent = body
+	local k = Effects.exposure()
 	local light = Instance.new("PointLight")
 	light.Color = if missile then Color3.fromRGB(255, 236, 200) else Color3.fromRGB(255, 170, 90)
-	light.Range = if missile then 18 else 12
-	light.Brightness = if missile then 4 else 2.5
+	light.Range = if missile then 16 else 12
+	light.Brightness = (if missile then 3 else 2.2) * k
 	light.Shadows = false
 	light.Parent = tail
-	-- Short bright exhaust streak.
+	-- Short hot exhaust streak (textured, fades to the tail).
 	local a0 = Instance.new("Attachment")
 	a0.Position = Vector3.new(0, 0.15, body.Size.Z / 2)
 	a0.Parent = body
@@ -121,13 +156,16 @@ local function buildBody(kind: string): (BasePart, { ParticleEmitter })
 	local trail = Instance.new("Trail")
 	trail.Attachment0 = a0
 	trail.Attachment1 = a1
-	trail.Lifetime = if missile then 0.35 else 0.15
+	trail.Texture = Flipbooks.texture("TracerBeam") or ""
+	trail.TextureMode = Enum.TextureMode.Stretch
+	trail.Lifetime = if missile then 0.3 else 0.15
 	trail.LightEmission = 1
+	trail.Brightness = 1.6 * k
 	trail.FaceCamera = true
 	trail.WidthScale = NumberSequence.new(1, 0.2)
 	trail.Color = if missile
-		then ColorSequence.new(Color3.fromRGB(255, 255, 240), Color3.fromRGB(255, 190, 120))
-		else ColorSequence.new(Color3.fromRGB(255, 200, 120), Color3.fromRGB(255, 110, 40))
+		then ColorSequence.new(Color3.fromRGB(255, 250, 236), Color3.fromRGB(255, 190, 120))
+		else ColorSequence.new(Color3.fromRGB(255, 206, 130), Color3.fromRGB(255, 110, 40))
 	trail.Transparency = NumberSequence.new(0.1, 1)
 	trail.Parent = body
 	local emitters = Particles.trail(tail, kind)
@@ -154,6 +192,10 @@ local function retire(v: Visual)
 		return
 	end
 	v.done = true
+	local tail = v.part:FindFirstChild("Tail")
+	if tail then
+		tail:SetAttribute("Done", true) -- stops the delayed smoke start
+	end
 	for _, e in v.emitters do
 		e.Enabled = false
 	end

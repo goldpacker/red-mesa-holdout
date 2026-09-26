@@ -17,6 +17,12 @@
 -- Flipbooks.apply(emitter, name, scale?) sets texture + flipbook playback and
 -- the suggested look; callers still own Rate/Speed/Acceleration/Enabled.
 -- Returns false (and changes nothing) when the texture isn't uploaded.
+--
+-- Brightness values are the afternoon ones, tuned in game at real weapon
+-- distances against LightingRig's bloom (VFX-2). At lower bloom
+-- thresholds (dusk/night) scale emissive Brightness by
+-- client/Effects.exposure() (~0.57 at night) or flashes turn into white
+-- halos.
 
 local Flipbooks = {}
 
@@ -58,6 +64,8 @@ local IDS: { [string]: string } = {
 	MuzzleFlashBurst = "rbxassetid://100409497539336",
 	RocketExhaust = "rbxassetid://78564296486904",
 	Sparks = "rbxassetid://105554500519561",
+	Flames = "rbxassetid://112483539287686",
+	RockChips = "rbxassetid://124013513360860",
 	TracerBeam = "rbxassetid://72994897813399",
 	ShockwaveRing = "rbxassetid://96437980176600",
 	ScorchMark = "rbxassetid://135513625298189",
@@ -82,9 +90,9 @@ local ENTRIES: { [string]: Entry } = {
 			size = { 9, 20, 24 },
 			transparency = { 0, 0, 0.15 },
 			color = Color3.new(1, 1, 1),
-			lightEmission = 0.35,
+			lightEmission = 0.25,
 			lightInfluence = 0.15,
-			brightness = 2,
+			brightness = 1.3,
 			orientation = Enum.ParticleOrientation.FacingCamera,
 			rotation = { 0, 360 },
 			rotSpeed = { -20, 20 },
@@ -191,7 +199,7 @@ local ENTRIES: { [string]: Entry } = {
 			color = Color3.new(1, 1, 1),
 			lightEmission = 1,
 			lightInfluence = 0,
-			brightness = 1.5,
+			brightness = 0.9,
 			orientation = Enum.ParticleOrientation.FacingCamera,
 			rotation = { 0, 360 },
 			rotSpeed = { 0, 0 },
@@ -214,7 +222,7 @@ local ENTRIES: { [string]: Entry } = {
 			color = Color3.new(1, 1, 1),
 			lightEmission = 1,
 			lightInfluence = 0,
-			brightness = 1.5,
+			brightness = 1.1,
 			orientation = Enum.ParticleOrientation.VelocityParallel,
 			rotation = { -90, -90 },
 			rotSpeed = { 0, 0 },
@@ -237,7 +245,7 @@ local ENTRIES: { [string]: Entry } = {
 			color = Color3.new(1, 1, 1),
 			lightEmission = 1,
 			lightInfluence = 0,
-			brightness = 1.5,
+			brightness = 1.2,
 			orientation = Enum.ParticleOrientation.FacingCamera,
 			rotation = { 0, 360 },
 			rotSpeed = { 0, 0 },
@@ -260,7 +268,7 @@ local ENTRIES: { [string]: Entry } = {
 			color = Color3.new(1, 1, 1),
 			lightEmission = 1,
 			lightInfluence = 0,
-			brightness = 1.5,
+			brightness = 1.2,
 			orientation = Enum.ParticleOrientation.VelocityParallel,
 			rotation = { -90, -90 },
 			rotSpeed = { 0, 0 },
@@ -282,7 +290,51 @@ local ENTRIES: { [string]: Entry } = {
 			color = Color3.new(1, 1, 1),
 			lightEmission = 1,
 			lightInfluence = 0,
-			brightness = 2,
+			brightness = 1.6,
+			orientation = Enum.ParticleOrientation.FacingCameraWorldUp,
+			rotation = { 0, 0 },
+			rotSpeed = { 0, 0 },
+		},
+	},
+	Flames = {
+		kind = "Sheet",
+		frames = 64,
+		mode = Enum.ParticleFlipbookMode.Loop,
+		fps = 30,
+		startRandom = true,
+		tinted = false,
+		anchor = Vector2.new(0.5, 0.89),
+		size = SHEET,
+		notes = "Seamless 64-frame loop of licking flames for lasting fires (wrecks, the emplacement at defeat, crashing aircraft). Base line 39% below centre: spawn at fire base + up * 0.39 * size. Keep upright (FacingCameraWorldUp, no rotation); overlap 2-4 particles with a fade-in/out Transparency. Colour baked (yellow core, orange body, red tips).",
+		suggest = {
+			lifetime = { 0.8, 1.2 },
+			size = { 3.2, 4.2, 3.6 },
+			transparency = { 0.6, 0.05, 0.1, 1 },
+			color = Color3.new(1, 1, 1),
+			lightEmission = 0.55,
+			lightInfluence = 0,
+			brightness = 1.4,
+			orientation = Enum.ParticleOrientation.FacingCameraWorldUp,
+			rotation = { 0, 0 },
+			rotSpeed = { 0, 0 },
+		},
+	},
+	RockChips = {
+		kind = "Sheet",
+		frames = 64,
+		mode = Enum.ParticleFlipbookMode.OneShot,
+		fps = 64,
+		tinted = true,
+		anchor = CENTRE,
+		size = SHEET,
+		notes = "Bullet hit on rock: dark motion-blurred chips thrown up and out under gravity, and a dust cloud that swells and thins. Greyscale: tint to the rock (cliff rust ~150,84,58). Keep upright (FacingCameraWorldUp).",
+		suggest = {
+			lifetime = { 0.7, 0.9 },
+			size = { 4.2, 5 },
+			transparency = { 0, 0 },
+			color = Color3.fromRGB(150, 84, 58),
+			lightEmission = 0,
+			lightInfluence = 1,
 			orientation = Enum.ParticleOrientation.FacingCameraWorldUp,
 			rotation = { 0, 0 },
 			rotSpeed = { 0, 0 },

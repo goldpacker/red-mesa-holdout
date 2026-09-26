@@ -1,0 +1,278 @@
+<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" version="4">
+  <Item class="Model" referent="RBX00000001">
+    <Properties>
+      <string name="Name">VfxDebris</string>
+      <OptionalCoordinateFrame name="WorldPivotData"><CFrame><X>0</X><Y>0</Y><Z>-0</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CFrame></OptionalCoordinateFrame>
+    </Properties>
+    <Item class="MeshPart" referent="RBX00000002">
+      <Properties>
+        <string name="Name">Shard1</string>
+        <Content name="MeshId"><url>rbxassetid://81709962529979</url></Content>
+        <Vector3 name="InitialSize"><X>1.4194</X><Y>0.3818</Y><Z>0.8668</Z></Vector3>
+        <Vector3 name="size"><X>1.4194</X><Y>0.3818</Y><Z>0.8668</Z></Vector3>
+        <CoordinateFrame name="CFrame"><X>-8.8893</X><Y>0.9403</Y><Z>0.0257</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="CollisionFidelity">2</token>
+        <float name="Transparency">0</float>
+        <token name="Material">1088</token>
+        <Color3uint8 name="Color3uint8">4294967295</Color3uint8>
+      </Properties>
+      <Item class="SurfaceAppearance" referent="RBX00000003">
+        <Properties>
+          <string name="Name">SurfaceAppearance</string>
+          <Content name="ColorMap"><url>rbxassetid://109435103168248</url></Content>
+          <Content name="NormalMap"><url>rbxassetid://102552230643784</url></Content>
+          <Content name="RoughnessMap"><url>rbxassetid://88890466724347</url></Content>
+          <Content name="MetalnessMap"><url>rbxassetid://81215834459528</url></Content>
+        </Properties>
+      </Item>
+    </Item>
+    <Item class="MeshPart" referent="RBX00000004">
+      <Properties>
+        <string name="Name">Shard2</string>
+        <Content name="MeshId"><url>rbxassetid://114932225321956</url></Content>
+        <Vector3 name="InitialSize"><X>1.2201</X><Y>0.3342</Y><Z>1.4201</Z></Vector3>
+        <Vector3 name="size"><X>1.2201</X><Y>0.3342</Y><Z>1.4201</Z></Vector3>
+        <CoordinateFrame name="CFrame"><X>-7.0704</X><Y>0.8799</Y><Z>-0.0115</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="CollisionFidelity">2</token>
+        <float name="Transparency">0</float>
+        <token name="Material">1088</token>
+        <Color3uint8 name="Color3uint8">4294967295</Color3uint8>
+      </Properties>
+      <Item class="SurfaceAppearance" referent="RBX00000005">
+        <Properties>
+          <string name="Name">SurfaceAppearance</string>
+          <Content name="ColorMap"><url>rbxassetid://109435103168248</url></Content>
+          <Content name="NormalMap"><url>rbxassetid://102552230643784</url></Content>
+          <Content name="RoughnessMap"><url>rbxassetid://88890466724347</url></Content>
+          <Content name="MetalnessMap"><url>rbxassetid://81215834459528</url></Content>
+        </Properties>
+      </Item>
+    </Item>
+    <Item class="MeshPart" referent="RBX00000006">
+      <Properties>
+        <string name="Name">Shard3</string>
+        <Content name="MeshId"><url>rbxassetid://117412649412072</url></Content>
+        <Vector3 name="InitialSize"><X>0.9772</X><Y>0.4447</Y><Z>1.5363</Z></Vector3>
+        <Vector3 name="size"><X>0.9772</X><Y>0.4447</Y><Z>1.5363</Z></Vector3>
+        <CoordinateFrame name="CFrame"><X>-4.9892</X><Y>0.9812</Y><Z>-0.0517</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="CollisionFidelity">2</token>
+        <float name="Transparency">0</float>
+        <token name="Material">1088</token>
+        <Color3uint8 name="Color3uint8">4294967295</Color3uint8>
+      </Properties>
+      <Item class="SurfaceAppearance" referent="RBX00000007">
+        <Properties>
+          <string name="Name">SurfaceAppearance</string>
+          <Content name="ColorMap"><url>rbxassetid://109435103168248</url></Content>
+          <Content name="NormalMap"><url>rbxassetid://102552230643784</url></Content>
+          <Content name="RoughnessMap"><url>rbxassetid://88890466724347</url></Content>
+          <Content name="MetalnessMap"><url>rbxassetid://81215834459528</url></Content>
+        </Properties>
+      </Item>
+    </Item>
+    <Item class="MeshPart" referent="RBX00000008">
+      <Properties>
+        <string name="Name">Shard4</string>
+        <Content name="MeshId"><url>rbxassetid://114573200151493</url></Content>
+        <Vector3 name="InitialSize"><X>1.0343</X><Y>0.2665</Y><Z>1.0761</Z></Vector3>
+        <Vector3 name="size"><X>1.0343</X><Y>0.2665</Y><Z>1.0761</Z></Vector3>
+        <CoordinateFrame name="CFrame"><X>-2.9173</X><Y>0.8669</Y><Z>-0.02</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="CollisionFidelity">2</token>
+        <float name="Transparency">0</float>
+        <token name="Material">1088</token>
+        <Color3uint8 name="Color3uint8">4294967295</Color3uint8>
+      </Properties>
+      <Item class="SurfaceAppearance" referent="RBX00000009">
+        <Properties>
+          <string name="Name">SurfaceAppearance</string>
+          <Content name="ColorMap"><url>rbxassetid://109435103168248</url></Content>
+          <Content name="NormalMap"><url>rbxassetid://102552230643784</url></Content>
+          <Content name="RoughnessMap"><url>rbxassetid://88890466724347</url></Content>
+          <Content name="MetalnessMap"><url>rbxassetid://81215834459528</url></Content>
+        </Properties>
+      </Item>
+    </Item>
+    <Item class="MeshPart" referent="RBX0000000A">
+      <Properties>
+        <string name="Name">Chunk1</string>
+        <Content name="MeshId"><url>rbxassetid://82801685155123</url></Content>
+        <Vector3 name="InitialSize"><X>0.7648</X><Y>0.7877</Y><Z>0.7881</Z></Vector3>
+        <Vector3 name="size"><X>0.7648</X><Y>0.7877</Y><Z>0.7881</Z></Vector3>
+        <CoordinateFrame name="CFrame"><X>-1.0094</X><Y>1.0053</Y><Z>0.0218</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="CollisionFidelity">2</token>
+        <float name="Transparency">0</float>
+        <token name="Material">912</token>
+        <Color3uint8 name="Color3uint8">4294967295</Color3uint8>
+      </Properties>
+      <Item class="SurfaceAppearance" referent="RBX0000000B">
+        <Properties>
+          <string name="Name">SurfaceAppearance</string>
+          <Content name="ColorMap"><url>rbxassetid://109435103168248</url></Content>
+          <Content name="NormalMap"><url>rbxassetid://102552230643784</url></Content>
+          <Content name="RoughnessMap"><url>rbxassetid://88890466724347</url></Content>
+          <Content name="MetalnessMap"><url>rbxassetid://81215834459528</url></Content>
+        </Properties>
+      </Item>
+    </Item>
+    <Item class="MeshPart" referent="RBX0000000C">
+      <Properties>
+        <string name="Name">Chunk2</string>
+        <Content name="MeshId"><url>rbxassetid://81585532872734</url></Content>
+        <Vector3 name="InitialSize"><X>1.0131</X><Y>0.8461</Y><Z>1.0284</Z></Vector3>
+        <Vector3 name="size"><X>1.0131</X><Y>0.8461</Y><Z>1.0284</Z></Vector3>
+        <CoordinateFrame name="CFrame"><X>0.9892</X><Y>1.0575</Y><Z>0.0469</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="CollisionFidelity">2</token>
+        <float name="Transparency">0</float>
+        <token name="Material">912</token>
+        <Color3uint8 name="Color3uint8">4294967295</Color3uint8>
+      </Properties>
+      <Item class="SurfaceAppearance" referent="RBX0000000D">
+        <Properties>
+          <string name="Name">SurfaceAppearance</string>
+          <Content name="ColorMap"><url>rbxassetid://109435103168248</url></Content>
+          <Content name="NormalMap"><url>rbxassetid://102552230643784</url></Content>
+          <Content name="RoughnessMap"><url>rbxassetid://88890466724347</url></Content>
+          <Content name="MetalnessMap"><url>rbxassetid://81215834459528</url></Content>
+        </Properties>
+      </Item>
+    </Item>
+    <Item class="MeshPart" referent="RBX0000000E">
+      <Properties>
+        <string name="Name">Clod1</string>
+        <Content name="MeshId"><url>rbxassetid://97250411592498</url></Content>
+        <Vector3 name="InitialSize"><X>0.8554</X><Y>0.6409</Y><Z>0.9574</Z></Vector3>
+        <Vector3 name="size"><X>0.8554</X><Y>0.6409</Y><Z>0.9574</Z></Vector3>
+        <CoordinateFrame name="CFrame"><X>3.0109</X><Y>0.9682</Y><Z>-0.0453</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="CollisionFidelity">2</token>
+        <float name="Transparency">0</float>
+        <token name="Material">1296</token>
+        <Color3uint8 name="Color3uint8">4294967295</Color3uint8>
+      </Properties>
+      <Item class="SurfaceAppearance" referent="RBX0000000F">
+        <Properties>
+          <string name="Name">SurfaceAppearance</string>
+          <Content name="ColorMap"><url>rbxassetid://109435103168248</url></Content>
+          <Content name="NormalMap"><url>rbxassetid://102552230643784</url></Content>
+          <Content name="RoughnessMap"><url>rbxassetid://88890466724347</url></Content>
+          <Content name="MetalnessMap"><url>rbxassetid://81215834459528</url></Content>
+        </Properties>
+      </Item>
+    </Item>
+    <Item class="MeshPart" referent="RBX00000010">
+      <Properties>
+        <string name="Name">Clod2</string>
+        <Content name="MeshId"><url>rbxassetid://74854120259845</url></Content>
+        <Vector3 name="InitialSize"><X>1.1767</X><Y>0.5707</Y><Z>1.0038</Z></Vector3>
+        <Vector3 name="size"><X>1.1767</X><Y>0.5707</Y><Z>1.0038</Z></Vector3>
+        <CoordinateFrame name="CFrame"><X>5.0184</X><Y>1.0161</Y><Z>0.0413</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="CollisionFidelity">2</token>
+        <float name="Transparency">0</float>
+        <token name="Material">1296</token>
+        <Color3uint8 name="Color3uint8">4294967295</Color3uint8>
+      </Properties>
+      <Item class="SurfaceAppearance" referent="RBX00000011">
+        <Properties>
+          <string name="Name">SurfaceAppearance</string>
+          <Content name="ColorMap"><url>rbxassetid://109435103168248</url></Content>
+          <Content name="NormalMap"><url>rbxassetid://102552230643784</url></Content>
+          <Content name="RoughnessMap"><url>rbxassetid://88890466724347</url></Content>
+          <Content name="MetalnessMap"><url>rbxassetid://81215834459528</url></Content>
+        </Properties>
+      </Item>
+    </Item>
+    <Item class="MeshPart" referent="RBX00000012">
+      <Properties>
+        <string name="Name">Bomb</string>
+        <Content name="MeshId"><url>rbxassetid://83040285855916</url></Content>
+        <Vector3 name="InitialSize"><X>1.24</X><Y>1.24</Y><Z>3.325</Z></Vector3>
+        <Vector3 name="size"><X>1.24</X><Y>1.24</Y><Z>3.325</Z></Vector3>
+        <CoordinateFrame name="CFrame"><X>9</X><Y>1</Y><Z>-0.1375</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="CollisionFidelity">2</token>
+        <float name="Transparency">0</float>
+        <token name="Material">1088</token>
+        <Color3uint8 name="Color3uint8">4294967295</Color3uint8>
+      </Properties>
+      <Item class="SurfaceAppearance" referent="RBX00000013">
+        <Properties>
+          <string name="Name">SurfaceAppearance</string>
+          <Content name="ColorMap"><url>rbxassetid://109435103168248</url></Content>
+          <Content name="NormalMap"><url>rbxassetid://102552230643784</url></Content>
+          <Content name="RoughnessMap"><url>rbxassetid://88890466724347</url></Content>
+          <Content name="MetalnessMap"><url>rbxassetid://81215834459528</url></Content>
+        </Properties>
+      </Item>
+    </Item>
+    <Item class="MeshPart" referent="RBX00000014">
+      <Properties>
+        <string name="Name">Rocket</string>
+        <Content name="MeshId"><url>rbxassetid://105449910371621</url></Content>
+        <Vector3 name="InitialSize"><X>0.4979</X><Y>0.4979</Y><Z>2.6</Z></Vector3>
+        <Vector3 name="size"><X>0.4979</X><Y>0.4979</Y><Z>2.6</Z></Vector3>
+        <CoordinateFrame name="CFrame"><X>12</X><Y>1</Y><Z>-0</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="CollisionFidelity">2</token>
+        <float name="Transparency">0</float>
+        <token name="Material">1088</token>
+        <Color3uint8 name="Color3uint8">4294967295</Color3uint8>
+      </Properties>
+      <Item class="SurfaceAppearance" referent="RBX00000015">
+        <Properties>
+          <string name="Name">SurfaceAppearance</string>
+          <Content name="ColorMap"><url>rbxassetid://109435103168248</url></Content>
+          <Content name="NormalMap"><url>rbxassetid://102552230643784</url></Content>
+          <Content name="RoughnessMap"><url>rbxassetid://88890466724347</url></Content>
+          <Content name="MetalnessMap"><url>rbxassetid://81215834459528</url></Content>
+        </Properties>
+      </Item>
+    </Item>
+  </Item>
+</roblox>

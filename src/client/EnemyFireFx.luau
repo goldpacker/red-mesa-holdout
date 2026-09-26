@@ -4,7 +4,8 @@
 -- helicopter salvo warnings and rockets, jet bombs, and the Siege
 -- Crawler's turrets and main cannon. Flight times come from
 -- EnemyConfig.Flight so visuals land when the server applies damage.
--- Owned by the enemies workstream.
+-- VFX-2: custom flipbook flashes, textured red tracers, beam-streak shells,
+-- rocket exhaust, a real bomb mesh and layered outpost impacts.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -18,7 +19,7 @@ local Sfx = require(script.Parent.Sfx)
 local EnemyFireFx = {}
 
 local FLIGHT = EnemyConfig.Flight
-local TRACER_RED = Color3.fromRGB(255, 96, 60)
+local TRACER_RED = Effects.RED
 local SHELL_COLOR = Color3.fromRGB(255, 214, 150)
 local BOSS_COLOR = Color3.fromRGB(255, 120, 60)
 
@@ -48,7 +49,7 @@ local function buggyBurst(p: any)
 			Particles.muzzle(p.from, dir(p.from, to), 0.35, TRACER_RED)
 			Effects.tracer(p.from, to, TRACER_RED, 0.35)
 			task.delay(FLIGHT.BUGGY_ROUND, function()
-				Effects.impact(to, false)
+				Effects.impact(to, false, p.from)
 			end)
 		end)
 	end
@@ -58,7 +59,7 @@ local function tankShell(p: any)
 	local d = dir(p.from, p.to)
 	Particles.muzzle(p.from, d, 2.2)
 	-- Blast dust kicked up around the tank.
-	Particles.explosion(p.from - d * 6 - Vector3.new(0, 5, 0), 0.9, { light = true, debris = false })
+	Particles.dustRing(p.from - d * 4, 1.4)
 	Sfx.playAt("TankCannon", p.from, 0.1)
 	local shell = Particles.projectile(7, 0.55, SHELL_COLOR, false, 14)
 	Particles.fly(shell, p.from, p.to, FLIGHT.TANK_SHELL, 6, function()
@@ -82,8 +83,7 @@ local function jetBombs(p: any)
 	for i = 1, count do
 		task.delay((i - 1) * 0.12, function()
 			local to = jitter(p.to, 16)
-			local bomb = Particles.projectile(3.6, 1.0, Color3.fromRGB(40, 40, 42), false)
-			bomb.Material = Enum.Material.Metal
+			local bomb = Particles.bomb()
 			-- Carries forward under the jet, then falls steeply onto the target.
 			local from = p.from + Vector3.new((i - 2.5) * 2, -2, 0)
 			Particles.fly(bomb, from, to, FLIGHT.BOMB - (i - 1) * 0.12, 22, function()
@@ -110,7 +110,7 @@ end
 local function bossCannon(p: any)
 	local d = dir(p.from, p.to)
 	Particles.muzzle(p.from, d, 4.5, BOSS_COLOR)
-	Particles.explosion(p.from + d * 4, 1.6, { air = true, light = true, debris = false })
+	Particles.explosion(p.from + d * 5, 1.2, { air = true, light = true, debris = false })
 	Sfx.playAt("TankCannon", p.from, 0)
 	Sfx.play("Explosion", 0.05, 0.8)
 	local slug = Particles.projectile(14, 2.0, BOSS_COLOR, true, 40)

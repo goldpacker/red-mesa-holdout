@@ -1,0 +1,231 @@
+{
+ "name": "VfxDebris",
+ "primary": "Root",
+ "pivots": {
+  "": [
+   0.0,
+   0.0,
+   -0.0
+  ]
+ },
+ "parts": [
+  {
+   "name": "Shard1",
+   "path": "",
+   "center": [
+    -8.8893,
+    0.9403,
+    0.0257
+   ],
+   "size": [
+    1.4194,
+    0.3818,
+    0.8668
+   ],
+   "tex": "main",
+   "tris": 80,
+   "query": false,
+   "collide": false,
+   "material": "CorrodedMetal",
+   "shadow": false
+  },
+  {
+   "name": "Shard2",
+   "path": "",
+   "center": [
+    -7.0704,
+    0.8799,
+    -0.0115
+   ],
+   "size": [
+    1.2201,
+    0.3342,
+    1.4201
+   ],
+   "tex": "main",
+   "tris": 68,
+   "query": false,
+   "collide": false,
+   "material": "CorrodedMetal",
+   "shadow": false
+  },
+  {
+   "name": "Shard3",
+   "path": "",
+   "center": [
+    -4.9892,
+    0.9812,
+    -0.0517
+   ],
+   "size": [
+    0.9772,
+    0.4447,
+    1.5363
+   ],
+   "tex": "main",
+   "tris": 80,
+   "query": false,
+   "collide": false,
+   "material": "CorrodedMetal",
+   "shadow": false
+  },
+  {
+   "name": "Shard4",
+   "path": "",
+   "center": [
+    -2.9173,
+    0.8669,
+    -0.02
+   ],
+   "size": [
+    1.0343,
+    0.2665,
+    1.0761
+   ],
+   "tex": "main",
+   "tris": 68,
+   "query": false,
+   "collide": false,
+   "material": "CorrodedMetal",
+   "shadow": false
+  },
+  {
+   "name": "Chunk1",
+   "path": "",
+   "center": [
+    -1.0094,
+    1.0053,
+    0.0218
+   ],
+   "size": [
+    0.7648,
+    0.7877,
+    0.7881
+   ],
+   "tex": "main",
+   "tris": 80,
+   "query": false,
+   "collide": false,
+   "material": "Sandstone",
+   "shadow": false
+  },
+  {
+   "name": "Chunk2",
+   "path": "",
+   "center": [
+    0.9892,
+    1.0575,
+    0.0469
+   ],
+   "size": [
+    1.0131,
+    0.8461,
+    1.0284
+   ],
+   "tex": "main",
+   "tris": 80,
+   "query": false,
+   "collide": false,
+   "material": "Sandstone",
+   "shadow": false
+  },
+  {
+   "name": "Clod1",
+   "path": "",
+   "center": [
+    3.0109,
+    0.9682,
+    -0.0453
+   ],
+   "size": [
+    0.8554,
+    0.6409,
+    0.9574
+   ],
+   "tex": "main",
+   "tris": 80,
+   "query": false,
+   "collide": false,
+   "material": "Sand",
+   "shadow": false
+  },
+  {
+   "name": "Clod2",
+   "path": "",
+   "center": [
+    5.0184,
+    1.0161,
+    0.0413
+   ],
+   "size": [
+    1.1767,
+    0.5707,
+    1.0038
+   ],
+   "tex": "main",
+   "tris": 80,
+   "query": false,
+   "collide": false,
+   "material": "Sand",
+   "shadow": false
+  },
+  {
+   "name": "Bomb",
+   "path": "",
+   "center": [
+    9.0,
+    1.0,
+    -0.1375
+   ],
+   "size": [
+    1.24,
+    1.24,
+    3.325
+   ],
+   "tex": "main",
+   "tris": 1004,
+   "query": false,
+   "collide": false,
+   "material": "Metal",
+   "shadow": false
+  },
+  {
+   "name": "Rocket",
+   "path": "",
+   "center": [
+    12.0,
+    1.0,
+    -0.0
+   ],
+   "size": [
+    0.4979,
+    0.4979,
+    2.6
+   ],
+   "tex": "main",
+   "tris": 596,
+   "query": false,
+   "collide": false,
+   "material": "Metal",
+   "shadow": false
+  }
+ ],
+ "attachments": [],
+ "markers": [],
+ "textures": {
+  "main": {
+   "color": "VfxDebris_main_color.png",
+   "rough": "VfxDebris_main_rough.png",
+   "metal": "VfxDebris_main_metal.png",
+   "normal": "VfxDebris_main_normal.png"
+  }
+ },
+ "texel_density": {
+  "main": 51.7
+ },
+ "previews": [
+  "assets/previews/VfxDebris.png"
+ ],
+ "triangles": 2216,
+ "meta": {}
+}

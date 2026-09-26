@@ -4,6 +4,9 @@
 -- charge glow, and every destruction effect (explosions, burning wrecks,
 -- smoke trails of crashing aircraft and thrown debris, boss death).
 --
+-- VFX-2: every particle comes from the custom flipbooks through
+-- VehicleFxParticles / Effects (no built-in textures, no ball parts).
+--
 -- Driven entirely by replicated state: models in Workspace.Enemies (Kind +
 -- State attributes, "<Name>Motor" Motor6Ds from EnemyTypes/Common/Rig) and
 -- models entering Workspace.Wrecks with State = Dead | Crashing | Thrown |
@@ -205,8 +208,9 @@ local function animateBoss(v: Vehicle, dt: number, now: number)
 			local total = 5.5
 			local frac = math.clamp(1 - (ends - Workspace:GetServerTimeNow()) / total, 0, 1)
 			local pulse = 0.85 + 0.15 * math.sin(now * (8 + frac * 20))
-			glow.Transparency = 1 - (0.25 + 0.7 * frac) * pulse
-			glow.Size = Vector3.one * (2 + frac * 7)
+			-- The flipbook flare carries the look; the Neon ball stays hidden
+			-- (no ball-shaped glows, VFX-2).
+			glow.Transparency = 1
 			if light then
 				light.Brightness = frac * 12 * pulse
 				light.Range = 25 + frac * 50
