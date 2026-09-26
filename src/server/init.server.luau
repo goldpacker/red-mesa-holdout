@@ -1,0 +1,1 @@
+print("[RedMesa] server boot")
