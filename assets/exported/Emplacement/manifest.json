@@ -242,17 +242,74 @@
    "name": "Whip",
    "path": "Static/Antenna",
    "center": [
-    6.8098,
-    -2.7497,
-    -0.3108
+    6.7653,
+    -4.205,
+    -0.3458
    ],
    "size": [
-    0.189,
-    3.3005,
-    0.21
+    0.1,
+    0.39,
+    0.1
    ],
    "tex": "props",
-   "tris": 150,
+   "tris": 112,
+   "query": false,
+   "material": "Metal",
+   "shadow": false
+  },
+  {
+   "name": "Whip2",
+   "path": "Static/Antenna",
+   "center": [
+    6.7851,
+    -3.6051,
+    -0.356
+   ],
+   "size": [
+    0.0784,
+    1.0116,
+    0.053
+   ],
+   "tex": "props",
+   "tris": 16,
+   "query": false,
+   "material": "Metal",
+   "shadow": false
+  },
+  {
+   "name": "Whip3",
+   "path": "Static/Antenna",
+   "center": [
+    6.8251,
+    -2.605,
+    -0.3724
+   ],
+   "size": [
+    0.0727,
+    1.0114,
+    0.0476
+   ],
+   "tex": "props",
+   "tris": 16,
+   "query": false,
+   "material": "Metal",
+   "shadow": false
+  },
+  {
+   "name": "Whip4",
+   "path": "Static/Antenna",
+   "center": [
+    6.8651,
+    -1.605,
+    -0.3078
+   ],
+   "size": [
+    0.067,
+    1.0111,
+    0.204
+   ],
+   "tex": "props",
+   "tris": 28,
    "query": false,
    "material": "Metal",
    "shadow": false
@@ -346,6 +403,46 @@
    "tris": 840,
    "query": false,
    "material": "Metal"
+  },
+  {
+   "name": "BeltRound",
+   "path": "TurretGun/MachineGun",
+   "center": [
+    0.0,
+    -0.006,
+    -0.035
+   ],
+   "size": [
+    0.116,
+    0.128,
+    0.51
+   ],
+   "tex": "smalls",
+   "tris": 120,
+   "query": false,
+   "material": "Metal",
+   "transparency": 1,
+   "shadow": false
+  },
+  {
+   "name": "EjectCase",
+   "path": "TurretGun/MachineGun",
+   "center": [
+    0.0053,
+    0.18,
+    -0.0
+   ],
+   "size": [
+    0.0995,
+    0.36,
+    0.1046
+   ],
+   "tex": "smalls",
+   "tris": 40,
+   "query": false,
+   "material": "Metal",
+   "transparency": 1,
+   "shadow": false
   },
   {
    "name": "Pod",
@@ -552,7 +649,7 @@
   "outer": 21.8,
   "turret": 45.8,
   "bags": 84.1,
-  "props": 55.8,
+  "props": 55.1,
   "stores": 101.6,
   "smalls": 290.2,
   "net": 44.4,
@@ -569,6 +666,6 @@
   "assets/previews/Emplacement_close_gun.png",
   "assets/previews/Emplacement_close_net.png"
  ],
- "triangles": 69544,
+ "triangles": 69726,
  "meta": {}
 }

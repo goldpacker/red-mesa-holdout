@@ -9,8 +9,10 @@ Models: Static, TurretYaw (yaws about the pivot), TurretGun (pitches about
 the pivot) with sub-models MachineGun, RocketPod, MissileRack; markers
 Muzzle (TurretGun), RocketMuzzle (RocketPod), MissileMuzzle (MissileRack);
 missile meshes Missile1 / Missile2 (hidden by the client when unloaded).
-Animatable extras (HS-2): Static/Antenna (part Whip, pivot at its base),
-Static/CamoNet (part Net, pivot at the ridge), MachineGun part Belt.
+Animatable extras (HS-2, client/EmplacementFx*): Static/Antenna (base
+Whip + whip links Whip2..Whip4, pivot at its base), Static/CamoNet (part
+Net, pivot at the ridge), MachineGun part Belt and the hidden templates
+BeltRound / EjectCase.
 
 Hero pass (HS-1): cloth-simulated sandbag variants shared through a sheet
 texture group, burlap/concrete/painted-steel detail from CC0 photo
@@ -410,15 +412,23 @@ def props(a, smalls):
     s.add(geo.cylinder(0.72, 0.05, verts=24, bevel=0.0), "lens", at=(sx, sy + 0.85, FLOOR + 3.7), rot=(-90, 0, 0))
     a.attach("SearchlightBeam", "Searchlight", (sx, sy + 0.9, FLOOR + 3.7), axis=(0, 1, 0))
 
-    # Radio whip antenna: own model so HS-2 can sway it about its base.
+    # Radio whip antenna: own model (pivot at its base). `Whip` is the base
+    # and spring; the whip itself is three straight links Whip2..Whip4
+    # (each bottom = its joint) that client/EmplacementFxWind bends as a
+    # chain so it sways and flexes in the wind.
     base = Vector(rloc(0.25, 0.1, 1.6))
     a.pivot("Static/Antenna", tuple(base))
     ant = a.part("Whip", path="Static/Antenna", tex="props", query=False, shadow=False, material="Metal")
     ant.add(geo.cylinder(0.05, 0.22, verts=8, bevel=0.01), "steel_dark_p", at=tuple(base + Vector((0, 0, 0.11))))
     ant.add(geo.cylinder(0.035, 0.18, verts=6, bevel=0.0), "handle", at=tuple(base + Vector((0, 0, 0.3))))
-    tip = base + Vector((0.12, 0.05, 3.3))
-    ant.add(geo.pipe_path([tuple(base + Vector((0, 0, 0.3))), tuple(base.lerp(tip, 0.5) + Vector((0.02, 0, 0))), tuple(tip)], 0.02, verts=5), "link")
-    ant.add(geo.box(0.02, 0.18, 0.1, bevel=0.0), "tape", at=tuple(tip + Vector((0, -0.1, -0.12))))
+    root, tip = base + Vector((0, 0, 0.3)), base + Vector((0.12, 0.05, 3.3))
+    joints = [root.lerp(tip, k / 3) for k in range(4)]
+    for k in range(3):
+        link = a.part(f"Whip{k + 2}", path="Static/Antenna", tex="props", query=False, shadow=False, material="Metal")
+        top = joints[k + 1] if k < 2 else tip
+        link.add(geo.pipe_path([tuple(joints[k] - (tip - root).normalized() * 0.01), tuple(top)], 0.02 - 0.003 * k, verts=5), "link")
+        if k == 2:
+            link.add(geo.box(0.02, 0.18, 0.1, bevel=0.0), "tape", at=tuple(tip + Vector((0, -0.1, -0.12))))
     a.material("tape", kind="fabric", color="#9a8a5c", rough=0.9, wrinkle=0.2, dust=0.3)
 
 
@@ -605,6 +615,16 @@ def turret_gun(a, smalls):
     belt = a.part("Belt", path="TurretGun/MachineGun", tex="smalls", query=False, material="Metal")
     belt_along(belt, smalls, [(-1.0, 0.75, BARREL_Z + 0.2), (-0.95, 0.75, BARREL_Z + 0.44), (-0.8, 0.75, BARREL_Z + 0.56),
                               (-0.6, 0.75, BARREL_Z + 0.56), (-0.42, 0.75, BARREL_Z + 0.42)], 7, up=(0, 0, -1))
+    # HS-2 motion templates (hidden; client/EmplacementFx clones them): one
+    # belted round with its links in belt_along's frame for a belt running
+    # along +X (X = feed direction, Y = round axis, Z = X x Y; origin = the
+    # belt line), and one spent case (axis +Z, base at the origin).
+    fed = a.part("BeltRound", path="TurretGun/MachineGun", tex="smalls", query=False, shadow=False, material="Metal", transparency=1)
+    fed.add_template(smalls["round"], at=(0, -0.22, 0), rot=_lay((0, 0, 0)))
+    for off in (-0.08, 0.1):
+        fed.add_template(smalls["link"], at=(0, off, -0.035))
+    case = a.part("EjectCase", path="TurretGun/MachineGun", tex="smalls", query=False, shadow=False, material="Metal", transparency=1)
+    case.add_template(smalls["case"])
 
     pod = a.part("Pod", path="TurretGun/RocketPod", tex="weapons", query=False, material="Metal")
     pod.add(along_y(geo.cylinder(0.95, 3.2, verts=24, bevel=0.08), (POD_X, 0.4, POD_Z)), "pod")
