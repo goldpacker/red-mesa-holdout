@@ -46,7 +46,7 @@
     12.459
    ],
    "tex": "trim",
-   "tris": 2968,
+   "tris": 3288,
    "query": false,
    "material": "Metal"
   },
@@ -182,7 +182,7 @@
  },
  "texel_density": {
   "body": 36.1,
-  "trim": 55.9
+  "trim": 55.6
  },
  "previews": [
   "assets/previews/Buggy.png",
@@ -190,7 +190,7 @@
   "assets/previews/Buggy_side.png",
   "assets/previews/Buggy_cam_player.png"
  ],
- "triangles": 8408,
+ "triangles": 8728,
  "meta": {},
  "shared_textures": {
   "trim": "TrimEnemy"

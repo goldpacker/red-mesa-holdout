@@ -109,6 +109,123 @@ None of these change an asset that doesn't ask for them.
 - UV packing is not byte-deterministic, so any rebuild changes the GLB and
   needs a model re-upload + harvest, even for material-only changes.
 
+### Hard-surface tooling (face-lift, HS-3)
+
+All opt-in; assets that don't ask for it build exactly as before (checked:
+SupplyCrate rebuilt with the HS-3 pipeline gives identical map statistics).
+Used by `Tank` and `Buggy`; built for HS-4 (Helicopter, Jet, turret gun
+assembly) and HS-5 (Siege Crawler, wrecks).
+
+**1. Shared trim sheets** (`rmh/trim.py`, sheet `models/trim_enemy.py` →
+texture-only asset `TrimEnemy`). One 1024² set that several vehicles map
+into, so its four maps load once for every tank, buggy and (HS-4) aircraft
+on screen.
+- *Strips* are full-width bands that tile along U: `track` (cast shoes with
+  double grousers, pins, end connectors), `grille` (louvres, frame, ribs),
+  `mesh` (expanded metal), `bolted` (strap with hex bolts), `canvas`
+  (folded khaki-grey canvas with webbing straps), `cable` (wire rope),
+  `plain` (worn charcoal paint), `red` (marking red). Each is baked from a
+  periodic high-poly pattern (`strip(name, px, world, build, mat, relief)`,
+  `build(period, world)` returns the pattern for one period + overhang),
+  and its material gets `periodic=<period>` so every procedural noise
+  repeats exactly (`materials.G.coords` wraps X round a circle) — no seam
+  wherever U wraps. Strip heights/densities are logged by the build and
+  stored in `assets/exported/TrimEnemy/trim.json` (`v0`, `v1`, `period`,
+  `world`, `density`).
+- *Templates* are whole meshes with their own islands (`roadwheel`,
+  `sprocket`, `tyre_half`, `rim`, `jerrycan_red`, `jerrycan_dark`,
+  `ammo_can`, `shovel`, `pickaxe`, `crowbar`, `periscope`, `headlight`),
+  each baked from a high poly (rounded edges + bolts/X-ribs/lightening holes
+  that only exist in the high), shelf-packed at one density (~49 px/stud)
+  into the band under the strips. `trim.json` stores their low meshes with
+  UVs; a template can be rotated and scaled (even non-uniformly) freely.
+- *Using it*: `T = trim.use(a, "trim", "TrimEnemy")` declares a shared
+  texture group; parts in it (`tex="trim"`) are never unwrapped or baked.
+  Map every piece before `Part.add` (the build refuses unmapped faces):
+  `T.planar(bm, strip, u_axis, v_axis, band=(0,1))`, `T.fill(bm, strip)`
+  (longest axis), `T.cylindrical(bm, strip, axis, along=False|True)`
+  (wheels/drums: U round; cables/rolls/whips: `along=True`, U along, V
+  ping-pongs round — no seam), `T.loop(bm, strip, profile)` (bands round a
+  2D profile, e.g. a track loop from `geo.band_loop`; whole periods), and
+  `T.template(name)`. `faces=lambda f: ...` restricts any mapping.
+  Previews render trim parts with the sheet's baked maps.
+- *Publishing*: `publish.py upload TrimEnemy` uploads its maps only (no
+  model, no harvest); an asset's `manifest.shared_textures` names its
+  shared groups and `publish.py rbxmx` points them at the sheet's image ids.
+  Rebuilding a sheet changes template UVs only if template meshes change;
+  after a sheet rebuild, rebuild + re-upload every asset that uses it.
+  UVs outside 0..1 wrap in Roblox (verified on the tank tracks).
+- A second palette (e.g. an outpost OD sheet for the turret gun assembly)
+  is another `models/trim_<name>.py` with the same builders and new
+  materials.
+
+**2. High-poly → game-mesh bake** (`a.texture_group(name, px, high={"hp":
+0.05, "cage": 0.1, "ray": 0.3})`). Every piece added to a part of that
+group is also copied into the part's high-poly source with its hard edges
+rounded (`hp` = bevel width, per piece `Part.add(..., hp=0.02)`, 0 = as
+is), and `Part.detail(bm, mat, ...)` adds geometry that exists only in the
+high (bolt rows `hardsurface.bolt_row`, weld beads `hardsurface.weld`,
+rivets, appliqué plates, perforation rings). The group is baked
+selected-to-active (all channels) with the game meshes hidden from rays, so
+AO grime and curvature wear are computed on the high surface. Keep the low
+pieces unbevelled (the normal map carries the round edges) and keep
+details within `cage` of the surface.
+
+**3. Texture passes** (`materials.py`, any hard-surface kind):
+`edge_convex=True` (chips/polish only on convex edges; creases keep paint),
+`polish` (sharpest edges rubbed to bright steel), `dust_cavity` (+
+`dust_cavity_range`, `_distance`: dust packed into gaps whatever way they
+face), `dust_caked` + `caked_height`/`caked_color` (opaque noisy band from
+the ground up), `splash=[{center, radius, strength}]` (dirt sprayed round
+wheels), `soot=[{pos, dir, radius, length, spread, strength}]` (plumes at
+exhausts, muzzles, dischargers), `rough_breakup` (smudges, wipes, fine
+scratches), `streaks`, `grime_color`; decals take `wear`/`seed`
+(`a.decal(..., wear=0.35)`: the marking's own paint chips and thins).
+`hardsurface.stencil(a, text, centre, normal, height, chip=...)` projects
+stencil text with the right aspect.
+
+**4. Texture where it's seen.** `Part.add(..., texel=0.15)` or
+`texel=lambda face: ...` gives faces a relative texel density;
+`texture_group(..., down=0.3, back=0.6)` does it for faces pointing at
+the ground / the model's rear (enemies drive at the player). The weighting
+splits faces into their own islands before packing; the manifest's
+`texel_density` then reports the density of the full-weight (visible)
+surfaces.
+
+**5. Contract hit boxes.** `a.part(name, ..., hitbox=rb_box(centre,
+size))` (Roblox centre/size from the old manifest) pads the mesh with two
+tiny corner triangles so its bounding box — its Roblox `Size`/`CFrame`,
+i.e. its Box hit volume and what client code reads from it — stays exactly
+the same; geometry outside the box fails the build (move it to a
+`query=False` part). The tank and buggy lock every contract part.
+
+**6. Inside-out shells.** `geo.side_prism` has always returned
+inside-out shells (stale normals before `recalc_face_normals`); Roblox
+culls back faces, so such pieces render wrong or vanish (the old buggy's
+hood was invisible in game: `qa/beauty/hs-3-pre/afternoon_buggy-front.jpg`).
+`side_prism` is left as is so other assets rebuild identically; set
+`a.fix_inside_out = True` and every closed shell (low and high) is turned
+outward at build time (the log says how many). Turn it on for every asset
+you rebuild.
+
+**Kit** (`rmh/hardsurface.py`): `round_edges`, `chamfer_edges`,
+`plate_on_quad` (spaced-armour plate off a face), `bolt`, `rivet`,
+`bolt_row`, `rivet_row`, `weld`, `grille_slats`, and pieces (`jerrycan`,
+`ammo_can`, `shovel`, `pickaxe`, `crowbar`, `periscope`, `tarp_roll`,
+`whip_antenna`, `rail`, `track_link`, `road_wheel`, `sprocket`, `tyre`,
+`rim`, `headlight`); `geo.tapered_prism` (faceted turrets, wedges) and
+`geo.band_loop` (tracks, straps).
+
+**Recipe for a vehicle** (see `models/tank.py`): lock the contract parts'
+hit boxes; hull/turret parts in `high` groups (1024², `down`/`back`
+weights) with unbevelled low pieces, `detail()` bolts/welds, and a paint
+spec with `edge_convex`, `polish`, `dust_caked`, `soot`, `rough_breakup`,
+a `photo` layer and chipped decals; wheels, tracks and stowage as trim
+parts (`query=False` kit parts for anything outside a hit box); check the
+build log for texel density ≥ 30 and triangle counts; look at the
+previews (add a `{"label": "_cam_player", ...}` view from the player's
+side).
+
 ### Axis handling (verified in Studio)
 Roblox's glTF importer turns an asset 180° about up. `export_glb` rotates
 mesh data 180° about Z just for the export, so a model built facing +Y in

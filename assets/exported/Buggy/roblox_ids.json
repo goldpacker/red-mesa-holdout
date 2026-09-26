@@ -1,18 +1,27 @@
 {
  "hashes": {
-  "body/color": "3a69f887e556cc26",
-  "body/metal": "a260a98dc3aaa5b0",
-  "body/normal": "3e9bbd71a6673bbb",
-  "body/rough": "f658e47c91ed9245",
-  "glb": "487c602ee9109b73"
+  "body/color": "6399695ae6540b8d",
+  "body/metal": "85d90eca3648534d",
+  "body/normal": "0e34e5a38a7d914e",
+  "body/rough": "b58cb199a646ce23",
+  "glb": "eaeb958e01a7ac26"
  },
- "model": "96231052111655",
+ "meshes": {
+  "BuggyKit": "rbxassetid://89983438691425",
+  "GunBody": "rbxassetid://93862509921634",
+  "Root": "rbxassetid://105918367733245",
+  "WheelFL": "rbxassetid://92874598206369",
+  "WheelFR": "rbxassetid://127145783976470",
+  "WheelRL": "rbxassetid://101404206913606",
+  "WheelRR": "rbxassetid://123809472173803"
+ },
+ "model": "96325914638524",
  "textures": {
   "body": {
-   "color": "rbxassetid://130010295548404",
-   "metal": "rbxassetid://79440914711330",
-   "normal": "rbxassetid://78859146547739",
-   "rough": "rbxassetid://125701723067512"
+   "color": "rbxassetid://111403413344216",
+   "metal": "rbxassetid://100890382068884",
+   "normal": "rbxassetid://71423800734488",
+   "rough": "rbxassetid://136332271632366"
   }
  }
 }

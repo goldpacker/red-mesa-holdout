@@ -10,6 +10,16 @@
   "turret/normal": "93e5e2a126dac9f5",
   "turret/rough": "4ef62c083db6e82b"
  },
+ "meshes": {
+  "Barrel": "rbxassetid://77471173430923",
+  "HullKit": "rbxassetid://87453464063338",
+  "Root": "rbxassetid://82740352648830",
+  "Skirts": "rbxassetid://133025462213559",
+  "TrackL": "rbxassetid://77643953270020",
+  "TrackR": "rbxassetid://81735845020186",
+  "TurretBody": "rbxassetid://83260899814912",
+  "TurretKit": "rbxassetid://124208631885381"
+ },
  "model": "122670026974343",
  "textures": {
   "hull": {

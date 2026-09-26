@@ -200,7 +200,9 @@ def buggy_kit(a, T):
         T.cylindrical(sh, "mesh", axis=(0, 0, 1), along=True)
         k.add(sh, "trim", at=(side * 1.35, -5.72, FLOOR_Z + 1.85))
     # Spare wheel on the rack, red jerrycans, tarp roll, ammo cans.
-    k.add(T.template("tyre_half"), "trim", at=(0, -5.05, FLOOR_Z + 2.45), rot=(90, 0, 0), scale=(1.0, 1.0, 1.0))
+    # Both halves: a single open half is see-through from behind (back faces are culled).
+    k.add(T.template("tyre_half"), "trim", at=(0, -5.05, FLOOR_Z + 2.45), rot=(90, 0, 0))
+    k.add(T.template("tyre_half"), "trim", at=(0, -5.05, FLOOR_Z + 2.45), rot=(-90, 0, 0))
     k.add(T.template("rim"), "trim", at=(0, -5.2, FLOOR_Z + 2.45), rot=(90, 0, 0))
     for side in (-1, 1):
         k.add(T.template("jerrycan_red"), "trim", at=(side * 2.45, -3.5, FLOOR_Z + 0.76), scale=(0.9, 0.9, 0.9))
