@@ -9,6 +9,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Config = require(ReplicatedStorage.Shared.Config)
 local EnemyConfig = require(ReplicatedStorage.Shared.EnemyConfig)
 local Types = require(script.Parent.Parent.Types)
+local Dress = require(script.Parent.Common.Dress)
 local Driver = require(script.Parent.Common.Driver)
 local GroundModels = require(script.Parent.Common.GroundModels)
 local Kit = require(script.Parent.Common.Kit)
@@ -35,7 +36,11 @@ local function prune()
 end
 
 local function build(): (Model, BasePart)
-	local model = Kit.loadAsset("Tank", { "Root", "Turret", "Barrel", "Muzzle" }) or GroundModels.tank()
+	local asset = Kit.loadAsset("Tank", { "Root", "Turret", "Barrel", "Muzzle" })
+	if asset then
+		Dress.ground(asset)
+	end
+	local model = asset or GroundModels.tank()
 	model.Name = "Tank"
 	local root = Rig.prepare(model, { "Turret" })
 	return model, root

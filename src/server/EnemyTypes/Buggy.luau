@@ -9,6 +9,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Config = require(ReplicatedStorage.Shared.Config)
 local EnemyConfig = require(ReplicatedStorage.Shared.EnemyConfig)
 local Types = require(script.Parent.Parent.Types)
+local Dress = require(script.Parent.Common.Dress)
 local Driver = require(script.Parent.Common.Driver)
 local GroundModels = require(script.Parent.Common.GroundModels)
 local Kit = require(script.Parent.Common.Kit)
@@ -22,8 +23,11 @@ local FLIGHT = EnemyConfig.Flight
 local PIVOT = Config.TURRET_PIVOT
 
 local function build(): Model
-	local model = Kit.loadAsset("Buggy", { "Root", "WheelFL", "WheelFR", "WheelRL", "WheelRR", "Gun", "Muzzle" })
-		or GroundModels.buggy()
+	local asset = Kit.loadAsset("Buggy", { "Root", "WheelFL", "WheelFR", "WheelRL", "WheelRR", "Gun", "Muzzle" })
+	if asset then
+		Dress.ground(asset)
+	end
+	local model = asset or GroundModels.buggy()
 	model.Name = "Buggy"
 	return model
 end

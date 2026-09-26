@@ -13,6 +13,7 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local EnemyConfig = require(ReplicatedStorage.Shared.EnemyConfig)
 local Types = require(script.Parent.Parent.Types)
 local AirModels = require(script.Parent.Common.AirModels)
+local Dress = require(script.Parent.Common.Dress)
 local Kit = require(script.Parent.Common.Kit)
 local Rig = require(script.Parent.Common.Rig)
 
@@ -24,8 +25,11 @@ local FLIGHT = EnemyConfig.Flight
 local PIVOT = Config.TURRET_PIVOT
 
 local function build(): Model
-	local model = Kit.loadAsset("Helicopter", { "Root", "MainRotor", "TailRotor", "RocketMuzzleL", "RocketMuzzleR" })
-		or AirModels.helicopter()
+	local asset = Kit.loadAsset("Helicopter", { "Root", "MainRotor", "TailRotor", "RocketMuzzleL", "RocketMuzzleR" })
+	if asset then
+		Dress.helicopter(asset)
+	end
+	local model = asset or AirModels.helicopter()
 	model.Name = "Helicopter"
 	return model
 end

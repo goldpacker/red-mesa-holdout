@@ -19,6 +19,7 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local EnemyConfig = require(ReplicatedStorage.Shared.EnemyConfig)
 local Types = require(script.Parent.Parent.Types)
 local CrawlerModel = require(script.Parent.Common.CrawlerModel)
+local Dress = require(script.Parent.Common.Dress)
 local Driver = require(script.Parent.Common.Driver)
 local Kit = require(script.Parent.Common.Kit)
 local Rig = require(script.Parent.Common.Rig)
@@ -36,8 +37,11 @@ local SPLASH_DEDUPE = 0.3
 type WeakPoint = { name: string, health: number, maxHealth: number, intact: boolean, pivot: CFrame, muzzle: CFrame, timer: number }
 
 local function build(): Model
-	local model = Kit.loadAsset("SiegeCrawler", { "Root", "Core", "CoreArmor", "TurretLeft", "TurretRight", "MainCannon", "CannonGlow" })
-		or CrawlerModel.build()
+	local asset = Kit.loadAsset("SiegeCrawler", { "Root", "Core", "CoreArmor", "TurretLeft", "TurretRight", "MainCannon", "CannonGlow" })
+	if asset then
+		Dress.crawler(asset)
+	end
+	local model = asset or CrawlerModel.build()
 	model.Name = "SiegeCrawler"
 	return model
 end

@@ -14,6 +14,7 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local EnemyConfig = require(ReplicatedStorage.Shared.EnemyConfig)
 local Types = require(script.Parent.Parent.Types)
 local AirModels = require(script.Parent.Common.AirModels)
+local Dress = require(script.Parent.Common.Dress)
 local Kit = require(script.Parent.Common.Kit)
 local Rig = require(script.Parent.Common.Rig)
 
@@ -26,7 +27,11 @@ local PIVOT = Config.TURRET_PIVOT
 local PIVOT2 = Vector2.new(PIVOT.X, PIVOT.Z)
 
 local function build(): Model
-	local model = Kit.loadAsset("Jet", { "Root", "Exhaust", "BombBay" }) or AirModels.jet()
+	local asset = Kit.loadAsset("Jet", { "Root", "Exhaust", "BombBay" })
+	if asset then
+		Dress.jet(asset)
+	end
+	local model = asset or AirModels.jet()
 	model.Name = "Jet"
 	return model
 end
