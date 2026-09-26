@@ -44,7 +44,11 @@ export type Entry = {
 
 -- BEGIN GENERATED IDS (tools/vfx/upload.py)
 local IDS: { [string]: string } = {
+	Fireball = "rbxassetid://106963804797541",
+	SmokeDark = "rbxassetid://75400629363258",
 	DustPuff = "rbxassetid://79963003186563",
+	SandKick = "rbxassetid://134050843014153",
+	MissileTrail = "rbxassetid://90904188681683",
 	MuzzleFlashFront = "rbxassetid://111983300404616",
 	MuzzleFlashSide = "rbxassetid://125690822846683",
 	MuzzleFlashBurst = "rbxassetid://100409497539336",
@@ -95,7 +99,7 @@ local ENTRIES: { [string]: Entry } = {
 			lifetime = { 4, 6.5 },
 			size = { 8, 18, 26 },
 			transparency = { 0.1, 0.2, 0.6 },
-			color = Color3.fromRGB(58, 53, 48),
+			color = Color3.fromRGB(74, 68, 61),
 			lightEmission = 0,
 			lightInfluence = 0.9,
 			orientation = Enum.ParticleOrientation.FacingCamera,

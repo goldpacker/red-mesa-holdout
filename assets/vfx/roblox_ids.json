@@ -1,23 +1,31 @@
 {
  "hashes": {
   "DustPuff": "ec930139967cc928",
+  "Fireball": "120a64d4446c80f4",
+  "MissileTrail": "276394ba78804962",
   "MuzzleFlashBurst": "f721e1fb9eb87678",
   "MuzzleFlashFront": "140b875947eef95f",
   "MuzzleFlashSide": "bdad4db2c78043a2",
   "RocketExhaust": "5b7624680a179ff7",
+  "SandKick": "dd9b814cebc7ebf7",
   "ScorchMark": "c8ae88fdf37dc229",
   "ShockwaveRing": "dd8313f50c54255f",
+  "SmokeDark": "be1663a59805bb3e",
   "Sparks": "f8bf18211164213e",
   "TracerBeam": "0bd2487734cffe52"
  },
  "images": {
   "DustPuff": "rbxassetid://79963003186563",
+  "Fireball": "rbxassetid://106963804797541",
+  "MissileTrail": "rbxassetid://90904188681683",
   "MuzzleFlashBurst": "rbxassetid://100409497539336",
   "MuzzleFlashFront": "rbxassetid://111983300404616",
   "MuzzleFlashSide": "rbxassetid://125690822846683",
   "RocketExhaust": "rbxassetid://78564296486904",
+  "SandKick": "rbxassetid://134050843014153",
   "ScorchMark": "rbxassetid://135513625298189",
   "ShockwaveRing": "rbxassetid://96437980176600",
+  "SmokeDark": "rbxassetid://75400629363258",
   "Sparks": "rbxassetid://105554500519561",
   "TracerBeam": "rbxassetid://72994897813399"
  }
