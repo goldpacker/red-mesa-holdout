@@ -67,14 +67,14 @@ local function sweep(t: number)
 	end
 end
 
-local function launchFlare()
+local function launchFlare(color: Color3?)
 	local target = Vector3.new(math.random(-420, 420), 150 + math.random(0, 40), math.random(-650, -220))
 	local flare = Instance.new("Part")
 	flare.Name = "Flare"
 	flare.Shape = Enum.PartType.Ball
 	flare.Size = Vector3.new(1.6, 1.6, 1.6)
 	flare.Material = Enum.Material.Neon
-	flare.Color = Color3.fromRGB(255, 236, 190)
+	flare.Color = color or Color3.fromRGB(255, 236, 190)
 	flare.Anchored = true
 	flare.CanCollide = false
 	flare.CanQuery = false
@@ -83,7 +83,7 @@ local function launchFlare()
 	local light = Instance.new("PointLight")
 	light.Range = 60
 	light.Brightness = 3
-	light.Color = Color3.fromRGB(255, 228, 180)
+	light.Color = color or Color3.fromRGB(255, 228, 180)
 	light.Parent = flare
 	local trail = Instance.new("ParticleEmitter")
 	trail.Rate = 18
@@ -112,6 +112,14 @@ local function launchFlare()
 		local fade = math.clamp((FLARE_LIFETIME - age) / 3, 0, 1)
 		light.Brightness = (2.6 + math.noise(age * 8) * 0.8) * fade
 	end)
+end
+
+-- Victory celebration: a volley of coloured flares over the basin.
+function NightFx.celebrate()
+	local colors = { Color3.fromRGB(120, 255, 120), Color3.fromRGB(255, 190, 60), Color3.fromRGB(255, 90, 70), Color3.fromRGB(255, 245, 220) }
+	for i = 1, 12 do
+		task.delay(i * 0.35, launchFlare, colors[(i - 1) % #colors + 1])
+	end
 end
 
 function NightFx.start()
