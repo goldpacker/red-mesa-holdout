@@ -28,6 +28,23 @@ local function build(): Model
 	return model
 end
 
+-- Live buggies -> flat position, so strafing buggies spread out instead of
+-- stacking. Entries whose model left Workspace.Enemies are pruned.
+type Slot = { position: Vector2, model: Model }
+local pack: { [{}]: Slot } = {}
+
+local function crowded(self: {}, pos: Vector2): boolean
+	for other, slot in pack do
+		local parent = slot.model.Parent
+		if not parent or parent.Name ~= "Enemies" then
+			pack[other] = nil
+		elseif other ~= self and (slot.position - pos).Magnitude < 22 then
+			return true
+		end
+	end
+	return false
+end
+
 -- Yaw of a flat position around the outpost (degrees, + = player's left).
 local function yawOf(p: Vector2): number
 	return math.deg(math.atan2(-(p.X - PIVOT.X), -(p.Y - PIVOT.Z)))
@@ -69,10 +86,13 @@ function Buggy.spawn(ctx: Types.Context, laneName: string, rng: Random): Types.E
 	local targetYaw = 0
 	local radius = 0
 	local targetRadius = 0
+	local token = {}
+	local spreadCooldown = 0
 
 	local function place(pos: Vector2, dir: Vector2, bank: number)
 		frame = Kit.groundFrame(pos, dir, 4.5, 2.6, CFG.RIDE_HEIGHT) * CFrame.Angles(0, 0, bank)
 		root.CFrame = frame * rootOffset
+		pack[token] = { position = pos, model = model }
 	end
 	place(position, heading, 0)
 	model:SetAttribute("State", "Drive")
@@ -121,6 +141,13 @@ function Buggy.spawn(ctx: Types.Context, laneName: string, rng: Random): Types.E
 
 	local function strafe(dt: number)
 		local currentYaw = yawOf(position)
+		spreadCooldown -= dt
+		if spreadCooldown <= 0 and crowded(token, position) then
+			-- Too close to another buggy: peel off to a new line and range.
+			spreadCooldown = 2.5
+			pickStrafeTarget()
+			targetRadius = math.clamp(radius + (if rng:NextNumber() < 0.5 then -40 else 40), CFG.STRAFE_RADIUS[1], CFG.STRAFE_RADIUS[2] + 30)
+		end
 		local delta = targetYaw - currentYaw
 		if math.abs(delta) < 4 then
 			pickStrafeTarget()
@@ -164,6 +191,7 @@ function Buggy.spawn(ctx: Types.Context, laneName: string, rng: Random): Types.E
 	end
 
 	function enemy.die()
+		pack[token] = nil
 		model:SetAttribute("State", "Dead")
 		Kit.char(model)
 		-- The blast flips it onto its side, thrown a little along its travel.

@@ -153,6 +153,9 @@ local function unregister(model: Model)
 	local v = vehicles[model]
 	if v then
 		stopLoop(v)
+		for _, b in v.beams do
+			b.Transparency = 1
+		end
 		vehicles[model] = nil
 	end
 end

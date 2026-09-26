@@ -85,6 +85,8 @@ function AirModels.helicopter(): Model
 	Kit.attachment(search, "Searchlight", search.Position, search.CFrame.LookVector)
 	Kit.spotlight(search, 120, 30, 2.2)
 	searchBeam(m, search.Position, search.CFrame.LookVector, 70, 4)
+	-- Soft fill so the airframe itself reads against a night sky.
+	Kit.glow(m.Root :: BasePart, 16, 0.9, Color3.fromRGB(255, 225, 190))
 	navLight(m, "NavStrobe", Vector3.new(0, -3.7, 2), NAV_WHITE)
 
 	-- Main rotor (spins on Y)
@@ -169,6 +171,7 @@ function AirModels.jet(): Model
 	Kit.attachment(r, "NavLightR", r.Position)
 	navLight(m, "NavStrobe", Vector3.new(0, 9.3, 14.8), NAV_WHITE)
 	-- Landing light, lit on the run in (night readability)
+	Kit.glow(m.Root :: BasePart, 22, 0.8, Color3.fromRGB(255, 225, 190))
 	local landing = Kit.lamp(m, "LandingLight", Vector3.new(0.7, 0.7, 0.2), at(0, -1.9, -12), Kit.LAMP)
 	Kit.spotlight(landing, 90, 35, 2.5)
 
