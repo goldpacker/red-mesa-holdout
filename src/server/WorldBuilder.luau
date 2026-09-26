@@ -9,6 +9,7 @@ local Workspace = game:GetService("Workspace")
 
 local Emplacement = require(script.Parent.Emplacement)
 local TerrainBuilder = require(script.Parent.TerrainBuilder)
+local AssetLibrary = require(ReplicatedStorage.Shared.AssetLibrary)
 
 local WorldBuilder = {}
 
@@ -72,8 +73,10 @@ local function buildSearchlights(parent: Instance)
 		local lens = piece("Lens", Vector3.new(2.1, 2.1, 0.2), head.CFrame * CFrame.new(0, 0, -1.25), Color3.fromRGB(255, 244, 214), Enum.Material.Glass)
 		local spot = Instance.new("SpotLight")
 		spot.Angle = 30
-		spot.Range = 60
-		spot.Brightness = 6
+		-- Short and moderate: the visible Beam and ground pool carry the look;
+		-- a long cone would wash over the emplacement above it.
+		spot.Range = 30
+		spot.Brightness = 3
 		spot.Color = Color3.fromRGB(255, 240, 210)
 		spot.Face = Enum.NormalId.Front
 		spot.Enabled = false
@@ -112,6 +115,55 @@ local function buildSearchlights(parent: Instance)
 		poolLight.Parent = pool
 		model.PrimaryPart = head
 		model.Parent = folder
+	end
+end
+
+-- Scatters the Blender rock kit (if present) across the basin, snapped to
+-- the terrain and kept clear of the lanes. Purely visual cover; missing
+-- assets simply leave the terrain boulders on their own.
+local ROCK_KIT = { "Rock_Boulder_A", "Rock_Boulder_B", "Rock_Boulder_C", "Rock_Slab", "Rock_Spire", "Rock_Rubble" }
+
+local function buildRockKit(parent: Instance)
+	local available = {}
+	for _, name in ROCK_KIT do
+		if AssetLibrary.has(name) then
+			table.insert(available, name)
+		end
+	end
+	if #available == 0 then
+		return
+	end
+	local folder = Instance.new("Folder")
+	folder.Name = "RockKit"
+	folder.Parent = parent
+	local rng = Random.new(4242)
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Include
+	params.FilterDescendantsInstances = { Workspace.Terrain }
+	local placed = 0
+	for _ = 1, 600 do
+		if placed >= 55 then
+			break
+		end
+		local p = Vector2.new(rng:NextNumber(-740, 740), rng:NextNumber(-1100, -140))
+		if TerrainBuilder.laneDistance(p) > 40 and p.Magnitude > 130 then
+			local name = available[rng:NextInteger(1, #available)]
+			local rock = AssetLibrary.clone(name)
+			local hit = Workspace:Raycast(Vector3.new(p.X, 300, p.Y), Vector3.new(0, -400, 0), params)
+			if rock and rock:IsA("Model") and hit then
+				rock:ScaleTo(rng:NextNumber(0.7, 1.5))
+				local sink = rng:NextNumber(0.3, 1.2)
+				rock:PivotTo(CFrame.new(hit.Position - Vector3.new(0, sink, 0)) * CFrame.Angles(0, rng:NextNumber(0, math.pi * 2), 0))
+				for _, d in rock:GetDescendants() do
+					if d:IsA("BasePart") then
+						d.Anchored = true
+						d.CanCollide = false
+					end
+				end
+				rock.Parent = folder
+				placed += 1
+			end
+		end
 	end
 end
 
@@ -184,6 +236,8 @@ function WorldBuilder.build()
 
 	TerrainBuilder.build()
 	buildScrub(battlefield)
+	-- Terrain written this frame isn't raycastable yet; place rocks shortly after.
+	task.delay(1, buildRockKit, battlefield)
 	buildSearchlights(battlefield)
 	buildLighting()
 	Emplacement.build(battlefield)

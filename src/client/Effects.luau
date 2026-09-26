@@ -81,8 +81,9 @@ function Effects.muzzleFlash(position: Vector3, direction: Vector3)
 	})
 	local light = Instance.new("PointLight")
 	light.Color = Color3.fromRGB(255, 180, 80)
-	light.Range = 14
-	light.Brightness = 3
+	-- Kept small so it doesn't blow out the sandbags a few studs away.
+	light.Range = 6
+	light.Brightness = 1.2
 	light.Parent = flash
 	fade(flash, 0.06, { Size = Vector3.new(2.6, 2.6, 2.6) })
 	track(flash, 0.07)

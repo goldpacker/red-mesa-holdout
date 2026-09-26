@@ -51,21 +51,23 @@ local function animate(model: Model, rig: Rig, t: number)
 		lh.Transform = CFrame.Angles(swing, 0, 0)
 		rh.Transform = CFrame.Angles(-swing, 0, 0)
 		ls.Transform = CFrame.Angles(-swing * 0.6, 0, 0)
-		rs.Transform = CFrame.Angles(math.rad(-40), 0, 0)
+		-- Models face -Z, so a positive X rotation swings an arm forward.
+		rs.Transform = CFrame.Angles(math.rad(40), 0, 0)
 		if rig.RootJoint then
 			rig.RootJoint.Transform = CFrame.new(0, math.abs(math.sin(phase)) * 0.25, 0)
 		end
 	elseif state == "Aim" then
 		lh.Transform = CFrame.Angles(math.rad(-10), 0, 0)
 		rh.Transform = CFrame.Angles(math.rad(20), 0, 0)
-		ls.Transform = CFrame.Angles(math.rad(-80), math.rad(-25), 0)
-		rs.Transform = CFrame.Angles(math.rad(-90), 0, 0)
+		ls.Transform = CFrame.Angles(math.rad(80), math.rad(-25), 0)
+		rs.Transform = CFrame.Angles(math.rad(90), 0, 0)
 	elseif state == "Throw" then
 		local wind = (math.sin(t * 2.2 + phase) + 1) / 2
 		lh.Transform = CFrame.Angles(math.rad(-15), 0, 0)
 		rh.Transform = CFrame.Angles(math.rad(15), 0, 0)
-		ls.Transform = CFrame.Angles(math.rad(-30), 0, 0)
-		rs.Transform = CFrame.Angles(math.rad(-160 * wind), 0, 0)
+		ls.Transform = CFrame.Angles(math.rad(30), 0, 0)
+		-- Wind back behind the shoulder, then over the top and forward.
+		rs.Transform = CFrame.Angles(math.rad(-50 + 210 * wind), 0, 0)
 	else
 		lh.Transform = CFrame.identity
 		rh.Transform = CFrame.identity
