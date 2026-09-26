@@ -213,6 +213,19 @@ local function defeatCamera(dt: number)
 	camera.CFrame = CFrame.lookAt(pos, Config.TURRET_PIVOT) * shakeOffset(dt)
 end
 
+-- Victory: rise off the mesa and drift out over the basin, looking down
+-- the road toward the burning Siege Crawler and the flare volley.
+local function victoryCamera(_dt: number)
+	UserInputService.MouseBehavior = Enum.MouseBehavior.Default
+	UserInputService.MouseIconEnabled = true
+	local t = math.min(1, (os.clock() - modeStarted) / 8)
+	local eased = 1 - (1 - t) ^ 3
+	local drift = (os.clock() - modeStarted) * 0.03
+	local pos = Config.TURRET_PIVOT + Vector3.new(math.sin(drift) * 60, 20 + 60 * eased, 30 - 90 * eased)
+	camera.FieldOfView = 60
+	camera.CFrame = CFrame.lookAt(pos, Vector3.new(0, 10, -360))
+end
+
 function AimController.start()
 	camera.CameraType = Enum.CameraType.Scriptable
 	RunService:BindToRenderStep("RedMesaCamera", Enum.RenderPriority.Camera.Value + 1, function(dt)
@@ -221,6 +234,8 @@ function AimController.start()
 			turretCamera(dt)
 		elseif mode == "Defeat" then
 			defeatCamera(dt)
+		elseif mode == "Victory" then
+			victoryCamera(dt)
 		else
 			titleCamera(dt)
 		end

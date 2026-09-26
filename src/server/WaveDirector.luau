@@ -47,6 +47,7 @@ function WaveDirector.new(ctx: Types.Context, waveNumber: number): Director
 	local self = setmetatable({
 		crateTimes = crateTimes,
 		maxDuration = wave.maxDuration or Config.Timing.WAVE_MAX_DURATION,
+		crateBias = wave.crateBias,
 		ctx = ctx,
 		waveNumber = waveNumber,
 		elapsed = 0,
@@ -73,7 +74,7 @@ function WaveDirector.update(self: any, dt: number)
 	end
 	while #self.crateTimes > 0 and self.crateTimes[1] <= self.elapsed do
 		table.remove(self.crateTimes, 1)
-		self.ctx.dropCrate(nil)
+		self.ctx.dropCrate(self.crateBias)
 	end
 	Enemies.update(dt)
 

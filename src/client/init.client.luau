@@ -34,7 +34,7 @@ local function applyPhase(phase: string)
 		AimController.setMode("Title")
 		Hud.setVisible(false)
 	elseif phase == "Defeat" or phase == "Victory" then
-		AimController.setMode("Defeat")
+		AimController.setMode(phase)
 		Hud.setVisible(false)
 	else
 		AimController.setMode("Turret")

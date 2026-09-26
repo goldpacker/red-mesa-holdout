@@ -15,11 +15,16 @@ local PIVOT = Vector3.new(0, 72, 0) -- Config.TURRET_PIVOT
 local BACK, UP = 13, 8 -- Config.Camera third-person offsets
 local ROCKET_SPEED = 340 -- WeaponConfig rocket speed
 
+-- Optional "human-like" handicaps (player attributes, read each tick):
+--   QA_Range (studs, default 900), QA_AimError (degrees, default 0),
+--   QA_Reaction (seconds before engaging a new target, default 0),
+--   QA_Burst (true = machine gun in ~1 s bursts), QA_NoCrates (true).
 plr:SetAttribute("AutoPlay", true)
 plr:SetAttribute("QA_Retries", plr:GetAttribute("QA_Retries") or 0)
 
 local lastPos: { [Instance]: { pos: Vector3, t: number, vel: Vector3 } } = {}
 local lockTarget, lockSince = nil, 0
+local engaged, engagedSince = nil, 0
 local lastPulse = 0
 
 local function velocityOf(model: Model, pos: Vector3): Vector3
@@ -45,8 +50,11 @@ local function aimAt(target: Vector3)
 		local cam = PIVOT - back * BACK + Vector3.new(0, UP, 0)
 		dir = (target - cam).Unit
 	end
-	plr:SetAttribute("DebugYaw", math.deg(math.atan2(-dir.X, -dir.Z)))
-	plr:SetAttribute("DebugPitch", math.deg(math.asin(math.clamp(dir.Y, -1, 1))))
+	local err = plr:GetAttribute("QA_AimError") or 0
+	local jitter = if err > 0 then (math.random() - 0.5) * 2 * err else 0
+	local jitter2 = if err > 0 then (math.random() - 0.5) * 2 * err else 0
+	plr:SetAttribute("DebugYaw", math.deg(math.atan2(-dir.X, -dir.Z)) + jitter)
+	plr:SetAttribute("DebugPitch", math.deg(math.asin(math.clamp(dir.Y, -1, 1))) + jitter2)
 end
 
 local function findPart(model: Instance, name: string): BasePart?
@@ -104,8 +112,8 @@ local function pick()
 		else
 			continue
 		end
-		if dist > 900 then
-			score -= 400
+		if dist > (plr:GetAttribute("QA_Range") or 900) then
+			continue
 		end
 		score += (900 - dist) / 4
 		if score > bestScore then
@@ -113,7 +121,7 @@ local function pick()
 		end
 	end
 	-- Crates when nothing pressing (score threshold).
-	if bestScore < 500 then
+	if bestScore < 500 and not plr:GetAttribute("QA_NoCrates") then
 		for _, crate in workspace.Crates:GetChildren() do
 			local pivot = crate:GetPivot().Position
 			local s = 520
@@ -152,7 +160,11 @@ task.spawn(function()
 			end
 		elseif phase == "Wave" then
 			local target, weapon, point = pick()
-			if target and point then
+			if target ~= engaged then
+				engaged, engagedSince = target, os.clock()
+			end
+			local reacting = os.clock() - engagedSince < (plr:GetAttribute("QA_Reaction") or 0)
+			if target and point and not reacting then
 				plr:SetAttribute("DebugWeapon", weapon)
 				local aimPoint = point
 				if weapon == "Rocket" then
@@ -164,7 +176,8 @@ task.spawn(function()
 				end
 				aimAt(aimPoint)
 				if weapon == "MG" then
-					plr:SetAttribute("DebugFire", true)
+					local burst = plr:GetAttribute("QA_Burst") and (os.clock() % 1.6) > 1.0
+					plr:SetAttribute("DebugFire", not burst)
 				elseif weapon == "Rocket" then
 					pulseFire()
 				elseif weapon == "Missile" then

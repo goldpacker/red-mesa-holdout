@@ -112,11 +112,11 @@ local function buildEndScreen()
 	endTitle = Ui.label({ Text = "", FontFace = F.Header, TextSize = 88, TextColor3 = C.Red, TextXAlignment = Enum.TextXAlignment.Center, AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.fromScale(0.5, 0.12), Size = UDim2.fromOffset(900, 96), Parent = endScreen })
 	Ui.outline(endTitle, 3)
 	endSub = Ui.label({ Text = "", FontFace = F.Label, TextSize = 28, TextXAlignment = Enum.TextXAlignment.Center, AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0.12, 100), Size = UDim2.fromOffset(900, 32), Parent = endScreen })
-	local panel = Ui.panel({ AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0.12, 150), Size = UDim2.fromOffset(460, 250), Parent = endScreen })
+	local panel = Ui.panel({ AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0.12, 150), Size = UDim2.fromOffset(460, 330), Parent = endScreen })
 	endStats = Ui.label({ Text = "", FontFace = F.Mono, TextSize = 20, RichText = true, TextYAlignment = Enum.TextYAlignment.Top, Position = UDim2.fromOffset(20, 16), Size = UDim2.new(1, -40, 1, -32), Parent = panel })
 
-	restartButton = Ui.button({ Name = "RestartButton", Text = "RESTART", Size = UDim2.fromOffset(220, 58), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, -120, 0.12, 420), Parent = endScreen })
-	retryButton = Ui.button({ Name = "RetryButton", Text = "RETRY WAVE", Size = UDim2.fromOffset(220, 58), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 120, 0.12, 420), Parent = endScreen })
+	restartButton = Ui.button({ Name = "RestartButton", Text = "RESTART", Size = UDim2.fromOffset(220, 58), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, -120, 0.12, 500), Parent = endScreen })
+	retryButton = Ui.button({ Name = "RetryButton", Text = "RETRY WAVE", Size = UDim2.fromOffset(220, 58), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 120, 0.12, 500), Parent = endScreen })
 	restartButton.Activated:Connect(function()
 		(remotes:WaitForChild("Restart") :: RemoteEvent):FireServer()
 	end)
@@ -143,13 +143,26 @@ function Screens.banner(main: string, sub: string, duration: number, color: Colo
 	end)
 end
 
+local KIND_LABELS = {
+	Infantry = "INFANTRY",
+	Buggy = "BUGGIES",
+	Tank = "TANKS",
+	Helicopter = "HELICOPTERS",
+	Jet = "JETS",
+	SiegeCrawler = "SIEGE CRAWLER",
+}
+local KIND_ORDER = { "Infantry", "Buggy", "Tank", "Helicopter", "Jet", "SiegeCrawler" }
+
+-- One kill type per line, aligned, in threat order.
 local function formatKills(kills: { [string]: number }): string
-	local parts = {}
-	for kind, count in kills do
-		table.insert(parts, string.format("%s %d", string.upper(kind), count))
+	local lines = {}
+	for _, kind in KIND_ORDER do
+		local count = kills[kind]
+		if count and count > 0 then
+			table.insert(lines, string.format("  %-14s %d", KIND_LABELS[kind], count))
+		end
 	end
-	table.sort(parts)
-	return if #parts > 0 then table.concat(parts, "  ") else "NONE"
+	return if #lines > 0 then "KILLS\n" .. table.concat(lines, "\n") else "KILLS         NONE"
 end
 
 local function showEnd(victory: boolean, stats: any)
@@ -166,11 +179,11 @@ local function showEnd(victory: boolean, stats: any)
 		string.format("BEST COMBO    x%d", stats.bestCombo),
 		string.format("SESSION BEST  %d", stats.sessionBest),
 		"",
-		"KILLS  " .. formatKills(stats.kills),
+		formatKills(stats.kills),
 	}, "\n")
 	retryButton.Visible = not victory
 	restartButton.Text = if victory then "PLAY AGAIN" else "RESTART"
-	restartButton.Position = if victory then UDim2.new(0.5, 0, 0.12, 420) else UDim2.new(0.5, -120, 0.12, 420)
+	restartButton.Position = if victory then UDim2.new(0.5, 0, 0.12, 500) else UDim2.new(0.5, -120, 0.12, 500)
 end
 
 function Screens.showWaveClear(payload: any)
