@@ -129,13 +129,17 @@ def _lay(rot):
 
 def materials(a):
     paint_photo = {"id": "green_metal_rust", "scale": 3.6, "color": 0.85, "sat": 0.45, "rough": 0.5, "height": 0.35}
-    worn = {"under": "#7a7b78", "under_metal": 0.9, "under_rough": 0.32, "chip_style": "blotch", "chip_scale": 5.0,
-            "chip_bevel": 0.16, "fade": 0.45, "fade_color": "#6b6b45", "patches": 0.7, "patch_color": "#44462d",
-            "dust_color": DUST_OCHRE, "grime": 0.75, "bevel": 0.07}
-    a.material("olive_p", base="olive", color="#55563a", photo=paint_photo, wear=0.6, dust=0.6, **worn)
-    a.material("olive_dark_p", base="olive_dark", color="#45472f", photo=paint_photo, wear=0.55, dust=0.55,
-               **dict(worn, patch_color="#383a26", fade_color="#66674f"))
-    a.material("shield", base="olive", color="#57583b", photo=paint_photo, wear=0.66, dust=0.62, **dict(worn, chip_scale=6.0))
+    # Paint values sit at the art bible's *worn* OD (#6B6B45) rather than new
+    # OD (#4F5234): the Night preset lights from straight overhead, so the
+    # gun's vertical faces live on ambient alone and a darker paint, heavy
+    # cavity grime and very metallic chips went black there (HS-1 review).
+    worn = {"under": "#85867f", "under_metal": 0.75, "under_rough": 0.38, "chip_style": "blotch", "chip_scale": 5.0,
+            "chip_bevel": 0.16, "fade": 0.45, "fade_color": "#7c7c5a", "patches": 0.6, "patch_color": "#5c5f3f",
+            "dust_color": DUST_OCHRE, "grime": 0.45, "bevel": 0.07}
+    a.material("olive_p", base="olive", color="#686a48", photo=paint_photo, wear=0.55, dust=0.6, **worn)
+    a.material("olive_dark_p", base="olive_dark", color="#5a5c3d", photo=paint_photo, wear=0.5, dust=0.55,
+               **dict(worn, patch_color="#4f5236", fade_color="#737455"))
+    a.material("shield", base="olive", color="#6b6d4a", photo=paint_photo, wear=0.6, dust=0.62, **dict(worn, chip_scale=6.0))
     a.material("handle", kind="metal", color="#6a6862", rough=0.26, metal=1.0, dust=0.12, grime=0.45, bevel=0.02)
     a.material("steel_dark_p", base="steel_dark", photo={"id": "green_metal_rust", "scale": 2.0, "rough": 0.6, "height": 0.3})
     a.material("brass_p", kind="metal", color="#b8903e", rough=0.24, metal=1.0, dust=0.18, grime=0.35, bevel=0.01)
@@ -159,8 +163,8 @@ def burlap(a, name, color, bleach):
 
 def bunker(a):
     photo = {"id": "concrete_floor_worn_001", "scale": 10.7, "color": 0.8, "sat": 0.25, "rough": 0.5, "height": 0.8}
-    a.material("floor_concrete", base="concrete", color="#837d70", grime=0.9, dust=0.3, dust_height=1.2, photo=photo,
-               dust_color="#a08d74",
+    a.material("floor_concrete", base="concrete", color="#7c766a", grime=0.9, dust=0.55, dust_height=1.2, photo=photo,
+               dust_color="#9e8466",
                stain="#463a2c", joint=5.5,
                marks=[
                    {"lo": (-2.6, -9.5, -9), "hi": (2.4, -3.0, -5.5), "color": "#3f3930", "soft": 1.6},  # rocket backblast soot
@@ -520,7 +524,10 @@ def turret_yaw(a):
 
 
 def turret_gun(a, smalls):
-    a.material("receiver", base="steel_dark", rough=0.5, dust=0.35, photo={"id": "green_metal_rust", "scale": 2.4, "rough": 0.6, "height": 0.4})
+    # Parkerized (matte phosphate) finish: mostly diffuse, so it keeps its
+    # form at night instead of mirroring the dark sky.
+    a.material("receiver", base="steel_dark", color="#3f3f3a", metal=0.55, rough=0.62, dust=0.4, grime=0.4,
+               photo={"id": "green_metal_rust", "scale": 2.4, "rough": 0.6, "height": 0.4})
     a.material("grip", base="rubber", color="#1c1a16")
     a.material("pod", base="olive_p", wear=0.5, marks=[{"lo": (1.5, 1.2, -2.0), "hi": (5.0, 1.45, 2.0), "color": "#c9a227"}])
     a.material("rocket_nose", base="olive_dark_p", color="#4d5236", marks=[{"lo": (1.5, 2.02, -2.0), "hi": (5.0, 2.09, 2.0), "color": "#c9a227"}])
