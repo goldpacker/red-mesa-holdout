@@ -16,7 +16,7 @@ tools/vfx/sheets/<module>.py --render.sh--> tools/vfx/.cache/<Name>/f000..f063.e
 ## Commands
 
 ```sh
-tools/vfx/render.sh all                    # every sheet and single (about 25 min)
+tools/vfx/render.sh all                    # every sheet and single (~15-35 min, shared GPU)
 tools/vfx/render.sh Fireball DustPuff      # named outputs
 VFX_QUICK=9 tools/vfx/render.sh SmokeDark  # look-dev: renders every 9th frame only
 NO_RENDER=1 tools/vfx/render.sh Fireball   # re-assemble cached frames (tone/alpha tweaks)
@@ -53,6 +53,18 @@ same sheet (Mantaflow aside, which can differ slightly between runs).
 Frames are row-major from the top-left cell (Roblox `Grid8x8` order).
 Suggested emitter settings for each live in `src/shared/Flipbooks.luau`
 (`Flipbooks.apply(emitter, name, scale)`).
+
+Verified in Studio (captures in `qa/beauty/vfx-1/`): OneShot sheets play
+over the particle lifetime in grid order, alpha is clean over sky and sand,
+and with `Orientation = VelocityParallel` Roblox lays the texture's X axis
+along the velocity, so the side flash and exhaust (drawn pointing up) need
+`Rotation = -90`.
+
+Render times on the shared M4 Pro GPU (64 frames at 256², other agents'
+jobs running): Fireball bake 110-130 s + render 100 s; DustPuff 330 s;
+SandKick 505 s; SmokeDark 545 s (96 samples); MissileTrail 190 s. Painted
+sheets and singles take 2-5 s each; `VFX_QUICK=9` look-dev renders take
+10-40 s (plus the Fireball bake).
 
 ## How a frame becomes a clean cell (`vfxlib/image.py`)
 

@@ -10,6 +10,10 @@
 -- (0..1 from the top left); offset the particle when it isn't the centre,
 -- e.g. SandKick's ground line is near the bottom.
 --
+-- VelocityParallel (verified in Studio): Roblox lays the texture's X axis
+-- along the velocity; Rotation = -90 puts the texture's top along it, which
+-- is how MuzzleFlashSide and RocketExhaust are drawn (tip/tail at the top).
+--
 -- Flipbooks.apply(emitter, name, scale?) sets texture + flipbook playback and
 -- the suggested look; callers still own Rate/Speed/Acceleration/Enabled.
 -- Returns false (and changes nothing) when the texture isn't uploaded.
@@ -187,7 +191,7 @@ local ENTRIES: { [string]: Entry } = {
 			color = Color3.new(1, 1, 1),
 			lightEmission = 1,
 			lightInfluence = 0,
-			brightness = 3,
+			brightness = 1.5,
 			orientation = Enum.ParticleOrientation.FacingCamera,
 			rotation = { 0, 360 },
 			rotSpeed = { 0, 0 },
@@ -202,7 +206,7 @@ local ENTRIES: { [string]: Entry } = {
 		tinted = false,
 		anchor = Vector2.new(0.5, 0.725),
 		size = SHEET,
-		notes = "64 variants of a side-on flash pointing up the texture (with brake jets). Muzzle 22.5% below centre: spawn at muzzle + forward * 0.225 * size, velocity along the barrel, VelocityParallel. Colour baked.",
+		notes = "64 variants of a side-on flash pointing up the texture (with brake jets). Muzzle 22.5% below centre: spawn at muzzle + forward * 0.225 * size, velocity along the barrel, VelocityParallel with Rotation -90. Colour baked.",
 		suggest = {
 			lifetime = { 0.04, 0.06 },
 			size = { 3.4, 4.2 },
@@ -210,9 +214,9 @@ local ENTRIES: { [string]: Entry } = {
 			color = Color3.new(1, 1, 1),
 			lightEmission = 1,
 			lightInfluence = 0,
-			brightness = 3,
+			brightness = 1.5,
 			orientation = Enum.ParticleOrientation.VelocityParallel,
-			rotation = { 0, 0 },
+			rotation = { -90, -90 },
 			rotSpeed = { 0, 0 },
 		},
 	},
@@ -233,7 +237,7 @@ local ENTRIES: { [string]: Entry } = {
 			color = Color3.new(1, 1, 1),
 			lightEmission = 1,
 			lightInfluence = 0,
-			brightness = 3,
+			brightness = 1.5,
 			orientation = Enum.ParticleOrientation.FacingCamera,
 			rotation = { 0, 360 },
 			rotSpeed = { 0, 0 },
@@ -248,7 +252,7 @@ local ENTRIES: { [string]: Entry } = {
 		tinted = false,
 		anchor = Vector2.new(0.5, 0.85),
 		size = SHEET,
-		notes = "Seamless 64-frame loop of a flame plume; nozzle 35% below centre, tail toward the top. With VelocityParallel emit backwards (texture up = away from the rocket); spawn at nozzle - forward * 0.35 * size. Colour baked.",
+		notes = "Seamless 64-frame loop of a flame plume; nozzle 35% below centre, tail toward the top. With VelocityParallel + Rotation -90 emit backwards (texture top = away from the rocket); spawn at nozzle - forward * 0.35 * size. Colour baked.",
 		suggest = {
 			lifetime = { 0.05, 0.08 },
 			size = { 2.6, 3.2 },
@@ -256,9 +260,9 @@ local ENTRIES: { [string]: Entry } = {
 			color = Color3.new(1, 1, 1),
 			lightEmission = 1,
 			lightInfluence = 0,
-			brightness = 2.5,
+			brightness = 1.5,
 			orientation = Enum.ParticleOrientation.VelocityParallel,
-			rotation = { 0, 0 },
+			rotation = { -90, -90 },
 			rotSpeed = { 0, 0 },
 		},
 	},
