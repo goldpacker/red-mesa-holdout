@@ -87,6 +87,9 @@ attributes (e.g. `Rockets`, `Missiles`) set by the server.
   stopping play run `tools/studio-lock.sh release <your-name>`. Keep sessions
   short (a few minutes). Never leave a playtest running.
 - Studio id: call `list_roblox_studios` (name "Place1").
+- The Mac's display idles/sleeps when nobody is at it, which pauses Studio
+  rendering. Run `caffeinate -u -t 2` right before any playtest or
+  `screen_capture` (check with a RenderStepped counter: 0 fps = asleep).
 - Studio must be frontmost/visible or rendering stops (RenderStepped halts,
   `screen_capture` times out): `open_application("RobloxStudio")` via
   computer-use. For visual QA, in the Client datamodel run
