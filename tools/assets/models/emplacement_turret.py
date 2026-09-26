@@ -94,7 +94,7 @@ def turret_yaw(a):
     for i in range(12):
         ang = 2 * math.pi * i / 12
         y.detail(hs.bolt_row((1.2 * math.cos(ang), 1.2 * math.sin(ang), -2.62), (1.2 * math.cos(ang), 1.2 * math.sin(ang), -2.62), 1, (0, 0, 1),
-                             r=0.075, h=0.06), "steel_dark_p")
+                             r=0.075, h=0.06), "olive_dark_t")
     base = [(-1.35, -3.9), (1.35, -3.9), (1.6, -1.2), (1.6, 1.4), (-1.6, 1.4), (-1.6, -1.2)]
     bp = geo.prism(base, 0.18, bevel=0.0)
     hs.chamfer_edges(bp, lambda e: all(v.co.z > 0.08 for v in e.verts), 0.04)
@@ -108,7 +108,7 @@ def turret_yaw(a):
         x_out = sx * 1.39
         y.add(geo.cylinder(0.34, 0.02, verts=16, bevel=0.0), "olive_dark_t", at=(x_out + sx * 0.005, 0.0, -1.35), rot=(0, 90, 0))
         y.detail(geo.torus(0.36, 0.035, verts=20, ring_verts=5), "olive_t", at=(x_out, 0.0, -1.35), rot=(0, 90, 0))
-        y.detail(hs.bolt_row((x_out, -1.1, -2.25), (x_out, 1.1, -2.25), 6, (sx, 0, 0), r=0.055, h=0.04), "steel_dark_p")
+        y.detail(hs.bolt_row((x_out, -1.1, -2.25), (x_out, 1.1, -2.25), 6, (sx, 0, 0), r=0.055, h=0.04), "olive_t")
         for gy in (-1.0, 1.0):
             g = geo.prism([(0.0, 0.0), (0.42, 0.0), (0.0, 0.6)], 0.08, bevel=0.0)
             geo.transform(g, rot=(90, 0, 0))
@@ -119,7 +119,7 @@ def turret_yaw(a):
         for k in range(6):
             ang = 2 * math.pi * k / 6
             y.detail(hs.bolt_row((sx * 1.64, 0.4 * math.cos(ang), 0.4 * math.sin(ang)), (sx * 1.64, 0.4 * math.cos(ang), 0.4 * math.sin(ang)), 1,
-                                 (sx, 0, 0), r=0.05, h=0.04), "steel_dark_p")
+                                 (sx, 0, 0), r=0.05, h=0.04), "olive_dark_t")
         y.add(geo.cylinder(0.035, 0.12, verts=6, bevel=0.0), "handle", at=(sx * 1.77, 0.15, 0.2), rot=(0, 90, 0))
         y.add(geo.box(0.1, 0.18, 2.2, bevel=0.0), "olive_dark_t", at=(sx * 1.43, -0.1, -1.3), rot=(12, 0, 0))
     # Gunner seat on a post behind the gun, with a footrest bar.
@@ -134,7 +134,7 @@ def turret_yaw(a):
     y.add(geo.pipe_path([(-0.8, -2.1, -2.35), (-0.8, -1.8, -2.05), (0.8, -1.8, -2.05), (0.8, -2.1, -2.35)], 0.06, verts=6), "handle")
     # Traverse handwheel housing on the right plate (bare steel from use).
     y.add(geo.box(0.35, 0.6, 0.6, bevel=0.0), "olive_dark_t", at=(1.6, -0.9, -1.5))
-    y.detail(hs.bolt_row((1.78, -1.12, -1.28), (1.78, -0.68, -1.28), 2, (1, 0, 0), r=0.04, h=0.03), "steel_dark_p")
+    y.detail(hs.bolt_row((1.78, -1.12, -1.28), (1.78, -0.68, -1.28), 2, (1, 0, 0), r=0.04, h=0.03), "olive_dark_t")
     y.add(geo.torus(0.35, 0.04, verts=16, ring_verts=6), "handle", at=(1.82, -0.9, -1.5), rot=(0, 90, 0))
     for k in range(3):  # handwheel spokes
         ang = math.radians(90 + 120 * k)
@@ -173,8 +173,8 @@ def shield(a, g):
             st = geo.box(0.08, 0.2, 1.3, bevel=0.0)
             g.add(_shield_frame(st, at=(x, -0.17, 0.35)), "shield_t")
         # Bolt rows along the plate edges (bake) and weld beads on the joints.
-        g.detail(_shield_frame(hs.bolt_row((sx * 0.72, -0.1, 1.2), (sx * 2.05, -0.1, 1.2), 5, (0, -1, 0), r=0.05, h=0.04)), "steel_dark_p")
-        g.detail(_shield_frame(hs.bolt_row((sx * 2.08, -0.1, -0.2), (sx * 2.08, -0.1, 0.3), 2, (0, -1, 0), r=0.05, h=0.04)), "steel_dark_p")
+        g.detail(_shield_frame(hs.bolt_row((sx * 0.72, -0.1, 1.2), (sx * 2.05, -0.1, 1.2), 5, (0, -1, 0), r=0.05, h=0.04)), "shield_t")
+        g.detail(_shield_frame(hs.bolt_row((sx * 2.08, -0.1, -0.2), (sx * 2.08, -0.1, 0.3), 2, (0, -1, 0), r=0.05, h=0.04)), "shield_t")
         g.detail(_shield_frame(hs.weld([(sx * 0.62, -0.09, -0.26), (sx * 2.18, -0.09, -0.26)], r=0.035)), "weld")
         g.detail(_shield_frame(hs.weld([(sx * 0.56, -0.1, -0.26), (sx * 0.56, -0.1, 0.9)], r=0.03)), "weld")
         # Shield arms from the cradle with gussets.
@@ -186,11 +186,11 @@ def shield(a, g):
     # Bolted cap plate over the barrel slot.
     cap = plate(CAP, thick=0.12)
     g.add(_shield_frame(cap, at=(0, 0.1, 0)), "shield_t")
-    g.detail(_shield_frame(hs.bolt_row((-0.42, 0.04, 0.92), (0.42, 0.04, 0.92), 3, (0, -1, 0), r=0.05, h=0.04)), "steel_dark_p")
+    g.detail(_shield_frame(hs.bolt_row((-0.42, 0.04, 0.92), (0.42, 0.04, 0.92), 3, (0, -1, 0), r=0.05, h=0.04)), "shield_t")
     # Lower plate: horizontal angle stiffener and edge bolts (gunner's side).
     g.add(_shield_frame(geo.box(4.2, 0.2, 0.08, bevel=0.0), at=(0, -0.17, -0.95)), "shield_t")
-    g.detail(_shield_frame(hs.bolt_row((-2.0, -0.1, -0.5), (2.0, -0.1, -0.5), 9, (0, -1, 0), r=0.05, h=0.04)), "steel_dark_p")
-    g.detail(_shield_frame(hs.bolt_row((-2.0, -0.1, -1.5), (2.0, -0.1, -1.5), 9, (0, -1, 0), r=0.05, h=0.04)), "steel_dark_p")
+    g.detail(_shield_frame(hs.bolt_row((-2.0, -0.1, -0.5), (2.0, -0.1, -0.5), 9, (0, -1, 0), r=0.05, h=0.04)), "shield_t")
+    g.detail(_shield_frame(hs.bolt_row((-2.0, -0.1, -1.5), (2.0, -0.1, -1.5), 9, (0, -1, 0), r=0.05, h=0.04)), "shield_t")
     # Armoured vision block on the left upper plate: hood, glass, a hinged
     # cover plate hooked open on the gunner's side.
     vx = -1.52
@@ -224,12 +224,12 @@ def cradle(a):
         arm = geo.tapered_box(0.8, 1.25, 0.55, top_scale=(0.85, 0.8), bevel=0.0)
         g.add(arm, "olive_dark_t", at=(sx * 2.15, 0.2, -0.05), hp=0.06)
         g.add(geo.box(0.5, 0.9, 0.12, bevel=0.0), "olive_t", at=(sx * 2.15, 0.3, 0.28), hp=0.03)
-        g.detail(hs.bolt_row((sx * 2.0, -0.05, 0.35), (sx * 2.0, 0.65, 0.35), 3, (0, 0, 1), r=0.05, h=0.04), "steel_dark_p")
-        g.detail(hs.bolt_row((sx * 2.3, -0.05, 0.35), (sx * 2.3, 0.65, 0.35), 3, (0, 0, 1), r=0.05, h=0.04), "steel_dark_p")
+        g.detail(hs.bolt_row((sx * 2.0, -0.05, 0.35), (sx * 2.0, 0.65, 0.35), 3, (0, 0, 1), r=0.05, h=0.04), "olive_t")
+        g.detail(hs.bolt_row((sx * 2.3, -0.05, 0.35), (sx * 2.3, 0.65, 0.35), 3, (0, 0, 1), r=0.05, h=0.04), "olive_t")
         for k in range(6):
             ang = 2 * math.pi * k / 6
             g.detail(hs.bolt_row((sx * 2.11, 0.24 * math.cos(ang), 0.24 * math.sin(ang)), (sx * 2.11, 0.24 * math.cos(ang), 0.24 * math.sin(ang)),
-                                 1, (sx, 0, 0), r=0.045, h=0.035), "steel_dark_p")
+                                 1, (sx, 0, 0), r=0.045, h=0.035), "olive_dark_t")
     # Elevation gear sector under the right trunnion (teeth in the bake):
     # a 70-degree annulus from below the trunnion to behind it.
     def sector(bm):
@@ -361,13 +361,13 @@ def rocket_pod(a):
     for k in range(10):
         ang = 2 * math.pi * k / 10
         pod.detail(hs.bolt_row((x0 + 0.88 * math.cos(ang), -1.25, z0 + 0.88 * math.sin(ang)),
-                               (x0 + 0.88 * math.cos(ang), -1.25, z0 + 0.88 * math.sin(ang)), 1, (0, -1, 0), r=0.045, h=0.035), "steel_dark_p")
+                               (x0 + 0.88 * math.cos(ang), -1.25, z0 + 0.88 * math.sin(ang)), 1, (0, -1, 0), r=0.045, h=0.035), "olive_dark_t")
     pod.add(geo.cylinder(0.12, 0.2, verts=10, bevel=0.0), "steel_dark_p", at=(x0 - 0.62, -1.22, z0 + 0.62), rot=(-90, 0, 0))
     pod.add(geo.pipe_path([(x0 - 0.62, -1.25, z0 + 0.66), (x0 - 0.7, -1.22, z0 + 0.95), (x0 - 0.55, -0.6, z0 + 1.05), (x0 - 0.3, 0.0, z0 + 1.0)],
                           0.045, verts=6), "cable", hp=0.0)
     pod.add(geo.box(0.5, 1.0, 0.35, bevel=0.0), "olive_dark_t", at=(x0, 0.3, z0 + 1.0), hp=0.04)
-    pod.detail(hs.bolt_row((x0 - 0.2, -0.1, z0 + 1.18), (x0 - 0.2, 0.7, z0 + 1.18), 3, (0, 0, 1), r=0.04, h=0.03), "steel_dark_p")
-    pod.detail(hs.bolt_row((x0 + 0.2, -0.1, z0 + 1.18), (x0 + 0.2, 0.7, z0 + 1.18), 3, (0, 0, 1), r=0.04, h=0.03), "steel_dark_p")
+    pod.detail(hs.bolt_row((x0 - 0.2, -0.1, z0 + 1.18), (x0 - 0.2, 0.7, z0 + 1.18), 3, (0, 0, 1), r=0.04, h=0.03), "olive_dark_t")
+    pod.detail(hs.bolt_row((x0 + 0.2, -0.1, z0 + 1.18), (x0 + 0.2, 0.7, z0 + 1.18), 3, (0, 0, 1), r=0.04, h=0.03), "olive_dark_t")
     for yy in (-0.45, 1.05):
         pod.add(geo.box(0.16, 0.2, 0.2, bevel=0.0), "olive_dark_t", at=(x0, yy, z0 + 1.02))
         pod.add(geo.torus(0.09, 0.025, verts=8, ring_verts=4), "steel_dark_p", at=(x0, yy, z0 + 1.15), rot=(0, 90, 0))
@@ -399,7 +399,7 @@ def missile_rack(a):
     rack.add(geo.box(0.9, 0.9, 0.55, bevel=0.0), "olive_dark_t", at=(x0, -0.9, -0.36), hp=0.05)
     for k in range(5):
         rack.add(geo.box(0.14, 0.03, 0.4, bevel=0.0), "olive_dark_t", at=(x0 + 0.52, -0.9 - 0.3 + k * 0.15, -0.38))
-    rack.detail(hs.bolt_row((x0 - 0.35, -1.36, -0.15), (x0 + 0.35, -1.36, -0.15), 3, (0, -1, 0), r=0.04, h=0.03), "steel_dark_p")
+    rack.detail(hs.bolt_row((x0 - 0.35, -1.36, -0.15), (x0 + 0.35, -1.36, -0.15), 3, (0, -1, 0), r=0.04, h=0.03), "olive_dark_t")
     rack.add(geo.cylinder(0.1, 0.12, verts=8, bevel=0.0), "steel_dark_p", at=(x0 - 0.2, -1.28, -0.45), rot=(-90, 0, 0))
     rack.add(geo.cylinder(0.16, 0.9, verts=12, bevel=0.0), "olive_t", at=(x0 - 0.32, -0.95, -0.72), rot=(0, 90, 0))
     for xx in (-0.55, -0.1):

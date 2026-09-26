@@ -25,14 +25,14 @@
   "stores/metal": "c521fe2be90b8a8c",
   "stores/normal": "8b25b96d57a06e7d",
   "stores/rough": "fc3b37ef9646c4de",
-  "turret/color": "a7951e07044e43a5",
-  "turret/metal": "2064f66e2f6e4bc9",
-  "turret/normal": "6d360b11987f1592",
-  "turret/rough": "8b586f7d667e6412",
-  "weapons/color": "44d0b6b86a400e6e",
-  "weapons/metal": "fa0c532484581322",
-  "weapons/normal": "973dc4b481071842",
-  "weapons/rough": "053b818fdadfb283"
+  "turret/color": "625c200f35f6fbd3",
+  "turret/metal": "fc704fd547d899f0",
+  "turret/normal": "88416d2155c7497c",
+  "turret/rough": "075c2ec7f7a3678d",
+  "weapons/color": "85ffcca07cec15b7",
+  "weapons/metal": "c017ed2c6615d6cd",
+  "weapons/normal": "8ff462b826f310c2",
+  "weapons/rough": "005b7b0c4a786222"
  },
  "meshes": {
   "Belt": "rbxassetid://122458962840954",
@@ -103,16 +103,16 @@
    "rough": "rbxassetid://91869883438007"
   },
   "turret": {
-   "color": "rbxassetid://93673388587830",
-   "metal": "rbxassetid://109487483722842",
-   "normal": "rbxassetid://75299663860674",
-   "rough": "rbxassetid://126262373087513"
+   "color": "rbxassetid://95067114073657",
+   "metal": "rbxassetid://99679493422194",
+   "normal": "rbxassetid://119486221147398",
+   "rough": "rbxassetid://124059893004759"
   },
   "weapons": {
-   "color": "rbxassetid://124016599401878",
-   "metal": "rbxassetid://139159020719354",
-   "normal": "rbxassetid://87490180146963",
-   "rough": "rbxassetid://81121125803595"
+   "color": "rbxassetid://123262628393304",
+   "metal": "rbxassetid://126880001361286",
+   "normal": "rbxassetid://91831935695891",
+   "rough": "rbxassetid://137927168253092"
   }
  }
 }
