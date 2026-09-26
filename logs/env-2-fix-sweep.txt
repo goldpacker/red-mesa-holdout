@@ -1,23 +1,25 @@
-basin_c      rays on landscape   712  terrain in front    0  
-basin_l      rays on landscape   941  terrain in front    0  
-basin_r      rays on landscape  1015  terrain in front    0  
-basin_far    rays on landscape   153  terrain in front  143  (-16,5.4,-1125) -59.04 Butte3; (10,19.4,-1167) -42.02 Butte3; (10,23.7,-1178) -41.38 Butte3; (10,19.5,-1165) -40.30 Butte3
-basin_front  rays on landscape   795  terrain in front    0  
-turret       rays on landscape  1524  terrain in front    0  
-flank_r      rays on landscape  1013  terrain in front    4  (619,2.0,-942) -2.04 Butte4; (378,3.6,-1073) -1.65 Butte2; (602,2.0,-954) -1.62 Butte4; (535,2.0,-988) -0.49 Butte4
-flank_l      rays on landscape   980  terrain in front    4  (-398,2.0,-1005) -9.30 Butte1; (27,2.0,-71) -2.24 Mesa; (-98,2.0,-1096) -1.66 Butte3; (-113,2.2,-1106) -0.67 Butte3
-rear_r       rays on landscape  1724  terrain in front    1  (711,2.0,89) -2.98 FlankRight
-rear_l       rays on landscape  1715  terrain in front    1  (-706,2.0,-12) -10.14 FlankLeft
-butte1       rays on landscape  1372  terrain in front   16  (-379,5.2,-1007) -5.83 Butte1; (-378,5.2,-1007) -5.53 Butte1; (-377,5.2,-1007) -5.17 Butte1; (-374,4.3,-1005) -5.07 Butte1
-butte2       rays on landscape  1465  terrain in front   25  (283,2.0,-1019) -7.95 Butte2; (231,3.0,-1008) -4.65 Butte2; (229,4.0,-1013) -4.41 Butte2; (256,2.0,-997) -2.80 Butte2
-butte3       rays on landscape  1446  terrain in front   16  (122,2.0,-1041) -22.69 Butte2; (-85,2.0,-1098) -3.69 Butte3; (-56,2.0,-1085) -2.48 Butte3; (-63,2.0,-1090) -2.43 Butte3
-butte4       rays on landscape  2106  terrain in front    5  (602,2.0,-954) -2.19 Butte4; (619,2.0,-947) -1.87 Butte4; (602,2.0,-954) -1.68 Butte4; (603,2.0,-955) -1.21 Butte4
-far_c        rays on landscape  3091  terrain in front    0  
-far_l        rays on landscape  1836  terrain in front    0  
-far_r        rays on landscape  2085  terrain in front    3  (575,2.0,-1162) -0.97 Butte4; (631,2.0,-1164) -0.65 Butte4; (578,2.0,-1161) -0.65 Butte4
-wall_r       rays on landscape  1492  terrain in front    0  
-wall_l       rays on landscape  1469  terrain in front    3  (-687,2.0,-448) -15.48 FlankLeft; (-708,2.0,-381) -5.49 FlankLeft; (-714,2.0,-334) -0.28 FlankLeft
-wall_r2      rays on landscape  1930  terrain in front    0  
-wall_l2      rays on landscape  1919  terrain in front    1  (-724,2.0,54) -0.50 FlankLeft
-title        rays on landscape  2068  terrain in front    0  
-SWEEP: 32851 rays on the landscape, 222 with live terrain in front of the mesh (worst -59.04 studs)
+# ENV-2 fix round 2: full 22-viewpoint sweep, probes re-captured in a Studio playtest 2026-09-26 16:47 on committed TerrainBuilder (source hash 1803651412) and the in-game landscape meshes
+# Blender -b --factory-startup -P tools/env/landscape/probe.py -- sweep check
+basin_c      rays on landscape   712  rock in front    0  floor dune in front   0  
+basin_l      rays on landscape   941  rock in front    0  floor dune in front   0  
+basin_r      rays on landscape  1015  rock in front    0  floor dune in front   0  
+basin_far    rays on landscape  1245  rock in front    0  floor dune in front   0  
+basin_front  rays on landscape   791  rock in front    0  floor dune in front   0  
+turret       rays on landscape  1515  rock in front    0  floor dune in front   0  
+flank_r      rays on landscape   995  rock in front    0  floor dune in front   1    dunes: (378,3.6,-1073) -1.65 Butte2
+flank_l      rays on landscape   960  rock in front    0  floor dune in front   0  
+rear_r       rays on landscape  1707  rock in front    0  floor dune in front   0  
+rear_l       rays on landscape  1703  rock in front    0  floor dune in front   0  
+butte1       rays on landscape  1325  rock in front    0  floor dune in front  11    dunes: (-379,5.2,-1007) -5.83 Butte1; (-378,5.2,-1007) -5.53 Butte1
+butte2       rays on landscape  1403  rock in front    0  floor dune in front   3    dunes: (231,3.0,-1008) -4.65 Butte2; (229,4.0,-1013) -4.41 Butte2
+butte3       rays on landscape  1378  rock in front    0  floor dune in front   0  
+butte4       rays on landscape  1959  rock in front    0  floor dune in front   0  
+far_c        rays on landscape  2945  rock in front    0  floor dune in front   0  
+far_l        rays on landscape  1799  rock in front    0  floor dune in front   0  
+far_r        rays on landscape  2047  rock in front    0  floor dune in front   0  
+wall_r       rays on landscape  1471  rock in front    0  floor dune in front   0  
+wall_l       rays on landscape  1437  rock in front    0  floor dune in front   0  
+wall_r2      rays on landscape  1896  rock in front    0  floor dune in front   0  
+wall_l2      rays on landscape  1880  rock in front    0  floor dune in front   0  
+title        rays on landscape  2058  rock in front    0  floor dune in front   0  
+SWEEP: 22 viewpoints x 4860 rays; 33182 rays on the landscape; 0 with landscape terrain in front of the mesh (worst 0.00 studs); 15 where a basin-floor sand dune laps in front of a talus toe (not a knob)

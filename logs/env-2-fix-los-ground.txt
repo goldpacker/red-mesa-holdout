@@ -14,3 +14,15 @@ WashLeft   45 samples  terrain y min -3.4 max -3.1 mean -3.3  digest -34191  max
 WashRight  45 samples  terrain y min -3.4 max -3.2 mean -3.3  digest -34501  max surface-above-terrain 0.0
 
 Terrain capture: live TerrainBuilder cliffs+buttes ops 1345, hash 2127019242 == assets/source/landscape/terrain_ops.txt
+
+# ENV-2 fix round 2 (same build as round 1; no geometry change), Studio playtest 16:47, 11 mesa chunks with precise collision
+LOS check from turret muzzle 0, 72, 0 (hip = ground+3.0; 121 non-query visible parts included): ALL PASS
+Road       end (0,-92) ground 2.0  PASS  feet+ hip+ head+  | along lane: 42/42 samples visible
+ScrubLeft  end (-50,-85) ground 2.0  PASS  feet+ hip+ head+  | along lane: 40/40 samples visible
+ScrubRight end (50,-85) ground 2.0  PASS  feet+ hip+ head+  | along lane: 40/40 samples visible
+WashLeft   end (-90,-40) ground -3.3  PASS  feet+ hip+ head+  | along lane: 45/45 samples visible
+WashRight  end (90,-40) ground -3.3  PASS  feet+ hip+ head+  | along lane: 45/45 samples visible
+Ground check digests: Road 18060, ScrubLeft 16400, ScrubRight 16400, WashLeft -34191, WashRight -34501 (max surface-above-terrain 0.0 on every lane)
+Sweep's remaining 15 hits, live-terrain material at the hit point (Server raycast):
+(-379,5.2,-1007) Mud; (-374,4.3,-1005) Mud; (231,3.0,-1008) Sand; (229,4.0,-1013) Sand; (378,3.6,-1073) Mud  -> basin-floor sand/coarse-sand dunes, not rock
+Console: [RedMesa] world built / server ready / client ready only

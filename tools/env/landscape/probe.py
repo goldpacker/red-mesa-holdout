@@ -354,7 +354,9 @@ def mesa_save(src: str) -> None:
 # walls and buttes, the flanks and the turret, beyond the fixed cameras.
 SWEEP = {
     "basin_c": (0.0, 8.0, -600.0), "basin_l": (-450.0, 8.0, -800.0), "basin_r": (450.0, 8.0, -800.0),
-    "basin_far": (0.0, 8.0, -1150.0),  # inside Butte3's scree ring: its hits on Butte3 are skipped "basin_front": (0.0, 30.0, -250.0), "turret": (0.0, 80.0, 13.0),
+    # basin_far sits 143 studs in front of Butte3 (at z -1150 it was inside Butte3's rock).
+    "basin_far": (0.0, 8.0, -1050.0),
+    "basin_front": (0.0, 30.0, -250.0), "turret": (0.0, 80.0, 13.0),
     "flank_r": (430.0, 70.0, -700.0), "flank_l": (-430.0, 70.0, -700.0),
     "rear_r": (300.0, 20.0, 60.0), "rear_l": (-300.0, 20.0, 60.0),
     "butte1": (-380.0, 10.0, -980.0), "butte2": (260.0, 10.0, -980.0), "butte3": (-60.0, 10.0, -1060.0), "butte4": (620.0, 10.0, -930.0),
@@ -444,13 +446,28 @@ def sweep_check(pieces: list[str]) -> int:
         meshes.append((n, d["low_v"].astype(np.float64), d["low_f"]))
         terrains.append((n, d["terrain_v"].astype(np.float64), d["terrain_f"]))
     dirs = sweep_dirs()
+    import ops as opsmod
+
+    # Basin-floor dunes (TerrainBuilder buildFloor, Sand) can lap onto a
+    # talus toe: a hit inside one is floor sand in front of the rock, not
+    # landscape terrain poking through the mesh.
+    dunes = [o for o in opsmod.load() if o.phase == "floor" and o.kind == "ball" and not o.air]
+
+    def in_dune(pts):
+        d = np.full(len(pts), np.inf)
+        for o in dunes:
+            d = np.minimum(d, opsmod._shape(o, pts[:, 0], pts[:, 1], pts[:, 2]))
+        return d < 0.6
+
     worst_all = 0.0
-    total_rel = total_poke = 0
+    total_rel = total_poke = total_dune = 0
     lines = []
+    missing = [n for n in SWEEP if not (PROBES / "sweep" / f"{n}.txt").exists()]
+    if missing:
+        print(f"SWEEP: missing probe data for {missing}; capture them first")
+        return 2
     for name, pos in SWEEP.items():
         path = PROBES / "sweep" / f"{name}.txt"
-        if not path.exists():
-            continue
         terrain = np.array([float(x) for x in path.read_text().strip().split(",")])
         origin = np.array(pos)
         mesh = np.full(len(dirs), np.inf)
@@ -472,18 +489,25 @@ def sweep_check(pieces: list[str]) -> int:
         relevant &= ~((np.hypot(hitp[:, 0], hitp[:, 2]) < 15.0) & (hitp[:, 1] > 57.0))  # under the emplacement
         # The basin floor itself (live y 2.0): the rock's talus toe dives under the sand there.
         relevant &= hitp[:, 1] > 2.8
-        if name == "basin_far":
-            relevant &= owner != "Butte3"
         gap = terrain - mesh
         poke = relevant & (gap < -0.05)
+        dune = np.zeros(len(dirs), dtype=bool)
+        if poke.any():
+            dune[poke] = in_dune(hitp[poke])
+        rock = poke & ~dune
         total_rel += int(relevant.sum())
-        total_poke += int(poke.sum())
-        if relevant.any():
-            worst_all = min(worst_all, float(gap[relevant].min()))
-        worst = [f"({hitp[i][0]:.0f},{hitp[i][1]:.1f},{hitp[i][2]:.0f}) {gap[i]:.2f} {owner[i]}" for i in np.argsort(np.where(poke, gap, np.inf))[:4] if poke[i]]
-        lines.append(f"{name:12s} rays on landscape {int(relevant.sum()):5d}  terrain in front {int(poke.sum()):4d}  " + "; ".join(worst))
+        total_poke += int(rock.sum())
+        total_dune += int(dune.sum())
+        if rock.any():
+            worst_all = min(worst_all, float(gap[rock].min()))
+        worst = [f"({hitp[i][0]:.0f},{hitp[i][1]:.1f},{hitp[i][2]:.0f}) {gap[i]:.2f} {owner[i]}" for i in np.argsort(np.where(rock, gap, np.inf))[:4] if rock[i]]
+        dn = [f"({hitp[i][0]:.0f},{hitp[i][1]:.1f},{hitp[i][2]:.0f}) {gap[i]:.2f} {owner[i]}" for i in np.argsort(np.where(dune, gap, np.inf))[:2] if dune[i]]
+        lines.append(f"{name:12s} rays on landscape {int(relevant.sum()):5d}  rock in front {int(rock.sum()):4d}  floor dune in front {int(dune.sum()):3d}  "
+                     + "; ".join(worst) + (("  dunes: " + "; ".join(dn)) if dn else ""))
     print("\n".join(lines))
-    print(f"SWEEP: {total_rel} rays on the landscape, {total_poke} with live terrain in front of the mesh (worst {worst_all:.2f} studs)")
+    print(f"SWEEP: {len(SWEEP)} viewpoints x {len(dirs)} rays; {total_rel} rays on the landscape; "
+          f"{total_poke} with landscape terrain in front of the mesh (worst {worst_all:.2f} studs); "
+          f"{total_dune} where a basin-floor sand dune laps in front of a talus toe (not a knob)")
     return 0 if total_poke == 0 else 1
 
 
