@@ -1,0 +1,74 @@
+{
+ "afternoon_3-gunsight": {
+  "captured": "2026-09-26T12:15:48",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "855a39d"
+ },
+ "afternoon_3-gunsight-aa": {
+  "captured": "2026-09-26T12:15:59",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "855a39d"
+ },
+ "afternoon_3-gunsight-aa-lock": {
+  "captured": "2026-09-26T12:16:02",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "855a39d"
+ },
+ "afternoon_3-gunsight-rocket": {
+  "captured": "2026-09-26T12:15:56",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "855a39d"
+ },
+ "night_3-gunsight": {
+  "captured": "2026-09-26T12:16:12",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "855a39d"
+ },
+ "night_3-gunsight-aa": {
+  "captured": "2026-09-26T12:16:17",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "855a39d"
+ },
+ "night_3-gunsight-aa-lock": {
+  "captured": "2026-09-26T12:16:20",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "855a39d"
+ },
+ "night_3-gunsight-rocket": {
+  "captured": "2026-09-26T12:16:15",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "855a39d"
+ }
+}
