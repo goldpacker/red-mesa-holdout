@@ -204,6 +204,18 @@ end
 
 function TurretPose.start()
 	RunService:BindToRenderStep("RedMesaWeaponPose", Enum.RenderPriority.Camera.Value + 2, update)
+	-- HS-2: emplacement motion (belt feed, casings, barrel heat, wind) and
+	-- the first-person sight meshes. Required here rather than at the top:
+	-- both listen to WeaponController, which requires this module. Purely
+	-- visual, so a failure there must never stop the weapons from starting.
+	for _, name in { "EmplacementFx", "GunsightModels" } do
+		local ok, err = pcall(function()
+			require(script.Parent:FindFirstChild(name) :: ModuleScript).start()
+		end)
+		if not ok then
+			warn("[RedMesa] " .. name .. " failed to start: " .. tostring(err))
+		end
+	end
 end
 
 return TurretPose

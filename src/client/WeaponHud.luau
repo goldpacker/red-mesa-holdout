@@ -252,6 +252,57 @@ function WeaponHud.build(root: Frame)
 	end)
 end
 
+-- HS-2 hook (client/GunsightModels): while a 3D sight model stands in
+-- front of the camera for `weapon` (nil = none), the GUI rings that model
+-- replaces are hidden: the whole iron sight (the model has the ring sight
+-- and rear leaf) and the rocket scope's mask and lens rims (strokes on
+-- round frames at least 40 px across). Reticle marks, crosshairs, the
+-- seeker display and the lock box stay.
+local sightModel: string? = nil
+local hiddenBySightModel: { Instance } = {}
+
+function WeaponHud.setSightModel(weapon: string?)
+	if weapon == sightModel or not refs.sights then
+		return
+	end
+	sightModel = weapon
+	for _, inst in hiddenBySightModel do
+		if inst:IsA("UIStroke") then
+			inst.Enabled = true
+		elseif inst:IsA("GuiObject") then
+			inst.Visible = true
+		end
+	end
+	table.clear(hiddenBySightModel)
+	local sight = weapon and refs.sights[weapon]
+	if not sight then
+		return
+	end
+	if weapon == "MG" then
+		for _, child in sight:GetChildren() do
+			if child:IsA("GuiObject") and child.Visible then
+				child.Visible = false
+				table.insert(hiddenBySightModel, child)
+			end
+		end
+		return
+	end
+	for _, d in sight:GetDescendants() do
+		local frame = d.Parent
+		if
+			d:IsA("UIStroke")
+			and d.Enabled
+			and frame
+			and frame:IsA("GuiObject")
+			and frame:FindFirstChildOfClass("UICorner")
+			and frame.AbsoluteSize.X >= 40
+		then
+			d.Enabled = false
+			table.insert(hiddenBySightModel, d)
+		end
+	end
+end
+
 function WeaponHud.flash(text: string, color: Color3, duration: number)
 	statusText = text
 	statusColor = color
