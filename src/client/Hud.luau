@@ -13,6 +13,7 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local Aim = require(ReplicatedStorage.Shared.Aim)
 local AimController = require(script.Parent.AimController)
 local GameState = require(script.Parent.GameState)
+local Sfx = require(script.Parent.Sfx)
 local Ui = require(script.Parent.Ui)
 local WeaponHud = require(script.Parent.WeaponHud)
 
@@ -220,11 +221,13 @@ end
 local function updateVignette()
 	local integrity = GameState.get("Integrity") or 100
 	local group = refs.vignetteFrame :: CanvasGroup
-	if integrity <= Config.Integrity.LOW_THRESHOLD and GameState.phase() == "Wave" then
+	local inWave = GameState.phase() == "Wave"
+	if integrity <= Config.Integrity.LOW_THRESHOLD and inWave then
 		group.GroupTransparency = 0.35 + 0.25 * math.sin(os.clock() * 6)
 	else
 		group.GroupTransparency = 1
 	end
+	Sfx.setLoop("Alarm", inWave and integrity <= Config.Integrity.ALARM_THRESHOLD)
 end
 
 Hud.showHitMarker = WeaponHud.showHitMarker
@@ -304,6 +307,10 @@ function Hud.tipOnce(key: string, text: string, duration: number?)
 	end
 	tipsShown[key] = true
 	Hud.showTip(text, duration)
+end
+
+function Hud.getRoot(): Frame
+	return root
 end
 
 function Hud.setVisible(visible: boolean)

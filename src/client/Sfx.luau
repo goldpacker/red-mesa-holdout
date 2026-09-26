@@ -60,4 +60,32 @@ function Sfx.play(name: string, pitchJitter: number?)
 	end
 end
 
+-- Starts or stops a looping sound; repeated calls with the same state are free.
+local loops: { [string]: Sound } = {}
+function Sfx.setLoop(name: string, playing: boolean)
+	local current = loops[name]
+	if playing == (current ~= nil) then
+		return
+	end
+	if not playing and current then
+		current:Destroy()
+		loops[name] = nil
+		return
+	end
+	local ok = pcall(function()
+		local t = template(name)
+		if not t then
+			return
+		end
+		local s = t:Clone()
+		s.Looped = true
+		s.Parent = SoundService
+		s:Play()
+		loops[name] = s
+	end)
+	if not ok then
+		loops[name] = nil
+	end
+end
+
 return Sfx

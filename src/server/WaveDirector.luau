@@ -42,7 +42,11 @@ function WaveDirector.new(ctx: Types.Context, waveNumber: number): Director
 	local wave = Config.Waves[waveNumber]
 	assert(wave, "no wave " .. waveNumber)
 	local schedule = buildSchedule(wave)
+	local crateTimes = table.clone(wave.crates or {})
+	table.sort(crateTimes)
 	local self = setmetatable({
+		crateTimes = crateTimes,
+		maxDuration = wave.maxDuration or Config.Timing.WAVE_MAX_DURATION,
 		ctx = ctx,
 		waveNumber = waveNumber,
 		elapsed = 0,
@@ -67,11 +71,15 @@ function WaveDirector.update(self: any, dt: number)
 		end
 		self.spawned += 1
 	end
+	while #self.crateTimes > 0 and self.crateTimes[1] <= self.elapsed do
+		table.remove(self.crateTimes, 1)
+		self.ctx.dropCrate(nil)
+	end
 	Enemies.update(dt)
 
 	if #self.pending == 0 and Enemies.count() == 0 then
 		self.finished = true
-	elseif self.elapsed > Config.Timing.WAVE_MAX_DURATION then
+	elseif self.elapsed > self.maxDuration then
 		warn(string.format("[RedMesa] wave %d timed out; dismissing %d enemies", self.waveNumber, Enemies.count()))
 		for _, enemy in Enemies.all() do
 			Enemies.remove(enemy)

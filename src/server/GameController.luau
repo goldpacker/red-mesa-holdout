@@ -11,8 +11,10 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Config = require(ReplicatedStorage.Shared.Config)
+local Crates = require(script.Parent.Crates)
 local Enemies = require(script.Parent.Enemies)
 local Scoring = require(script.Parent.Scoring)
+local TimeOfDay = require(script.Parent.TimeOfDay)
 local Types = require(script.Parent.Types)
 local WaveDirector = require(script.Parent.WaveDirector)
 local Weapons = require(script.Parent.Weapons)
@@ -80,16 +82,21 @@ end
 
 local startWave: (n: number) -> ()
 
+local function clearBattlefield()
+	Enemies.clearAll()
+	Crates.clearAll()
+end
+
 local function defeat()
 	director = nil
-	Enemies.clearAll()
+	clearBattlefield()
 	setPhase("Defeat")
 	emit("Defeat", endStats())
 end
 
 local function victory()
 	director = nil
-	Enemies.clearAll()
+	clearBattlefield()
 	setPhase("Victory")
 	emit("Victory", endStats())
 end
@@ -106,6 +113,10 @@ local function waveCleared()
 
 	local isLast = cleared >= #Config.Waves
 	local nextWave = Config.Waves[cleared + 1]
+	if nextWave then
+		-- Dusk falls during the intermission, never mid-wave.
+		TimeOfDay.set(TimeOfDay.presetFor(cleared + 1, Config.Waves), Config.Timing.INTERMISSION * 0.7)
+	end
 	setPhase("Intermission", Config.Timing.INTERMISSION)
 	emit("WaveClear", {
 		wave = cleared,
@@ -119,8 +130,9 @@ local function waveCleared()
 		duration = Config.Timing.INTERMISSION,
 	})
 
+	Crates.clearAll()
 	after(if isLast then 3 else Config.Timing.INTERMISSION, function()
-		Enemies.clearAll()
+		clearBattlefield()
 		if isLast then
 			victory()
 		else
@@ -131,9 +143,10 @@ end
 
 function startWave(n: number)
 	waveNumber = n
-	Enemies.clearAll()
+	clearBattlefield()
 	scoring:beginWave()
 	checkpoint = { wave = n, integrity = integrity, stats = scoring:snapshot() }
+	TimeOfDay.set(TimeOfDay.presetFor(n, Config.Waves), 0)
 	director = nil
 	setPhase("WaveIntro", Config.Timing.WAVE_BANNER)
 	emit("WaveStart", { wave = n, hint = Config.Waves[n].hint, total = #Config.Waves })
@@ -198,6 +211,9 @@ GameController.context = {
 GameController.onCrateRequest = nil :: ((bias: string?) -> ())?
 
 local function onHeartbeat(dt: number)
+	if phase == "Wave" then
+		Crates.update(dt)
+	end
 	local current = director
 	if phase == "Wave" and current then
 		current:update(dt)
@@ -297,11 +313,31 @@ function GameController.start()
 			end
 			gameEvent:FireClient(player, "Hit", { position = position, killed = killed, headshot = headshot })
 		end,
+		onWorldHit = function(_player, part, _position)
+			if phase == "Wave" then
+				Crates.tryCollect(part)
+			end
+		end,
+	} :: any)
+	Crates.init({
+		addAmmo = function(kind: string, amount: number)
+			local addAmmo = (Weapons :: any).addAmmo
+			if addAmmo then
+				addAmmo(kind, amount)
+			end
+		end,
+		repair = function(amount: number)
+			integrity = math.min(Config.Integrity.MAX, integrity + amount)
+			publish()
+		end,
+		emit = emit,
 	})
+	GameController.onCrateRequest = Crates.spawn
 	connectRemotes()
 	installDebugHooks()
 	RunService.Heartbeat:Connect(onHeartbeat)
 	Players.PlayerAdded:Connect(publish)
+	TimeOfDay.set("Afternoon", 0)
 	setPhase("Title")
 end
 

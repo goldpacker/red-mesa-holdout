@@ -183,6 +183,82 @@ local function buildRocks(parent: Instance)
 	end
 end
 
+-- Two searchlight towers on the upper terrace flanking the emplacement.
+-- The client (NightFx) sweeps the heads and drives the ground light pools;
+-- TimeOfDay enables them at dusk and night.
+local function buildSearchlights(parent: Instance)
+	local folder = Instance.new("Folder")
+	folder.Name = "Searchlights"
+	folder.Parent = parent
+	local steel = Color3.fromRGB(58, 60, 56)
+	for i, x in { -27, 27 } do
+		local model = Instance.new("Model")
+		model.Name = "Searchlight" .. i
+		local base = Vector3.new(x, 38, -18)
+		local function piece(name: string, size: Vector3, cf: CFrame, color: Color3, material: Enum.Material): Part
+			local p = Instance.new("Part")
+			p.Name = name
+			p.Size = size
+			p.CFrame = cf
+			p.Color = color
+			p.Material = material
+			p.Anchored = true
+			p.CanCollide = false
+			p.CanQuery = false
+			p.Parent = model
+			return p
+		end
+		for _, off in { Vector3.new(-1.2, 0, -1.2), Vector3.new(1.2, 0, -1.2), Vector3.new(-1.2, 0, 1.2), Vector3.new(1.2, 0, 1.2) } do
+			piece("Leg", Vector3.new(0.35, 9, 0.35), CFrame.new(base + off + Vector3.new(0, 4.5, 0)), steel, Enum.Material.DiamondPlate)
+		end
+		piece("Deck", Vector3.new(3.6, 0.4, 3.6), CFrame.new(base + Vector3.new(0, 9, 0)), steel, Enum.Material.DiamondPlate)
+		local head = piece("Head", Vector3.new(2.6, 2.6, 2.4), CFrame.lookAt(base + Vector3.new(0, 10.6, 0), base + Vector3.new(0, 8, -40)), Color3.fromRGB(70, 74, 60), Enum.Material.Metal)
+		local lens = piece("Lens", Vector3.new(2.1, 2.1, 0.2), head.CFrame * CFrame.new(0, 0, -1.25), Color3.fromRGB(255, 244, 214), Enum.Material.Glass)
+		local spot = Instance.new("SpotLight")
+		spot.Angle = 30
+		spot.Range = 60
+		spot.Brightness = 6
+		spot.Color = Color3.fromRGB(255, 240, 210)
+		spot.Face = Enum.NormalId.Front
+		spot.Enabled = false
+		spot.Parent = lens
+		-- Visible beam: a long Beam from the lens along the look direction.
+		local a0 = Instance.new("Attachment")
+		a0.Name = "BeamStart"
+		a0.Parent = lens
+		local a1 = Instance.new("Attachment")
+		a1.Name = "BeamEnd"
+		a1.Position = Vector3.new(0, 0, -420)
+		a1.Parent = lens
+		local beam = Instance.new("Beam")
+		beam.Attachment0 = a0
+		beam.Attachment1 = a1
+		beam.Width0 = 2
+		beam.Width1 = 46
+		beam.FaceCamera = true
+		beam.LightEmission = 1
+		beam.LightInfluence = 0
+		beam.Color = ColorSequence.new(Color3.fromRGB(255, 240, 205))
+		beam.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.55), NumberSequenceKeypoint.new(1, 1) })
+		beam.Segments = 1
+		beam.Enabled = false
+		beam.Parent = lens
+		-- Ground pool of light the client moves to where the beam lands.
+		local pool = piece("Pool", Vector3.new(1, 1, 1), CFrame.new(base + Vector3.new(0, 60, -200)), Color3.new(1, 1, 1), Enum.Material.SmoothPlastic)
+		pool.Transparency = 1
+		local poolLight = Instance.new("SpotLight")
+		poolLight.Face = Enum.NormalId.Bottom
+		poolLight.Angle = 70
+		poolLight.Range = 60
+		poolLight.Brightness = 4
+		poolLight.Color = Color3.fromRGB(255, 240, 210)
+		poolLight.Enabled = false
+		poolLight.Parent = pool
+		model.PrimaryPart = head
+		model.Parent = folder
+	end
+end
+
 local function ensureEffect(className: string, name: string): Instance
 	local existing = Lighting:FindFirstChild(name)
 	if existing then
@@ -252,10 +328,11 @@ function WorldBuilder.build()
 
 	buildTerrain()
 	buildRocks(battlefield)
+	buildSearchlights(battlefield)
 	buildLighting()
 	Emplacement.build(battlefield)
 
-	for _, name in { "Enemies", "Projectiles", "Wrecks" } do
+	for _, name in { "Enemies", "Projectiles", "Wrecks", "Crates" } do
 		local folder = Instance.new("Folder")
 		folder.Name = name
 		folder.Parent = Workspace

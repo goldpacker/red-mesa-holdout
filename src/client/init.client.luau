@@ -9,8 +9,10 @@ local EnemyFireFx = require(script.EnemyFireFx)
 local EnemyVisuals = require(script.EnemyVisuals)
 local GameState = require(script.GameState)
 local Hud = require(script.Hud)
+local NightFx = require(script.NightFx)
 local Screens = require(script.Screens)
 local Sfx = require(script.Sfx)
+local ThreatHud = require(script.ThreatHud)
 local WeaponController = require(script.WeaponController)
 
 local Config = require(ReplicatedStorage.Shared.Config)
@@ -19,7 +21,9 @@ AimController.start()
 WeaponController.start()
 Hud.start()
 Screens.start()
+ThreatHud.start()
 EnemyVisuals.start()
+NightFx.start()
 
 local tipOnce = Hud.tipOnce
 
