@@ -1,0 +1,73 @@
+{
+ "name": "InfantrySpike",
+ "skinned": true,
+ "variants": [
+  "Bar"
+ ],
+ "bones": [
+  {
+   "name": "Base",
+   "parent": null,
+   "head": [
+    0.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Mid",
+   "parent": "Base",
+   "head": [
+    0.0,
+    2.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Tip",
+   "parent": "Mid",
+   "head": [
+    0.0,
+    4.0,
+    -0.0
+   ]
+  }
+ ],
+ "meshes": {
+  "Bar": {
+   "variant": "Bar",
+   "lod": false,
+   "tris": 124,
+   "center": [
+    0.35,
+    3.0,
+    -0.175
+   ],
+   "size": [
+    1.7,
+    6.0,
+    1.35
+   ]
+  }
+ },
+ "textures": {
+  "main": {
+   "color": "InfantrySpike_main_color.png",
+   "rough": "InfantrySpike_main_rough.png",
+   "metal": "InfantrySpike_main_metal.png",
+   "normal": "InfantrySpike_main_normal.png"
+  }
+ },
+ "previews": [
+  "assets/previews/InfantrySpike.png"
+ ],
+ "poses": {},
+ "pivot": [
+  0.0,
+  0.0,
+  -0.0
+ ],
+ "meta": {
+  "rbxmx_prefix": "InfantrySpike"
+ }
+}
