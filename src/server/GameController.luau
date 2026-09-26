@@ -1,0 +1,274 @@
+--!strict
+-- Top-level game state machine:
+--   Title -> WaveIntro -> Wave -> Intermission -> WaveIntro ... -> Victory
+--                           \-> Defeat -> (Restart | RetryWave)
+-- Publishes state as attributes on ReplicatedStorage.GameState and pushes
+-- one-shot events through Remotes.GameEvent.
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+
+local Config = require(ReplicatedStorage.Shared.Config)
+local Enemies = require(script.Parent.Enemies)
+local Scoring = require(script.Parent.Scoring)
+local Types = require(script.Parent.Types)
+local WaveDirector = require(script.Parent.WaveDirector)
+local Weapons = require(script.Parent.Weapons)
+
+local GameController = {}
+
+local state = ReplicatedStorage:WaitForChild("GameState") :: Configuration
+local remotes = ReplicatedStorage:WaitForChild("Remotes")
+local gameEvent = remotes:WaitForChild("GameEvent") :: RemoteEvent
+
+type Checkpoint = { wave: number, integrity: number, stats: Scoring.Stats }
+
+local phase = "Title"
+local waveNumber = 0
+local integrity = Config.Integrity.MAX
+local scoring = Scoring.new()
+local director: WaveDirector.Director? = nil
+local checkpoint: Checkpoint? = nil
+-- Incremented on every transition so stale delayed callbacks can bail out.
+local epoch = 0
+
+local function publish()
+	state:SetAttribute("Phase", phase)
+	state:SetAttribute("Wave", waveNumber)
+	state:SetAttribute("TotalWaves", #Config.Waves)
+	state:SetAttribute("Integrity", integrity)
+	state:SetAttribute("Score", scoring.stats.score)
+	state:SetAttribute("Multiplier", scoring.multiplier)
+	state:SetAttribute("SessionBest", scoring.sessionBest)
+	state:SetAttribute("Remaining", if director then director:remaining() else 0)
+end
+
+local function setPhase(newPhase: string, duration: number?)
+	phase = newPhase
+	epoch += 1
+	state:SetAttribute("PhaseEndsAt", if duration then Workspace:GetServerTimeNow() + duration else 0)
+	publish()
+end
+
+local function emit(kind: string, payload: any)
+	gameEvent:FireAllClients(kind, payload)
+end
+
+local function endStats(): any
+	local s = scoring.stats
+	return {
+		score = s.score,
+		wave = waveNumber,
+		totalWaves = #Config.Waves,
+		kills = table.clone(s.kills),
+		accuracy = if s.shots > 0 then s.hits / s.shots else 0,
+		bestCombo = s.bestCombo,
+		sessionBest = scoring.sessionBest,
+	}
+end
+
+local function after(seconds: number, fn: () -> ())
+	local myEpoch = epoch
+	task.delay(seconds, function()
+		if epoch == myEpoch then
+			fn()
+		end
+	end)
+end
+
+local startWave: (n: number) -> ()
+
+local function defeat()
+	director = nil
+	Enemies.clearAll()
+	setPhase("Defeat")
+	emit("Defeat", endStats())
+end
+
+local function victory()
+	director = nil
+	Enemies.clearAll()
+	setPhase("Victory")
+	emit("Victory", endStats())
+end
+
+local function waveCleared()
+	local cleared = waveNumber
+	director = nil
+	local integrityBonus = math.floor(integrity) * Config.Score.INTEGRITY_BONUS_PER_POINT
+	local clearBonus = Config.Score.WAVE_CLEAR_BONUS
+	scoring:addBonus(clearBonus + integrityBonus)
+	local before = integrity
+	integrity = math.min(Config.Integrity.MAX, integrity + Config.Integrity.INTERMISSION_REPAIR)
+	Weapons.resetAll()
+
+	local isLast = cleared >= #Config.Waves
+	local nextWave = Config.Waves[cleared + 1]
+	setPhase("Intermission", Config.Timing.INTERMISSION)
+	emit("WaveClear", {
+		wave = cleared,
+		kills = scoring.waveKills,
+		waveScore = scoring.waveScore,
+		clearBonus = clearBonus,
+		integrityBonus = integrityBonus,
+		repaired = integrity - before,
+		nextWave = if isLast then nil else cleared + 1,
+		nextHint = if nextWave then nextWave.hint else nil,
+		duration = Config.Timing.INTERMISSION,
+	})
+
+	after(if isLast then 3 else Config.Timing.INTERMISSION, function()
+		Enemies.clearAll()
+		if isLast then
+			victory()
+		else
+			startWave(cleared + 1)
+		end
+	end)
+end
+
+function startWave(n: number)
+	waveNumber = n
+	Enemies.clearAll()
+	scoring:beginWave()
+	checkpoint = { wave = n, integrity = integrity, stats = scoring:snapshot() }
+	director = nil
+	setPhase("WaveIntro", Config.Timing.WAVE_BANNER)
+	emit("WaveStart", { wave = n, hint = Config.Waves[n].hint, total = #Config.Waves })
+	after(Config.Timing.WAVE_BANNER, function()
+		director = WaveDirector.new(GameController.context, n)
+		setPhase("Wave")
+	end)
+end
+
+local function newRun()
+	integrity = Config.Integrity.MAX
+	scoring:reset()
+	Weapons.resetAll()
+	startWave(1)
+end
+
+GameController.context = {
+	damageOutpost = function(amount: number, from: Vector3, heavy: boolean)
+		if phase ~= "Wave" then
+			return
+		end
+		integrity = math.max(0, integrity - amount)
+		emit("Damage", { amount = amount, from = from, heavy = heavy, integrity = integrity })
+		publish()
+		if integrity <= 0 then
+			defeat()
+		end
+	end,
+	enemyFired = function(enemy: Types.Enemy, attack: string, from: Vector3, to: Vector3)
+		if phase == "Wave" then
+			emit("EnemyFire", { kind = enemy.kind, attack = attack, from = from, to = to })
+		end
+	end,
+} :: Types.Context
+
+local function onHeartbeat(dt: number)
+	local current = director
+	if phase == "Wave" and current then
+		current:update(dt)
+		-- update() can trigger defeat, which clears the director.
+		if current.finished and director == current and phase == "Wave" then
+			waveCleared()
+			return
+		end
+	end
+	if scoring:tick(os.clock()) then
+		publish()
+	end
+	if director then
+		state:SetAttribute("Remaining", director:remaining())
+	end
+end
+
+local function connectRemotes()
+	(remotes:WaitForChild("StartGame") :: RemoteEvent).OnServerEvent:Connect(function()
+		if phase == "Title" then
+			newRun()
+		end
+	end);
+	(remotes:WaitForChild("Restart") :: RemoteEvent).OnServerEvent:Connect(function()
+		if phase == "Defeat" or phase == "Victory" then
+			newRun()
+		end
+	end);
+	(remotes:WaitForChild("RetryWave") :: RemoteEvent).OnServerEvent:Connect(function()
+		if phase == "Defeat" and checkpoint then
+			integrity = checkpoint.integrity
+			scoring:restore(checkpoint.stats)
+			Weapons.resetAll()
+			startWave(checkpoint.wave)
+		end
+	end)
+end
+
+local function installDebugHooks()
+	if not RunService:IsStudio() then
+		return
+	end
+	local debugFn = Instance.new("BindableFunction")
+	debugFn.Name = "RedMesaDebug"
+	debugFn.OnInvoke = function(cmd: string, arg: any): any
+		if cmd == "state" then
+			return {
+				phase = phase,
+				wave = waveNumber,
+				integrity = integrity,
+				score = scoring.stats.score,
+				enemies = Enemies.count(),
+				shots = scoring.stats.shots,
+				hits = scoring.stats.hits,
+				stats = endStats(),
+			}
+		elseif cmd == "setIntegrity" then
+			integrity = arg
+			publish()
+			if integrity <= 0 and phase == "Wave" then
+				defeat()
+			end
+		elseif cmd == "killAll" then
+			for _, enemy in Enemies.all() do
+				Enemies.damage(enemy, math.huge)
+			end
+		elseif cmd == "startWave" then
+			startWave(arg)
+		end
+		return true
+	end
+	debugFn.Parent = game:GetService("ServerStorage")
+end
+
+function GameController.start()
+	Weapons.init({
+		canFire = function()
+			return phase == "Wave" or phase == "WaveIntro" or phase == "Intermission"
+		end,
+		onShot = function(_player)
+			if phase == "Wave" then
+				scoring.stats.shots += 1
+			end
+		end,
+		onHit = function(player, enemy, killed, position, headshot)
+			scoring.stats.hits += 1
+			if killed then
+				local awarded = scoring:registerKill(enemy.kind, enemy.points, os.clock())
+				emit("Kill", { kind = enemy.kind, points = awarded, multiplier = scoring.multiplier, position = position })
+				publish()
+			end
+			gameEvent:FireClient(player, "Hit", { position = position, killed = killed, headshot = headshot })
+		end,
+	})
+	connectRemotes()
+	installDebugHooks()
+	RunService.Heartbeat:Connect(onHeartbeat)
+	Players.PlayerAdded:Connect(publish)
+	setPhase("Title")
+end
+
+return GameController

@@ -3,18 +3,57 @@
   "tree": {
     "$className": "DataModel",
     "ReplicatedStorage": {
-      "Shared": { "$path": "src/shared" }
+      "Shared": {
+        "$path": "src/shared"
+      },
+      "Remotes": {
+        "$className": "Folder",
+        "StartGame": {
+          "$className": "RemoteEvent"
+        },
+        "Restart": {
+          "$className": "RemoteEvent"
+        },
+        "RetryWave": {
+          "$className": "RemoteEvent"
+        },
+        "FireWeapon": {
+          "$className": "RemoteEvent"
+        },
+        "GameEvent": {
+          "$className": "RemoteEvent"
+        }
+      },
+      "GameState": {
+        "$className": "Configuration"
+      }
     },
     "ServerScriptService": {
-      "Server": { "$path": "src/server" }
+      "Server": {
+        "$path": "src/server"
+      }
     },
     "StarterPlayer": {
       "StarterPlayerScripts": {
-        "Client": { "$path": "src/client" }
+        "Client": {
+          "$path": "src/client"
+        }
       }
     },
     "Players": {
-      "$properties": { "CharacterAutoLoads": false }
+      "$properties": {
+        "CharacterAutoLoads": false
+      }
+    },
+    "Lighting": {
+      "$properties": {
+        "Technology": "Future"
+      }
+    },
+    "Workspace": {
+      "$properties": {
+        "StreamingEnabled": false
+      }
     }
   }
 }
