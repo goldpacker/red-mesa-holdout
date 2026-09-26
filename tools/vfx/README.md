@@ -166,16 +166,20 @@ with `RedMesaDebug:Invoke("beauty", {shot = 2, tod = ...})`, trigger, then
   (Look's `EnemyMotion`) are picked up unchanged. Tuning: `SPECS` at the
   top of `VehicleFxDust.luau` (rate, reference speed, height window, cutoff,
   size).
+- **Texture:** `DustDrift` (painted, `sheets/drift.py`): a soft, edgeless
+  cloud. DustPuff's defined billows read as a string of separate puffs in a
+  trail seen from the turret; overlapping DustDrift particles merge into one
+  haze. The downwash ring is `ShockwaveRing` laid flat.
 - **LOD:** distances are zoom-corrected (FOV 32 in the gunsight). Inside
-  250 studs full detail; out to each effect's cutoff the rate falls to 20 %
-  while particles grow up to 2x (~1/sqrt(rate), so a cloud keeps its
-  coverage); beyond the cutoff nothing new is emitted. Motion dust also has
-  a global cap (`MAX_RATE` particles/s).
+  250 studs full detail; beyond, rate x 250/distance (floor 20 %) and size
+  x 1/sqrt(rate) (cap 2x), so the summed on-screen coverage stays the same
+  with fewer particles; beyond each effect's cutoff nothing new is emitted.
+  Motion dust also has a global cap (`MAX_RATE` particles/s).
 - **Studio switches** (Workspace attributes): `FxLodOff = true` disables
   LOD (perf A/B), `FxDustOff = true` stops motion dust (before/after
   captures). Published in Studio: `FxOneShotLive` (live one-shot particle
   estimate), `FxDustRate`, `FxDustSources`.
-- **Harness:** `H.follow(model, offset, fov, look)` chase camera for moving
-  vehicles; `H.particles()` / `H.sample(seconds)` live particle estimate
+- **Harness:** `H.follow(model, offset, fov, look)` / `H.chase(model, side,
+  ahead, up, fov, lookBack)` chase cameras for moving vehicles; `H.particles()` / `H.sample(seconds)` live particle estimate
   (continuous emitters' Rate x mean lifetime + the one-shot estimate).
   Captures: `qa/beauty/vfx-3/`.

@@ -2,9 +2,9 @@
 -- Distance level of detail for particles (VFX-3), shared by the effect
 -- modules, on top of their live-effect caps.
 --   factor(p, cutoff)  continuous emitters: rate and size multipliers.
---                      Full inside NEAR; fewer, larger particles out to
---                      `cutoff` (size ~ 1/sqrt(rate) so a cloud keeps its
---                      coverage); none beyond it.
+--                      Full inside NEAR; beyond it rate ~ NEAR/distance and
+--                      size ~ 1/sqrt(rate), so a cloud keeps its on-screen
+--                      coverage with fewer particles; none beyond `cutoff`.
 --   count(n, p)        one-shot bursts: x1 / 0.7 / 0.45 by distance band.
 --   track(e, cutoff)   keeps a continuous emitter's Rate/Size on its LOD as
 --                      the camera moves (fires, smoke columns, trails); it
@@ -52,8 +52,10 @@ function Lod.factor(p: Vector3, cutoff: number?): (number, number)
 	elseif d >= far then
 		return 0, MAX_SIZE
 	end
-	local t = (d - NEAR) / (far - NEAR)
-	local rate = 1 + (MIN_RATE - 1) * t ^ 0.8
+	-- Rate ~ 1/distance with size ~ sqrt(distance): the particles' summed
+	-- screen coverage stays what it would be without LOD (count x size^2 is
+	-- constant) while the count falls, down to MIN_RATE.
+	local rate = math.max(MIN_RATE, NEAR / d)
 	return rate, math.min(MAX_SIZE, 1 / math.sqrt(rate))
 end
 

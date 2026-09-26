@@ -33,8 +33,18 @@ local MIN_SPEED = 1.5 -- studs/s: parked vehicles raise nothing
 
 local seq = Effects.seq
 local WIND = Effects.WIND
--- DustPuff's last frames thin into a ring: fade them out before that shows.
-local FADE = seq(0.5, 0.6, 0.8, 1)
+-- Soft, edgeless dust cloud sheet (tools/vfx/sheets/drift.py).
+local DUST = "DustDrift"
+
+-- Sizes with a random spread (envelope) so a trail of puffs doesn't read
+-- as a string of identical balls.
+local function sizes(a: number, b: number, c: number, spread: number): NumberSequence
+	return NumberSequence.new({
+		NumberSequenceKeypoint.new(0, a, a * spread),
+		NumberSequenceKeypoint.new(0.5, b, b * spread),
+		NumberSequenceKeypoint.new(1, c, c * spread),
+	})
+end
 
 -- Dust tint by the ground under the source. Lit particles, so these sit a
 -- little darker than the ground they match on screen (see Effects).
@@ -62,14 +72,14 @@ type Spec = {
 }
 
 local SPECS: { [string]: Spec } = {
-	Buggy = { mode = "wheel", sources = { { "WheelRL" }, { "WheelRR" } }, rate = 16, cutoff = 1500, scale = 1, refSpeed = 40 },
+	Buggy = { mode = "wheel", sources = { { "WheelRL" }, { "WheelRR" } }, rate = 22, cutoff = 1500, scale = 1, refSpeed = 40 },
 	Tank = { mode = "track", sources = { { "TrackL" }, { "TrackR" } }, rate = 8, cutoff = 1800, scale = 1, refSpeed = 10 },
-	SiegeCrawler = { mode = "track", sources = { { "TrackL" }, { "TrackR" } }, rate = 7, cutoff = 2600, scale = 2.1, refSpeed = 5 },
+	SiegeCrawler = { mode = "track", sources = { { "TrackL" }, { "TrackR" } }, rate = 10, cutoff = 2600, scale = 2.1, refSpeed = 5 },
 	-- Hover heights are ~100-160 studs over the basin: a faint ring at the
 	-- top of that window, a full one when a helicopter comes down low.
 	Helicopter = { mode = "rotor", sources = { { "MainRotor", "Root" } }, rate = 18, cutoff = 2200, scale = 1, low = 50, high = 170 },
 	-- Jets run ~200-220 studs over the basin floor (~57 over the canyon rims).
-	Jet = { mode = "wake", sources = { { "Exhaust", "Root" } }, rate = 42, cutoff = 2800, scale = 1, low = 150, high = 270 },
+	Jet = { mode = "wake", sources = { { "Exhaust", "Root" } }, rate = 90, cutoff = 2800, scale = 1, low = 150, high = 270 },
 }
 Dust.SPECS = SPECS
 
@@ -136,33 +146,24 @@ local function build(att: Attachment, spec: Spec): { Emitter }
 	local list: { Emitter } = {}
 	local emitter = Effects.emitter
 	if spec.mode == "wheel" then
-		-- A billowing plume rolling off the tyre, and a denser, short-lived
-		-- spray thrown back right at the tyre.
-		add(list, emitter(att, "DustPuff", 0, {
+		-- A soft plume rolling off the tyre: many overlapping DustDrift
+		-- particles merge into one trail (DustPuff's defined billows read as a
+		-- string of separate puffs at range).
+		add(list, emitter(att, DUST, 0, {
 			Name = "WheelDust",
-			Size = seq(2.2 * s, 7.5 * s, 12 * s),
-			Transparency = FADE,
+			Size = sizes(3 * s, 9.5 * s, 14 * s, 0.3),
+			Transparency = seq(0.4, 0.55, 1),
 			Lifetime = NumberRange.new(1.6, 2.6),
-			Speed = NumberRange.new(3, 7),
-			SpreadAngle = Vector2.new(25, 25),
+			Speed = NumberRange.new(3, 8),
+			SpreadAngle = Vector2.new(35, 35),
 			Drag = 1.6,
 			Acceleration = WIND * 0.6 + Vector3.new(0, 1, 0),
 		}), 1)
-		add(list, emitter(att, "DustPuff", 0, {
-			Name = "WheelSpray",
-			Size = seq(1.2 * s, 3.5 * s, 5 * s),
-			Transparency = seq(0.35, 0.5, 0.75, 1),
-			Lifetime = NumberRange.new(0.5, 0.8),
-			Speed = NumberRange.new(8, 13),
-			SpreadAngle = Vector2.new(20, 20),
-			Drag = 3,
-			Acceleration = Vector3.new(0, -8, 0),
-		}), 0.6)
 	elseif spec.mode == "track" then
-		add(list, emitter(att, "DustPuff", 0, {
+		add(list, emitter(att, DUST, 0, {
 			Name = "TrackDust",
-			Size = seq(3.5 * s, 11 * s, 17 * s),
-			Transparency = FADE,
+			Size = sizes(4 * s, 12 * s, 18 * s, 0.25),
+			Transparency = seq(0.4, 0.55, 1),
 			Lifetime = NumberRange.new(2.4, 3.4),
 			Speed = NumberRange.new(1.5 * s, 4 * s),
 			SpreadAngle = Vector2.new(35, 20),
@@ -172,10 +173,10 @@ local function build(att: Attachment, spec: Spec): { Emitter }
 	elseif spec.mode == "rotor" then
 		-- Downwash: dust blown out flat in every direction from under the hub
 		-- (EmissionDirection Front + a full yaw spread), and a flat ring.
-		add(list, emitter(att, "DustPuff", 0, {
+		add(list, emitter(att, DUST, 0, {
 			Name = "Downwash",
-			Size = seq(6 * s, 16 * s, 24 * s),
-			Transparency = FADE,
+			Size = sizes(7 * s, 18 * s, 26 * s, 0.25),
+			Transparency = seq(0.42, 0.58, 1),
 			Lifetime = NumberRange.new(2, 2.8),
 			Speed = NumberRange.new(40, 55), -- ~40 studs out (1 rotor diameter)
 			EmissionDirection = Enum.NormalId.Front,
@@ -196,16 +197,20 @@ local function build(att: Attachment, spec: Spec): { Emitter }
 			LightInfluence = 1,
 		}), 0.08)
 	else
-		-- Jet wake: a sheet of dust swept up along the ground track.
-		add(list, emitter(att, "DustPuff", 0, {
+		-- Jet wake: a sheet of dust swept up along the ground track. The jet
+		-- covers ~4 studs a frame, so it takes a high rate of large, faint
+		-- puffs spread sideways to read as a sheet and not a string of beads.
+		add(list, emitter(att, DUST, 0, {
 			Name = "JetWake",
-			Size = seq(8 * s, 24 * s, 36 * s),
-			Transparency = FADE,
+			Size = sizes(16 * s, 34 * s, 48 * s, 0.3),
+			Transparency = seq(0.55, 0.65, 1),
 			Lifetime = NumberRange.new(2.6, 3.8),
-			Speed = NumberRange.new(8, 16),
-			SpreadAngle = Vector2.new(50, 50),
+			-- Blown out flat to both sides of the ground track, rising slowly.
+			Speed = NumberRange.new(12, 24),
+			EmissionDirection = Enum.NormalId.Front,
+			SpreadAngle = Vector2.new(10, 180),
 			Drag = 1.4,
-			Acceleration = WIND + Vector3.new(0, 1.2, 0),
+			Acceleration = WIND + Vector3.new(0, 2, 0),
 		}), 1)
 	end
 	for _, em in list do
@@ -303,7 +308,7 @@ local function place(spec: Spec, src: Source, p: Vector3)
 		local ground = src.ground
 		if ground then
 			local g = Vector3.new(p.X, ground.Position.Y, p.Z)
-			src.att.CFrame = if spec.mode == "rotor" then CFrame.new(g + UP * 1.5) else Effects.upFrame(g + UP * 2, UP + back * 0.4)
+			src.att.CFrame = CFrame.new(g + UP * (if spec.mode == "rotor" then 1.5 else 2))
 		end
 	end
 end

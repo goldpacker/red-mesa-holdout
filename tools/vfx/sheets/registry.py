@@ -43,6 +43,9 @@ SHEETS = {
     "Flames": dict(module="fire", method="paint", exposure=1.0, preview_add=0.5),
     "RockChips": dict(module="fire", method="paint", exposure=1.0, tone="clamp", grey=True,
                       preview_tint="#8A5A44"),
+    # VFX-3 addition (sheets/drift.py)
+    "DustDrift": dict(module="drift", method="paint", exposure=1.0, tone="clamp", grey=True,
+                      preview_tint="#D9B98C"),
     # --- single textures (numpy) ---
     "TracerBeam": dict(module="singles", method="single", preview_tint="#FFB347", preview_add=1.0),
     "ShockwaveRing": dict(module="singles", method="single", preview_tint="#FFE2B8", preview_add=0.5),

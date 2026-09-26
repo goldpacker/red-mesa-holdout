@@ -1,5 +1,6 @@
 {
  "hashes": {
+  "DustDrift": "6a6dfae93afa6fef",
   "DustPuff": "ec930139967cc928",
   "Fireball": "120a64d4446c80f4",
   "Flames": "b2127a5dc5e26fc4",
@@ -17,6 +18,7 @@
   "TracerBeam": "0bd2487734cffe52"
  },
  "images": {
+  "DustDrift": "rbxassetid://94318599595582",
   "DustPuff": "rbxassetid://79963003186563",
   "Fireball": "rbxassetid://106963804797541",
   "Flames": "rbxassetid://112483539287686",

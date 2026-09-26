@@ -143,6 +143,19 @@ function H.follow(model, offset, fov, look)
 	end)
 end
 
+-- Chase from the side of a moving model: `side` studs abeam (+ = its right),
+-- `ahead` studs forward, `up` high, looking `lookBack` studs behind it.
+-- Returns the model's speed (sampled over 0.4 s).
+function H.chase(model, side, ahead, up, fov, lookBack)
+	local p1 = model:GetPivot().Position
+	task.wait(0.4)
+	local v = (model:GetPivot().Position - p1) / 0.4
+	local fwd = if v.Magnitude > 0.5 then Vector3.new(v.X, 0, v.Z).Unit else Vector3.zAxis
+	local right = fwd:Cross(Vector3.yAxis)
+	H.follow(model, right * side + fwd * ahead + Vector3.new(0, up, 0), fov or 50, -fwd * (lookBack or 12))
+	return v.Magnitude
+end
+
 -- Live particle estimate: continuous emitters (Rate x mean lifetime) plus
 -- client/EffectsLod's one-shot count; motion dust totals from
 -- client/VehicleFxDust (Studio attributes).
