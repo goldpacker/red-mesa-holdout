@@ -25,6 +25,7 @@ local SKIN = Color3.fromRGB(150, 120, 100)
 -- Readability comes from the dark uniform against orange ground, the red
 -- helmet band and a helmet lamp at night.
 local TARGET_HEIGHT = 7.2
+local ASSET_SCALE = 1.1
 local CFG = Config.Infantry
 local LIMBS = { "Torso", "Head", "LeftArm", "RightArm", "LeftLeg", "RightLeg" }
 
@@ -183,11 +184,18 @@ local function buildModel(): (Model, BasePart, number)
 	local m = model or buildFallback()
 	m.Name = "Infantry"
 	local root = m.PrimaryPart :: BasePart
-	-- Normalise height, then measure how far the root sits above the feet.
-	local _, size = m:GetBoundingBox()
-	if size.Y > 0.5 then
-		m:ScaleTo(m:GetScale() * TARGET_HEIGHT / size.Y)
+	if model then
+		-- The Blender soldier is authored at real scale (~6.5 studs; its
+		-- padded limb boxes inflate the bounding box), so scale directly.
+		m:ScaleTo(m:GetScale() * ASSET_SCALE)
+	else
+		-- Normalise the primitive soldier's height.
+		local _, size = m:GetBoundingBox()
+		if size.Y > 0.5 then
+			m:ScaleTo(m:GetScale() * TARGET_HEIGHT / size.Y)
+		end
 	end
+	-- How far the root sits above the feet.
 	local box, scaled = m:GetBoundingBox()
 	local hip = root.Position.Y - (box.Position.Y - scaled.Y / 2)
 	root.Anchored = true

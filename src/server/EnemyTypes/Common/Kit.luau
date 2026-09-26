@@ -296,20 +296,28 @@ end
 
 -- Burns the paint off a model: darkens every part, kills its lights and
 -- makes it ignore weapon raycasts.
+local CHARRED = Color3.fromRGB(22, 20, 19)
+
 function Kit.char(model: Instance)
 	for _, d in model:GetDescendants() do
 		if d:IsA("BasePart") then
 			d.CanQuery = false
-			if d.Material == Enum.Material.Neon or d.Material == Enum.Material.Glass then
+			local textured = d:FindFirstChildWhichIsA("SurfaceAppearance")
+			if textured then
+				-- An imported mesh's Color is untextured white: burn it outright.
+				textured:Destroy()
+				d.Color = CHARRED:Lerp(Color3.fromRGB(60, 52, 46), math.random() * 0.4)
 				d.Material = Enum.Material.Slate
+			else
+				if d.Material == Enum.Material.Neon or d.Material == Enum.Material.Glass then
+					d.Material = Enum.Material.Slate
+				end
+				d.Color = d.Color:Lerp(CHARRED, 0.6)
 			end
-			d.Color = d.Color:Lerp(Color3.fromRGB(22, 20, 19), 0.6)
 			if d.Transparency > 0.5 and d.Name ~= "Root" then
 				d.Transparency = 1
 			end
 		elseif d:IsA("Light") then
-			d:Destroy()
-		elseif d:IsA("SurfaceAppearance") then
 			d:Destroy()
 		end
 	end
@@ -343,6 +351,17 @@ function Kit.detach(model: Model, name: string): Model?
 	local piece: Model
 	if sub:IsA("Model") then
 		piece = sub
+		-- Without a PrimaryPart a Model's pivot stays where it was authored
+		-- while its welded parts travel; anchor the pivot to a real part.
+		if not piece.PrimaryPart then
+			local best, volume = nil, -1
+			for _, d in piece:GetDescendants() do
+				if d:IsA("BasePart") and d.Size.X * d.Size.Y * d.Size.Z > volume then
+					best, volume = d, d.Size.X * d.Size.Y * d.Size.Z
+				end
+			end
+			piece.PrimaryPart = best
+		end
 	elseif sub:IsA("BasePart") then
 		piece = Instance.new("Model")
 		piece.Name = name
@@ -387,8 +406,12 @@ function Kit.fling(piece: Model, velocity: Vector3, spin: Vector3, state: string
 		v += Vector3.new(0, -Workspace.Gravity * 0.6 * dt, 0)
 		local nextPos = cf.Position + v * dt
 		local hit = Kit.terrainHit(cf.Position, nextPos)
+		local floor = Kit.groundY(nextPos.X, nextPos.Z)
+		if not hit and v.Y < 0 and nextPos.Y < floor then
+			hit = Vector3.new(nextPos.X, floor, nextPos.Z)
+		end
 		if hit or elapsed > 4 then
-			local landing = hit or nextPos
+			local landing = hit or Vector3.new(nextPos.X, math.max(nextPos.Y, floor), nextPos.Z)
 			piece:PivotTo(CFrame.new(landing + Vector3.new(0, 1, 0)) * cf.Rotation)
 			piece:SetAttribute("State", state)
 			conn:Disconnect()
