@@ -49,12 +49,12 @@ local PRESETS: { [string]: Preset } = {
 	},
 	LateAfternoon = {
 		faces = {
-			SkyboxBk = "rbxassetid://114441829049700",
-			SkyboxDn = "rbxassetid://83919814037681",
-			SkyboxFt = "rbxassetid://81356301039443",
-			SkyboxLf = "rbxassetid://84704526848635",
-			SkyboxRt = "rbxassetid://116258794087767",
-			SkyboxUp = "rbxassetid://95438275951147",
+			SkyboxBk = "rbxassetid://92105138397128",
+			SkyboxDn = "rbxassetid://139156437090172",
+			SkyboxFt = "rbxassetid://70468522928126",
+			SkyboxLf = "rbxassetid://71655485321354",
+			SkyboxRt = "rbxassetid://92747500355158",
+			SkyboxUp = "rbxassetid://75198639074950",
 		},
 		sky = {
 			CelestialBodiesShown = true,
@@ -68,8 +68,8 @@ local PRESETS: { [string]: Preset } = {
 			Density = 0.3,
 			Color = Color3.fromRGB(255, 231, 206),
 		},
-		clockTime = 16.6,
-		authoredSun = Vector3.new(-0.9276, 0.3561, 0.1132),
+		clockTime = 16.85,
+		authoredSun = Vector3.new(-0.949, 0.295, 0.113),
 	},
 	Sunset = {
 		faces = {
