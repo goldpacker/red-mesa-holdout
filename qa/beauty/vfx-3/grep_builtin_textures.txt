@@ -1,0 +1,8 @@
+$ grep -n "rbxasset://" (8 owned effect files)
+(no matches)
+
+$ grep -nE Instance.new("(Fire|Smoke|Sparkles|Explosion)")
+(no matches)
+
+$ grep -n Instance.new("ParticleEmitter")  (every emitter goes through Flipbooks.apply)
+src/client/Effects.luau:126:	local e = Instance.new("ParticleEmitter")

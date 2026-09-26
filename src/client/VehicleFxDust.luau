@@ -95,9 +95,9 @@ local SPECS: { [string]: Spec } = {
 	Buggy = { mode = "wheel", sources = { { "WheelRL" }, { "WheelRR" } }, rate = 22, cutoff = 1500, scale = 1, refSpeed = 40 },
 	Tank = { mode = "track", sources = { { "TrackL" }, { "TrackR" } }, rate = 12, cutoff = 1800, scale = 1.2, refSpeed = 10 },
 	SiegeCrawler = { mode = "track", sources = { { "TrackL" }, { "TrackR" } }, rate = 10, cutoff = 2600, scale = 2.2, refSpeed = 5 },
-	-- Hover heights are ~100-160 studs over the basin: a faint ring at the
-	-- top of that window, a full one when a helicopter comes down low.
-	Helicopter = { mode = "rotor", sources = { { "MainRotor", "Root" } }, rate = 18, cutoff = 2200, scale = 1, low = 50, high = 170 },
+	-- Hover heights are ~100-160 studs over the basin: a faint haze at the
+	-- bottom of that window, a full ring when a helicopter comes down low.
+	Helicopter = { mode = "rotor", sources = { { "MainRotor", "Root" } }, rate = 18, cutoff = 2200, scale = 1, low = 50, high = 145 },
 	-- Jets run ~200-220 studs over the basin floor (~57 over the canyon rims).
 	Jet = { mode = "wake", sources = { { "Exhaust", "Root" } }, rate = 90, cutoff = 2800, scale = 1, low = 150, high = 270 },
 }
