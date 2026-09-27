@@ -2,7 +2,8 @@ AD-2 hand-off recorder, Studio play session 2 (2026-09-27 00:50), after the fixe
 (ROOT_BELOW_HARNESS - 0.14), landing dust toned down, QA switch parking fixed. Same recorder as session 1.
 
 Sunset, wave 7, debug sortie 6 (Tank, Road):
-load 13 (Tank): recorded; clip qa/beauty/ad-2/seq_sunset_tank-touchdown.jpg (no jump, slings drop at contact)
+load 13 (Tank): filmed only (the recorder was restarted for the stick below); clip
+qa/beauty/ad-2/seq_sunset_tank-touchdown.jpg shows no jump, slings drop at contact
 
 Sunset, wave 7, debug sortie 10 (6 x Infantry, ScrubLeft):
 load 28: frames 1872 | enemy first frame 1587 (t-landT +0.039) | body last shown 1586 | both 0 | pos gap 0.38 (dy 0.00) yaw gap 2.3
