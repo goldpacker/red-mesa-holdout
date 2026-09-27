@@ -7,8 +7,9 @@ assets/listing/src/ into assets/listing/: the 1920x1080 thumbnails, the
 Sources (see assets/listing/README.md):
   - src/{hero,airdrop,icon}_render.png: Blender, tools/ui/listing_scene.py
   - src/icon_rm.png: the logo's stencil, tools/ui/listing_letters.py
-  - src/{combat,storm,boss}_studio.png: the real game in Studio (16:9 crops
-    of the viewport at native resolution)
+  - src/{combat,boss}_studio.png: the real game in Studio (a 1899x1068
+    viewport grabbed at the display's native 3798x2136 by
+    tools/ui/listing_capture.py, area-downsampled to 1920x1080)
   - the logo: assets/ui/art/title_logo.png (tools/ui/title_logo.py)
 Only the logo (and the icon's "RM") is laid over the images; there is no
 other text. Pillow only (the QA venv).
@@ -34,8 +35,7 @@ THUMBS = [
     ("thumb_1_hero", "hero_render.png", (56, 800, 800)),
     ("thumb_2_airdrop", "airdrop_render.png", (1500, 960, 380)),
     ("thumb_3_combat", "combat_studio.png", None),
-    ("thumb_4_storm", "storm_studio.png", None),
-    ("thumb_5_boss", "boss_studio.png", None),
+    ("thumb_4_boss", "boss_studio.png", None),
 ]
 # The icon: source render, and the "RM" stencil (left, top, width at 512) or None.
 ICONS = [

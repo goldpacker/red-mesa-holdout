@@ -84,9 +84,9 @@ AIRBORNE = ("Lead_", "Wing_", "Trooper", "Cargo_")
 
 
 def airborne_shadows_off(sc):
-    """The drop casts no shadows: at the game's shadow range (a few hundred
-    studs from the camera) Roblox never draws a canopy's shadow on the far
-    canyon walls, where Cycles would lay dark blotches."""
+    """The drop casts no shadows: under the low sunset sun Cycles lays the
+    canopies' shadows as dark blotches on the far canyon walls (~1,000
+    studs from the camera), which read as dirt at thumbnail size."""
     import bpy
 
     n = 0

@@ -53,6 +53,24 @@ def screen_points_width() -> int:
     raise SystemExit("no display size from system_profiler")
 
 
+def marker_box(mask: Image.Image) -> tuple[int, int, int, int] | None:
+    """The marker rectangle: the rows and columns that are mostly magenta
+    (stray magenta pixels elsewhere on screen don't count)."""
+    w, h = mask.size
+    data = mask.tobytes()
+    rows = [data[y * w:(y + 1) * w].count(255) for y in range(h)]
+    peak = max(rows)
+    if peak < 100:
+        return None
+    ys = [y for y, n in enumerate(rows) if n > peak * 0.9]
+    y0, y1 = ys[0], ys[-1] + 1
+    band = mask.crop((0, y0, w, y1)).rotate(90, expand=True).tobytes()  # columns as rows
+    cols = [band[x * (y1 - y0):(x + 1) * (y1 - y0)].count(255) for x in range(w)]
+    cols.reverse()  # rotate(90) is counter-clockwise: the last row is column 0
+    xs = [x for x, n in enumerate(cols) if n > (y1 - y0) * 0.9]
+    return (xs[0], y0, xs[-1] + 1, y1)
+
+
 def find_viewport() -> dict:
     FRAMES.mkdir(parents=True, exist_ok=True)
     (FRAMES / ".gitignore").write_text("*\n")
@@ -60,11 +78,12 @@ def find_viewport() -> dict:
     grab(shot)
     im = Image.open(shot).convert("RGB")
     r, g, b = im.split()
-    # Magenta: red and blue high, green low.
-    mask = Image.eval(r, lambda v: 255 if v > 235 else 0)
-    mask = Image.composite(mask, Image.new("L", im.size), Image.eval(g, lambda v: 255 if v < 25 else 0))
-    mask = Image.composite(mask, Image.new("L", im.size), Image.eval(b, lambda v: 255 if v > 235 else 0))
-    box = mask.getbbox()
+    # Magenta: red and blue high, green low (the display's colour management
+    # shifts pure 255,0,255 to about 231,56,249).
+    mask = Image.eval(r, lambda v: 255 if v > 200 else 0)
+    mask = Image.composite(mask, Image.new("L", im.size), Image.eval(g, lambda v: 255 if v < 100 else 0))
+    mask = Image.composite(mask, Image.new("L", im.size), Image.eval(b, lambda v: 255 if v > 200 else 0))
+    box = marker_box(mask)
     if not box:
         raise SystemExit("no magenta marker on screen: show the ListingMarker ScreenGui and bring Studio forward")
     # Screen points (the capture is at the display's backing scale).
@@ -101,8 +120,8 @@ def pick(name: str, index: int, top: float, tag: str) -> None:
     if band.size[0] < 1920:
         raise SystemExit(f"band {band.size} is under 1920 wide: enlarge the viewport")
     dst = SRC / f"{tag or name}_studio.png"
-    band.save(dst)
-    print(f"wrote {dst.relative_to(ROOT)} {band.size[0]}x{band.size[1]} (frame {index}, rows {y}..{y + bh})")
+    band.resize((1920, 1080), Image.BOX).save(dst)  # area average: no upscale, no ringing
+    print(f"wrote {dst.relative_to(ROOT)} 1920x1080 from {band.size[0]}x{band.size[1]} (frame {index}, rows {y}..{y + bh})")
 
 
 def main() -> int:
