@@ -96,6 +96,9 @@ local function freshStats()
 		late = 0,
 		maxLate = 0,
 		groups = {} :: { GroupRecord },
+		-- One row per transport (QA pacing, AD-3): wave seconds of its entry,
+		-- first canopy opening, first and last touchdown.
+		sortieLog = {} :: { any },
 		lastSortie = nil :: any,
 	}
 end
@@ -268,6 +271,22 @@ function Drops.announce(self: any, plan: AirdropPlan.Plan, loads: { Load })
 		loads = payload,
 	}
 	stats.lastSortie = sortie
+	local firstOpen, firstLand, lastLand = math.huge, math.huge, 0
+	for _, load in payload do
+		firstOpen = math.min(firstOpen, load.openT)
+		firstLand = math.min(firstLand, load.landT)
+		lastLand = math.max(lastLand, load.landT)
+	end
+	table.insert(stats.sortieLog, {
+		wave = self.wave,
+		kind = plan.kind,
+		lane = plan.lane,
+		n = #payload,
+		t0 = plan.t0 - self.startT,
+		open = firstOpen - self.startT,
+		land = firstLand - self.startT,
+		lastLand = lastLand - self.startT,
+	})
 	self.ctx.emit("AirdropSortie", sortie)
 end
 
