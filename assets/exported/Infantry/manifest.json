@@ -180,5 +180,11 @@
   "assets/previews/Infantry_side.png"
  ],
  "triangles": 3990,
- "meta": {}
+ "meta": {
+  "untextured": [
+   0.22,
+   0.227,
+   0.251
+  ]
+ }
 }

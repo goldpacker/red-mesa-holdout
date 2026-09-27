@@ -115,7 +115,9 @@ def parachute(a):
 
 def build(**kw):
     a = Asset("SupplyCrate", pivot=(0, 0, 0), tex_size=1024)
-    a.texture_group("chute", 512)
+    # RECLAIM-HS (QA-B item 14): the chute fabric has no metal; its metalness
+    # map was all zero, so it is not baked or uploaded (metalness 0 either way).
+    a.texture_group("chute", 512, metal=False)
     a.pivot("Parachute", (0, 0, TOP))
     crate(a)
     parachute(a)

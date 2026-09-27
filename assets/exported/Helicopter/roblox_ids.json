@@ -1,8 +1,8 @@
 {
  "hashes": {
-  "body/color": "d7174283c1de5934",
-  "body/normal": "0d44dde6d617534c",
-  "body/rough": "bbb2438c48cc4593",
+  "body/color": "f6b4b59f3a2fa90a",
+  "body/normal": "5c8b1df2e87c730f",
+  "body/rough": "8d96b7aaafad847c",
   "glb": "8a7a07175ef1d35d",
   "wreck/body": "79129273529ca976"
  },
@@ -15,9 +15,9 @@
  "model": "111963666954286",
  "textures": {
   "body": {
-   "color": "rbxassetid://75067133812565",
-   "normal": "rbxassetid://136853546218789",
-   "rough": "rbxassetid://114971326779261"
+   "color": "rbxassetid://92417398794674",
+   "normal": "rbxassetid://82760016654377",
+   "rough": "rbxassetid://96818532946292"
   }
  },
  "wreck": {

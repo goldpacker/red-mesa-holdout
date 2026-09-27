@@ -196,5 +196,13 @@
  },
  "shared_textures": {
   "trim": "TrimEnemy"
+ },
+ "game_px": 512,
+ "upload_textures": {
+  "body": {
+   "color": "Helicopter_body_color_512.png",
+   "rough": "Helicopter_body_rough_512.png",
+   "normal": "Helicopter_body_normal_512.png"
+  }
  }
 }

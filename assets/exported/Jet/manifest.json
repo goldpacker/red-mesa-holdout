@@ -164,5 +164,13 @@
  },
  "shared_textures": {
   "trim": "TrimEnemy"
+ },
+ "game_px": 512,
+ "upload_textures": {
+  "body": {
+   "color": "Jet_body_color_512.png",
+   "rough": "Jet_body_rough_512.png",
+   "normal": "Jet_body_normal_512.png"
+  }
  }
 }

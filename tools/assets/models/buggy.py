@@ -22,6 +22,12 @@ import math
 from rmh import geo, hardsurface as hs, images, trim
 from rmh.asset import Asset, rb_box
 
+# RECLAIM-HS (QA-B item 5): the uploaded maps are capped at 512² (rmh/game_maps.py);
+# the bake, .blend, previews and exported full-size PNGs stay 1024². At its nearest
+# play range (230 studs, gunsight zoom) the 512² maps still give >= 2.2 texels per screen
+# pixel, so the GPU was already sampling mip >= 1 of the 1024² maps: no visible change.
+GAME_PX = 512
+
 HIT = {
     "Root": ((0.0, 3.375, -0.5657), (7.6, 4.95, 12.9472)),
     "WheelFL": ((-3.35, 1.35, -4.3), (1.15, 2.9, 2.9011)),
@@ -269,6 +275,7 @@ def gun(a):
 
 def build(**kw):
     a = Asset("Buggy", pivot=(0, 0, 0), tex_size=1024)
+    a.game_px = GAME_PX
     a.fix_inside_out = True
     a.texture_group("body", 1024, high={"hp": 0.04, "cage": 0.1, "ray": 0.25}, down=0.3, metal_px=512)
     T = trim.use(a, "trim", "TrimEnemy")

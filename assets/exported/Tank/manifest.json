@@ -234,5 +234,18 @@
  "meta": {},
  "shared_textures": {
   "trim": "TrimEnemy"
+ },
+ "game_px": 512,
+ "upload_textures": {
+  "hull": {
+   "color": "Tank_hull_color_512.png",
+   "rough": "Tank_hull_rough_512.png",
+   "normal": "Tank_hull_normal_512.png"
+  },
+  "turret": {
+   "color": "Tank_turret_color_512.png",
+   "rough": "Tank_turret_rough_512.png",
+   "normal": "Tank_turret_normal_512.png"
+  }
  }
 }

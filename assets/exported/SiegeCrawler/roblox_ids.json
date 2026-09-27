@@ -1,22 +1,22 @@
 {
  "hashes": {
-  "armour/color": "d00e2187bf8b399c",
+  "armour/color": "d764dd73b0cf0e03",
   "armour/metal": "476a62b3bd1fa939",
-  "armour/normal": "ebb97d03cf0fe711",
-  "armour/rough": "c39ebc3de3e4b5e9",
-  "deck/color": "35c5c78bb5371aeb",
+  "armour/normal": "765ebc492f383a50",
+  "armour/rough": "a3396e69106ca511",
+  "deck/color": "aad1840038a32483",
   "deck/metal": "1d92331a2444d5d5",
-  "deck/normal": "1681803cb269e15d",
-  "deck/rough": "27dbf48681c864c4",
+  "deck/normal": "2f4a32408c6e0012",
+  "deck/rough": "9713d816bbbb6cff",
   "glb": "0a354104d3bfa716",
-  "hull/color": "bc5238eb339253ca",
+  "hull/color": "771861faddcd8faa",
   "hull/metal": "de9431f0ca3672b2",
-  "hull/normal": "5d1b19d03974c7db",
-  "hull/rough": "8882fe38e287ec71",
-  "turrets/color": "20296ef145c969f6",
+  "hull/normal": "d7c2711eb1f471c9",
+  "hull/rough": "7d6458ab5063dd62",
+  "turrets/color": "414e74a003f8063b",
   "turrets/metal": "cae6152734fd6c99",
-  "turrets/normal": "c67afb7ebbbcffef",
-  "turrets/rough": "af2cafd80ed30ade",
+  "turrets/normal": "df535cca541d4bbe",
+  "turrets/rough": "bc0a10a95a96856e",
   "wreck/armour": "1bba8e9c7374fc9e",
   "wreck/deck": "f82ed7b7485a6691",
   "wreck/hull": "1f05d5446dada614",
@@ -49,28 +49,28 @@
  "model": "115882436414681",
  "textures": {
   "armour": {
-   "color": "rbxassetid://90366181847968",
+   "color": "rbxassetid://107084687337636",
    "metal": "rbxassetid://138743647781272",
-   "normal": "rbxassetid://139167079525981",
-   "rough": "rbxassetid://81703913341292"
+   "normal": "rbxassetid://127689678507632",
+   "rough": "rbxassetid://135418759001825"
   },
   "deck": {
-   "color": "rbxassetid://121832137395763",
+   "color": "rbxassetid://112799778716264",
    "metal": "rbxassetid://71029970290986",
-   "normal": "rbxassetid://132673850849223",
-   "rough": "rbxassetid://125364024815377"
+   "normal": "rbxassetid://125384723124717",
+   "rough": "rbxassetid://131452095976210"
   },
   "hull": {
-   "color": "rbxassetid://72793436567325",
+   "color": "rbxassetid://123959368860155",
    "metal": "rbxassetid://128767163677282",
-   "normal": "rbxassetid://75686513737164",
-   "rough": "rbxassetid://74609745707263"
+   "normal": "rbxassetid://90165150292095",
+   "rough": "rbxassetid://97589417105836"
   },
   "turrets": {
-   "color": "rbxassetid://83614727018350",
+   "color": "rbxassetid://79979135712629",
    "metal": "rbxassetid://86026115322677",
-   "normal": "rbxassetid://85764699514479",
-   "rough": "rbxassetid://104233058016540"
+   "normal": "rbxassetid://135258542248646",
+   "rough": "rbxassetid://125015836810513"
   }
  },
  "wreck": {

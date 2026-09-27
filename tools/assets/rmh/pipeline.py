@@ -5,6 +5,7 @@ Outputs (NAME = asset name):
     assets/blender/NAME.blend
     assets/exported/NAME/NAME.glb
     assets/exported/NAME/NAME_<group>_{color,normal,rough,metal}.png
+    assets/exported/NAME/NAME_<group>_<ch>_<px>.png  (opt-in Asset.game_px: the uploaded copies)
     assets/exported/NAME/manifest.json
     assets/previews/NAME.png, NAME_rear.png
 """
@@ -722,6 +723,11 @@ def finish(asset, samples=24, preview_samples=96, views=None, preview=True):
         previews = render_previews(asset, views, preview_samples)
     export_glb(asset, out_dir)
     manifest = write_manifest(asset, out_dir, textures, previews)
+    if getattr(asset, "game_px", None):
+        from . import game_maps  # opt-in (RECLAIM-HS): downsampled upload copies
+
+        game_maps.export(out_dir, asset.game_px, log)
+        manifest = json.loads((out_dir / "manifest.json").read_text())
     log(f"{asset.name}: {len(manifest['parts'])} parts, {manifest['triangles']} tris, {time.time() - t0:.0f}s")
     log(f"  texel density px/stud: {manifest['texel_density']}")
     for p in manifest["parts"]:

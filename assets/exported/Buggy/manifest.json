@@ -194,5 +194,13 @@
  "meta": {},
  "shared_textures": {
   "trim": "TrimEnemy"
+ },
+ "game_px": 512,
+ "upload_textures": {
+  "body": {
+   "color": "Buggy_body_color_512.png",
+   "rough": "Buggy_body_rough_512.png",
+   "normal": "Buggy_body_normal_512.png"
+  }
  }
 }

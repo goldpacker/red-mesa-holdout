@@ -564,5 +564,28 @@
  "meta": {},
  "shared_textures": {
   "trim": "TrimEnemy"
+ },
+ "game_px": 512,
+ "upload_textures": {
+  "hull": {
+   "color": "SiegeCrawler_hull_color_512.png",
+   "rough": "SiegeCrawler_hull_rough_512.png",
+   "normal": "SiegeCrawler_hull_normal_512.png"
+  },
+  "armour": {
+   "color": "SiegeCrawler_armour_color_512.png",
+   "rough": "SiegeCrawler_armour_rough_512.png",
+   "normal": "SiegeCrawler_armour_normal_512.png"
+  },
+  "deck": {
+   "color": "SiegeCrawler_deck_color_512.png",
+   "rough": "SiegeCrawler_deck_rough_512.png",
+   "normal": "SiegeCrawler_deck_normal_512.png"
+  },
+  "turrets": {
+   "color": "SiegeCrawler_turrets_color_512.png",
+   "rough": "SiegeCrawler_turrets_rough_512.png",
+   "normal": "SiegeCrawler_turrets_normal_512.png"
+  }
  }
 }

@@ -281,6 +281,13 @@ class Asset:
         # parts flagged hidden_preview=True, unless a camera view lists them
         # in "show".
         self.preview_hide_transparent = False
+        # Opt-in (RECLAIM-HS, rmh/game_maps.py): cap on the resolution of the
+        # maps uploaded to Roblox, e.g. 512. The bake, the .blend, previews
+        # and <Name>_<group>_<ch>.png stay at full tex_size; publish.py
+        # uploads the downsampled `upload_textures` copies instead. Set it
+        # from a module-level GAME_PX so `build.sh GameMaps` can re-export
+        # without a rebuild.
+        self.game_px = None
 
     # --- description ----------------------------------------------------
     def part(self, name, path="", tex="main", **flags):

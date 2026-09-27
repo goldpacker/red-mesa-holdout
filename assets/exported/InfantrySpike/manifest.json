@@ -68,6 +68,7 @@
   -0.0
  ],
  "meta": {
-  "rbxmx_prefix": "InfantrySpike"
+  "rbxmx_prefix": "InfantrySpike",
+  "untextured": true
  }
 }

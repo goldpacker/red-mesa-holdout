@@ -36,5 +36,7 @@ def build(**kw):
     s.add(bar, "bar", bones=["Base", "Mid", "Tip"], falloff=6.0)
     s.add(geo.box(0.4, 0.4, 0.4, bevel=0.0), "bar", bones="Tip", at=(0, 0.65, 5.2))  # front nub
     s.add(geo.box(0.6, 0.6, 0.6, bevel=0.0), "bar", bones="Tip", at=(0.9, 0, 5.5))  # cap on Tip only
-    s.meta = {"rbxmx_prefix": "InfantrySpike"}
+    # RECLAIM-HS (QA-B item 14): a pipeline test, never shipped: its maps are
+    # not uploaded (publish.py meta `untextured`); the bar tests bones only.
+    s.meta = {"rbxmx_prefix": "InfantrySpike", "untextured": True}
     return s.finish(views=[("", (1.0, 1.3, 0.4), None, "Rest", {})], poses={}, preview=kw.get("preview", True), samples=kw.get("samples", 16))

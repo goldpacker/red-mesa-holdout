@@ -17,6 +17,9 @@ Steps (see docs/ASSET_PIPELINE.md):
   python3 tools/assets/publish.py rbxmx <Name>   regenerates the rbxmx only.
 Trim sheets (`manifest.kind == "trim"`, rmh/trim.py) upload their maps only;
 assets with `shared_textures` point those groups at the sheet's image ids.
+Opt-in (RECLAIM-HS): `upload_textures` (Asset.game_px, rmh/game_maps.py)
+lists downsampled copies that are uploaded in place of the full-size maps;
+meta `untextured` uploads no maps and drops their ids.
 
 Requires ROBLOX_OPEN_CLOUD_KEY / ROBLOX_CREATOR_USER_ID in the environment
 (`set -a; . ./.env.local; set +a`). The key is never printed.
@@ -68,6 +71,13 @@ def save_ids(ids_path: Path, ids: dict) -> None:
     ids_path.write_text(json.dumps(ids, indent=1, sort_keys=True) + "\n")
 
 
+def untextured(manifest: dict) -> bool:
+    """Opt-in (RECLAIM-HS): meta `untextured` marks an asset whose maps are
+    never drawn (its parts are invisible hit volumes); nothing is uploaded
+    for it and its rbxmx carries no SurfaceAppearance."""
+    return bool(manifest.get("meta", {}).get("untextured"))
+
+
 def upload(name: str) -> None:
     out, manifest, ids, ids_path = load(name)
     hashes = ids.setdefault("hashes", {})
@@ -88,19 +98,25 @@ def upload(name: str) -> None:
     else:
         print(f"model unchanged: {ids['model']}")
     tex = ids.setdefault("textures", {})
+    # Opt-in (RECLAIM-HS): an asset whose maps are never drawn (meta
+    # `untextured`, e.g. invisible hit volumes) uploads none and keeps no ids.
+    wanted = {} if untextured(manifest) else manifest["textures"]
     # Forget maps of groups/channels the current build no longer has, so a
     # stale id (e.g. a dropped metalness map) never reaches the rbxmx.
     for group in list(tex):
-        want = manifest["textures"].get(group, {})
+        want = wanted.get(group, {})
         for ch in list(tex[group]):
             if ch not in want:
                 del tex[group][ch]
                 hashes.pop(f"{group}/{ch}", None)
         if not tex[group]:
             del tex[group]
-    for group, files in manifest["textures"].items():
+    # Opt-in (RECLAIM-HS, Asset.game_px / rmh/game_maps.py): the
+    # downsampled `upload_textures` copies ship in place of the full maps.
+    game = manifest.get("upload_textures", {})
+    for group, files in wanted.items():
         for ch, fname in files.items():
-            f = out / fname
+            f = out / game.get(group, {}).get(ch, fname)
             h = sha(f)
             key = f"{group}/{ch}"
             if hashes.get(key) == h and tex.get(group, {}).get(ch):

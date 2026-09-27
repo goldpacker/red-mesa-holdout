@@ -100,7 +100,6 @@
   "chute": {
    "color": "SupplyCrate_chute_color.png",
    "rough": "SupplyCrate_chute_rough.png",
-   "metal": "SupplyCrate_chute_metal.png",
    "normal": "SupplyCrate_chute_normal.png"
   }
  },

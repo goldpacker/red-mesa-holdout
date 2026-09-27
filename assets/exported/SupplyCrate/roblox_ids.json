@@ -1,7 +1,6 @@
 {
  "hashes": {
   "chute/color": "2a678de8ff4f124c",
-  "chute/metal": "9a334c89c9511a9c",
   "chute/normal": "40b7440eb630c677",
   "chute/rough": "0cffa7fc580b5dd0",
   "glb": "77764d80e18a93f7",
@@ -19,7 +18,6 @@
  "textures": {
   "chute": {
    "color": "rbxassetid://140040736398734",
-   "metal": "rbxassetid://108836269797768",
    "normal": "rbxassetid://105249963074815",
    "rough": "rbxassetid://73594152234826"
   },

@@ -140,6 +140,12 @@ def rifle(a):
 def build(**kw):
     a = Asset("Infantry", pivot=(0, 0, HIP_Z), tex_size=1024)
     a.zmin = 0.0
+    # RECLAIM-HS (QA-B item 14): since CHAR-2 these parts are invisible hit
+    # volumes under the skinned soldier, so their maps are never drawn: they
+    # are not uploaded and the rbxmx carries no SurfaceAppearance (publish.py
+    # meta `untextured`); if the skinned templates ever fail, the rigid limbs
+    # show in the uniform colour (Infantry.luau UNIFORM).
+    a.meta["untextured"] = [0.22, 0.227, 0.251]
     materials(a)
     legs(a)
     torso(a)

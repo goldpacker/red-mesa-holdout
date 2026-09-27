@@ -121,7 +121,11 @@ def build(manifest, ids):
         return m
 
     part_nodes = {}
-    tex_ids = ids.get("textures", {})
+    # Opt-in (RECLAIM-HS): meta `untextured` = [r, g, b] (0..1). The asset's
+    # maps are never drawn (e.g. invisible hit volumes): no SurfaceAppearance,
+    # parts keep their Material with this flat Color, so nothing can load them.
+    untextured = manifest.get("meta", {}).get("untextured")
+    tex_ids = {} if untextured else ids.get("textures", {})
     meshes = ids.get("meshes", {})
     for p in manifest["parts"]:
         node = Node("MeshPart", p["name"], ref())
@@ -149,7 +153,8 @@ def build(manifest, ids):
             # Opt-in (HS-6): no textures, a Roblox material + Color (glass).
             node.props += [prop("token", "Material", MATERIALS.get(p.get("material", "Glass"), 1568)), color3(flat)]
         else:
-            node.props += [prop("token", "Material", MATERIALS.get(p.get("material", "Metal"), 1088)), color3((1, 1, 1))]
+            base = untextured if isinstance(untextured, (list, tuple)) else (1, 1, 1)
+            node.props += [prop("token", "Material", MATERIALS.get(p.get("material", "Metal"), 1088)), color3(base)]
             maps = tex_ids.get(p.get("tex") or "", {})
             if maps:
                 sa = Node("SurfaceAppearance", "SurfaceAppearance", ref())

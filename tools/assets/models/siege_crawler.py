@@ -40,6 +40,12 @@ from rmh.asset import Asset, fix_inside_out, rb_box
 
 from models import siege_crawler_turrets as turrets
 
+# RECLAIM-HS (QA-B item 4): the uploaded maps are capped at 512² (rmh/game_maps.py);
+# the bake, .blend, previews and exported full-size PNGs stay 1024². At its nearest
+# play range (330 studs, gunsight zoom) the 512² maps still give >= 1.1 texels per screen
+# pixel, so the GPU was already sampling mip >= 1 of the 1024² maps: no visible change.
+GAME_PX = 512
+
 # Contract hit boxes: Roblox (centre, size) of the pre-HS-5 parts.
 HIT = {
     "Root": ((0.0, 10.3389, -0.6339), (43.5315, 18.3223, 91.198)),
@@ -626,6 +632,7 @@ def beacons(a):
 
 def build(**kw):
     a = Asset("SiegeCrawler", pivot=(0, 0, 0), tex_size=1024)
+    a.game_px = GAME_PX
     a.fix_inside_out = True
     a.preview_hide_transparent = True
     high = {"hp": 0.1, "cage": 0.22, "ray": 0.5}
