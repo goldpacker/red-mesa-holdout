@@ -8,7 +8,7 @@ dressing atlas), shared by every ENV-4 mesh (tools/env/dressing/meshes.py):
 ConflictProps: opaque, 1024² painting -> 512² colour + 512² normal
 (block-compressed: ~0.67 MB resident by QA-B's model). Regions (x, y, w, h
 in painting pixels) and what one tile is in studs:
-  concrete (  0,   0, 256, 256)  8 x 8    worn concrete: jersey barriers
+  concrete (  0,   0, 256, 256)  8 x 8    weathered concrete, laid out by height: jersey barriers
   hesco    (256,   0, 256, 256)  4 x 4    geotextile behind a welded wire grid
   adobe    (512,   0, 256, 256)  8 x 8    mud plaster flaking off mudbrick courses
   brick    (768,   0, 256, 256)  8 x 8    bare mudbrick: broken wall tops, rubble
@@ -120,13 +120,61 @@ def grain(w, h, seed, lo=2, hi=24):
 
 # ------------------------------------------------------------------ props
 def concrete(w, h, spt):
-    col = T.recolor(cc0("concrete_floor_worn_001", "diff", w), "#948A7A", contrast=1.25, chroma_keep=0.25, flatten_sigma=w / 6)
+    """Weathered jersey-barrier concrete (ENV-4 fix 1). The mesh maps this
+    region by height: row = height above the ground (studs, the region's
+    bottom edge is the ground contact, 32 px/stud painted), so the
+    weathering is laid out by height:
+      0-0.9   sand drifted against the base, feathered up by wind
+      0-1.4   splash/grime band just above it
+      ~1.05, ~3.2  chipped edges (the profile break, the top edge)
+      3.3-4   the top face (meshes.py maps it here): a dust blanket
+    over a warm, sand-stained concrete with rain streaks from the top."""
+    ppx = h / spt[1]
+    col = T.recolor(cc0("concrete_floor_worn_001", "diff", w), "#98826A", contrast=1.3, chroma_keep=0.4, flatten_sigma=w / 6)
     nor = T.scale_normal(T.decode_normal(cc0("concrete_floor_worn_001", "nor_gl", w)), 0.8)
-    # rain/dust streaks running down, and a few dark stains
-    streak = T.smoothstep(0.8, 2.2, T.blur_aniso(T.fbm(w, 111, beta=1.8, min_period=3), 0.6, 9.0))
+    yy = np.arange(h)[:, None] * np.ones((1, w))
+    height = (h - 0.5 - yy) / ppx                      # studs above the ground
+    lin_col = T.srgb_to_linear(col)
+    # rain streaks running down from the top edge, stronger near it
+    streak = T.smoothstep(0.7, 2.0, T.blur_aniso(T.fbm(w, 111, beta=1.8, min_period=3), 0.6, 12.0))
+    streak *= T.smoothstep(0.6, 3.0, height) * T.smoothstep(3.6, 3.1, height)
     stain = T.smoothstep(0.9, 1.8, T.fbm(w, 112, beta=2.6, min_period=30))
-    col = T.tint(col, 1.0 - 0.18 * streak - 0.22 * stain + 0.05 * grain(w, h, 113))
-    return col, nor
+    lin_col = lin_col * (1.0 - 0.28 * streak - 0.2 * stain + 0.05 * grain(w, h, 113))[..., None]
+    # sun-bleached, dusty upper faces; damp, grimy lower band
+    lin_col = lin_col * (0.9 + 0.1 * T.smoothstep(0.5, 2.5, height))[..., None]
+    grime = T.smoothstep(1.5, 0.3, height) * (0.6 + 0.4 * T.normalize01(T.fbm(w, 114, beta=1.6, min_period=4)))
+    lin_col = lin_col * (1 - 0.22 * grime)[..., None]
+    # worn, chipped edges: ragged strips along the profile break (1.05) and
+    # the top arris (3.22) where the face has spalled to paler aggregate,
+    # stretched along the edge (anisotropic noise, not round blobs)
+    wear_n = T.fbm(w, 115, beta=1.6, min_period=2, aniso=(5.0, 1.0))[:h]
+    chips = np.zeros((h, w), np.float32)
+    for edge, reach in ((1.05, 0.16), (3.22, 0.22)):
+        near = T.smoothstep(reach, 0.0, np.abs(height - edge))
+        chips = np.maximum(chips, near * T.smoothstep(0.35, 1.1, wear_n + 0.4 * near))
+    aggregate = lin("#A89478") * (0.8 + 0.3 * T.normalize01(grain(w, h, 116, 1, 6)))[..., None]
+    lin_col = lin_col * (1 - 0.75 * chips[..., None]) + aggregate * 0.75 * chips[..., None]
+    # a dust film over everything, heavier low down (sand-blasted, wind-borne)
+    film = 0.18 + 0.22 * T.smoothstep(2.6, 0.4, height)
+    film = film * (0.7 + 0.3 * T.normalize01(T.fbm(w, 121, beta=2.0, min_period=6)))
+    lin_col = lin_col * (1 - film[..., None]) + lin("#B98356") * film[..., None]
+    # sand: drifted against the base (feathered, wind-ribbed) and on the top face
+    sand = lin("#B98356") * (0.85 + 0.25 * T.normalize01(T.fbm(w, 117, beta=1.4, min_period=2, max_period=16)))[..., None]
+    edge_noise = 0.35 * T.fbm(w, 118, beta=2.2, min_period=6)[:h]
+    drift = T.smoothstep(0.95, 0.15, height + edge_noise)
+    specks = T.smoothstep(0.4, 1.4, T.fbm(w, 119, beta=0.8, min_period=2, max_period=10)) * T.smoothstep(1.6, 0.4, height)
+    top = T.smoothstep(3.25, 3.4, height) * (0.2 + 0.4 * T.normalize01(T.fbm(w, 120, beta=2.0, min_period=5)))
+    ledge = T.smoothstep(1.2, 1.05, np.abs(height - 1.05) * 8) * 0.3   # dust caught on the profile break
+    cover = np.clip(np.maximum.reduce([drift, 0.45 * specks, top, ledge]), 0, 1)
+    lin_col = lin_col * (1 - cover[..., None]) + sand * cover[..., None]
+    # dents where chips broke off; sand smooths the normal
+    dent = normals((-0.03 * chips).astype(np.float32), ppx)
+    nor = T.blend_normals(nor, dent)
+    flat = np.zeros_like(nor)
+    flat[..., 2] = 1
+    nor = nor * (1 - 0.7 * cover[..., None]) + flat * 0.7 * cover[..., None]
+    nor = nor / np.linalg.norm(nor, axis=-1, keepdims=True)
+    return T.linear_to_srgb(lin_col), nor
 
 
 def hesco(w, h, spt):

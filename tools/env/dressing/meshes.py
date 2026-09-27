@@ -95,6 +95,13 @@ class Mesh:
         self.uv += [list(map(float, u)) for u in uvs]
         self.f += [[i, i + 1, i + 2], [i, i + 2, i + 3]]
 
+    def add(self, verts, uvs, faces):
+        """Shared-vertex patch (smooth shading); faces index into verts."""
+        i = len(self.v)
+        self.v += [list(map(float, p)) for p in verts]
+        self.uv += [list(map(float, u)) for u in uvs]
+        self.f += [[a + i, b + i, c + i] for a, b, c in faces]
+
     def merge(self, other: "Mesh", at=(0, 0, 0), yaw=0.0, tilt=(0.0, 0.0)):
         c, s = math.cos(yaw), math.sin(yaw)
         rot = np.array([[c, 0, s], [0, 1, 0], [-s, 0, c]])
@@ -341,6 +348,12 @@ def hesco3():
         top = Mesh(PROPS)
         cyl_mound(top, (x, bh - 0.2, 0), bw * 0.46, 0.35, 8, "sand")
         m.merge(top)
+    # sand banked against the wall (fill spilled from the bays + wind drift)
+    half = 1.5 * bw
+    for side in (-1, 1):
+        drift_strip(m, (-half - 0.3, 0, side * bd / 2), (half + 0.3, 0, side * bd / 2), (0, 0, side), 0.3, 1.25, 2.8, 40 + side)
+    for end in (-1, 1):
+        drift_strip(m, (end * half, 0, -bd / 2 - 0.2), (end * half, 0, bd / 2 + 0.2), (end, 0, 0), 0.3, 0.7, 1.6, 44 + end, step=1.0)
     return m
 
 
@@ -353,6 +366,80 @@ def cyl_mound(m, centre, radius, height, sides, region):
         p0 = c + np.array([math.cos(a0), 0, math.sin(a0)]) * radius
         p1 = c + np.array([math.cos(a1), 0, math.sin(a1)]) * radius
         m.tri([apex, p1, p0], [uv(apex), uv(p1), uv(p0)], out=UP)
+
+
+DRIFT_SINK = -0.14  # a drift's outer edge runs under the terrain, so no seam line shows
+
+
+def _drift_grid(m, rows, uvf, closed=False):
+    """rows: list of vertex rows (each inner -> outer); shared vertices so the
+    drift shades smooth; faces wound to face up."""
+    n, k = len(rows), len(rows[0])
+    verts = [p for row in rows for p in row]
+    uvs = [uvf(p) for p in verts]
+    faces = []
+    for i in range(n if closed else n - 1):
+        i1 = (i + 1) % n
+        for j in range(k - 1):
+            a, b, c, d = i * k + j, i1 * k + j, i1 * k + j + 1, i * k + j + 1
+            faces += [[a, b, c], [a, c, d]]
+    v = np.array(verts)
+    up_count = sum(1 for f in faces if np.cross(v[f[1]] - v[f[0]], v[f[2]] - v[f[0]])[1] > 0)
+    if up_count < len(faces) / 2:
+        faces = [[a, c, b] for a, b, c in faces]
+    m.add(verts, uvs, faces)
+
+
+def drift_strip(m, a, b, out, face_in, h_face, width, seed, step=1.4):
+    """Wind-blown sand piled against a straight face from a to b (ground
+    points, y ignored), spreading along `out` (unit, horizontal). It starts
+    `face_in` inside the face at h_face (hidden by the prop) and slopes out
+    `width` studs to DRIFT_SINK below the ground; height and reach swell and
+    thin smoothly along the face and taper at the corners. Mapped on the
+    props atlas' sand region (a crop of the terrain sand) by position.
+    ENV-4 fix 1."""
+    rng = np.random.default_rng(seed)
+    a, b, out = np.asarray(a, float), np.asarray(b, float), np.asarray(out, float)
+    a[1] = b[1] = 0.0
+    length = float(np.linalg.norm(b - a))
+    along = (b - a) / length
+    n = max(2, int(math.ceil(length / step)))
+    k1, k2 = rng.uniform(0, 6.28), rng.uniform(0, 6.28)
+    rows = []
+    for i in range(n + 1):
+        t = i / n
+        taper = min(1.0, 3 * t, 3 * (1 - t)) ** 0.6
+        swell = 0.5 + 0.3 * math.sin(k1 + 6.5 * t) + 0.2 * math.sin(k2 + 15 * t)
+        hf = h_face * (0.45 + 0.55 * swell) * (0.35 + 0.65 * taper)
+        wd = width * (0.65 + 0.35 * swell) * (0.45 + 0.55 * taper)
+        base = a + along * (length * t)
+        rows.append([base - out * face_in + np.array([0, hf, 0]),
+                     base + out * (0.3 * wd) + np.array([0, hf * 0.62, 0]),
+                     base + out * (0.62 * wd) + np.array([0, hf * 0.22, 0]),
+                     base + out * wd + np.array([0, DRIFT_SINK, 0])])
+    su, sv = PROPS.studs["sand"]
+    _drift_grid(m, rows, lambda p: PROPS.uv("sand", (p[0] + 12.0) / su, (p[2] + 6.0) / sv, inset=2))
+
+
+def drift_ring(m, centre, r_in, r_out, h_in, seed, segs=12):
+    """Sand drifted round a round prop's base (tyres): from r_in at h_in
+    (inside the prop) out to r_out below the ground. ENV-4 fix 1."""
+    rng = np.random.default_rng(seed)
+    c = np.array([centre[0], 0.0, centre[2]], float)
+    k1 = rng.uniform(0, 6.28)
+    rows = []
+    for k in range(segs):
+        ang = 2 * math.pi * k / segs
+        d = np.array([math.cos(ang), 0, math.sin(ang)])
+        swell = 0.5 + 0.5 * math.sin(k1 + 2 * ang)
+        ro = r_out * (0.85 + 0.3 * swell)
+        h = h_in * (0.6 + 0.4 * swell)
+        rows.append([c + d * r_in + np.array([0, h, 0]),
+                     c + d * (r_in + 0.35 * (ro - r_in)) + np.array([0, h * 0.6, 0]),
+                     c + d * (r_in + 0.7 * (ro - r_in)) + np.array([0, h * 0.2, 0]),
+                     c + d * ro + np.array([0, DRIFT_SINK, 0])])
+    su, sv = PROPS.studs["sand"]
+    _drift_grid(m, rows, lambda p: PROPS.uv("sand", 0.5 + (p[0] - c[0]) / su, 0.5 + (p[2] - c[2]) / sv, inset=2), closed=True)
 
 
 def jersey(length=12.0, seed=0):
@@ -372,8 +459,8 @@ def jersey(length=12.0, seed=0):
             right = np.array([1.0, 0, 0]) * side
             origin = p0 + np.array([L if side < 0 else 0.0, 0, 0])
             face_grid(m, "concrete", origin, right, up, L, ln, v0=h0)
-    # top strip
-    face_grid(m, "concrete", np.array([-L / 2, 3.2, 0.3]), np.array([1.0, 0, 0]), np.array([0, 0, -1.0]), L, 0.6)
+    # top strip: mapped to the region's dusty-top band (textures.py concrete())
+    face_grid(m, "concrete", np.array([-L / 2, 3.2, 0.3]), np.array([1.0, 0, 0]), np.array([0, 0, -1.0]), L, 0.6, v0=3.3)
     # end caps (planar polygons, chipped a little)
     for end in (-1, 1):
         x = end * L / 2
@@ -384,6 +471,11 @@ def jersey(length=12.0, seed=0):
             tri = [cen, a, b]
             uv = lambda p, e=end: PROPS.uv("concrete", 0.5 - e * p[2] / 8.0, 1 - p[1] / 8.0)
             m.tri(tri, [uv(p) for p in tri], out=np.array([end, 0.0, 0.0]))
+    # sand drifted against both faces and the ends (ENV-4 fix 1: grounding)
+    for side in (-1, 1):
+        drift_strip(m, (-L / 2 - 0.4, 0, side * 1.2), (L / 2 + 0.4, 0, side * 1.2), (0, 0, side), 0.3, 0.85, 2.2, seed + 3 + side)
+    for end in (-1, 1):
+        drift_strip(m, (end * L / 2, 0, -1.3), (end * L / 2, 0, 1.3), (end, 0, 0), 0.25, 0.4, 1.2, seed + 7 + end, step=0.9)
     return m
 
 
@@ -433,11 +525,20 @@ def tyre(r_out=2.2, r_in=1.15, width=1.3, segs=10):
     return m
 
 
+def tyre_grounded(seed=0):
+    m = tyre()
+    drift_ring(m, (0, 0, 0), 2.05, 3.1, 0.45, 60 + seed)
+    return m
+
+
 def tyres():
     m = Mesh(PROPS)
     for i, (dx, dz) in enumerate(((0, 0), (0.25, -0.2), (-0.2, 0.15))):
         m.merge(tyre(), at=(dx, i * 1.28, dz), yaw=i * 0.7, tilt=(0.03 * i, -0.02 * i))
     m.merge(tyre(), at=(4.4, 0.0, 1.2), yaw=0.3)
+    # sand round the stack's bottom tyre and the loose one (ENV-4 fix 1)
+    drift_ring(m, (0, 0, 0), 2.05, 3.3, 0.5, 61)
+    drift_ring(m, (4.4, 0, 1.2), 2.05, 3.0, 0.4, 62)
     return m
 
 
@@ -679,7 +780,7 @@ PROP_PIECES = {
     "Drum": (lambda: drum("drum"), "Overlay", "Metal", True, False),
     "Drum_Red": (lambda: drum("drum2"), "Overlay", "Metal", True, False),
     "Drums": (drums, "Overlay", "Metal", True, False),
-    "Tyre": (tyre, "Overlay", "Rubber", True, False),
+    "Tyre": (tyre_grounded, "Overlay", "Rubber", True, False),
     "Tyres": (tyres, "Overlay", "Rubber", True, False),
     "Crate": (crate, "Overlay", "WoodPlanks", True, False),
     "Crates": (crates, "Overlay", "WoodPlanks", True, False),

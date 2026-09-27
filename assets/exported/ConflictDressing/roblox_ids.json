@@ -1,8 +1,8 @@
 {
  "hashes": {
-  "glb": "cd180604d808b761",
-  "props/color": "c77d7de47f8d1569",
-  "props/normal": "aa4795f4df19fbee"
+  "glb": "d3e0b7c482a6844e",
+  "props/color": "c315d1b140c98b0d",
+  "props/normal": "eff897ee80f3129a"
  },
  "meshes": {
   "Adobe_Door": "rbxassetid://93397885213043",
@@ -13,8 +13,8 @@
   "Drum": "rbxassetid://93933974477254",
   "Drum_Red": "rbxassetid://99849459886733",
   "Drums": "rbxassetid://106899078683924",
-  "Hesco_3": "rbxassetid://130275477756679",
-  "Jersey": "rbxassetid://83870719293998",
+  "Hesco_3": "rbxassetid://140339821649185",
+  "Jersey": "rbxassetid://85817449777646",
   "Picket": "rbxassetid://116941977942984",
   "Pole": "rbxassetid://118433255855181",
   "Pole_Snapped": "rbxassetid://134741662200387",
@@ -22,15 +22,15 @@
   "Roof": "rbxassetid://123912405071007",
   "Rubble": "rbxassetid://111272688548265",
   "Sheet": "rbxassetid://89756135837803",
-  "Tyre": "rbxassetid://88335410398434",
-  "Tyres": "rbxassetid://84826084650571",
+  "Tyre": "rbxassetid://137795647241574",
+  "Tyres": "rbxassetid://110986475458018",
   "Wire_Span": "rbxassetid://90480082263473"
  },
- "model": "90778469341782",
+ "model": "121662495026674",
  "textures": {
   "props": {
-   "color": "rbxassetid://72252947598398",
-   "normal": "rbxassetid://139025004493968"
+   "color": "rbxassetid://132875879246008",
+   "normal": "rbxassetid://83754155682875"
   }
  }
 }

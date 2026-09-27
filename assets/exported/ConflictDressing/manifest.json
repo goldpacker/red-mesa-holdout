@@ -13,17 +13,17 @@
    "name": "Hesco_3",
    "path": "",
    "center": [
-    0.0,
+    -0.0265,
     2.675,
-    0.0
+    -0.081
    ],
    "size": [
-    12.88,
+    15.5531,
     5.75,
-    4.48
+    9.4309
    ],
    "tex": "props",
-   "tris": 246,
+   "tris": 426,
    "query": false,
    "collide": false,
    "shadow": true,
@@ -31,26 +31,26 @@
    "alpha": "Overlay",
    "double_sided": false,
    "pivot_offset": [
-    -0.0,
+    0.0265,
     -2.675,
-    -0.0
+    0.081
    ]
   },
   {
    "name": "Jersey",
    "path": "",
    "center": [
-    -0.0011,
-    1.6,
-    0.0
+    -0.0116,
+    1.53,
+    0.0822
    ],
    "size": [
-    12.092,
-    3.2,
-    2.4
+    14.1457,
+    3.34,
+    6.5997
    ],
    "tex": "props",
-   "tris": 44,
+   "tris": 200,
    "query": false,
    "collide": false,
    "shadow": true,
@@ -58,9 +58,9 @@
    "alpha": "Overlay",
    "double_sided": false,
    "pivot_offset": [
-    0.0011,
-    -1.6,
-    -0.0
+    0.0116,
+    -1.53,
+    -0.0822
    ]
   },
   {
@@ -149,16 +149,16 @@
    "path": "",
    "center": [
     0.0,
-    0.65,
+    0.58,
     0.0
    ],
    "size": [
-    4.4,
-    1.3,
-    4.1846
+    7.031,
+    1.44,
+    5.369
    ],
    "tex": "props",
-   "tris": 120,
+   "tris": 192,
    "query": false,
    "collide": false,
    "shadow": true,
@@ -167,7 +167,7 @@
    "double_sided": false,
    "pivot_offset": [
     -0.0,
-    -0.65,
+    -0.58,
     -0.0
    ]
   },
@@ -175,17 +175,17 @@
    "name": "Tyres",
    "path": "",
    "center": [
-    2.0747,
-    1.9959,
-    0.5335
+    1.7422,
+    1.9259,
+    0.759
    ],
    "size": [
-    8.854,
-    3.9919,
-    5.7325
+    10.788,
+    4.1319,
+    7.4514
    ],
    "tex": "props",
-   "tris": 480,
+   "tris": 624,
    "query": false,
    "collide": false,
    "shadow": true,
@@ -193,9 +193,9 @@
    "alpha": "Overlay",
    "double_sided": false,
    "pivot_offset": [
-    -2.0747,
-    -1.9959,
-    -0.5335
+    -1.7422,
+    -1.9259,
+    -0.759
    ]
   },
   {
@@ -590,7 +590,7 @@
   "props": 64.0
  },
  "previews": [],
- "triangles": 2496,
+ "triangles": 3048,
  "meta": {
   "kit": "ConflictDressing",
   "no_primary": true
