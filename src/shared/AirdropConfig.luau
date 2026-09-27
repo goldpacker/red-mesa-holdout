@@ -27,7 +27,10 @@ AirdropConfig.KINDS = {
 	Infantry = {
 		capacity = 8,
 		stick = 0.4,
-		centre = { 340, 760 },
+		-- AD-3: from 400 (was 340), so troopers land outside rifle range
+		-- (Config.Infantry.RIFLE_RANGE 340; nearest of 3,040 planned
+		-- landings: 344 studs) and walk ~6 s longer before they can shoot.
+		centre = { 400, 760 },
 		scatter = 45,
 		drift = 16,
 		spacing = 14,
