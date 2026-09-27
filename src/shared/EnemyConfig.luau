@@ -149,7 +149,13 @@ EnemyConfig.SiegeCrawler = {
 	CANNON_RANGE = 600, -- harmless while it is still far out
 	CRATE_FIRST = 10,
 	CRATE_INTERVAL = 17,
-	ESCORT_FIRST = 12,
+	-- AD-4: 38 (was 12). The first escort call now comes as the wave's
+	-- opening drop lands (Config.Waves[10], 38-42 s), so its troopers reach
+	-- rifle range ~30 s after that drop's. At 12 they landed with it (14
+	-- troopers within ~10 s, up to 18 in rifle range at once) just as the
+	-- main cannon came into range. The whole cycle moves with it: first
+	-- helicopter 25 -> 51 s, jets 51/103 -> 77/129 s.
+	ESCORT_FIRST = 38,
 	ESCORT_INTERVAL = 13,
 	ESCORT_MAX_LIVE = 9,
 	-- Cycled in order; each entry spawns `count` of `kind` on a random lane.

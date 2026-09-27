@@ -8,8 +8,9 @@
 -- group is planned PLAN_LEAD s earlier (or at wave start), its transport
 -- timed to meet `at`. Helicopters, jets and the Siege Crawler spawn at
 -- `at + i * spacing` as before. The Siege Crawler's escorts (ctx.spawn)
--- are air-dropped too. Loads still in the air count as remaining, so a
--- wave can't end while a drop is pending.
+-- are air-dropped too. A wave's `dropCentre` (AD-4) sets where its drops
+-- land. Loads still in the air count as remaining, so a wave can't end
+-- while a drop is pending.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -76,7 +77,7 @@ function WaveDirector.new(ctx: Types.Context, waveNumber: number): Director
 	local schedule = buildSchedule(wave)
 	local crateTimes = table.clone(wave.crates or {})
 	table.sort(crateTimes)
-	local drops = Airdrop.new(ctx, waveNumber)
+	local drops = Airdrop.new(ctx, waveNumber, wave.dropCentre)
 	local self = setmetatable({
 		crateTimes = crateTimes,
 		maxDuration = wave.maxDuration or Config.Timing.WAVE_MAX_DURATION,

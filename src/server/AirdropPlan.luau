@@ -266,11 +266,14 @@ end
 
 -- Plans a transport carrying `count` loads of `kind` for `laneName` (see
 -- Timing). `taken` holds landing points still pending (kept clear).
+-- `band` overrides the kind's stick-centre band ({ near, far } studs from
+-- the outpost, inside BAND; a wave's `dropCentre`, AD-4).
 -- Always returns a plan; `fallback` is set when no attempt passed every
 -- check (within the time budget) and loads were put on their lane instead.
-function AirdropPlan.sortie(rng: Random, kind: string, laneName: string, count: number, timing: Timing, taken: { AirdropZone.Taken }, follow: Follow?): Plan
+function AirdropPlan.sortie(rng: Random, kind: string, laneName: string, count: number, timing: Timing, taken: { AirdropZone.Taken }, follow: Follow?, band: { number }?): Plan
 	local def = KINDS[kind]
 	assert(def, "not an airdropped kind: " .. kind)
+	local centreBand = band or def.centre
 	local deadline = os.clock() + GROUND.PLAN_BUDGET_MS / 1000
 	local lane = Config.Lanes[AirdropPlan.resolveLane(kind, laneName)]
 	local target = timing.land
@@ -298,7 +301,7 @@ function AirdropPlan.sortie(rng: Random, kind: string, laneName: string, count: 
 		if os.clock() > deadline then
 			break
 		end
-		local d = rng:NextNumber(def.centre[1], def.centre[2])
+		local d = rng:NextNumber(centreBand[1], centreBand[2])
 		local onLane, dir = AirdropZone.lanePoint(lane, d)
 		local centre = onLane + perp(dir) * rng:NextNumber(-def.scatter, def.scatter)
 		local heading = pickHeading(rng, centre)
@@ -333,7 +336,7 @@ function AirdropPlan.sortie(rng: Random, kind: string, laneName: string, count: 
 	end
 
 	attempts += 1
-	local centre = AirdropZone.lanePoint(lane, (def.centre[1] + def.centre[2]) / 2)
+	local centre = AirdropZone.lanePoint(lane, (centreBand[1] + centreBand[2]) / 2)
 	local r = centre - PIVOT
 	local heading = perp(r.Unit) * (if rng:NextNumber() < 0.5 then -1 else 1)
 	local plan = build(rng, kind, laneName, lane, count, taken, centre, heading, T.ALTITUDE[1], true, deadline) :: Plan

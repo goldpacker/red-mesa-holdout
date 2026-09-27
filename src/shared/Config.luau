@@ -154,6 +154,10 @@ Config.Lanes = {
 -- supply crate drops. Kinds missing at runtime are skipped with a warning,
 -- so waves never hang on unfinished content. Other per-wave fields may be
 -- added (e.g. VFX's `weather`).
+-- `dropCentre` (AD-4, optional): { [kind] = { near, far } } replaces
+-- AirdropConfig.KINDS[kind].centre (the stick-centre distance band) for every
+-- drop of the wave, its groups and the Siege Crawler's escorts alike; keep it
+-- inside AirdropConfig.BAND.
 -- `weather` (VFX-4, client visuals only, no gameplay effect):
 --   weather = { storm = { at = <s>, hold = <s>, amount = <0..1> } }
 --   a dust storm's wall reaches the outpost `at` seconds into the wave
@@ -321,6 +325,12 @@ Config.Waves = {
 		time = "Sunset",
 		maxDuration = 720,
 		crates = { 30, 70 },
+		-- AD-4: every trooper of this wave (the opening groups below and the
+		-- crawler's air-dropped escorts) lands ~550-800 studs out (stick
+		-- centre 580-760; the usual infantry band is 400-760), so each one
+		-- walks ~20-50 s before it is in rifle range, never ~5 s: close
+		-- landings made the fight swing from attempt to attempt.
+		dropCentre = { Infantry = { 580, 760 } },
 		groups = {
 			g("SiegeCrawler", "Road", 1, 2, 1),
 			g("Infantry", "ScrubLeft", 5, 38, 0.8),

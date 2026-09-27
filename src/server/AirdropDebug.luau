@@ -4,12 +4,13 @@
 --   airdrop        { kind = "Infantry", count = 8, lane = "Road", at = s? }:
 --                  fly a sortie in the running wave (counts toward it);
 --                  with `at` (wave seconds) the first touchdown is aimed there
---   dropZoneCheck  { samples = 600, seed = 1 }: plans many sorties with the
+--   dropZoneCheck  { samples = 600, seed = 1, wave = n? }: plans many sorties with the
 --                  gameplay planner (touchdown-timed and enter-now, single
 --                  transports and formations) and re-checks every landing
 --                  point, walk to the lane and flight line independently:
 --                  denser rule sampling plus rays against the real geometry
---                  (terrain, landscape meshes, rock kit)
+--                  (terrain, landscape meshes, rock kit); with `wave`, the
+--                  planner uses that wave's `dropCentre` bands (AD-4)
 --   airdropStats   counters since the last reset ({ reset = true } clears)
 --   airdropSeed    n pins the run seed (nil = fresh seed each run)
 
@@ -301,6 +302,9 @@ local COMBOS = {
 local function dropZoneCheck(arg: any): (string, any)
 	local target = if type(arg) == "table" and arg.samples then arg.samples else 600
 	local seed = if type(arg) == "table" and arg.seed then arg.seed else 1
+	-- `wave`: plan with that wave's `dropCentre` bands (AD-4), as its drops do.
+	local wave = if type(arg) == "table" and arg.wave then Config.Waves[arg.wave] else nil
+	local centres: { [string]: { number } } = if wave and wave.dropCentre then wave.dropCentre else {}
 	local rng = Random.new(seed)
 	local counts: { [string]: number } = {}
 	local examples: { string } = {}
@@ -347,7 +351,7 @@ local function dropZoneCheck(arg: any): (string, any)
 					formations += 1
 				end
 				local clock = os.clock()
-				local plan = AirdropPlan.sortie(rng, kind, laneName, n, slotTiming, taken, follow)
+				local plan = AirdropPlan.sortie(rng, kind, laneName, n, slotTiming, taken, follow, centres[kind])
 				maxPlanMs = math.max(maxPlanMs, (os.clock() - clock) * 1000)
 				sorties += 1
 				if plan.fallback then

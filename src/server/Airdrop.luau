@@ -169,7 +169,10 @@ Drops.__index = Drops
 -- drops are seeded; Retry Wave leaves it false, so the retried wave replays.
 local newRunPending = true
 
-function Airdrop.new(ctx: Types.Context, waveNumber: number): Drops
+-- `centres` (a wave's `dropCentre`, AD-4): per-kind stick-centre bands
+-- that replace AirdropConfig.KINDS[kind].centre for every drop of this wave,
+-- its groups and the Siege Crawler's escorts alike.
+function Airdrop.new(ctx: Types.Context, waveNumber: number, centres: { [string]: { number } }?): Drops
 	if newRunPending or runSeed == nil then
 		runSeed = fixedSeed or seedSource:NextInteger(1, 2 ^ 30)
 		newRunPending = false
@@ -177,6 +180,7 @@ function Airdrop.new(ctx: Types.Context, waveNumber: number): Drops
 	local self = setmetatable({
 		ctx = ctx,
 		wave = waveNumber,
+		centres = centres or {},
 		startT = now(),
 		rng = Random.new((runSeed :: number) + waveNumber * 7919),
 		queue = {} :: { Load },
@@ -308,7 +312,7 @@ function Drops.launch(self: any, kind: string, lane: string, loads: { Load }, ti
 			slotTiming = { t0 = leader.t0 + slot * trail }
 		end
 		local clock = os.clock()
-		local plan = AirdropPlan.sortie(self.rng, kind, lane, n, slotTiming, self:taken(), follow)
+		local plan = AirdropPlan.sortie(self.rng, kind, lane, n, slotTiming, self:taken(), follow, self.centres[kind])
 		Airdrop.stats.maxPlanMs = math.max(Airdrop.stats.maxPlanMs, (os.clock() - clock) * 1000)
 		leader = leader or plan
 		self:announce(plan, chunk)
