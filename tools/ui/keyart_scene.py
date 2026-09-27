@@ -97,9 +97,10 @@ def cam_spec():
     return spec
 
 
-def res():
+def res(base=RES):
+    """Render size: `base` (default the 16:9 key-art size) times --res."""
     scale = float(arg("--res", 1.0))
-    return int(RES[0] * scale), int(RES[1] * scale)
+    return int(base[0] * scale), int(base[1] * scale)
 
 
 def place_camera(sc, spec):
@@ -142,7 +143,9 @@ def env_sky_module():
 
 
 # ------------------------------------------------------------------ sky pass (CPU, OSL)
-def render_sky():
+def render_sky(spec=None, size=None, env=True):
+    """The sky equirect (lighting) and, for a camera, its full-resolution sky
+    plate. spec/size default to the command line (--cam, --res)."""
     os.makedirs(CACHE, exist_ok=True)
     with open(os.path.join(CACHE, ".gitignore"), "w") as f:
         f.write("*\n")
@@ -155,21 +158,24 @@ def render_sky():
     sc.render.image_settings.color_depth = "16"
     sc.render.film_transparent = False
     sky["pano_camera"](sc)
-    sky["render_to"](sc, os.path.join(CACHE, "sky_env.exr"), 2048, 1024)
+    if env or not os.path.exists(os.path.join(CACHE, "sky_env.exr")):
+        sky["render_to"](sc, os.path.join(CACHE, "sky_env.exr"), 2048, 1024)
     if arg("--cam") == "none":
         return
-    spec = cam_spec()
+    spec = spec or cam_spec()
     place_camera(sc, spec)
-    w, h = res()
-    sky["render_to"](sc, plate_path(spec, w), w, h)
-    log(f"sky plate {os.path.basename(plate_path(spec, w))} {w}x{h}")
+    w, h = size or res()
+    sky["render_to"](sc, plate_path(spec, w, h), w, h)
+    log(f"sky plate {os.path.basename(plate_path(spec, w, h))} {w}x{h}")
 
 
-def plate_path(spec, w):
+def plate_path(spec, w, h=None):
+    """Cached sky plate for a camera at a width (and a non-16:9 height)."""
     import hashlib
 
     key = hashlib.sha1(json.dumps([spec["pos"], spec["look"], spec["vfov"]]).encode()).hexdigest()[:8]
-    return os.path.join(CACHE, f"sky_plate_{key}_{w}.exr")
+    tall = "" if h is None or h == round(w * RES[1] / RES[0]) else f"x{h}"
+    return os.path.join(CACHE, f"sky_plate_{key}_{w}{tall}.exr")
 
 
 # ------------------------------------------------------------------ light, world, compositing
@@ -363,21 +369,19 @@ def finish_texture(render_path, spec):
     log("wrote title_keyart.png")
 
 
-def main():
-    if arg("--sky"):
-        render_sky()
-        return
+def render_scene(spec, airdrop, size, path, samples, prepare=None):
+    """Builds the key-art scene for a camera spec and an airdrop layout (None
+    = no airdrop) and renders it to `path` at `size` (w, h); `prepare(scene)`
+    runs just before the render."""
     t0 = time.time()
-    spec = cam_spec()
     bpy.ops.wm.read_factory_settings(use_empty=True)
     sc = bpy.context.scene
     gpu(sc)
-    draft = bool(arg("--draft"))
-    sc.cycles.samples = int(arg("--samples", 24 if draft else 256))
+    sc.cycles.samples = samples
     sc.cycles.use_denoising = True
     sc.cycles.max_bounces = 6
     sc.render.film_transparent = True
-    w, h = res()
+    w, h = size
     sc.render.resolution_x, sc.render.resolution_y = w, h
     sc.render.resolution_percentage = 100
     sc.view_settings.view_transform = "AgX"
@@ -396,28 +400,43 @@ def main():
     build_landscape()
     build_emplacement(spec)
     build_placed()
-    if arg("--cam", "drop") == "drop" and not arg("--no-airdrop"):
+    if airdrop:
         sys.path.insert(0, HERE)
         import keyart_airdrop
 
-        keyart_airdrop.build(AIRDROP, import_asset, pbr_material, EXPORTED, log)
+        keyart_airdrop.build(airdrop, import_asset, pbr_material, EXPORTED, log)
     build_ground_dust(sc)
-    plate = plate_path(spec, w)
+    plate = plate_path(spec, w, h)
     if not os.path.exists(plate):
         log(f"no sky plate {os.path.basename(plate)}; the env shows through")
         sc.render.film_transparent = False
         plate = None
     compositor(sc, plate)
-    os.makedirs(PREVIEWS, exist_ok=True)
-    tag = "_draft" if draft else ""
-    path = os.path.join(PREVIEWS, f"keyart_{arg('--cam', 'drop')}{tag}{arg('--tag', '')}.png")
+    os.makedirs(os.path.dirname(path), exist_ok=True)
     sc.render.filepath = path
+    if prepare:
+        prepare(sc)
     if arg("--save"):
         bpy.ops.wm.save_as_mainfile(filepath=os.path.join(ROOT, "assets", "blender", "TitleKeyArt.blend"), relative_remap=True)
     bpy.ops.render.render(write_still=True)
     log(f"rendered {path} in {time.time() - t0:.0f}s")
+    return sc
+
+
+def main():
+    if arg("--sky"):
+        render_sky()
+        return
+    spec = cam_spec()
+    draft = bool(arg("--draft"))
+    samples = int(arg("--samples", 24 if draft else 256))
+    airdrop = AIRDROP if arg("--cam", "drop") == "drop" and not arg("--no-airdrop") else None
+    tag = "_draft" if draft else ""
+    path = os.path.join(PREVIEWS, f"keyart_{arg('--cam', 'drop')}{tag}{arg('--tag', '')}.png")
+    render_scene(spec, airdrop, res(), path, samples)
     if not draft and arg("--texture"):
         finish_texture(path, spec)
 
 
-main()
+if __name__ == "__main__":
+    main()

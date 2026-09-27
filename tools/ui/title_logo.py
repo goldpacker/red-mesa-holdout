@@ -220,13 +220,13 @@ def blur(a: np.ndarray, r: int) -> np.ndarray:
     return out
 
 
-def scratches(h: int, w: int, seed: int, count: int) -> np.ndarray:
+def scratches(h: int, w: int, seed: int, count: int, k: float = 1.0) -> np.ndarray:
     rng = np.random.default_rng(seed)
     out = np.zeros((h, w))
     for _ in range(count):
         cx, cy = rng.uniform(0, w), rng.uniform(0, h)
         ang = rng.normal(0, 0.35) + (np.pi / 2 if rng.random() < 0.15 else 0)
-        length = rng.uniform(20, 110)
+        length = rng.uniform(20, 110) * k
         dx, dy = np.cos(ang), np.sin(ang)
         x0, x1 = int(max(0, cx - length)), int(min(w, cx + length))
         y0, y1 = int(max(0, cy - length)), int(min(h, cy + length))
@@ -235,7 +235,7 @@ def scratches(h: int, w: int, seed: int, count: int) -> np.ndarray:
         ys, xs = np.mgrid[y0:y1, x0:x1].astype(float)
         along = (xs - cx) * dx + (ys - cy) * dy
         across = -(xs - cx) * dy + (ys - cy) * dx
-        wgt = np.clip(1.4 - np.abs(across), 0, 1) * (np.abs(along) < length / 2) * rng.uniform(0.4, 1.0)
+        wgt = np.clip(1.4 * k - np.abs(across), 0, 1) * (np.abs(along) < length / 2) * rng.uniform(0.4, 1.0)
         out[y0:y1, x0:x1] = np.maximum(out[y0:y1, x0:x1], wgt)
     return out
 
@@ -251,54 +251,73 @@ def sky(ry: np.ndarray) -> np.ndarray:
     return np.where(t >= 0, up, down)
 
 
-def build() -> np.ndarray:
-    hh, ww = H * SS, W * SS
+def title_lines() -> list[tuple[str, str, float, float, float, float]]:
+    """The title's two lines at 1024x256: (text, paint, left, baseline, cap,
+    track), pixels. HOLDOUT is tracked out to RED MESA's width."""
+    cap1, cap2 = 112, 98
+    base1 = 14 + cap1
+    base2 = base1 + 14 + cap2
+    track2 = (line_width("RED MESA", TRACK) * cap1 / cap2 - line_width("HOLDOUT", 0)) / 6
+    return [("RED MESA", "amber", 14, base1, cap1, TRACK), ("HOLDOUT", "bone", 14, base2, cap2, track2)]
+
+
+def build(lines=None, size=(W, H), k=1.0) -> np.ndarray:
+    """The stencilled worn-metal lettering as straight-alpha RGBA at `size`.
+    lines: (text, paint "amber"|"bone", left, baseline, cap, track) in output
+    pixels (default: the title's two lines at 1024x256). k scales the
+    treatment's pixel sizes (bevel, outline, shadow, wear, scratches) for
+    lettering k times the title's size; the default is the title logo
+    exactly."""
+    lines = lines or title_lines()
+    w_out, h_out = size
+    hh, ww = h_out * SS, w_out * SS
+    ks = SS * k  # treatment pixels per title-logo pixel
     sdf = np.full((hh, ww), 1e4)
     line_id = np.zeros((hh, ww), dtype=np.int8)
-    left = 14 * SS
-    cap1, cap2 = 112 * SS, 98 * SS
-    top1 = 14 * SS
-    base1 = top1 + cap1
-    base2 = base1 + 14 * SS + cap2
-    width1 = line_width("RED MESA", TRACK) * cap1
-    track2 = (width1 / cap2 - line_width("HOLDOUT", 0)) / 6
-    draw_line(sdf, line_id, 1, "RED MESA", left, base1, cap1, TRACK)
-    draw_line(sdf, line_id, 2, "HOLDOUT", left, base2, cap2, track2)
+    for n, (text, _paint, left, base, cap, track) in enumerate(lines, start=1):
+        draw_line(sdf, line_id, n, text, left * SS, base * SS, cap * SS, track)
 
     mask = np.clip(0.5 - sdf, 0, 1)
-    bevel = 3.2 * SS
+    bevel = 3.2 * ks
     height = np.clip(-sdf / bevel, 0, 1)
     gy, gx = np.gradient(height * bevel * 0.9)
     n = np.stack([-gx, -gy, np.ones_like(gx)], axis=-1)  # image axes: x right, y down, z out
     n /= np.linalg.norm(n, axis=-1, keepdims=True)
 
     # Paint, chips and bare steel.
-    paint = np.where((line_id == 1)[..., None], AMBER_PAINT, BONE_PAINT)
-    brushed = periodic_noise(hh, ww, 11, 60, 0.8) * 0.05 + periodic_noise(hh, ww, 12, 4, 4) * 0.03
+    paint = np.broadcast_to(BONE_PAINT, (hh, ww, 3)).copy()
+    for ident, (_t, kind, *_rest) in enumerate(lines, start=1):
+        if kind == "amber":
+            paint[line_id == ident] = AMBER_PAINT
+    brushed = periodic_noise(hh, ww, 11, 60 * k, 0.8 * k) * 0.05 + periodic_noise(hh, ww, 12, 4 * k, 4 * k) * 0.03
     steel = STEEL[None, None, :] * (1 + brushed[..., None])
     edge = 1 - height  # 1 on the bevel, 0 on the face
-    chips_n = periodic_noise(hh, ww, 21, 5, 5) * 0.55 + periodic_noise(hh, ww, 22, 18, 18) * 0.45
+    chips_n = periodic_noise(hh, ww, 21, 5 * k, 5 * k) * 0.55 + periodic_noise(hh, ww, 22, 18 * k, 18 * k) * 0.45
     wear = chips_n * 0.8 + edge * 1.7
     chip = smoothstep(1.28, 1.4, wear) + smoothstep(2.3, 2.42, chips_n)
     # A dark lip of lifted paint around every chip.
     lip = np.clip(smoothstep(1.1, 1.28, wear) - chip + smoothstep(2.12, 2.3, chips_n) * 0.6, 0, 1)
-    chip = np.clip(chip + scratches(hh, ww, 31, 110) * (height > 0.3), 0, 1)
-    grain = periodic_noise(hh, ww, 32, 1.2, 1.2) * 0.035
-    streaks = np.clip(periodic_noise(hh, ww, 33, 2.5, 45), 0, None) * 0.07  # grime run-down
+    n_scratch = round(110 * (w_out * h_out) / (W * H) / (k * k))
+    chip = np.clip(chip + scratches(hh, ww, 31, n_scratch, k) * (height > 0.3), 0, 1)
+    grain = periodic_noise(hh, ww, 32, 1.2 * k, 1.2 * k) * 0.035
+    streaks = np.clip(periodic_noise(hh, ww, 33, 2.5 * k, 45 * k), 0, None) * 0.07  # grime run-down
     paint_c = paint * (1 + grain - streaks)[..., None] * (1 - 0.35 * lip)[..., None]
     albedo = paint_c * (1 - chip[..., None]) + steel * chip[..., None]
-    # Paint mottling and sun bleaching.
-    mottle = periodic_noise(hh, ww, 41, 30, 30)
+    # Paint mottling and sun bleaching (tops), dust at the foot of each letter.
+    mottle = periodic_noise(hh, ww, 41, 30 * k, 30 * k)
     ys = np.arange(hh, dtype=float)[:, None]
-    in_line = np.where(line_id == 1, (ys - (base1 - cap1)) / cap1, (ys - (base2 - cap2)) / cap2)
+    in_line = np.zeros((hh, ww))
+    foot = np.zeros((hh, ww))
+    for ident, (_t, _p, _l, base, cap, _tr) in enumerate(lines, start=1):
+        b, c = base * SS, cap * SS
+        on = line_id == ident
+        in_line = np.where(on, (ys - (b - c)) / c, in_line)
+        foot = foot + smoothstep(b - c * 0.45, b, ys) * on
     bleach = np.clip(1.08 - 0.22 * in_line, 0.8, 1.1)  # sun-bleached tops
     albedo *= ((1 + 0.08 * mottle) * np.where(chip > 0.5, 1.0, bleach))[..., None]
-    # Dust at the foot of each letter (dust gathers low) and grime in the bevels.
-    foot1 = smoothstep(base1 - cap1 * 0.45, base1, ys) * (line_id == 1)
-    foot2 = smoothstep(base2 - cap2 * 0.45, base2, ys) * (line_id == 2)
-    dust = np.clip((foot1 + foot2) * (0.35 + 0.35 * periodic_noise(hh, ww, 51, 12, 6)), 0, 0.6)
+    dust = np.clip(foot * (0.35 + 0.35 * periodic_noise(hh, ww, 51, 12 * k, 6 * k)), 0, 0.6)
     albedo = albedo * (1 - dust[..., None]) + DUST * dust[..., None]
-    grime = np.clip(edge * 0.22 + 0.10 * periodic_noise(hh, ww, 61, 40, 40), 0, 0.4)
+    grime = np.clip(edge * 0.22 + 0.10 * periodic_noise(hh, ww, 61, 40 * k, 40 * k), 0, 0.4)
     albedo *= (1 - grime)[..., None]
 
     # Light: warm low key from the upper left, cool sky fill from above,
@@ -318,13 +337,13 @@ def build() -> np.ndarray:
     color = np.clip(color, 0, 1)
 
     # Outline and drop shadow (black), then downsample.
-    outline = np.clip(0.5 - (sdf - 2.0 * SS), 0, 1)
-    shadow = np.roll(np.roll(blur(mask, 5 * SS), 4 * SS, 0), 3 * SS, 1) * 0.65
+    outline = np.clip(0.5 - (sdf - 2.0 * ks), 0, 1)
+    shadow = np.roll(np.roll(blur(mask, round(5 * ks)), round(4 * ks), 0), round(3 * ks), 1) * 0.65
     back = np.maximum(outline * 0.92, shadow)
     alpha = mask + back * (1 - mask)
     rgb = color * (mask / np.maximum(alpha, 1e-6))[..., None]
     prem = np.concatenate([rgb * alpha[..., None], alpha[..., None]], axis=-1)
-    small = prem.reshape(H, SS, W, SS, 4).mean(axis=(1, 3))
+    small = prem.reshape(h_out, SS, w_out, SS, 4).mean(axis=(1, 3))
     out = small.copy()
     out[..., :3] = small[..., :3] / np.maximum(small[..., 3:4], 1e-6)
     return out
