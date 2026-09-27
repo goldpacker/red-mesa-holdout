@@ -14,7 +14,7 @@ return {
 		Missile = { offset = Vector2.new(0, 136), size = Vector2.new(192, 64) },
 		Rocket = { offset = Vector2.new(0, 68), size = Vector2.new(192, 64) },
 	},
-	keyart = "rbxassetid://92770741599087",
+	keyart = "rbxassetid://76616405831303",
 	keyartAspect = 1.7778,
 	keyartFocusX = 0.62,
 	logo = "rbxassetid://74845474969850",
