@@ -127,4 +127,19 @@ function UiKitRadar.update(dt: number, yaw: number)
 	end
 end
 
+-- AD-2 (additive): the radar mapping for other layers (airdrop markers).
+-- Scale position of a world point on the radar screen for aim yaw `yaw`,
+-- and the screen frame to parent such a layer to (nil before build).
+function UiKitRadar.project(position: Vector3, yaw: number): UDim2
+	local offset = position - Config.TURRET_PIVOT
+	local dist = Vector2.new(offset.X, offset.Z).Magnitude
+	local rel = math.rad(Aim.yawTo(position) - yaw)
+	local r = math.min(dist / RANGE, 1) * 0.5 * SCREEN * 0.96
+	return UDim2.fromScale(0.5 - math.sin(rel) * r, 0.5 - math.cos(rel) * r)
+end
+
+function UiKitRadar.screen(): Frame?
+	return if blipLayer then blipLayer.Parent :: Frame else nil
+end
+
 return UiKitRadar

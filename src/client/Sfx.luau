@@ -55,6 +55,14 @@ local MIX: { [string]: Mix } = {
 	HeliRockets = { volume = 0.7, voices = 3, spatial = true },
 	BombWhistle = { volume = 0.6, voices = 3 },
 	InfantryDeath = { volume = 0.4, voices = 4, spatial = true },
+	-- Airdrop (AD-2). Positional ones are played by client/AirdropAudio
+	-- with their own long-range falloff; these entries cover Sfx calls.
+	TransportDrone = { volume = 0.9, spatial = true },
+	DeflectPing = { volume = 0.32, voices = 3 },
+	RampOpen = { volume = 0.8, spatial = true },
+	ChutePop = { volume = 0.6, voices = 4, spatial = true },
+	LandingThud = { volume = 0.6, voices = 4, spatial = true },
+	PlatformThud = { volume = 0.9, voices = 2, spatial = true },
 }
 
 -- Aliases for names other modules use.

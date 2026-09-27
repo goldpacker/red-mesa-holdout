@@ -1,44 +1,57 @@
 --!strict
--- Client airdrop presentation (AD-1): draws each sortie announced by the
--- server ("AirdropSortie", docs/ARCHITECTURE.md) from its timeline
--- (shared/AirdropPath): the transport crossing the basin, every load
--- leaving the ramp, falling free, descending under canopy and touching
--- down at landPos exactly at landT. The server spawns the real enemy at
--- that moment with attribute DropLoadId; when it replicates, the load's
--- visual is removed (hand-off) and its canopy collapses and fades.
+-- Client airdrop presentation (AD-1 core, AD-2 presentation): draws each
+-- sortie the server announces ("AirdropSortie", docs/ARCHITECTURE.md) from
+-- its timeline (shared/AirdropPath): the transport crossing the basin
+-- (AirdropTransport), every load leaving the ramp, streaming, opening,
+-- swinging down and touching down at landPos exactly at landT
+-- (AirdropTrooper / AirdropCargo), the HUD cues (AirdropHud) and sounds.
+--
+-- Hand-off: the server spawns the real enemy at landT with attribute
+-- DropLoadId; the frame it replicates, the load's body is hidden (no pop:
+-- both stand at landPos, same facing). Canopies and pallets stay behind a
+-- few seconds, capped.
 --
 -- Airborne loads are invincible because the server has nothing to hit. A
--- machine-gun round that meets one here shows "no effect": a deflect spark
--- and no hit marker (WeaponController.airborneHit hook). Rockets, missiles,
--- aim and effect raycasts pass through (every part is CanQuery = false).
--- Visuals: client/AirdropVisuals (placeholder art, swapped by AD-2).
+-- machine-gun round that meets one here shows "no effect" (AirdropFx:
+-- spark + ping + ricochet off bodies, platforms and transports; a puff
+-- through canopies), never a hit marker (WeaponController.airborneHit).
+-- Everything lives under Workspace.AirdropFx, attribute/tag Airborne,
+-- CanQuery false except during that one raycast.
 
+local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local AirdropConfig = require(ReplicatedStorage.Shared.AirdropConfig)
 local AirdropPath = require(ReplicatedStorage.Shared.AirdropPath)
-local Effects = require(script.Parent.Effects)
+local Cargo = require(script.Parent.AirdropCargo)
+local Fx = require(script.Parent.AirdropFx)
 local GameState = require(script.Parent.GameState)
-local Sfx = require(script.Parent.Sfx)
-local Visuals = require(script.Parent.AirdropVisuals)
+local Hud = require(script.Parent.AirdropHud)
+local Style = require(script.Parent.AirdropStyle)
+local Transport = require(script.Parent.AirdropTransport)
+local Trooper = require(script.Parent.AirdropTrooper)
+local TrooperBody = require(script.Parent.AirdropTrooperBody)
 
 local Airdrop = {}
 
 type SortieState = {
 	data: AirdropPath.Sortie,
-	transport: Visuals.Transport?,
+	path: Transport.Path,
+	transport: Transport.T?,
 	endT: number,
 	loads: { LoadState },
 	flying: boolean,
+	entered: boolean,
 }
 
--- "Stowed" (in the transport), "Air", "Landed" (collapsing), "Done".
+-- "Stowed" (in the transport), "Air", "Landed" (on the ground), "Done".
 type LoadState = {
 	data: AirdropPath.Load,
 	sortie: SortieState,
-	visual: Visuals.Load?,
+	visual: any?, -- Trooper.Load | Cargo.Load
+	mod: any?, -- the module drawing it
 	state: string,
 	landedAt: number,
 	handed: boolean,
@@ -48,14 +61,31 @@ local sorties: { [number]: SortieState } = {}
 -- DropLoadId -> the landed enemy model, once it has replicated.
 local landed: { [number]: Model } = {}
 local fxFolder: Folder? = nil
+local sawCanopy = false
 
 local hitParams = RaycastParams.new()
 hitParams.FilterType = Enum.RaycastFilterType.Include
-local lastPing = 0
+
+-- Studio QA A/B (docs/PERF_BUDGET.md): Workspace attribute AirdropFxOff =
+-- true parks the whole folder out of the world and pauses the visuals.
+local function fxOff(): boolean
+	return Workspace:GetAttribute("AirdropFxOff") == true
+end
+
+local parked = false
 
 local function folder(): Folder
 	local f = fxFolder
-	if f and f.Parent then
+	if f and (f.Parent or parked) then
+		if fxOff() then
+			if f.Parent then
+				f.Parent = nil
+			end
+			parked = true
+		elseif parked then
+			f.Parent = Workspace
+			parked = false
+		end
 		return f
 	end
 	local existing = Workspace:FindFirstChild("AirdropFx")
@@ -64,6 +94,11 @@ local function folder(): Folder
 	made.Parent = Workspace
 	fxFolder = made
 	return made
+end
+
+local function bump(name: string, by: number?)
+	local f = folder()
+	f:SetAttribute(name, ((f:GetAttribute(name) :: number?) or 0) + (by or 1))
 end
 
 local function isLoad(l: any): boolean
@@ -86,46 +121,81 @@ local function onSortie(p: any)
 		return
 	end
 	local data = p :: AirdropPath.Sortie
-	local s: SortieState = { data = data, transport = nil, endT = AirdropPath.endTime(data), loads = {}, flying = true }
+	local clean: { AirdropPath.Load } = {}
 	for _, l in p.loads do
 		if isLoad(l) then
-			table.insert(s.loads, { data = l, sortie = s, visual = nil, state = "Stowed", landedAt = 0, handed = false })
+			table.insert(clean, l)
 		end
+	end
+	data.loads = clean
+	local path = Transport.path(data)
+	local s: SortieState = {
+		data = data,
+		path = path,
+		transport = nil,
+		endT = AirdropPath.endTime(data) + Style.Transport.END_GRACE,
+		loads = {},
+		flying = true,
+		entered = false,
+	}
+	for _, l in clean do
+		table.insert(s.loads, { data = l, sortie = s, visual = nil, mod = nil, state = "Stowed", landedAt = 0, handed = false })
 	end
 	sorties[data.id] = s
 end
 
-local function smooth(u: number): number
-	return u * u * (3 - 2 * u)
-end
-
--- Flat facing turned from `a` toward `b` by fraction u (shortest way).
-local function turn(a: Vector3, b: Vector3, u: number): Vector3
-	local ya = math.atan2(a.X, a.Z)
-	local yb = math.atan2(b.X, b.Z)
-	local d = (yb - ya + math.pi) % (math.pi * 2) - math.pi
-	local y = ya + d * u
-	return Vector3.new(math.sin(y), 0, math.cos(y))
-end
-
 local function recordHandOff(ls: LoadState, model: Model)
-	local f = folder()
 	local delay = Workspace:GetServerTimeNow() - ls.data.landT
 	local root = model.PrimaryPart
 	local offset = if root then AirdropPath.flat(root.Position, ls.data.landPos) else -1
-	f:SetAttribute("Handoffs", ((f:GetAttribute("Handoffs") :: number?) or 0) + 1)
+	local f = folder()
+	bump("Handoffs")
 	f:SetAttribute("HandoffMaxDelay", math.max((f:GetAttribute("HandoffMaxDelay") :: number?) or -1e6, delay))
 	f:SetAttribute("HandoffMaxOffset", math.max((f:GetAttribute("HandoffMaxOffset") :: number?) or 0, offset))
 end
 
-local function touchdown(ls: LoadState)
-	local v = ls.visual
-	if not v then
+local function airborneCount(): number
+	local n = 0
+	for _, s in sorties do
+		for _, ls in s.loads do
+			if ls.state == "Air" and ls.visual then
+				n += 1
+			end
+		end
+	end
+	return n
+end
+
+local function spawnVisual(ls: LoadState, t: number)
+	local s = ls.sortie
+	local l = ls.data
+	if airborneCount() >= Style.Caps.LOADS_AIRBORNE then
+		bump("CappedLoads")
 		return
 	end
+	local lip, vel = Transport.releaseAt(s.path, l.releaseT)
+	local path = s.path
+	local function aircraft(time: number): Vector3
+		return (Transport.releaseAt(path, time))
+	end
+	local mod: any = if l.kind == "Infantry" then Trooper else Cargo
+	local ok, v = pcall(mod.new, folder(), s.data, l, lip, vel, aircraft)
+	if ok and v then
+		CollectionService:AddTag(v.model, "Airborne")
+		ls.visual = v
+		ls.mod = mod
+	else
+		warn("[RedMesa] airdrop load visual failed: " .. tostring(v))
+	end
+end
+
+local function touchdown(ls: LoadState, t: number)
 	ls.state = "Landed"
-	ls.landedAt = os.clock()
-	Visuals.touchdown(v, AirdropPath.heading(ls.sortie.data))
+	ls.landedAt = t
+	local v = ls.visual
+	if v then
+		ls.mod.touchdown(v, t)
+	end
 end
 
 local function stepLoad(ls: LoadState, t: number)
@@ -134,74 +204,157 @@ local function stepLoad(ls: LoadState, t: number)
 		if t < l.releaseT then
 			return
 		end
-		ls.visual = Visuals.load(folder(), l.kind, l.loadId)
 		ls.state = "Air"
-	end
-	local v = ls.visual
-	if not v then
-		ls.state = "Done"
-		return
+		spawnVisual(ls, t)
 	end
 	if ls.state == "Air" then
-		local pos, phase, u = AirdropPath.loadAt(ls.sortie.data, l, t)
-		local heading = AirdropPath.heading(ls.sortie.data)
-		local facing = if phase == "Canopy" then turn(heading, l.face, smooth(u)) elseif phase == "Landed" then l.face else heading
-		Visuals.poseLoad(v, pos, facing, phase, u, t)
-		if phase == "Landed" or landed[l.loadId] then
-			touchdown(ls)
+		if t >= l.landT or landed[l.loadId] then
+			touchdown(ls, t)
+		else
+			local v = ls.visual
+			if v then
+				ls.mod.pose(v, t)
+			end
+			if not sawCanopy and t >= l.openT then
+				sawCanopy = true
+				Hud.canopy()
+			end
+			return
 		end
-		return
 	end
-	-- Landed: wait for the real enemy, then remove the load; the canopy
-	-- collapses, lingers and fades either way.
-	local age = os.clock() - ls.landedAt
+	-- Landed: hide the body the frame the real enemy appears (or after the
+	-- timeout); canopies/pallets linger and fade either way.
+	local v = ls.visual
 	if not ls.handed then
 		local model = landed[l.loadId]
-		if model or age > AirdropConfig.HANDOFF_TIMEOUT then
+		if model or t - ls.landedAt > AirdropConfig.HANDOFF_TIMEOUT then
 			ls.handed = true
 			if model then
 				recordHandOff(ls, model)
 			end
-			Visuals.handOff(v)
+			if v then
+				ls.mod.handOff(v)
+			end
 		end
 	end
-	if Visuals.stepCollapse(v, age, AirdropConfig.CANOPY_LINGER) and ls.handed then
-		Visuals.destroy(v)
+	if not v then
+		if ls.handed then
+			ls.state = "Done"
+		end
+		return
+	end
+	if ls.mod.stepGround(v, t) and ls.handed then
+		ls.mod.destroy(v)
 		ls.visual = nil
 		ls.state = "Done"
 	end
 end
 
-local function step()
-	if next(sorties) == nil then
+-- Collapsed canopies on the ground are capped: the oldest fade first.
+local function capGround(t: number)
+	local grounded: { LoadState } = {}
+	for _, s in sorties do
+		for _, ls in s.loads do
+			if ls.state == "Landed" and ls.visual and ls.mod.onGround(ls.visual) then
+				table.insert(grounded, ls)
+			end
+		end
+	end
+	local extra = #grounded - Style.Ground.MAX_COLLAPSED
+	if extra <= 0 then
 		return
 	end
-	local t = Workspace:GetServerTimeNow()
-	for id, s in sorties do
-		if s.flying then
-			if t > s.endT + 0.5 then
-				if s.transport then
-					Visuals.destroy(s.transport)
-					s.transport = nil
-				end
-				s.flying = false
-			elseif t >= s.data.t0 - 0.2 then
-				local transport = s.transport or Visuals.transport(folder())
-				s.transport = transport
-				Visuals.poseTransport(transport, AirdropPath.transportFrame(s.data, t), t)
-			end
+	table.sort(grounded, function(a, b)
+		return a.landedAt < b.landedAt
+	end)
+	for i = 1, extra do
+		grounded[i].mod.expire(grounded[i].visual, t)
+	end
+end
+
+local lastCap = 0
+
+local function stepTransport(s: SortieState, t: number)
+	if not s.flying then
+		return
+	end
+	if t > s.endT then
+		if s.transport then
+			Transport.destroy(s.transport)
+			s.transport = nil
 		end
-		local busy = s.flying
-		for _, ls in s.loads do
-			if ls.state ~= "Done" then
-				stepLoad(ls, t)
-				busy = busy or ls.state ~= "Done"
-			end
+		Hud.transport(s.data.id, nil, nil)
+		s.flying = false
+		return
+	end
+	if t < s.data.t0 - 0.2 then
+		return
+	end
+	if not s.entered and t >= s.data.t0 then
+		s.entered = true
+		-- A sortie heard late (after its loads landed) gets no banner.
+		local last = -math.huge
+		for _, l in s.data.loads do
+			last = math.max(last, l.landT)
 		end
-		if not busy then
-			sorties[id] = nil
+		if t < last then
+			Hud.entered(s.data, t)
 		end
 	end
+	local tr = s.transport
+	if not tr then
+		local count = 0
+		for _, other in sorties do
+			if other.transport then
+				count += 1
+			end
+		end
+		if count >= Style.Caps.TRANSPORTS then
+			return
+		end
+		local ok, made = pcall(Transport.new, folder(), s.data, s.path)
+		if not ok then
+			warn("[RedMesa] airdrop transport failed: " .. tostring(made))
+			s.flying = false
+			return
+		end
+		tr = made
+		CollectionService:AddTag(made.model, "Airborne")
+		s.transport = made
+	end
+	local transport = tr :: Transport.T
+	Transport.pose(transport, t)
+	Hud.transport(s.data.id, transport.pose.Position, transport.velocity.Unit)
+end
+
+local function step()
+	local t = Workspace:GetServerTimeNow()
+	if parked or fxOff() then
+		folder() -- parks, or brings the folder back once the switch clears
+		if fxOff() then
+			return
+		end
+	end
+	if next(sorties) ~= nil then
+		for id, s in sorties do
+			stepTransport(s, t)
+			local busy = s.flying
+			for _, ls in s.loads do
+				if ls.state ~= "Done" then
+					stepLoad(ls, t)
+					busy = busy or ls.state ~= "Done"
+				end
+			end
+			if not busy then
+				sorties[id] = nil
+			end
+		end
+		if t - lastCap > 0.5 then
+			lastCap = t
+			capGround(t)
+		end
+	end
+	Hud.step(t)
 end
 
 -- Drops loads still in the air (or stowed); with `everything`, landed
@@ -212,7 +365,7 @@ local function clear(everything: boolean)
 			local airborne = ls.state == "Stowed" or ls.state == "Air"
 			if (airborne or everything) and ls.state ~= "Done" then
 				if ls.visual then
-					Visuals.destroy(ls.visual)
+					ls.mod.destroy(ls.visual)
 					ls.visual = nil
 				end
 				ls.state = "Done"
@@ -220,7 +373,7 @@ local function clear(everything: boolean)
 		end
 		if everything then
 			if s.transport then
-				Visuals.destroy(s.transport)
+				Transport.destroy(s.transport)
 				s.transport = nil
 			end
 			sorties[id] = nil
@@ -228,6 +381,7 @@ local function clear(everything: boolean)
 	end
 	if everything then
 		table.clear(landed)
+		Hud.clear()
 	end
 end
 
@@ -247,52 +401,59 @@ local function rayNearSphere(origin: Vector3, dir: Vector3, maxDist: number, cen
 	return v:Dot(v) - along * along <= radius * radius
 end
 
+-- One Include raycast against `parts`, queryable for this call only.
+local function castAt(origin: Vector3, dir: Vector3, maxDist: number, parts: { BasePart }): RaycastResult?
+	if #parts == 0 then
+		return nil
+	end
+	for _, p in parts do
+		p.CanQuery = true
+	end
+	hitParams.FilterDescendantsInstances = parts
+	local result = Workspace:Raycast(origin, dir * maxDist, hitParams)
+	for _, p in parts do
+		p.CanQuery = false
+	end
+	return result
+end
+
 -- WeaponController hook: a machine-gun round from `origin` along unit
--- `dir` that would travel `maxDist` studs. If an airborne load or a
--- transport is in the way, shows the "no effect" deflect there and returns
--- that point (the tracer ends there, no impact on the ground); else nil.
+-- `dir` that would travel `maxDist` studs. A load's body, platform or a
+-- transport in the way: "no effect" deflect there, returns that point (the
+-- tracer ends there, no impact on the ground). A canopy in the way: a
+-- fabric puff and the round carries on (nil). Nothing: nil.
 function Airdrop.airborneHit(origin: Vector3, dir: Vector3, maxDist: number): Vector3?
-	local candidates: { BasePart } = {}
+	local bodies: { BasePart } = {}
+	local fabric: { BasePart } = {}
 	for _, s in sorties do
 		local tr = s.transport
 		if tr and rayNearSphere(origin, dir, maxDist, tr.root.Position, tr.radius) then
-			table.move(tr.parts, 1, #tr.parts, #candidates + 1, candidates)
+			table.move(tr.parts, 1, #tr.parts, #bodies + 1, bodies)
 		end
 		for _, ls in s.loads do
 			local v = ls.visual
-			if v and ls.state == "Air" then
-				local centre = v.root.Position + Vector3.new(0, v.height * 0.5, 0)
-				if rayNearSphere(origin, dir, maxDist, centre, v.radius) then
-					local parts = Visuals.hitParts(v)
-					table.move(parts, 1, #parts, #candidates + 1, candidates)
-				end
+			if v and ls.state == "Air" and rayNearSphere(origin, dir, maxDist, v.centre, v.radius) then
+				local b, f = ls.mod.hitParts(v)
+				table.move(b, 1, #b, #bodies + 1, bodies)
+				table.move(f, 1, #f, #fabric + 1, fabric)
 			end
 		end
 	end
-	if #candidates == 0 then
+	if #bodies == 0 and #fabric == 0 then
 		return nil
 	end
-	-- Queryable for this one raycast only.
-	for _, p in candidates do
-		p.CanQuery = true
+	local hard = castAt(origin, dir, maxDist, bodies)
+	local soft = castAt(origin, dir, if hard then hard.Distance else maxDist, fabric)
+	if soft then
+		bump("PassThroughs")
+		Fx.passThrough(soft.Position)
 	end
-	hitParams.FilterDescendantsInstances = candidates
-	local result = Workspace:Raycast(origin, dir * maxDist, hitParams)
-	for _, p in candidates do
-		p.CanQuery = false
-	end
-	if not result then
+	if not hard then
 		return nil
 	end
-	Effects.impact(result.Position, true, origin, "Metal")
-	local f = folder()
-	f:SetAttribute("Deflects", ((f:GetAttribute("Deflects") :: number?) or 0) + 1)
-	local now = os.clock()
-	if now - lastPing > 0.25 then
-		lastPing = now
-		Sfx.play("Ricochet", 0.3, 0.45)
-	end
-	return result.Position
+	bump("Deflects")
+	Fx.deflect(hard.Position, origin, hard.Normal)
+	return hard.Position
 end
 
 -- QA: counts of what is on screen.
@@ -328,10 +489,18 @@ local function watchEnemies()
 		added(child)
 	end
 	enemies.ChildAdded:Connect(added)
+	enemies.ChildRemoved:Connect(function(child)
+		local id = child:GetAttribute("DropLoadId")
+		if typeof(id) == "number" and landed[id] == child then
+			landed[id] = nil
+		end
+	end)
 end
 
 function Airdrop.start()
 	folder()
+	Hud.start()
+	task.spawn(TrooperBody.prepare)
 	GameState.onEvent("AirdropSortie", onSortie)
 	GameState.onEvent("AirdropClear", onClear)
 	GameState.onChanged("Phase", function(phase)
@@ -342,7 +511,16 @@ function Airdrop.start()
 	task.spawn(watchEnemies)
 	local WeaponController = require(script.Parent.WeaponController) :: any
 	WeaponController.airborneHit = Airdrop.airborneHit
-	RunService:BindToRenderStep("RedMesaAirdrop", Enum.RenderPriority.Camera.Value + 2, step)
+	-- A failure in the visuals never breaks the game or floods the output:
+	-- it is reported at most every 10 s and the next frame carries on.
+	local lastWarn = -math.huge
+	RunService:BindToRenderStep("RedMesaAirdrop", Enum.RenderPriority.Camera.Value + 2, function()
+		local ok, err = pcall(step)
+		if not ok and os.clock() - lastWarn > 10 then
+			lastWarn = os.clock()
+			warn("[RedMesa] airdrop visuals: " .. tostring(err))
+		end
+	end)
 end
 
 return Airdrop

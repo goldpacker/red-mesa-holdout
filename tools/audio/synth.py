@@ -387,6 +387,78 @@ def infantry_death():
     return filt(noise(d), "lowpass", 700) * env_exp(d, 0.05) * 0.5
 
 
+# ------------------------------------------------- airdrop (AD-2, appended)
+# Appended after the original 36 so every earlier region keeps its offset
+# and its samples (the shared RNG is consumed in list order).
+def transport_drone_loop():
+    """Four turboprops a few hundred studs up: a low blade-pass drone from
+    four slightly detuned engines (they beat slowly against each other),
+    their harmonics, a faint turbine whine and wind-rush noise."""
+    d = 4.0
+    tt = t(d + 0.2)
+    out = np.zeros(len(tt))
+    for k, f0 in enumerate((71.0, 71.6, 72.3, 70.4)):
+        ph = 2 * np.pi * f0 * tt + k * 1.3
+        # Blade-pass pulse train: a soft saw-like buzz, band limited.
+        buzz = sum(np.sin(n * ph) / n ** 0.85 for n in range(1, 14))
+        out += buzz * 0.25
+    out = filt(out, "lowpass", 1400)
+    whine = (tone(1180, d + 0.2) * 0.012 + tone(2360, d + 0.2) * 0.005) * (1 + 0.3 * np.sin(2 * np.pi * 0.7 * tt))
+    rush = filt(brown(d + 0.2), "bandpass", [250, 1400]) * 0.3
+    return loopify(sat(out + whine + rush, 1.3), 0.2)
+
+
+def ramp_open():
+    """Hydraulic whine as the ramp lowers, ending in a heavy clunk."""
+    d = 2.2
+    whine = filt(sweep(210, 320, 1.7, "saw"), "bandpass", [180, 1400]) * env_adsr(1.7, 0.2, 0.2, 0.8, 0.3) * 0.3
+    hiss = filt(noise(1.7), "bandpass", [1500, 5000]) * env_adsr(1.7, 0.3, 0.2, 0.5, 0.4) * 0.08
+    clunk = (filt(noise(0.35), "bandpass", [120, 900]) * env_exp(0.35, 0.05) * 0.9
+             + tone(58, 0.35) * env_exp(0.35, 0.08) * 0.8
+             + filt(noise(0.35), "bandpass", [1800, 4200]) * env_exp(0.35, 0.012) * 0.35)
+    return reverb(at(whine + hiss, 0, d) + at(clunk, 1.72, d), 0.9, 0.3, 2500)
+
+
+def chute_pop():
+    """Canopy snatch: a fabric crack, a low whump as it fills, a flutter."""
+    d = 0.7
+    crack = filt(noise(d), "bandpass", [600, 4000]) * env_exp(d, 0.03, 0.003) * 1.8
+    whump = filt(brown(d), "bandpass", [90, 420]) * env_exp(d, 0.1, 0.01) * 0.9
+    flutter = filt(noise(d), "bandpass", [200, 1200]) * env_exp(d, 0.2) * (0.5 + 0.5 * np.sin(2 * np.pi * 23 * t(d))) * 0.35
+    return reverb(sat(crack * 0.8 + whump + flutter, 1.6), 0.6, 0.25, 2500)
+
+
+def landing_thud():
+    """A soldier hitting sand: a dull thump and a short hiss of sand."""
+    d = 0.55
+    thump = filt(noise(d), "bandpass", [120, 700]) * env_exp(d, 0.05, 0.003) * 1.4 + tone(110, d) * env_exp(d, 0.06) * 0.4
+    sand = filt(noise(d), "bandpass", [1200, 5000]) * env_adsr(d, 0.01, 0.05, 0.25, 0.3) * 0.35
+    return sat(thump + sand, 1.4)
+
+
+def platform_thud():
+    """A heavy-drop platform slamming into the ground: a deep boom, the
+    crush pads, a metal clank and a rattle of lashings."""
+    d = 1.6
+    boom = filt(brown(d), "lowpass", 140) * env_exp(d, 0.35, 0.004) * 1.4 + tone(40, d) * env_exp(d, 0.3) * 0.8
+    crush = filt(noise(d), "bandpass", [250, 1600]) * env_exp(d, 0.14, 0.003) * 1.6
+    clank = sum(tone(f, d) * env_exp(d, tau, 0.002) for f, tau in ((410, 0.25), (655, 0.18), (1170, 0.1))) * 0.35
+    n = int(d * SR)
+    rattle = (RNG.random(n) > 0.997) * RNG.uniform(-1, 1, n)
+    rattle = filt(rattle, "bandpass", [700, 4000]) * env_exp(d, 0.4) * 1.2
+    return reverb(sat(boom + crush + clank + at(rattle, 0.08, d), 2.0), 1.0, 0.25, 2000)
+
+
+def deflect_ping():
+    """A round glancing off something that can't be hurt yet: a soft,
+    clean metallic ping (inharmonic partials, fast decay), no zing."""
+    d = 0.4
+    partials = ((2150, 0.09, 1.0), (3320, 0.06, 0.55), (5010, 0.035, 0.3), (1260, 0.05, 0.25))
+    ping = sum(sweep(f, f * 0.985, d) * env_exp(d, tau, 0.0015) * a for f, tau, a in partials)
+    tick = filt(noise(0.015), "highpass", 3500) * env_exp(0.015, 0.002) * 0.4
+    return reverb(pad(mix(ping * 0.6, tick), d), 0.3, 0.12, 6000)
+
+
 SOUNDS = [
     # name, generator, loop
     ("MachineGun", machine_gun, False),
@@ -425,6 +497,13 @@ SOUNDS = [
     ("HeliRockets", heli_rockets, False),
     ("BombWhistle", bomb_whistle, False),
     ("InfantryDeath", infantry_death, False),
+    # AD-2 airdrop sounds (appended: earlier regions keep their offsets).
+    ("TransportDrone", transport_drone_loop, True),
+    ("RampOpen", ramp_open, False),
+    ("ChutePop", chute_pop, False),
+    ("LandingThud", landing_thud, False),
+    ("PlatformThud", platform_thud, False),
+    ("DeflectPing", deflect_ping, False),
 ]
 
 

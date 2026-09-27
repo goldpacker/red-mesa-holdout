@@ -4,7 +4,7 @@
 -- a playback region (seconds) inside it.
 
 return {
-	SoundId = "rbxassetid://70797639407728",
+	SoundId = "rbxassetid://101477137111610",
 	Regions = {
 		MachineGun = { start = 0.0, stop = 0.72, loop = false },
 		Overheat = { start = 1.02, stop = 2.62, loop = false },
@@ -42,5 +42,11 @@ return {
 		HeliRockets = { start = 76.4397, stop = 78.0397, loop = false },
 		BombWhistle = { start = 78.3397, stop = 79.8397, loop = false },
 		InfantryDeath = { start = 80.1397, stop = 80.4897, loop = false },
+		TransportDrone = { start = 80.7897, stop = 84.7897, loop = true },
+		RampOpen = { start = 85.0897, stop = 88.1896, loop = false },
+		ChutePop = { start = 88.4896, stop = 89.7896, loop = false },
+		LandingThud = { start = 90.0896, stop = 90.6396, loop = false },
+		PlatformThud = { start = 90.9396, stop = 93.5396, loop = false },
+		DeflectPing = { start = 93.8396, stop = 94.5395, loop = false },
 	},
 }

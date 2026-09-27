@@ -178,5 +178,35 @@
     "start": 80.1397,
     "stop": 80.4897,
     "loop": false
+  },
+  "TransportDrone": {
+    "start": 80.7897,
+    "stop": 84.7897,
+    "loop": true
+  },
+  "RampOpen": {
+    "start": 85.0897,
+    "stop": 88.1896,
+    "loop": false
+  },
+  "ChutePop": {
+    "start": 88.4896,
+    "stop": 89.7896,
+    "loop": false
+  },
+  "LandingThud": {
+    "start": 90.0896,
+    "stop": 90.6396,
+    "loop": false
+  },
+  "PlatformThud": {
+    "start": 90.9396,
+    "stop": 93.5396,
+    "loop": false
+  },
+  "DeflectPing": {
+    "start": 93.8396,
+    "stop": 94.5395,
+    "loop": false
   }
 }
