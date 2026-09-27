@@ -1,5 +1,6 @@
 --!strict
--- Running gear for EnemyMotion (LOOK-3), tank and Siege Crawler.
+-- Running gear for EnemyMotion (LOOK-3): tank treads; planted tracks on the
+-- tank and the Siege Crawler.
 --
 -- Moving tracks. The track meshes (`TrackL`/`TrackR`,
 -- docs/ASSET_CONTRACTS.md) are single welded MeshParts on a shared trim
@@ -26,7 +27,11 @@ local Tracks = {}
 -- Studs per tile: one period of TrimEnemy's `track` strip (trim.json), the
 -- strip the track meshes are textured with (tools/ui/motion_textures.py).
 local PERIOD = 15.644
-local KINDS: { [string]: number } = { Tank = 1, SiegeCrawler = 2.2 }
+-- Tread scale per kind (x PERIOD studs per tile). The Siege Crawler keeps
+-- its planted tracks but no tread strip: HS-5 built it with two 4.3-stud
+-- belts per track box, which one projected strip can't line up with.
+local TREAD: { [string]: number } = { Tank = 1 }
+local PLANTED: { [string]: boolean } = { Tank = true, SiegeCrawler = true }
 
 type Face = { tex: Texture, axis: string, sign: number }
 type Planted = { weld: Weld, c0: CFrame }
@@ -60,19 +65,19 @@ local function plantedWelds(part: BasePart, root: BasePart, out: { Planted })
 end
 
 function Tracks.new(model: Model, kind: string, root: BasePart): State?
-	local scale = KINDS[kind]
-	if not scale then
+	if not PLANTED[kind] then
 		return nil
 	end
+	local scale = TREAD[kind]
 	local side, roll = Assets.TreadSide, Assets.TreadRoll
 	local faces: { Face } = {}
 	local planted: { Planted } = {}
-	local tile = PERIOD * scale
+	local tile = PERIOD * (scale or 1)
 	for _, name in { "TrackL", "TrackR" } do
 		local part = model:FindFirstChild(name, true)
 		if part and part:IsA("BasePart") then
 			plantedWelds(part, root, planted)
-			if side and roll then
+			if scale and side and roll then
 				local outer = if name == "TrackL" then Enum.NormalId.Left else Enum.NormalId.Right
 				-- Signs measured in Studio (LOOK-3 report): a larger OffsetStudsU
 				-- slides a side texture toward the viewer's left, a larger
