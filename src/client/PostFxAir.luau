@@ -72,18 +72,18 @@ type ShaftSpec = {
 }
 local SHAFT_RIM_X = -790 -- the left canyon wall's face (server/TerrainBuilder)
 local SHAFT_MAX_LENGTH = 1500
+-- Three shafts (five cost ~0.3 ms more in the busy sunset wave for little
+-- extra read, LOOK-5 A/B).
 local SHAFTS: { ShaftSpec } = {
-	{ z = -1180, width = 70, weight = 0.8 },
-	{ z = -960, width = 110, weight = 1 },
-	{ z = -760, width = 60, weight = 0.6 },
-	{ z = -560, width = 90, weight = 0.9 },
-	{ z = -330, width = 70, weight = 0.7 },
+	{ z = -960, width = 66, weight = 1 },
+	{ z = -560, width = 54, weight = 0.9 },
+	{ z = -330, width = 42, weight = 0.7 },
 }
 
 local STORM = {
 	dustColor = Color3.fromRGB(176, 128, 88),
-	dustBoost = 1.8, -- × opacity at full storm
-	heightBoost = 1.35, -- × band height at full storm
+	dustBoost = 1.6, -- × opacity at full storm
+	heightBoost = 1.25, -- × band height at full storm
 }
 
 type Piece = {

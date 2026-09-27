@@ -195,7 +195,7 @@ Contracts for Update 2:
   `StormAmount`, a number 0..1 (absent = 0). VFX-4's weather is its only
   writer and ramps it (onset, hold, clear); a client write stays local, a
   server write replicates. Look's `client/PostFxStorm` blends every client
-  toward the preset's storm look at that amount (sun × 0.4 with soft
+  toward the preset's storm look at that amount (sun × 0.55–0.6 with soft
   shadows, warm-brown ambient and Atmosphere haze, shorter view distance,
   no glare or sun rays, warm client grade) and `client/PostFxAir` thickens
   the low dust layer; at 0 the server's exact preset values are restored.

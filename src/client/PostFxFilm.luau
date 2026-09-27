@@ -44,7 +44,7 @@ local GLARE = {
 }
 
 -- Film vignette: one corner texture, rotated into each screen corner.
-local VIGNETTE_SIZE = 0.62 -- × viewport height per corner piece
+local VIGNETTE_SIZE = 0.42 -- × viewport height per corner piece (GPU: pixels covered)
 local VIGNETTE_CORNERS = {
 	{ at = Vector2.new(0, 0), rotation = 0 },
 	{ at = Vector2.new(1, 0), rotation = 90 },

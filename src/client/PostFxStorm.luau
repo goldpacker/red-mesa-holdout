@@ -6,7 +6,7 @@
 -- weather; a server write replicates, a client write stays local). 0 or
 -- absent = the preset's own look; 1 = full storm. Look blends toward the
 -- storm look at that amount on every client:
---   * the sun dims and its shadows go soft (Brightness × 0.4-0.45,
+--   * the sun dims and its shadows go soft (Brightness × 0.55-0.6,
 --     ShadowSoftness → 0.75), exposure lifts a little so the mid-tones
 --     don't turn to mud;
 --   * the ambient fill turns warm brown at the preset's own brightness;
@@ -37,25 +37,26 @@ end
 -- the sun survives.
 type StormLook = { color: Color3, decay: Color3, ambient: Color3, sun: number }
 local LOOKS: { [string]: StormLook } = {
-	Afternoon = { color = rgb(204, 162, 118), decay = rgb(150, 110, 76), ambient = rgb(255, 214, 170), sun = 0.4 },
-	LateAfternoon = { color = rgb(208, 152, 104), decay = rgb(148, 100, 68), ambient = rgb(255, 204, 156), sun = 0.4 },
-	Sunset = { color = rgb(198, 134, 98), decay = rgb(128, 82, 62), ambient = rgb(255, 196, 160), sun = 0.45 },
+	Afternoon = { color = rgb(204, 162, 118), decay = rgb(150, 110, 76), ambient = rgb(255, 214, 170), sun = 0.55 },
+	LateAfternoon = { color = rgb(208, 152, 104), decay = rgb(148, 100, 68), ambient = rgb(255, 204, 156), sun = 0.55 },
+	Sunset = { color = rgb(198, 134, 98), decay = rgb(128, 82, 62), ambient = rgb(255, 196, 160), sun = 0.6 },
 }
 
 local TARGET = {
-	exposure = 0.25, -- + EV
+	exposure = 0.2, -- + EV
 	shadowSoftness = 0.75,
 	ambientGain = 1.12, -- scattered light lifts the fill a little
 	specular = 0.5, -- × EnvironmentSpecularScale
 	-- Roblox's Atmosphere is steep: 0.4 / 0.14 already hid a 430-stud tank
-	-- and turned the whole view one brown (LOOK-5 captures); 0.36 / 0.19 is
-	-- a heavy storm with the walls gone. Full storm is set a step lighter,
-	-- so VFX-4's storm particles have room on top (readability rule).
-	density = 0.34, -- Atmosphere.Density at full storm (at least)
-	offset = 0.21,
-	haze = 1.6, -- + Atmosphere.Haze (mostly the sky: it browns)
+	-- and turned the whole view one brown, and 0.34 / 0.21 still greyed the
+	-- tank and the helicopter (LOOK-5 captures). Full storm is 0.32 / 0.24:
+	-- the far wall goes, the basin stays, and VFX-4's storm particles have
+	-- room on top (readability rule).
+	density = 0.32, -- Atmosphere.Density at full storm (at least)
+	offset = 0.24,
+	haze = 1.2, -- + Atmosphere.Haze (mostly the sky: it browns)
 	sunTint = rgb(206, 158, 118), -- ColorShift_Top at full storm
-	grade = { tint = rgb(255, 234, 208), saturation = -0.14, contrast = 0.04 },
+	grade = { tint = rgb(255, 238, 214), saturation = -0.1, contrast = 0.04 },
 }
 
 local LIGHTING_PROPS = {
