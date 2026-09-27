@@ -192,7 +192,7 @@ before/after images). The contract is `docs/FACELIFT_TEAM.md`, whose
 | 3 | Environment | **ENV-3** Finish and review road/wash edges and ground dressing | — |
 | 4 | Look | **LOOK-3b** Event-driven EnemyMotion sweep (open face-lift item), then **LOOK-5** atmosphere and light | — |
 | 5 | QA | **QA-B** Authoritative perf and texture measurement, ranked reclaim list; the lead rules on the cuts | — |
-| 6 | Airdrop | **AD-2** Presentation: transport flight and ramp, chute deploy/sway/collapse, vehicle platforms, night lights, "no effect" feedback, HUD banner, radar and tip, new sounds | AD-1, HS-6 |
+| 6 | Airdrop | **AD-2** Presentation: transport flight and ramp, chute deploy/sway/collapse, vehicle platforms, "no effect" feedback, HUD banner, radar and tip, new sounds | AD-1, HS-6 |
 | 7 | Environment | **ENV-4** Ground density and conflict dressing | ENV-3, QA-B |
 | 8 | VFX | **VFX-4** Wind, sand streamers, dust devils, wreck smoke, birds, dust storms | LOOK-5 (storm lighting) |
 | 9 | Airdrop | **AD-3** Bot update and wave retune; full-run difficulty check | AD-1 (AD-2 for final) |
