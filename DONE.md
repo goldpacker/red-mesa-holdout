@@ -88,3 +88,61 @@ Built by a lead plus Weapons, Enemies and Assets agents; contracts in
 
 `de23177` — last code change (Siege Crawler balance). `DONE.md` and the
 final screenshots are committed on top of it.
+
+---
+
+# Face-lift and Update 2 (2026-09-26 → 27)
+
+## What was built
+- **Visual face-lift** (`docs/FACELIFT_PLAN.md`, phases 0–8):
+  - custom PBR terrain materials and painted skyboxes;
+  - strata landscape meshes for the mesa, walls and buttes;
+  - re-keyed lighting;
+  - a hero pass on the emplacement and turret;
+  - hard-surface rebuilds of every vehicle and the Siege Crawler, with burnt
+    wrecks and LOD;
+  - skinned, bone-animated infantry;
+  - rendered flipbook effects;
+  - a textured HUD kit;
+  - client motion smoothing.
+- **Update 2** (`docs/AIRDROP_ENVIRONMENT_PLAN.md`, user feedback):
+  - Infantry, buggies and tanks **parachute in** from untouchable
+    transports. They are invincible in the air, land 300–800 studs out and
+    join their lanes. There is a HUD banner, radar marks and sounds.
+  - Waves were retuned for the new arrivals, including the boss wave.
+  - A lived-in battlefield: ground cover, tyre tracks, power poles, a
+    weathered checkpoint.
+  - Depth haze, sun shafts and a film treatment.
+  - Wind, sand streamers, dust devils, wreck smoke, birds, and dust storms
+    on waves 3 and 7.
+  - New title key art and weapon icons.
+  - **Daylight only** (user decision): afternoon, late afternoon, sunset.
+  - Roblox listing art in `assets/listing/`.
+
+## Final playtest result (QA-F, commit 33f37c4; boss retune AD-4 after)
+- **Full fresh-start run:** victory in 16.4 min with 0 retries and a clean
+  console. Play Again, Retry Wave and Restart work.
+- **Airdrops:** 233 of 233 ground enemies arrived by drop, landing 367–800
+  studs out, with no hand-off pops, none stuck and 0 drop-zone violations.
+- **LOS and ground:** LOS to every lane end passes; ground heights are
+  identical to the original build.
+- **Readability:** every enemy is ≥ 3:1 at engagement range at all
+  presets and storm peaks.
+- **Performance:** busy wave 9 (Sunset) 5.74 ms GPU against a 6 ms working
+  limit. The boss wave is ~6.0–6.3 ms, within measurement noise. Game-owned
+  textures are 130 MB by the budget model.
+- **Boss (AD-4, human-like bot):** 5 of 5 seeds won within ≤ 2 retries
+  (0/0/0/1/0), with the lowest integrity between 7 and 49%.
+- **Final beauty set:** `qa/beauty/final/` against `qa/beauty/p0-baseline/`.
+
+## Known remaining issues
+- Headshots don't register on infantry, and hitscan has no lag
+  compensation. Both are pre-existing gameplay issues awaiting a user
+  decision.
+- Real mouse aim feel and the audio mix still need a human playtest; the
+  first real-server play follows publishing.
+- Cosmetic, logged in the Update 2 ledger:
+  - the storm wall reads as a dust band;
+  - streamers and dust devils are subtle from the gun;
+  - a faint warm haze lingers ~4 s after a storm clears;
+  - there is no scrub sway or wire flutter.

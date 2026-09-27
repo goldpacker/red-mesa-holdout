@@ -12,3 +12,10 @@ assets/source/landscape/build/
 tools/env/landscape/.capture.luau
 tools/env/landscape/.probe_*.luau
 tools/env/landscape/.capture_*.luau
+# local build/upload logs and caches
+logs/*.log
+logs/*.err
+logs/assets/
+logs/vfx/
+logs/audio-upload*.json
+waveletNoiseTile.bin
