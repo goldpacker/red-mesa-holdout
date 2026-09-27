@@ -31,6 +31,12 @@
 --     releases a model, whichever SignalBehavior the place uses.
 --   - A drain spends at most DRAIN_BUDGET per frame (always at least one
 --     model); the rest stays queued for the next frame.
+--   - Failures stay contained: each model is judged under its own pcall, so
+--     one bad model can't stop the render step or strand the models queued
+--     behind it. A model that fails is re-scanned from scratch on the next
+--     frame, up to MAX_STRIKES times, then left unsmoothed while in play.
+--     Warnings name the model and are rate-limited (WARN_EVERY). If the
+--     drain itself ever failed, every watched model is re-queued.
 
 local Probe = require(script.Parent.EnemyMotionProbe)
 
@@ -39,6 +45,8 @@ local Watch = {}
 local NONE, DECOR, BLOCK = 0, 1, 2
 local DRAIN_BUDGET = 0.0005 -- s per frame
 local MAX_PASSES = 4 -- root re-resolves per refresh (a guard; 2 is the most seen)
+local MAX_STRIKES = 3 -- failed judgements before a model is given up on
+local WARN_EVERY = 5 -- s between warnings
 
 type Entry = {
 	model: Model,
@@ -64,6 +72,10 @@ export type Apply = (Model, BasePart?, number) -> ()
 local entries: { [Model]: Entry } = {}
 local queue: { Entry } = {}
 local spareQueue: { Entry } = {}
+local strikes: { [Model]: number } = {}
+local timing = Probe.enabled -- handlers time themselves in Studio only
+local lastWarn = -math.huge
+local unreported = 0
 
 local function enqueue(e: Entry)
 	if not e.queued then
@@ -99,10 +111,12 @@ end
 
 local function connectPart(e: Entry, p: BasePart)
 	local function changed()
-		local t0 = os.clock()
+		local t0 = if timing then os.clock() else 0
 		e.dirty[p] = true
 		enqueue(e)
-		Probe.work(os.clock() - t0)
+		if timing then
+			Probe.work(os.clock() - t0)
+		end
 	end
 	e.anchoredConn[p] = p:GetPropertyChangedSignal("Anchored"):Connect(changed)
 	e.queryConn[p] = p:GetPropertyChangedSignal("CanQuery"):Connect(changed)
@@ -178,7 +192,7 @@ local function scan(e: Entry)
 		end
 	end
 	local function touched(d: Instance)
-		local t0 = os.clock()
+		local t0 = if timing then os.clock() else 0
 		if d:IsA("BasePart") then
 			e.dirty[d] = true
 			enqueue(e)
@@ -187,7 +201,9 @@ local function scan(e: Entry)
 			e.rootDirty = true
 			enqueue(e)
 		end
-		Probe.work(os.clock() - t0)
+		if timing then
+			Probe.work(os.clock() - t0)
+		end
 	end
 	local function requeue()
 		e.rootDirty = true
@@ -219,6 +235,11 @@ local function refresh(e: Entry)
 			syncPart(e, p)
 		end
 		table.clear(dirty)
+	end
+	-- Still unsettled after MAX_PASSES: finish on the next frame rather
+	-- than keep a stale verdict until some other event.
+	if e.rootDirty or next(e.dirty) ~= nil then
+		enqueue(e)
 	end
 end
 
@@ -256,13 +277,10 @@ function Watch.add(model: Model)
 	enqueue(e)
 end
 
--- Stops watching (the model left Workspace.Enemies).
-function Watch.remove(model: Model)
-	local e = entries[model]
-	if not e then
-		return
+local function unwatch(e: Entry)
+	if entries[e.model] == e then
+		entries[e.model] = nil
 	end
-	entries[model] = nil
 	for _, c in e.conns do
 		c:Disconnect()
 	end
@@ -282,13 +300,59 @@ function Watch.remove(model: Model)
 	table.clear(e.dirty)
 end
 
--- Re-judges the queued models and hands each verdict to `apply`. Returns
--- how many were judged.
-function Watch.drain(apply: Apply): number
-	local n = #queue
-	if n == 0 then
-		return 0
+-- Stops watching (the model left Workspace.Enemies).
+function Watch.remove(model: Model)
+	strikes[model] = nil
+	local e = entries[model]
+	if e then
+		unwatch(e)
 	end
+end
+
+local function describe(model: Model?): string
+	if not model then
+		return "the queue"
+	end
+	local kind, id = model:GetAttribute("Kind"), model:GetAttribute("EnemyId")
+	return string.format("%s#%s (%s)", tostring(kind), tostring(id), model:GetFullName())
+end
+
+-- One warning per WARN_EVERY at most; the next one says how many were held.
+local function report(model: Model?, err: any, action: string)
+	local now = os.clock()
+	if now - lastWarn < WARN_EVERY then
+		unreported += 1
+		return
+	end
+	lastWarn = now
+	local held = if unreported > 0 then string.format(" (+%d more since the last warning)", unreported) else ""
+	unreported = 0
+	warn(string.format("[RedMesa] enemy motion watch failed for %s: %s; %s%s", describe(model), tostring(err), action, held))
+end
+
+local function judge(e: Entry, apply: Apply)
+	refresh(e)
+	apply(e.model, verdict(e), e.decor)
+end
+
+-- A model whose judgement raised: start it over from a fresh scan next
+-- frame, or after MAX_STRIKES leave it unsmoothed while it is in play.
+local function fail(e: Entry, apply: Apply, err: any)
+	local model = e.model
+	unwatch(e)
+	local n = (strikes[model] or 0) + 1
+	strikes[model] = n
+	if n < MAX_STRIKES then
+		report(model, err, string.format("re-scanning next frame (%d/%d)", n, MAX_STRIKES))
+		Watch.add(model)
+	else
+		report(model, err, "giving up: not smoothed while in play")
+		pcall(apply, model, nil, 0)
+	end
+end
+
+local function drainQueue(apply: Apply): number
+	local n = #queue
 	local list = queue
 	queue = spareQueue
 	spareQueue = list
@@ -303,13 +367,46 @@ function Watch.drain(apply: Apply): number
 		end
 		e.queued = false
 		if entries[e.model] == e then
-			refresh(e)
-			apply(e.model, verdict(e), e.decor)
+			local ok, err = pcall(judge, e, apply)
+			if not ok then
+				fail(e, apply, err)
+			end
 			judged += 1
 		end
 	end
 	table.clear(list)
 	return judged
+end
+
+-- Last resort if the drain itself raised: nothing may stay marked queued
+-- while out of the queue, so every watched model is judged again.
+local function recover()
+	table.clear(queue)
+	table.clear(spareQueue)
+	for _, e in entries do
+		e.queued = false
+		enqueue(e)
+	end
+end
+
+-- Re-judges the queued models and hands each verdict to `apply`. Returns
+-- how many were judged. Nothing queued: returns at once.
+function Watch.drain(apply: Apply): number
+	if #queue == 0 then
+		return 0
+	end
+	local ok, judged = pcall(drainQueue, apply)
+	if ok then
+		return judged
+	end
+	report(nil, judged, "re-queueing every watched model")
+	recover()
+	return 0
+end
+
+-- Studio QA: re-queues every watched model (the drain's recovery path).
+function Watch.recover()
+	recover()
 end
 
 -- Studio QA: how many models are watched and part signals connected.

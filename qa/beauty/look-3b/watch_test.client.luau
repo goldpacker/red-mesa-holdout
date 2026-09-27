@@ -20,7 +20,12 @@ local function check(name: string, cond: boolean, detail: any?)
 end
 
 local verdict: { [Model]: { root: BasePart?, ignored: number, n: number, nils: number } } = {}
+local throwOn: { [Model]: number } = {} -- failures still to inject when smoothable
 local function apply(model: Model, root: BasePart?, ignored: number)
+	if root ~= nil and (throwOn[model] or 0) > 0 then
+		throwOn[model] -= 1
+		error("injected failure")
+	end
 	local v = verdict[model] or { root = nil, ignored = 0, n = 0, nils = 0 }
 	v.root, v.ignored, v.n = root, ignored, v.n + 1
 	if root == nil then
@@ -151,7 +156,58 @@ check("spawned with a hit volume: not smoothable", verdict[d] and verdict[d].roo
 check("... and no re-scans afterwards", drain() == 0 and drain() == 0)
 W.remove(d)
 
--- 12. Burst: 60 models of 150 parts arrive at once; the drain budget
+-- 12. Failure isolation (LOOK-3B fix 1): a model whose judgement raises
+-- doesn't stop the drain or strand the models queued behind it; it is
+-- re-scanned on the next frames, then given up on after 3 strikes; the
+-- warning names it and is rate-limited.
+local warnings: { string } = {}
+local logConn = game:GetService("LogService").MessageOut:Connect(function(msg, kind)
+	if kind == Enum.MessageType.MessageWarning and string.find(msg, "enemy motion watch failed", 1, true) then
+		table.insert(warnings, msg)
+	end
+end)
+local function enemy(kind: string, id: number): (Model, BasePart)
+	local x = Instance.new("Model")
+	x.Name = kind .. "Test"
+	x:SetAttribute("Kind", kind)
+	x:SetAttribute("EnemyId", id)
+	local r = part(x, "Root", true, false)
+	x.PrimaryPart = r
+	return x, r
+end
+local a, ar = enemy("Buggy", 701)
+local bad = enemy("Tank", 777)
+local c, cr = enemy("Helicopter", 702)
+throwOn[bad] = 99
+W.add(a)
+W.add(bad)
+W.add(c)
+check("failing model in the middle of a batch: whole batch judged", drain() == 3)
+check("... models queued behind it not stranded", verdict[a] and verdict[a].root == ar and verdict[c] and verdict[c].root == cr)
+check("... failing model re-scanned next frame (strike 2)", drain() == 1 and throwOn[bad] == 97, throwOn[bad])
+check("... and again (strike 3) -> given up, left unsmoothed", drain() == 1 and throwOn[bad] == 96 and verdict[bad] and verdict[bad].root == nil)
+part(bad, "Blocker", true, true)
+check("... given-up model costs nothing afterwards", drain() == 0 and drain() == 0)
+task.wait(0.1)
+check("one warning for three failures in 5 s (rate-limited)", #warnings == 1, #warnings)
+check("warning names the model", warnings[1] ~= nil and string.find(warnings[1], "Tank#777", 1, true) ~= nil and string.find(warnings[1], "TankTest", 1, true) ~= nil, warnings[1])
+local flaky, fr = enemy("Buggy", 703)
+throwOn[flaky] = 1
+W.add(flaky)
+drain()
+drain()
+check("a one-off failure recovers on the re-scan", verdict[flaky] and verdict[flaky].root == fr)
+W.recover()
+local rejudged = drain()
+local watchedNow = W.counts()
+check("recovery re-queues every watched model", rejudged == watchedNow and verdict[a].root == ar and verdict[c].root == cr, string.format("%d of %d", rejudged, watchedNow))
+logConn:Disconnect()
+for _, x in { a, bad, c, flaky } do
+	W.remove(x)
+	x:Destroy()
+end
+
+-- 13. Burst: 60 models of 150 parts arrive at once; the drain budget
 -- spreads the scans over frames and every model is judged exactly once.
 local burst = {}
 for i = 1, 60 do

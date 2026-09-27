@@ -1,0 +1,8 @@
+{"build": "LOOK-3B fix 1: per-model pcall in Watch.drain, 3-strike re-scan then give up, rate-limited warn naming the model, drain-level recovery, MAX_PASSES re-enqueue, handlers skip os.clock outside Studio; AD-1/AD-2 airdrops live; airdropSeed 7",
+ "session": "Studio 22:20-22:27, lock owner look3",
+ "unit_test": "qa/beauty/look-3b/watch_test.client.luau: ALL PASS (36 checks, 9 new: failing model mid-batch -> batch judged 3/3, batch-mates not stranded, strike 2, strike 3 -> given up and unsmoothed, no further cost, 1 warning for 3 failures, warning text '[RedMesa] enemy motion watch failed for Tank#777 (TankTest): AssistantCommand:22: injected failure; re-scanning next frame (1/3)', one-off failure recovers on re-scan, recovery re-queues 4 of 4); burst 60x150 parts over 33 frames, worst drain 1.117 ms",
+ "night_wave9_busy_20s": {"maxMs":0.518,"watchMeanMs":0.001,"frames":1207,"worstFrameMs":18.203,"stepMeanMs":0.254,"enemiesAvg":27,"trackedAvg":27,"watchMaxMs":0.127,"stepMaxMs":0.516,"watchCalls":42,"meanMs":0.255},
+ "coverage_at_end": {"tod":"Night","enemies":{"Helicopter":3,"Infantry":22,"Tank":3,"Buggy":5},"tracked":{"Helicopter":3,"Infantry":22,"Tank":3,"Buggy":5},"untracked":[],"dropLoad":30,"lampLit":22,"lampLitTrackedIgnored1":22},
+ "autoplay_kills_20s": {"maxMs":0.364,"watchMeanMs":0.001,"wreckKinds":"Buggy","wrecksFolder":5,"frames":1208,"worstFrameMs":18.633,"stepMeanMs":0.18,"wreckTrackSamples":7,"trackedAvg":15.9,"watchMaxMs":0.017,"stepMaxMs":0.363,"watchCalls":281,"meanMs":0.181},
+ "console": "world built / server ready / client ready, plus the unit test's own injected-failure warning (synthetic Tank#777); nothing from live enemies"
+}
