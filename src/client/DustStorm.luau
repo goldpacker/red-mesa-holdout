@@ -11,9 +11,9 @@
 --     the storm is a client visual, like the rest of the weather);
 --   * particles and the wall, here:
 --       Wall   vertical Beam curtains (Look's dust-band texture, no new
---              map) in three layers along the front line, following the
---              ground in SEG-stud pieces, advancing at FRONT_SPEED: the dark
---              base, the body, the paler sunlit top;
+--              map) in two layers on an arc around the outpost, closing in
+--              at FRONT_SPEED, following the ground in PIECES pieces: the
+--              dark base and the paler sunlit top;
 --       Crest  big soft DustDrift billows along the front, only within
 --              CREST_RANGE (Roblox stops drawing particles ~1,200-1,700
 --              studs out: a sprite at 1,216 drew, one at 1,740 did not);
@@ -25,14 +25,16 @@
 --     sand streamers, stops dust devils, grounds the vultures, and the
 --     storm wind (shared/Wind.setStorm: the wind turns to the storm's
 --     direction and blows up to STORM_GAIN x harder).
--- The storm travels along STORM_DIR, the mean wind turned toward the mesa,
--- so from the turret the wall rises over the far-left basin and sweeps in
--- across the view (along the mean wind the front line ran almost along the
--- turret's view: everything on it was seen edge-on).
+-- The storm blows along STORM_DIR, the mean wind turned toward the mesa
+-- (the storm wind); the wall is an arc at the front's distance from the
+-- outpost across the upwind side of the view (VFX-4 fix 1: a straight wall
+-- line seen obliquely rose to a sharp tent-shaped apex at its nearest
+-- point; on the arc every piece is at the same distance, so the top edge
+-- is the billow alone).
 -- The radar and HUD are untouched (they draw over everything).
 --
--- Envelope along the front's position s (studs along STORM_DIR from the
--- outpost; s = 0 when it arrives): StormAmount rises a little while the
+-- Envelope along the front's position s (studs from the outpost, negative
+-- while it approaches; s = 0 when it arrives): StormAmount rises a little while the
 -- wall is still far (it covers the low sun), most of the way over the last
 -- 700 studs, holds, then clears. If the wave ends early (clear, defeat) the
 -- storm clears over CLEAR_FAST seconds.
@@ -69,33 +71,68 @@ local CLEAR = 16 -- s to clear after the hold
 local CLEAR_FAST = 6 -- s to clear when the wave ends early
 local STORM_GAIN = 2.6 -- wind strength x at full storm
 
+-- Readability cap per time-of-day preset (GAME_SPEC §13: weather never hides
+-- an enemy at its engagement range; docs/ART_BIBLE.md §6, >= 3:1). Every
+-- storm is clamped to this whatever Config.Waves asks for, so a later edit
+-- of the wave table can't break the rule. Measured in the gunsight (shot 3,
+-- FOV 32: infantry 230-276 studs, buggy 312, tank 414) with
+-- tools/vfx/qa/readability.py + enemyboxes.client.luau, storm particles on
+-- (VFX-4 report, "Readability at the storm peak"; qa/beauty/vfx-4/readability/):
+--   Afternoon      1.0 -> min 3.17 (tank 414)
+--   Sunset         0.8 -> min 3.00 (infantry 230; lighting alone also 3.00)
+--                  1.0 -> 2.80-2.92: too dark
+--   LateAfternoon  none: Look's storm lighting alone puts the tank at
+--                  2.81 / 2.88 / 2.83 at 0.6 / 0.8 / 1 (3.83 without a storm)
+-- Re-run the probe before raising any of these. Unknown presets get no storm.
+local PRESET_CAP: { [string]: number } = {
+	Afternoon = 1,
+	LateAfternoon = 0,
+	Sunset = 0.8,
+}
+Storm.PRESET_CAP = PRESET_CAP
+
+-- The cap for the preset now on screen (Workspace.TimeOfDay, TimeOfDay's
+-- preset name). Studio only: Workspace.WeatherStormUncapped = true lifts it
+-- for measurements (e.g. probing a storm at 1 at Sunset).
+local function cap(): number
+	if IS_STUDIO and Workspace:GetAttribute("WeatherStormUncapped") == true then
+		return 1
+	end
+	local name = Workspace:GetAttribute("TimeOfDay")
+	return if type(name) == "string" then PRESET_CAP[name] or 0 else 0
+end
+
 -- The storm's travel direction: the mean wind turned 35 degrees toward +Z.
 local STORM_DIR = (function(): Vector3
 	local d = Wind.DIRECTION
 	local yaw = math.atan2(d.Z, d.X) + math.rad(35)
 	return Vector3.new(math.cos(yaw), 0, math.sin(yaw))
 end)()
-local ACROSS = Vector3.new(-STORM_DIR.Z, 0, STORM_DIR.X)
 
 -- Wall bands: `back` studs behind the front, `height` tall, `sink` of the
 -- height below the ground (the texture's soft lower edge is buried, so the
 -- dense core sits on the floor), `opacity` peak, colour key.
--- Pieces are SEG long and share their end points, so the ribbon is
--- continuous over the ground; each layer's TextureLength divides SEG so the
--- texture carries on across the joins. (A cross-fade of overlapping pieces
--- was tried: a Beam with a 4-keypoint Transparency drew nothing at all in
--- Studio, whatever its Segments.) Only pieces in view are drawn (each Beam
--- is a draw call).
-local WALL_LENGTH = 4200
-local SEG = 350
+-- The wall is an arc of radius (front distance + back) around the outpost,
+-- from ARC_FROM to ARC_TO (world yaw, atan2(z, x); the turret's forward -Z
+-- is -90 degrees, its left toward -180): 85 degrees left of forward to 45
+-- right, centred toward the upwind side. PIECES chords per layer share their
+-- end points, so each layer is one continuous ribbon over the ground; each
+-- piece's TextureLength is its own chord length, so the texture repeats a
+-- whole number of times per piece and runs on across the joints. Only
+-- pieces in view are drawn (each Beam is a draw call).
+-- Budget (fix 1, wave-9 Sunset paired GPU A/B, wall held at 1,100 studs):
+-- 3 layers x 12 pieces over 150 degrees (27 beams in view) cost +0.28 ms,
+-- the arc spanning the horizon overdraws a wide band; 2 layers x 10 pieces
+-- over 130 degrees (16 in view) measured +0.03 / +0.19 in two runs.
+local ARC_FROM = math.rad(-175)
+local ARC_TO = math.rad(-45)
+local PIECES = 10
 local LAYERS = {
-	{ back = 0, height = 300, sink = 0.35, opacity = 1, tint = "base", texLength = 350 },
-	{ back = 120, height = 560, sink = 0.32, opacity = 1, tint = "body", texLength = 700 },
-	{ back = 300, height = 880, sink = 0.28, opacity = 0.8, tint = "top", texLength = 1050 },
+	{ back = 0, height = 340, sink = 0.35, opacity = 1, tint = "base" },
+	{ back = 220, height = 820, sink = 0.28, opacity = 0.85, tint = "top" },
 }
 local CREST_RANGE = 1150 -- crest billows only this close (particles cull farther)
 local SLOTS = 26
-local SLOT_GAP = 150
 local CREST_RATE = 1 -- per slot, particles/s
 local BOUNDS = { minX = -2200, maxX = 2200, minZ = -2800, maxZ = 900 }
 local BODY_RATE = 24 -- particles/s at full storm
@@ -231,9 +268,8 @@ end
 local function buildWall()
 	local ok, assets = pcall(require, script.Parent.PostFxAssets)
 	local texture = if ok and type(assets) == "table" then (assets :: any).searchlight_cone else nil
-	local count = math.ceil(WALL_LENGTH / SEG)
-	for layer, spec in LAYERS do
-		for k = 1, count do
+	for layer in LAYERS do
+		for k = 1, PIECES do
 			local a0 = Weather.attachment("StormWallA")
 			local a1 = Weather.attachment("StormWallB")
 			local beam = Instance.new("Beam")
@@ -251,12 +287,12 @@ local function buildWall()
 				beam.Texture = texture
 			end
 			beam.TextureMode = Enum.TextureMode.Wrap
-			beam.TextureLength = spec.texLength
+			beam.TextureLength = 400
 			beam.TextureSpeed = 0
 			beam.LightEmission = 0
 			beam.LightInfluence = 0
-			beam.Width0 = spec.height
-			beam.Width1 = spec.height
+			beam.Width0 = LAYERS[layer].height
+			beam.Width1 = LAYERS[layer].height
 			beam.Enabled = false
 			beam.Parent = Weather.folder()
 			table.insert(bands, { beam = beam, a0 = a0, a1 = a1, layer = layer, k = k, y0 = 2, y1 = 2 })
@@ -362,17 +398,18 @@ local function inBounds(q: Vector3): boolean
 	return q.X > BOUNDS.minX and q.X < BOUNDS.maxX and q.Z > BOUNDS.minZ and q.Z < BOUNDS.maxZ
 end
 
--- Ends of band piece k of a layer, flat (y = 0), for the front at s.
-local function pieceEnds(s: number, layer: number, k: number): (Vector3, Vector3)
-	local base = STORM_DIR * (s - LAYERS[layer].back)
-	local x0 = -WALL_LENGTH / 2 + (k - 1) * SEG
-	return base + ACROSS * x0, base + ACROSS * (x0 + SEG)
+-- Point j (0..PIECES) of the arc of radius r, flat (y = 0).
+local function arcPoint(r: number, j: number): Vector3
+	local yaw = ARC_FROM + (ARC_TO - ARC_FROM) * j / PIECES
+	return Vector3.new(math.cos(yaw) * r, 0, math.sin(yaw) * r)
 end
 
--- Height factor of the wall at `x` studs along it (0.7..1.3), drifting.
-local function billow(x: number, layer: number, t: number): number
-	return 1 + 0.3 * math.noise(x / 520 + layer * 3.7, t * 0.06, layer * 1.3)
-		+ 0.12 * math.noise(x / 170 + layer * 5.1, t * 0.11, 2.9)
+-- Height factor of a layer at arc joint j (~0.72..1.28), drifting slowly.
+-- One smooth low-frequency term (a feature every ~3-4 pieces), so the
+-- straight chords between joints add up to a rounded billowing top (fix 1:
+-- a second term at a shorter wavelength than a piece zigzagged into peaks).
+local function billow(j: number, layer: number, t: number): number
+	return 1 + 0.28 * math.noise(j * 0.3 + layer * 3.7, t * 0.05, layer * 1.3)
 end
 
 -- Every frame: slide the bands with the front (their ground heights and
@@ -385,7 +422,6 @@ local function placeWall(s: number?, weight: number, frame: Weather.Frame?)
 		groundDue = t + 0.25
 	end
 	local colors = palette()
-	local count = math.ceil(WALL_LENGTH / SEG)
 	for _, b in bands do
 		if not on then
 			if b.beam.Enabled then
@@ -394,7 +430,8 @@ local function placeWall(s: number?, weight: number, frame: Weather.Frame?)
 			continue
 		end
 		local spec = LAYERS[b.layer]
-		local p0, p1 = pieceEnds(s :: number, b.layer, b.k)
+		local r = -(s :: number) + spec.back
+		local p0, p1 = arcPoint(r, b.k - 1), arcPoint(r, b.k)
 		local mid = (p0 + p1) * 0.5
 		local seen = frame == nil
 			or Weather.inView(frame, Vector3.new(mid.X, b.y0 + spec.height * 0.25, mid.Z), 0.9)
@@ -407,18 +444,18 @@ local function placeWall(s: number?, weight: number, frame: Weather.Frame?)
 		if reground or not b.beam.Enabled then
 			b.y0 = groundY(p0.X, p0.Z)
 			b.y1 = groundY(p1.X, p1.Z)
-			-- the two outermost pieces at each end of the wall taper off
-			local e0 = math.min(math.clamp((b.k - 1) / 2, 0, 1), math.clamp((count - b.k + 1) / 2, 0, 1))
-			local e1 = math.min(math.clamp(b.k / 2, 0, 1), math.clamp((count - b.k) / 2, 0, 1))
+			-- the two outermost pieces at each end of the arc taper off
+			local e0 = math.min(math.clamp((b.k - 1) / 2, 0, 1), math.clamp((PIECES - b.k + 1) / 2, 0, 1))
+			local e1 = math.min(math.clamp(b.k / 2, 0, 1), math.clamp((PIECES - b.k) / 2, 0, 1))
 			b.beam.Transparency = NumberSequence.new(1 - spec.opacity * weight * e0, 1 - spec.opacity * weight * e1)
 			b.beam.Color = ColorSequence.new((colors :: any)[spec.tint])
+			-- the texture repeats exactly once per chord: continuous at joints
+			b.beam.TextureLength = (p1 - p0).Magnitude
 		end
-		-- A lumpy, slowly billowing top: the height varies along the wall
-		-- (shared end points get the same height, so the ribbon stays
-		-- whole); a straight top read as a flat curtain.
-		local x0 = -WALL_LENGTH / 2 + (b.k - 1) * SEG
-		local h0 = spec.height * billow(x0, b.layer, t)
-		local h1 = spec.height * billow(x0 + SEG, b.layer, t)
+		-- Shared joints get the same height, so each layer's top is one
+		-- continuous edge; the billow is smooth over several pieces.
+		local h0 = spec.height * billow(b.k - 1, b.layer, t)
+		local h1 = spec.height * billow(b.k, b.layer, t)
 		b.beam.Width0 = h0
 		b.beam.Width1 = h1
 		b.a0.WorldPosition = Vector3.new(p0.X, b.y0 + h0 * (0.5 - spec.sink), p0.Z)
@@ -433,12 +470,13 @@ local function updateCrest(frame: Weather.Frame, s: number?, weight: number, sun
 	for _, slot in slots do
 		local rate = 0
 		if s and weight > 0.001 then
-			local offset = (slot.index - (SLOTS + 1) / 2) * SLOT_GAP
-			local q = STORM_DIR * s + ACROSS * offset
+			local q = arcPoint(-s, (slot.index - 0.5) / SLOTS * PIECES)
 			local flatDist = Vector2.new(q.X - frame.camPos.X, q.Z - frame.camPos.Z).Magnitude
 			if inBounds(q) and flatDist > 300 and flatDist < CREST_RANGE and Weather.inView(frame, Vector3.new(q.X, face, q.Z), 0.5) then
 				local y = groundY(q.X, q.Z)
-				slot.att.CFrame = Effects.upFrame(Vector3.new(q.X, y + face * 0.8, q.Z), STORM_DIR * FRONT_SPEED + Vector3.new(0, 5, 0))
+				-- rolling in toward the outpost with the wall
+				local inward = Vector3.new(-q.X, 0, -q.Z).Unit
+				slot.att.CFrame = Effects.upFrame(Vector3.new(q.X, y + face * 0.8, q.Z), inward * FRONT_SPEED + Vector3.new(0, 5, 0))
 				local edge = math.min(slot.index - 1, SLOTS - slot.index) / 3
 				-- fade in with distance so the billows join the far bands smoothly
 				local nearK = 1 - smooth((flatDist - (CREST_RANGE - 250)) / 250)
@@ -583,6 +621,13 @@ function Storm.step(frame: Weather.Frame)
 		return
 	end
 	local amount, s, front = envelope(frame.t)
+	-- The readability cap, whatever the wave table or a test asked for; a
+	-- preset with no storm (cap 0) shows no wall either.
+	local limit = cap()
+	amount = math.min(amount, limit)
+	if limit <= 0 then
+		s, front = nil, 0
+	end
 	placeWall(s, front, frame)
 	local t = os.clock()
 	if t < due then

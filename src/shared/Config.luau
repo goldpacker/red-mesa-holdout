@@ -159,7 +159,9 @@ Config.Lanes = {
 --   a dust storm's wall reaches the outpost `at` seconds into the wave
 --   (it appears on the horizon ~38 s earlier), holds `hold` seconds, then
 --   clears within ~16 s; `amount` caps Lighting.StormAmount at the peak
---   (client/DustStorm; readability-checked at the wave's preset).
+--   (client/DustStorm; readability-checked at the wave's preset). The
+--   client also clamps every storm to its preset's readability cap
+--   (DustStorm.PRESET_CAP: Afternoon 1, Sunset 0.8, LateAfternoon none).
 local function g(kind: string, lane: string, count: number, at: number, spacing: number)
 	return { kind = kind, lane = lane, count = count, at = at, spacing = spacing }
 end
@@ -256,7 +258,8 @@ Config.Waves = {
 		time = "Sunset",
 		crates = { 28, 52, 76 },
 		crateBias = "Rockets",
-		-- capped at 0.8: at 1 the gunsight probe read 2.80-2.92:1 (< 3)
+		-- capped at 0.8: at 1 the gunsight probe read 2.80-2.92:1 (< 3);
+		-- client/DustStorm.PRESET_CAP enforces the Sunset cap in code too
 		weather = { storm = { at = 46, hold = 18, amount = 0.8 } },
 		groups = {
 			g("Jet", "CanyonRun", 1, 10, 1),

@@ -202,7 +202,9 @@ Contracts for Update 2:
   never sets it. Scale it for your use (AD's chute drift uses it as is).
   Offline test: `python3 tools/vfx/qa/wind_test.py`.
 - **Weather (VFX-4):** `Config.Waves[n].weather = { storm = { at, hold,
-  amount } }` (waves 3 and 7). Weather is client-only: `Workspace.WeatherFx`
+  amount } }` (waves 3 and 7). `client/DustStorm.PRESET_CAP` clamps every
+  storm to its preset's measured readability cap (Afternoon 1, Sunset 0.8,
+  LateAfternoon none), whatever the table asks for. Weather is client-only: `Workspace.WeatherFx`
   (non-query parts), emitters on Terrain attachments. During a staged
   beauty shot it is cleared and hidden unless Workspace `WeatherLive` is
   set; Workspace `WeatherOff` turns it all off (Studio).
