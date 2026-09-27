@@ -48,7 +48,9 @@ contract `docs/FACELIFT_TEAM.md` "Update 2", ledger
 `.superpowers/sdd/AIRDROP_ENVIRONMENT_PLAN/`). First wave running: AD-1
 airdrop core, HS-6 transport/parachute art, ENV-3F ground edges + dressing,
 LOOK-3B motion sweep, QA-B budget measurement. The paused face-lift items
-below are resumed inside this plan.
+below are resumed inside this plan. **23:10 user decision: daylight only**
+(no dusk or night; waves 1–3 afternoon, 4–6 late afternoon, 7–10 sunset)
+to keep the busiest waves inside the GPU budget.
 
 **Visual face-lift** (`docs/FACELIFT_PLAN.md`), built 2026-09-26 by a lead
 plus QA-tools, Environment (ENV), Hard-surface (HS), Character (CHAR), VFX
