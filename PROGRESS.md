@@ -42,11 +42,74 @@ Contracts: `docs/ARCHITECTURE.md`, `docs/ASSET_CONTRACTS.md`.
 - **Final end-to-end playthrough succeeded** (see DONE.md).
 
 ## Current work
-- **Visual face-lift** (`docs/FACELIFT_PLAN.md`, all phases 0–9), built by
-  a lead plus QA-tools, Environment, Hard-surface, Character, VFX and Look
-  agents under `docs/FACELIFT_TEAM.md`. User decisions 2026-09-26: CC0
-  inputs allowed (spec §14.2 amended), hybrid landscape, full scope.
-- Phase 0 (beauty-shot rig, art bible, perf budget) in progress.
+**Visual face-lift** (`docs/FACELIFT_PLAN.md`), built 2026-09-26 by a lead
+plus QA-tools, Environment (ENV), Hard-surface (HS), Character (CHAR), VFX
+and Look agents under `docs/FACELIFT_TEAM.md`. User decisions: CC0 inputs
+allowed (spec §14.2 amended), hybrid landscape, full scope. **Paused by the
+user at 18:50**; all agents stopped, locks released, playtest stopped.
+Every milestone below was reviewed (diff + before/after images) unless
+marked otherwise. Briefs, reports and reviews:
+`.superpowers/sdd/FACELIFT_PLAN/` (git-ignored).
+
+### Done (reviewed)
+- **Phase 0 – QA tooling:** six beauty cameras × five times of day,
+  capture/compare/grayscale tools (`tools/qa/BEAUTY.md`), LOS and ground
+  checks, perf probe, baseline `qa/beauty/p0-baseline/`,
+  `docs/ART_BIBLE.md`, `docs/PERF_BUDGET.md`.
+- **Phase 1 – environment (ENV-1, ENV-2):** custom PBR MaterialVariants for
+  every terrain material (CC0-based, credited), macro variation, painted
+  skyboxes per preset with clouds; mesa, rear/flank/far walls and four
+  buttes rebuilt as strata meshes over the unchanged gameplay terrain
+  (LOS and lane ground heights identical to baseline).
+- **Phase 2 – lighting (LOOK-1):** `LightingRig`, re-keyed presets with
+  written intents, day-for-night Night, dusk lit by its lamps, grading and
+  bloom per preset, gunsight depth of field and vignette, heat haze,
+  dusty searchlights, pit lamp.
+- **Phase 3 – emplacement (HS-1, HS-2, HS-4):** worn burlap sandbags,
+  chipped OD gun, brass belt, stencils, camo net; belt feed, ejected brass,
+  barrel heat glow, net ripple, antenna sway; 3D gunsights; turret gun
+  assembly rebuilt from high-poly bakes.
+- **Phase 4 – vehicles (HS-3..5):** shared trim sheets and high→low bake
+  tooling; tank, buggy, helicopter, jet and Siege Crawler rebuilt; torn
+  weak-point sockets; burnt wreck textures; distance LOD.
+- **Phase 5 – infantry (CHAR-1, CHAR-2):** one skinned soldier (3 gear
+  variants, LOD) animated by bones: walk, aim sway, throw, two deaths.
+- **Phase 6 – VFX (VFX-1..3):** Blender-rendered flipbooks, layered
+  explosions, surface-aware impacts, textured Beam tracers, muzzle flashes,
+  backblast, motion dust, particle LOD. No built-in particle textures left.
+- **Phase 7 – UI (LOOK-2):** worn-metal 9-slice HUD kit, animated bars,
+  radar sweep, banner/tally/damage motion; player list hidden.
+- **Phase 8 – motion (LOOK-3):** client root smoothing, vehicle bob/roll,
+  heli lean, jet bank, moving treads, camera kick/sway/look-lag (aim stays
+  exact). One open item below.
+
+### Stopped mid-flight (not reviewed)
+- **ENV-3 road/wash edges + ground dressing:** first version committed
+  (`2081f8a`); a further iteration (dressing/strip re-publish, shadow range
+  in `GroundDressing.luau`) is **uncommitted** in the working tree.
+- **LOOK-4 weapon icons + title key art:** just started; new scripts in
+  `tools/ui/` are **untracked**, `tools/ui/publish_look.py` modified; no
+  commits.
+- **LOOK-3 fix round 2:** the 0.5 s `EnemyMotion` re-check sweep walks every
+  tracked model's descendants (likely cause of 0.15 → 0.30 ms, one 3 ms
+  frame); make it event-driven and measure. Not started.
+
+### Still planned
+- Finish and review ENV-3 and LOOK-4 (weapon icons, title key art, logo).
+- **Phase 9 / QA-9:** authoritative perf pass (texture memory measured
+  241–256 MB vs ~250 MB budget; wave-9 GPU 6.05 ms vs 6 ms limit), full
+  10-wave playthrough, final beauty set vs baseline, "Roblox-tell"
+  checklist, readability, and the carry-over checks listed in
+  `.superpowers/sdd/FACELIFT_PLAN/briefs/QA-9.md` (restore the Studio
+  viewport width first — it was narrowed to ~896 px).
+
+### Lead rulings (details in the SDD ledger)
+Parallel workstreams on one branch with file ownership; headless Blender
+only; no in-game change before the baseline; backblast dust to VFX; turret
+gun pass added to HS-4; perf headroom split confirmed; accepted trade-offs:
+far-wall/butte texel density, aircraft 21–26 px/stud, Crawler 12–18 px/stud,
++2–5 MB burnt-wreck maps; headshot bug and lag compensation left for the
+user (gameplay, not visual).
 
 ## Known bugs / gaps
 - **No lag compensation on server hitscan** (found 2026-09-26 by the Look
@@ -65,8 +128,12 @@ Contracts: `docs/ARCHITECTURE.md`, `docs/ASSET_CONTRACTS.md`.
   `caffeinate -u` first.
 
 ## Last successful playtest
+- Face-lift: each milestone was playtested in its own area (live waves,
+  boss wave 10, all screens), but **no full 10-wave run has been done on
+  the face-lifted build yet** (planned in QA-9).
 - 2026-09-26: fresh-start 10-wave run to victory (15.7 min, no errors),
   then Play Again, Retry Wave and Restart verified.
 
 ## Next planned task
+- Resume the face-lift: ENV-3 review, LOOK-3 fix round 2, LOOK-4, then QA-9.
 - Human playtest for aim feel, audio mix and difficulty.
