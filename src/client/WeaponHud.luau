@@ -16,6 +16,7 @@ local LockOn = require(script.Parent.LockOn)
 local PostFxAssets = require(script.Parent.PostFxAssets)
 local Ui = require(script.Parent.Ui)
 local UiKit = require(script.Parent.UiKit)
+local UiKitArt = require(script.Parent.UiKitArt)
 local WeaponController = require(script.Parent.WeaponController)
 
 local WeaponHud = {}
@@ -88,11 +89,17 @@ local function buildSlots(root: Frame)
 			brackets = brackets,
 			name = Ui.label({ Text = WeaponConfig.SLOT_NAMES[weapon], FontFace = F.Label, TextSize = 14, TextColor3 = DIM, Position = UDim2.fromOffset(24, 5), Size = UDim2.fromOffset(104, 16), Parent = plate }),
 			ammo = Ui.label({ Text = if weapon == "MG" then "∞" else "--", FontFace = F.Mono, TextSize = 20, TextColor3 = DIM, TextXAlignment = Enum.TextXAlignment.Right, Position = UDim2.fromOffset(0, 19), Size = UDim2.new(1, -10, 0, 22), Parent = plate }),
-			status = Ui.label({ Text = "", FontFace = F.Label, TextSize = 13, TextColor3 = C.Amber, Position = UDim2.fromOffset(9, 22), Size = UDim2.fromOffset(80, 18), Parent = plate }),
+			status = Ui.label({ Text = "", FontFace = F.Label, TextSize = 13, TextColor3 = C.Amber, Position = UDim2.fromOffset(9, 22), Size = UDim2.fromOffset(80, 18), ZIndex = 3, Parent = plate }),
+			-- LOOK-4: the weapon's icon left of the ammo count (the status
+			-- callout sits over it, dimming it, while one shows).
+			icon = UiKitArt.weaponIcon(weapon, { Position = UDim2.fromOffset(9, 18), Size = UDim2.fromOffset(75, 25), ImageColor3 = DIM, ZIndex = 2, Parent = plate }),
 			reload = nil :: UiKit.Bar?,
 			wasReloading = false,
 			readyUntil = 0,
 		}
+		if slot.icon then
+			Ui.outline(slot.status, 1.5)
+		end
 		Ui.label({ Text = tostring(i), FontFace = F.Header, TextSize = 18, TextColor3 = C.Amber, Position = UDim2.fromOffset(8, 4), Size = UDim2.fromOffset(16, 18), Parent = plate })
 		if weapon ~= "MG" then
 			local bar = UiKit.bar(plate, { Position = UDim2.new(0, 6, 1, -13), Size = UDim2.new(1, -12, 0, 9), SliceScale = 0.6 }, { color = C.Olive, rate = 18 })
@@ -371,6 +378,18 @@ local function selectMotion(slot: any)
 	UiKit.tween(slot.frame, 0.35, { ImageColor3 = UiKit.Tints.Plate })
 end
 
+-- Icon tint: cream when selected, grey idle, red when out of ammo; dimmed
+-- under a status callout so the word reads.
+local function paintIcon(slot: any, selected: boolean, empty: boolean)
+	local icon = slot.icon :: ImageLabel?
+	if not icon then
+		return
+	end
+	icon.ImageColor3 = if empty then C.Red elseif selected then C.Text else DIM
+	local base = if selected then 0 else 0.25
+	icon.ImageTransparency = if slot.status.Text ~= "" then math.max(base, 0.7) else base
+end
+
 local function updateSlots(current: string, lockState: string, dt: number)
 	local switched = current ~= lastWeapon
 	lastWeapon = current
@@ -392,6 +411,7 @@ local function updateSlots(current: string, lockState: string, dt: number)
 			slot.ammo.TextColor3 = if selected then C.Amber else DIM
 			slot.status.Text = if WeaponController.getLockRemaining() > 0 then "OVERHEAT" else ""
 			slot.status.TextColor3 = C.Red
+			paintIcon(slot, selected, false)
 			continue
 		end
 		local ammo = WeaponController.getAmmo(weapon)
@@ -426,6 +446,7 @@ local function updateSlots(current: string, lockState: string, dt: number)
 		end
 		slot.status.Text = status
 		slot.status.TextColor3 = color
+		paintIcon(slot, selected, ammo == 0)
 	end
 end
 

@@ -146,6 +146,7 @@ WHERE = {
     "kit": "HUD, always",
     "look": "night searchlight cones, heat haze (day), vignette",
     "motion": "tank/crawler treads",
+    "art": "LOOK-4: title key art 1024² + logo 1024×256 on the title only (destroyed at START); weapon icon atlas 256², HUD always",
     "Infantry": "unused since CHAR-2 (rigid parts' appearances destroyed)",
     "InfantrySpike": "unused (spike test)",
     "Transport": "Update 2 airdrop transports, 250-350 studs up, 300-1500 studs out (HS-6, not in game yet)",

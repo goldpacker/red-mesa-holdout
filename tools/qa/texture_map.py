@@ -39,7 +39,7 @@ OWNERS = [
     ("DropPlatform", "HS"), ("TrimAirdrop", "HS"),
     ("InfantrySkinned", "CHAR"), ("InfantrySpike", "CHAR"), ("Infantry", "CHAR"),
     ("VfxDebris", "VFX"), ("assets/vfx", "VFX"),
-    ("ui/kit", "Look"), ("ui/look", "Look"), ("ui/motion", "Look"),
+    ("ui/kit", "Look"), ("ui/look", "Look"), ("ui/motion", "Look"), ("ui/art", "Look"),
 ]
 
 

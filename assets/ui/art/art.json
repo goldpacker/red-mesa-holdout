@@ -1,0 +1,50 @@
+{
+ "capture_rev": "7057fe6",
+ "icons": {
+  "cells": {
+   "MG": {
+    "offset": [
+     0,
+     0
+    ],
+    "size": [
+     192,
+     64
+    ]
+   },
+   "Missile": {
+    "offset": [
+     0,
+     136
+    ],
+    "size": [
+     192,
+     64
+    ]
+   },
+   "Rocket": {
+    "offset": [
+     0,
+     68
+    ],
+    "size": [
+     192,
+     64
+    ]
+   }
+  },
+  "size": [
+   256,
+   256
+  ]
+ },
+ "keyart": {
+  "aspect": 1.7778,
+  "camera": "drop",
+  "focus_x": 0.62,
+  "size": [
+   1024,
+   1024
+  ]
+ }
+}

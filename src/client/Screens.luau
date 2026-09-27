@@ -3,7 +3,9 @@
 -- defeat and victory screens. LOOK-2: kit panels and buttons (UiKit),
 -- banners that slide in and out between stencilled stripes, a tally that
 -- reveals its rows and counts them up, and end screens whose title lands,
--- stats count up and buttons rise in.
+-- stats count up and buttons rise in. LOOK-4: the title shows the Blender
+-- key art (an airdrop over the basin at sunset) under the stencilled metal
+-- logo (UiKitArt); both are released when the game starts.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -13,6 +15,7 @@ local Workspace = game:GetService("Workspace")
 local GameState = require(script.Parent.GameState)
 local Ui = require(script.Parent.Ui)
 local UiKit = require(script.Parent.UiKit)
+local UiKitArt = require(script.Parent.UiKitArt)
 
 local Screens = {}
 
@@ -27,7 +30,13 @@ type Row = { label: TextLabel, value: TextLabel }
 
 local gui: ScreenGui
 local title: Frame
-local titleParts: { { inst: GuiObject, delay: number } } = {}
+-- LOOK-4 title art: the key art backdrop and the metal logo (title only;
+-- released when the game starts), with the text title as their fallback.
+local backdrop: UiKitArt.Backdrop? = nil
+local logo: ImageLabel? = nil
+local logoSlide = { inst = nil :: GuiObject?, delay = 0 }
+local titleText: { TextLabel } = {}
+local titleParts: { { inst: GuiObject?, delay: number } } = {}
 local banner: CanvasGroup
 local bannerMain: TextLabel
 local bannerSub: TextLabel
@@ -80,6 +89,8 @@ local function buildTitle()
 	local name2 = Ui.label({ Text = "HOLDOUT", FontFace = F.Header, TextSize = 72, TextColor3 = C.Text, Position = UDim2.new(0, 64, 0.18, 88), Size = UDim2.fromOffset(600, 76), Parent = title })
 	Ui.outline(name2, 3)
 	titleSlide(name2, 0.06)
+	titleText = { name, name2 }
+	table.insert(titleParts, logoSlide)
 	local rule = Ui.new("ImageLabel", {
 		Name = "Rule",
 		BackgroundTransparency = 1,
@@ -139,10 +150,45 @@ local function buildTitle()
 	end)
 end
 
+local function showTitleText(visible: boolean)
+	for _, label in titleText do
+		label.Visible = visible
+	end
+end
+
+-- LOOK-4 title art (again whenever the title comes back after a release):
+-- the key art under everything (the live title camera shows until it has
+-- loaded, or for good if it never does) and the stencilled metal logo in
+-- place of the text title (the text comes back if the logo never loads).
+local function mountTitleArt()
+	if not backdrop then
+		backdrop = UiKitArt.backdrop(title, 0)
+	end
+	if logo then
+		return
+	end
+	local image = UiKitArt.logo({ Position = UDim2.new(0, 50, 0.18, 4), Parent = title }, 520, function()
+		showTitleText(false)
+	end)
+	logo = image
+	logoSlide.inst = image
+	if image then
+		showTitleText(false)
+		task.delay(8, function()
+			if logo == image and not image.IsLoaded then
+				showTitleText(true)
+			end
+		end)
+	end
+end
+
 -- Staggered slide-in of the title elements (from the left, fading in).
 local function playTitleIntro()
 	for _, part in titleParts do
 		local inst = part.inst
+		if not (inst and inst.Parent) then
+			continue
+		end
 		local target = inst:GetAttribute("Home") :: UDim2?
 		if not target then
 			target = inst.Position
@@ -444,11 +490,31 @@ function Screens.start()
 	end)
 end
 
+-- The key art and logo are only ever on the title: once the game starts
+-- they are destroyed so their textures can leave memory during waves. The
+-- text title stays as the fallback should the title come back.
+local function releaseTitleArt()
+	if backdrop then
+		backdrop.release()
+		backdrop = nil
+	end
+	if logo then
+		logo:Destroy()
+		logo = nil
+		logoSlide.inst = nil
+		showTitleText(true)
+	end
+end
+
 -- Syncs which screens are visible with the current phase.
 function Screens.applyPhase(phase: string)
 	local wasTitle = title.Visible
 	title.Visible = phase == "Title"
+	if phase ~= "Title" then
+		releaseTitleArt()
+	end
 	if phase == "Title" and not wasTitle then
+		mountTitleArt()
 		playTitleIntro()
 	end
 	if phase ~= "Intermission" then
