@@ -106,34 +106,40 @@ bleach in the sun; grime streaks run down from horizontal edges. No
 
 ## 4. Light keys
 
-One written intent and one reference beauty shot per time-of-day preset
+Daylight only (spec §7.1, `3397923`): waves 1–3 run in Afternoon, 4–6 in
+Late afternoon, 7–10 and the boss in Sunset, the climax light. Dusk and
+night were removed with their presets; earlier beauty sets keep their
+`dusk_*`/`night_*` files for history.
+
+One written intent and one reference beauty shot per preset
 (`src/server/TimeOfDay.luau`; sky, clouds and the base rig in
-`src/server/LightingRig.luau`; client post in `src/client/PostFx.luau` and
-`NightFx.luau`). Re-keyed in LOOK-1 (Phase 2): the references are its
-after-shots in `qa/beauty/look-1/` (Dusk and Late afternoon: the LOOK-1
-fix round, `qa/beauty/look-1-fix/`); the Phase 0 baseline is kept in the
-last column for comparison (`qa/beauty/compare/p0-baseline_vs_look-1/`).
+`src/server/LightingRig.luau`; the client layers per preset in
+`src/client/PostFxPresets.luau`: low dust, sun shafts, film treatment).
+Re-keyed in LOOK-5 (Update 2, cinematic realism: modern-shooter desert
+maps, crisp and high-contrast with air that has depth). The references
+are its after-shots in `qa/beauty/look-5/`; the Phase 0 baseline is in
+the last column (`qa/beauty/compare/p0-baseline_vs_look-5/`).
 
-Two engine facts shape the clock (LOOK-1): Roblox renders the skybox black
-once the sun is more than a few degrees below the horizon, and ENV's skies
-are painted for the sun path at `GeographicLatitude` 30. So **Dusk sits at
-`ClockTime` 17.7** (sun ~4.5° up, below the canyon rim) and **Night is
-"day for night"**: `ClockTime` 12, where the noon sun stands where ENV
-painted the moon; the sun disc is drawn with the moon texture and the
-light is keyed dim and cool. Clients read the preset from
-`Workspace.TimeOfDay`, never from `ClockTime`.
+ENV's skies are painted for the sun path at `GeographicLatitude` 30 and
+each preset's `ClockTime`. From late afternoon on the sun stands low in the
+west (−X, just over the left canyon wall), so looking left means looking
+into the light.
 
-| Preset | Intent | Key (LOOK-1) | Reference | Phase 0 baseline |
+| Preset | Intent | Key (LOOK-5) | Reference | Phase 0 baseline |
 |---|---|---|---|---|
-| Afternoon (waves 1–3, `ClockTime` 15.2) | High, warm-white sun; short crisp shadows that still model every ledge; cool blue sky fill in the shadows; light haze only toward the far wall. The clearest, most readable preset: dark enemies on bright ochre ground. | Warm-white key 3.8, cool blue-grey ambient, `ShadowSoftness` 0.08, `EnvironmentSpecularScale` 1 so PBR metal reads; faint heat haze low over the basin; bloom only above 2.4. | [afternoon_2-turret](../qa/beauty/look-1/afternoon_2-turret.jpg) | [p0](../qa/beauty/p0-baseline/afternoon_3-gunsight.jpg): flat, stock sky |
-| Late afternoon (wave 4, 16.85) | Sun lower and warmer (golden amber); shadows lengthen and rake across the basin; cliff strata show relief; haze layers the far wall and buttes. Clearly warmer than afternoon at a glance. | Golden key 3.5 (`ColorShift_Top` #FFC484) from ~17° up, violet-grey fill, more haze and glare toward the sun, warm grade; heat haze at 75 %. (ENV re-painted the sky for 16.85, `11c1bba`.) | [lateafternoon_5-night](../qa/beauty/look-1-fix/lateafternoon_5-night.jpg) | [p0](../qa/beauty/p0-baseline/lateafternoon_5-night.jpg): barely different from afternoon |
-| Sunset (waves 5–7, 17.25) | Long raking shadows, warm orange key, cool violet bounce in the shadows, rim light on every silhouette; sun rays through the canyon; strong horizon glow. Enemies read as dark shapes rimmed in orange. | Orange key against violet `ColorShift_Bottom`/ambient; strong horizon haze and glare; sun rays 0.14; grade desaturated slightly so the painted sky and the ground don't collapse into one orange. | [sunset_4-flank](../qa/beauty/look-1/sunset_4-flank.jpg) | [p0](../qa/beauty/p0-baseline/sunset_5-night.jpg): monochrome red, daytime sky |
-| Dusk (wave 8, 17.7) | Sun at the canyon rim: the violet-magenta sky and horizon carry the colour; the basin falls into cool dusk with no hard sun shadows. Artificial lights (searchlight cones and pools, headlights, flares, the warm pit lamp) read as the keys. Enemies are dark silhouettes against the ground and the light pools. | Weak, soft sun (1.2, `ShadowSoftness` 0.4), low cool ambient, exposure +0.5, thin haze (0.9) so the painted sky gradient shows; grade contrast 0.36. | [dusk_2-turret](../qa/beauty/look-1-fix/dusk_2-turret.jpg) | [p0](../qa/beauty/p0-baseline/dusk_5-night.jpg): red wash, gunsight spread 34/255 |
-| Night (waves 9–10, day-for-night 12.0) | Cool moonlight from high above as the key; painted starry sky; silvery sand with deep but not crushed shadows; warm practical lights (searchlights, flares, lamps, muzzle flashes) as accents. Enemies read as dark silhouettes against lit sand and sky, plus their own lights. | Dim blue-white key 1.5 from the zenith, blue ambient, strong grade contrast and desaturation; warm dusty searchlight cones and a warm pit lamp so the gun and sandbags read olive and burlap. | [night_2-turret](../qa/beauty/look-1/night_2-turret.jpg) | [p0](../qa/beauty/p0-baseline/night_5-night.jpg): purple ground, enemies only by their lamps |
+| Afternoon (waves 1–3, `ClockTime` 15.2) | High, warm-white sun; crisp short shadows that model every ledge; a deep, clean blue sky; the ground a neutral ochre, not orange. Pale dust hangs low: the far wall and the feet of the canyon walls sit back in it while the rims stay sharp, so foreground, basin and walls separate. The clearest, most readable preset: dark enemies on bright ground. | Harder key 4.1 (exposure −0.12) over a darker, cooler fill; `EnvironmentDiffuseScale` 0.5 for modelling, `ShadowSoftness` 0.08. Atmosphere density 0.3 / offset 0.3, pale dust colour. Grade contrast 0.34, saturation −0.08, near-neutral tint. Low dust bands (peak 0.22, wall feet 0.45); faint heat haze; film grain 5 %, vignette 16 %, sun glare when turned to the sun. | [afternoon_2-turret](../qa/beauty/look-5/afternoon_2-turret.jpg) | [p0](../qa/beauty/p0-baseline/afternoon_3-gunsight.jpg): flat, stock sky |
+| Late afternoon (waves 4–6, 16.85) | Golden amber sun ~17° up in the west; shadows lengthen and rake across the basin; cool violet fill keeps the shadow side from going orange. Warm dust lies low in the basin and glows where you look toward the sun; light pours over the west rim in soft shafts. Clearly warmer than afternoon at a glance. | Golden key 3.8 (`ColorShift_Top` #FFC484), violet ambient; atmosphere 0.28 / 0.3, warm dust; grade contrast 0.32, saturation −0.06; sun rays 0.16 (spread 0.65); dust bands 0.24 / walls 0.45 with backlit glow toward the sun; rim shafts 0.22; heat haze 75 %; grain 5.5 %, vignette 20 %. | [lateafternoon_2-turret](../qa/beauty/look-5/lateafternoon_2-turret.jpg) | [p0](../qa/beauty/p0-baseline/lateafternoon_5-night.jpg): barely different from afternoon |
+| Sunset (waves 7–10 and the boss, 17.25) | The climax light. Low orange sun on the west rim, long raking shadows, cool violet shadows, rim light on every silhouette; backlit dust and shafts of light over the rim, god rays when you turn toward the sun. Not a monochrome red: the grade holds the ground back so the sky and the dark enemy shapes carry the frame. | Orange key 3.9 against violet ambient/`ColorShift_Bottom`; thinner rose haze (0.25 / 0.32, glare 0.7); grade contrast 0.32, saturation −0.16; sun rays 0.2 (spread 0.7); dust 0.24 with the strongest glow; rim shafts 0.3; grain 6 %, vignette 22 %. | [sunset_4-flank](../qa/beauty/look-5/sunset_4-flank.jpg) | [p0](../qa/beauty/p0-baseline/sunset_5-night.jpg): monochrome red, daytime sky |
+
+Film treatment (all presets, `client/PostFxFilm`): subtle animated grain
+and a gentle corner vignette under the HUD, and a sun glare (soft glow,
+short streak, aperture ghosts) only within ~45° of an unobstructed sun; Workspace `FilmFxOff = true` turns all of it off. Storms
+(`Lighting.StormAmount`, VFX-4) blend every preset toward a dimmed,
+soft-shadowed, warm-brown look with a shorter view (`client/PostFxStorm`).
 
 Gunsight (all presets): a near-only depth of field (sharp from ~40 studs
 out, nothing blurred beyond the target) and a lens vignette, both only
-while aiming. All 30 LOOK-1 shots: [contact sheet](../qa/beauty/look-1/contact.jpg).
+while aiming. All LOOK-5 shots: [contact sheet](../qa/beauty/look-5/contact.jpg).
 Shot definitions and the capture procedure: `tools/qa/BEAUTY.md`.
 
 ## 5. The "Roblox-tell" checklist
