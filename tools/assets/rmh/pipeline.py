@@ -227,6 +227,19 @@ def _baked_material(name, imgs):
     return mat
 
 
+def _flat_material(color, roblox_material):
+    """Opt-in (HS-6) preview stand-in for a `flat` part (no textures: a
+    Roblox material + Color, e.g. Glass windows)."""
+    mat = bpy.data.materials.new("Flat")
+    mat.use_nodes = True
+    bsdf = next(n for n in mat.node_tree.nodes if n.type == "BSDF_PRINCIPLED")
+    from .materials import srgb_to_linear
+
+    bsdf.inputs["Base Color"].default_value = tuple(srgb_to_linear(c) for c in color) + (1.0,)  # sRGB 0..1, as the rbxmx writes it
+    bsdf.inputs["Roughness"].default_value = 0.06 if roblox_material == "Glass" else 0.5
+    return mat
+
+
 def _neon_material(color):
     mat = bpy.data.materials.new("Neon")
     mat.use_nodes = True
@@ -387,7 +400,7 @@ def texel_density(objs, size, skip_down=False, skip_back=False):
 def bake_groups(asset, out_dir, samples):
     groups = {}
     for o in asset.objects:
-        if o.get("rmh_neon") is not None or o.get("rmh_invisible"):
+        if o.get("rmh_neon") is not None or o.get("rmh_invisible") or o.get("rmh_flat") is not None:
             continue
         groups.setdefault(o["rmh_tex"], []).append(o)
     textures = {}
@@ -640,10 +653,10 @@ def write_manifest(asset, out_dir, textures, previews):
             "path": o["rmh_path"],
             "center": rb(center),
             "size": rb_size(hi - lo),
-            "tex": None if (o.get("rmh_neon") is not None or o.get("rmh_invisible")) else o["rmh_tex"],
+            "tex": None if (o.get("rmh_neon") is not None or o.get("rmh_invisible") or o.get("rmh_flat") is not None) else o["rmh_tex"],
             "tris": sum(len(p.vertices) - 2 for p in o.data.polygons),
         }
-        for key in ("query", "collide", "neon", "material", "transparency", "shadow", "invisible", "pivot_offset", "fidelity", "hitbox"):
+        for key in ("query", "collide", "neon", "flat", "material", "transparency", "shadow", "invisible", "pivot_offset", "fidelity", "hitbox"):
             if o.get("rmh_" + key) is not None:
                 v = o["rmh_" + key]
                 entry[key] = list(v) if hasattr(v, "__len__") and not isinstance(v, str) else v
@@ -698,6 +711,9 @@ def finish(asset, samples=24, preview_samples=96, views=None, preview=True):
         if o.get("rmh_neon") is not None:
             o.data.materials.clear()
             o.data.materials.append(_neon_material(o["rmh_neon"]))
+        if o.get("rmh_flat") is not None:
+            o.data.materials.clear()
+            o.data.materials.append(_flat_material(o["rmh_flat"], o.get("rmh_material")))
         if o.get("rmh_invisible"):
             o.hide_render = True
     previews = []

@@ -289,6 +289,61 @@ side).
   plus client culling of every `*Kit` part (CanQuery false) beyond 400
   zoom-corrected studs. New kit parts should keep the `Kit` suffix.
 
+### Airdrop assets (HS-6)
+
+`Transport`, `Parachute`, `ParachuteCargo`, `DropPlatform` and the
+texture-only `TrimAirdrop` sheet (`models/{transport,parachute,
+parachute_cargo,drop_platform,trim_airdrop}.py`; contracts in
+`docs/ASSET_CONTRACTS.md`). New opt-in tooling, default behaviour unchanged
+(every other asset builds as before):
+
+- **`TrimSheet(name, size, gutter, metal=False)`**: a sheet with no
+  metalness map (fabric). Consumers' rbxmx then leave `MetalnessMap` empty.
+- **Multi-material strips**: `s.strip(name, px, world, build, mat=[...])`
+  takes a list indexed by the pattern faces' `material_index` (gore shades,
+  tapes, a marking band in one strip). A single name works as before.
+- **`T.custom(bm, strip, fn, band, faces, wrap=None)`**: your own
+  parameterisation, `fn(co) -> (u in periods, t in 0..1)`; `wrap` = periods
+  round a closed loop (faces straddling it are shifted, no seam). The
+  canopies map U = gore angle and V = arc from the vent on the inflated
+  shape, then deform (deploy streamer, cloth collapse) keeping those UVs.
+- **Part flag `flat=(r, g, b)`** (sRGB 0..1): no textures at all — a Roblox
+  `material` + Color (the transport's `Windows` are `material="Glass"`).
+  The pipeline skips it in unwrap/bake; previews use a matching stand-in.
+- **`cloth._simulate(..., self_collision=d)`**: cloth self-collision
+  distance (the collapsed canopies fold onto themselves); off by default.
+- **Geometric markings on trim assets**: `transport.emblem(size)` builds the
+  enemy emblem (broken ring + two chevrons, the proportions of
+  `images.emblem_alpha`) as a flat single-sided mesh mapped to the `red`
+  strip, laid a hair off the skin (`orient`). Red tips/bands come from face
+  predicates on `T.planar` (wing, fin and prop tips). No decal bake needed,
+  so an asset can stay on a shared sheet with zero own textures.
+- **Cut glazing**: `transport.cockpit_glazing` insets the fuselage loft's
+  facets in the glazed band (`bmesh.ops.inset_individual`; the rim stays skin
+  as the frame), recesses the pane and moves it to the Glass part. Create
+  any face layer *before* collecting face references (adding a layer
+  invalidates them), and after an inset re-tag: the new rim faces copy the
+  original face's layer values.
+- **Canopy builder** (`models/parachute.py`: `Spec`, `open_lattice`,
+  `canopy_open/deploying/collapsed`, `rigging`): one lattice (2 columns per
+  gore, rings vent→hem) with gore bulges and a scalloped skirt; double-sided
+  with `bmesh.ops.solidify`. The collapse lays every gore out downwind at
+  full length with a narrowed cross-section, then drops a 2× lattice with
+  Blender cloth (low compression stiffness so it buckles, self-collision)
+  and samples it back onto the game lattice. A dome shell dropped as is
+  stays a rigid bowl; pre-flatten it.
+
+Rebuild and publish:
+```sh
+tools/blender-lock.sh acquire hs; tools/assets/build.sh TrimAirdrop Transport Parachute ParachuteCargo DropPlatform; tools/blender-lock.sh release hs
+set -a; . ./.env.local; set +a; python3 tools/assets/publish.py upload TrimAirdrop Transport Parachute ParachuteCargo DropPlatform
+python3 tools/assets/publish.py harvest Transport Parachute ParachuteCargo DropPlatform   # run in Studio (Edit), save the JSON
+python3 tools/assets/publish.py meshes <harvest.json>
+```
+Rebuilding `TrimAirdrop` changes nothing in the assets' UVs as long as the
+strip order/heights stay (they map into `trim.json` at build time: rebuild
+them after changing it).
+
 ### Axis handling (verified in Studio)
 Roblox's glTF importer turns an asset 180° about up. `export_glb` rotates
 mesh data 180° about Z just for the export, so a model built facing +Y in

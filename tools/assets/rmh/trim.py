@@ -221,6 +221,27 @@ class Trim:
         _flag(bm, sel)
         return bm
 
+    def custom(self, bm, strip, fn, band=(0.0, 1.0), faces=None, wrap=None):
+        """Opt-in (HS-6): map faces with your own parameterisation.
+        `fn(co)` returns (u, t): u in strip periods (tiles freely), t in
+        0..1 across the strip (clamped). Used for canopies (U = gore angle,
+        t = arc length from the apex), whose UVs then survive any later
+        deformation (deploy streamer, cloth-simulated collapse). `wrap`
+        (periods round a closed loop): a face whose u values straddle the
+        wrap gets the low ones shifted up by `wrap`, so there's no seam."""
+        s, v0, v1 = self._band(strip, band)
+        sel = self._faces(bm, faces)
+        uv = _uv_layer(bm)
+        for f in sel:
+            uts = [fn(loop.vert.co) for loop in f.loops]
+            us = [u for u, _ in uts]
+            if wrap and max(us) - min(us) > wrap / 2:
+                us = [u + wrap if u < wrap / 2 else u for u in us]
+            for loop, u, (_, t) in zip(f.loops, us, uts):
+                loop[uv].uv = (u, v0 + (v1 - v0) * min(max(t, 0.0), 1.0))
+        _flag(bm, sel)
+        return bm
+
     def template(self, name):
         """A fresh bmesh of template `name` with its sheet UVs (template-
         local space: origin at its base / axle, as built)."""
@@ -258,13 +279,16 @@ class _Tpl:
 
 
 class TrimSheet:
-    def __init__(self, name, size=1024, gutter=8):
+    def __init__(self, name, size=1024, gutter=8, metal=True):
+        """Opt-in (HS-6): `metal=False` bakes no metalness map (fabric
+        sheets); the rbxmx then leaves MetalnessMap empty (= 0)."""
         from .asset import Asset
 
         self.asset = Asset(name, tex_size=size)
         self.name = name
         self.size = size
         self.gutter = gutter
+        self.channels = CHANNELS if metal else tuple(ch for ch in CHANNELS if ch != "metal")
         self.strips = []
         self.templates = []
 
@@ -277,7 +301,8 @@ class TrimSheet:
         X along U over [0, period) — repeat whole elements and overhang one
         past both ends so the bake tiles —, Y across over [0, world], the
         mean surface at z = 0 with relief up to relief[0] above and
-        relief[1] below."""
+        relief[1] below. `mat` is a material name, or (opt-in, HS-6) a
+        list indexed by the pattern faces' material_index."""
         self.strips.append(_Strip(name, px, world, build, mat, relief))
 
     def template(self, name, low, mat, high=None, hp=0.03, smooth=60):
@@ -315,7 +340,9 @@ class TrimSheet:
             st = strips[s.name]
             slot = Vector((0.0, 40.0 * i, 0.0))
             period = st["period"]
-            mat = a.material(f"{s.mat}__p{i}", base=s.mat, periodic=period)
+            # Opt-in (HS-6): `mat` may be a list indexed by the pattern's
+            # face material_index (gore shades, tapes, a marking band).
+            mats = [a.material(f"{m}__p{i}", base=m, periodic=period) for m in (s.mat if isinstance(s.mat, (list, tuple)) else [s.mat])]
             me = bpy.data.meshes.new(f"TL_{s.name}")
             bm = bmesh.new()
             vs = [bm.verts.new(c) for c in ((0, 0, 0), (period, 0, 0), (period, s.world, 0), (0, s.world, 0))]
@@ -338,7 +365,8 @@ class TrimSheet:
             hme.set_sharp_from_angle(angle=math.radians(38))
             high = bpy.data.objects.new(f"TH_{s.name}", hme)
             high.location = slot
-            hme.materials.append(a.material_obj(mat))
+            for mat in mats:
+                hme.materials.append(a.material_obj(mat))
             bpy.context.scene.collection.objects.link(high)
             highs.append(high)
         # Templates: low + high at their own slots, unwrapped and packed into
@@ -394,7 +422,7 @@ class TrimSheet:
         up = max([s.relief[0] for s in self.strips] + [0.12]) + 0.05
         down = max([s.relief[1] for s in self.strips] + [0.12]) + 0.1
         files, imgs = {}, {}
-        for ch in CHANNELS:
+        for ch in self.channels:
             t1 = time.time()
             img = pipeline._new_image(f"{self.name}_{GROUP}_{ch}", self.size, ch)
             pipeline._bake_channel([target], [tm], img, ch, sources=highs, cage=up, ray=up + down)

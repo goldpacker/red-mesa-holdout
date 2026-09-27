@@ -1,0 +1,14 @@
+{
+ "hashes": {
+  "glb": "14e9ff6b748a84ab"
+ },
+ "meshes": {
+  "BuggyRigging": "rbxassetid://135267729061763",
+  "NightLamp": "rbxassetid://86996138411924",
+  "Root": "rbxassetid://81928278486756",
+  "Slings": "rbxassetid://139664866200356",
+  "TankRigging": "rbxassetid://93156148815159"
+ },
+ "model": "98735928267935",
+ "textures": {}
+}

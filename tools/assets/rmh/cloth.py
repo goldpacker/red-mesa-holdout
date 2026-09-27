@@ -51,12 +51,16 @@ def _plane(size, z):
     return bm
 
 
-def _simulate(obj, settings, frames):
+def _simulate(obj, settings, frames, self_collision=None):
+    """`self_collision` (opt-in, HS-6): distance for cloth self-collision
+    (a collapsing canopy folds onto itself); None = off as before."""
     cl = obj.modifiers.new("cloth", "CLOTH")
     s = cl.settings
     for k, v in settings.items():
         setattr(s, k, v)
-    cl.collision_settings.use_self_collision = False
+    cl.collision_settings.use_self_collision = self_collision is not None
+    if self_collision is not None:
+        cl.collision_settings.self_distance_min = self_collision
     cl.collision_settings.distance_min = 0.005
     cl.point_cache.frame_start = 1
     cl.point_cache.frame_end = frames

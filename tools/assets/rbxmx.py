@@ -142,8 +142,12 @@ def build(manifest, ids):
             prop("float", "Transparency", _num(float(p.get("transparency", 0)))),
         ]
         neon = p.get("neon")
+        flat = p.get("flat")
         if neon is not None:
             node.props += [prop("token", "Material", MATERIALS["Neon"]), color3(neon)]
+        elif flat is not None:
+            # Opt-in (HS-6): no textures, a Roblox material + Color (glass).
+            node.props += [prop("token", "Material", MATERIALS.get(p.get("material", "Glass"), 1568)), color3(flat)]
         else:
             node.props += [prop("token", "Material", MATERIALS.get(p.get("material", "Metal"), 1088)), color3((1, 1, 1))]
             maps = tex_ids.get(p.get("tex") or "", {})

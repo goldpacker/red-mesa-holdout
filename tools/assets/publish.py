@@ -233,7 +233,7 @@ def with_shared(manifest: dict, ids: dict) -> dict:
         merged["textures"][group] = maps
         src_wreck = load(source)[2].get("wreck", {})
         sheet_wreck = next(iter(src_wreck.values()), None) if len(src_wreck) == 1 else src_wreck.get("sheet")
-        if sheet_wreck:
+        if sheet_wreck and not manifest.get("meta", {}).get("no_wreck"):  # opt-in (HS-6): never burnt
             merged["wreck"] = dict(merged.get("wreck", {}), **{group: sheet_wreck})
     return merged
 

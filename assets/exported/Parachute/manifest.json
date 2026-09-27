@@ -1,0 +1,255 @@
+{
+ "name": "Parachute",
+ "primary": "Root",
+ "pivots": {
+  "": [
+   0.0,
+   0.0,
+   -0.0
+  ],
+  "Open": [
+   0.0,
+   0.0,
+   -0.0
+  ],
+  "Deploying": [
+   0.0,
+   0.0,
+   -0.0
+  ],
+  "Collapsed": [
+   0.0,
+   0.0,
+   -0.0
+  ]
+ },
+ "parts": [
+  {
+   "name": "CanopyOpen",
+   "path": "Open",
+   "center": [
+    0.0,
+    28.787,
+    -0.0
+   ],
+   "size": [
+    23.957,
+    10.0463,
+    23.957
+   ],
+   "tex": "airdrop",
+   "tris": 1280,
+   "query": false,
+   "collide": false,
+   "material": "Fabric"
+  },
+  {
+   "name": "LinesOpen",
+   "path": "Open",
+   "center": [
+    -0.0005,
+    11.8217,
+    -0.0
+   ],
+   "size": [
+    23.6887,
+    23.9134,
+    23.6899
+   ],
+   "tex": "airdrop",
+   "tris": 336,
+   "query": false,
+   "collide": false,
+   "material": "Fabric",
+   "shadow": false
+  },
+  {
+   "name": "CanopyDeploying",
+   "path": "Deploying",
+   "center": [
+    0.2807,
+    33.972,
+    -0.1446
+   ],
+   "size": [
+    8.5347,
+    15.0309,
+    8.5362
+   ],
+   "tex": "airdrop",
+   "tris": 1280,
+   "query": false,
+   "collide": false,
+   "material": "Fabric",
+   "transparency": 1
+  },
+  {
+   "name": "LinesDeploying",
+   "path": "Deploying",
+   "center": [
+    -0.2033,
+    25.113,
+    -0.5724
+   ],
+   "size": [
+    6.4703,
+    50.496,
+    7.339
+   ],
+   "tex": "airdrop",
+   "tris": 364,
+   "query": false,
+   "collide": false,
+   "material": "Fabric",
+   "transparency": 1,
+   "shadow": false
+  },
+  {
+   "name": "CanopyCollapsed",
+   "path": "Collapsed",
+   "center": [
+    -0.5851,
+    0.59,
+    18.1392
+   ],
+   "size": [
+    15.0886,
+    1.1988,
+    16.7855
+   ],
+   "tex": "airdrop",
+   "tris": 1280,
+   "query": false,
+   "collide": false,
+   "material": "Fabric",
+   "transparency": 1
+  },
+  {
+   "name": "LinesCollapsed",
+   "path": "Collapsed",
+   "center": [
+    -0.5769,
+    0.06,
+    5.2338
+   ],
+   "size": [
+    15.1307,
+    0.0806,
+    10.5416
+   ],
+   "tex": "airdrop",
+   "tris": 446,
+   "query": false,
+   "collide": false,
+   "material": "Fabric",
+   "transparency": 1,
+   "shadow": false
+  },
+  {
+   "name": "NightLamp",
+   "path": "",
+   "center": [
+    -0.46,
+    1.3,
+    -0.3
+   ],
+   "size": [
+    0.1212,
+    0.45,
+    0.14
+   ],
+   "tex": null,
+   "tris": 20,
+   "query": false,
+   "collide": false,
+   "neon": [
+    1.0,
+    0.36,
+    0.24
+   ],
+   "transparency": 1,
+   "shadow": false
+  }
+ ],
+ "attachments": [
+  {
+   "name": "Apex",
+   "part": "CanopyOpen",
+   "pos": [
+    0.0,
+    33.8101,
+    -0.0
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "name": "LoadAttach",
+   "part": "Root",
+   "pos": [
+    0.0,
+    0.0,
+    -0.0
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "name": "NightLight",
+   "part": "Root",
+   "pos": [
+    -0.46,
+    1.3,
+    -0.3
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ]
+  }
+ ],
+ "markers": [
+  {
+   "name": "Root",
+   "path": "",
+   "pos": [
+    0.0,
+    0.0,
+    -0.0
+   ],
+   "size": [
+    0.4,
+    0.4,
+    0.4
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ]
+  }
+ ],
+ "textures": {},
+ "texel_density": {
+  "airdrop": 29.0
+ },
+ "previews": [
+  "assets/previews/Parachute.png",
+  "assets/previews/Parachute_below.png",
+  "assets/previews/Parachute_deploying.png",
+  "assets/previews/Parachute_collapsed.png",
+  "assets/previews/Parachute_cam_turret.png"
+ ],
+ "triangles": 5006,
+ "meta": {},
+ "shared_textures": {
+  "airdrop": "TrimAirdrop"
+ }
+}

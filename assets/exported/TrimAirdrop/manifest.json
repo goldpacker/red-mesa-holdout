@@ -1,0 +1,29 @@
+{
+ "name": "TrimAirdrop",
+ "kind": "trim",
+ "primary": null,
+ "pivots": {},
+ "parts": [],
+ "attachments": [],
+ "markers": [],
+ "textures": {
+  "sheet": {
+   "color": "TrimAirdrop_sheet_color.png",
+   "rough": "TrimAirdrop_sheet_rough.png",
+   "normal": "TrimAirdrop_sheet_normal.png"
+  }
+ },
+ "texel_density": {
+  "canopy": 14.0,
+  "webbing": 64.0,
+  "cord": 64.0,
+  "kraft": 64.0
+ },
+ "template_density": null,
+ "previews": [
+  "assets/previews/TrimAirdrop.png",
+  "assets/previews/TrimAirdrop_templates.png"
+ ],
+ "triangles": 0,
+ "meta": {}
+}

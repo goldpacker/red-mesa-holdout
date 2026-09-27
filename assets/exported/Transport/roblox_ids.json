@@ -1,0 +1,30 @@
+{
+ "hashes": {
+  "glb": "bcd2f044af21483f"
+ },
+ "meshes": {
+  "BeaconLamp": "rbxassetid://133977181551323",
+  "BeaconLampTop": "rbxassetid://75435472772611",
+  "Blades1": "rbxassetid://132057704963058",
+  "Blades2": "rbxassetid://78166534278708",
+  "Blades3": "rbxassetid://114313582670251",
+  "Blades4": "rbxassetid://99565385686894",
+  "CargoDoorPanel": "rbxassetid://138029812582014",
+  "Disc1": "rbxassetid://116281976633705",
+  "Disc2": "rbxassetid://133104432639363",
+  "Disc3": "rbxassetid://98532520430854",
+  "Disc4": "rbxassetid://138177975617805",
+  "FormationLights": "rbxassetid://135505110291534",
+  "LODHull": "rbxassetid://91914137661525",
+  "NavLampL": "rbxassetid://96326851230093",
+  "NavLampR": "rbxassetid://100191734648147",
+  "NavLampTail": "rbxassetid://114265744079377",
+  "RampDoor": "rbxassetid://103595322124881",
+  "Root": "rbxassetid://109840831525346",
+  "Tail": "rbxassetid://114777617928089",
+  "Windows": "rbxassetid://112602531952933",
+  "Wings": "rbxassetid://126110262266569"
+ },
+ "model": "112250308353331",
+ "textures": {}
+}

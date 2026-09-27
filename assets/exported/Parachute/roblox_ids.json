@@ -1,0 +1,16 @@
+{
+ "hashes": {
+  "glb": "c2cbe1225fa21c9d"
+ },
+ "meshes": {
+  "CanopyCollapsed": "rbxassetid://112466202313316",
+  "CanopyDeploying": "rbxassetid://120870330936787",
+  "CanopyOpen": "rbxassetid://79509530661073",
+  "LinesCollapsed": "rbxassetid://97350593400759",
+  "LinesDeploying": "rbxassetid://80827819363416",
+  "LinesOpen": "rbxassetid://138728637300316",
+  "NightLamp": "rbxassetid://131134709784421"
+ },
+ "model": "94889432475297",
+ "textures": {}
+}
