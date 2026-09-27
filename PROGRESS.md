@@ -49,6 +49,10 @@ Contracts: `docs/ARCHITECTURE.md`, `docs/ASSET_CONTRACTS.md`.
 - Phase 0 (beauty-shot rig, art bible, perf budget) in progress.
 
 ## Known bugs / gaps
+- **No lag compensation on server hitscan** (found 2026-09-26 by the Look
+  agent): at ~100 ms latency, MG shots at a moving buggy's centre hit
+  ~25% of the time. Pre-existing and unchanged by the face-lift's client
+  smoothing; a netcode/gameplay change that needs a user decision.
 - **Headshots never register on infantry** (found 2026-09-26 by the
   Character agent; pre-existing since the Blender infantry landed): the
   padded leg hit boxes enclose the `Head` box, so the MG 2× headshot never
