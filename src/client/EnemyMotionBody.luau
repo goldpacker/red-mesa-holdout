@@ -64,6 +64,7 @@ export type State = {
 	roll: Spring,
 	heave: Spring,
 	yaw: Spring,
+	id: number?, -- EnemyId, for recoil kicks
 }
 
 local byId: { [number]: State } = {}
@@ -105,11 +106,19 @@ function Body.new(model: Model, root: BasePart, kind: string): State?
 		roll = spring(profile.hz * 0.9, profile.damping),
 		heave = spring(profile.hz * 1.25, profile.damping),
 		yaw = spring(profile.hz, 0.6),
+		id = if type(id) == "number" then id else nil,
 	}
 	if type(id) == "number" then
 		byId[id] = state
 	end
 	return state
+end
+
+-- Forgets a state whose track ended (EnemyMotion calls this).
+function Body.drop(s: State?)
+	if s and s.id and byId[s.id] == s then
+		byId[s.id] = nil
+	end
 end
 
 -- Returns the body offset in Root space for this frame.
@@ -175,29 +184,11 @@ local function onFire(p: any)
 	end
 end
 
-function Body.start(tracks: { [Model]: any })
+function Body.start()
 	local ok, GameState = pcall(require, script.Parent.GameState)
 	if ok then
 		GameState.onEvent("EnemyFire", onFire)
 	end
-	-- Forget states whose model is gone.
-	task.spawn(function()
-		while true do
-			task.wait(2)
-			for id, s in byId do
-				local alive = false
-				for _, track in tracks do
-					if track.body == s then
-						alive = true
-						break
-					end
-				end
-				if not alive then
-					byId[id] = nil
-				end
-			end
-		end
-	end)
 end
 
 return Body

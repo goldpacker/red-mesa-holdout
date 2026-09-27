@@ -18,7 +18,11 @@
 --                                    the next frame),
 --                                  watchCalls         how many pieces of it ran,
 --                                  worstFrameMs       the longest render frame,
---                                  frames
+--                                  frames,
+--                                  perKind            while profiling: mean us per
+--                                    track-frame by kind (live / wreck)
+--   ("profile", on)                times every track separately (adds a
+--                                  little cost of its own; off by default)
 -- In a live game it does nothing.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -28,6 +32,7 @@ local Probe = {}
 
 local enabled = RunService:IsStudio()
 Probe.enabled = enabled
+Probe.profiling = false -- read by EnemyMotion's step
 
 type Cost = {
 	frames: number,
@@ -46,6 +51,7 @@ local function newCost(): Cost
 end
 
 local cost = newCost()
+local perKind: { [string]: { n: number, sum: number } } = {}
 local pendingWatch = 0 -- s of qualification work since the last frame
 local logId: number? = nil
 local logUntil = 0
@@ -64,6 +70,18 @@ function Probe.work(seconds: number, calls: number?)
 		pendingWatch += seconds
 		cost.watchCalls += calls or 1
 	end
+end
+
+-- One track's step while profiling.
+function Probe.kind(track: any, seconds: number)
+	local key = track.kind .. (if track.wreck then " wreck" else "")
+	local k = perKind[key]
+	if not k then
+		k = { n = 0, sum = 0 }
+		perKind[key] = k
+	end
+	k.n += 1
+	k.sum += seconds
 end
 
 -- `step`: s spent in the track loop this frame; `dt`: the render frame time.
@@ -134,11 +152,21 @@ local function ms(seconds: number): number
 	return math.floor(seconds * 1e6) / 1e3
 end
 
-local function report(): { [string]: number }
+local function report(): { [string]: any }
 	local c = cost
 	local n = math.max(c.frames, 1)
 	cost = newCost()
+	local kinds: { [string]: string }? = nil
+	if next(perKind) then
+		local byKind: { [string]: string } = {}
+		for key, k in perKind do
+			byKind[key] = string.format("%.1f us x %d", k.sum / k.n * 1e6, k.n)
+		end
+		kinds = byKind
+		table.clear(perKind)
+	end
 	return {
+		perKind = kinds,
 		meanMs = ms(c.sum / n),
 		maxMs = ms(c.max),
 		stepMeanMs = ms(c.stepSum / n),
@@ -170,6 +198,10 @@ function Probe.start(tracks: { [Model]: any })
 			return logRows
 		elseif cmd == "cost" then
 			return report()
+		elseif cmd == "profile" then
+			Probe.profiling = arg == true
+			table.clear(perKind)
+			return Probe.profiling
 		end
 		return nil
 	end

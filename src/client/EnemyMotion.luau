@@ -119,6 +119,7 @@ local function forget(model: Model)
 	local track = tracks[model]
 	if track then
 		tracks[model] = nil
+		Body.drop(track.body)
 		Tracks.destroy(track.tracks)
 	end
 end
@@ -127,6 +128,7 @@ end
 -- to the newest server pose and the track welds to their authored C0.
 local function release(track: Track)
 	tracks[track.model] = nil
+	Body.drop(track.body)
 	Tracks.destroy(track.tracks)
 	local last = track.samples[#track.samples]
 	if last and track.root.Parent then
@@ -161,6 +163,7 @@ end
 -- server) but loses its body motion and track scroll.
 local function toWreck(track: Track)
 	track.wreck = true
+	Body.drop(track.body)
 	track.body = nil
 	Tracks.destroy(track.tracks)
 	track.tracks = nil
@@ -327,6 +330,7 @@ local function step(dt: number)
 	local off = isStudio and Workspace:GetAttribute("MotionOff") == true
 	local bodyOff = isStudio and Workspace:GetAttribute("MotionBodyOff") == true
 	local t0 = now
+	local profiling = Probe.profiling
 	for model, track in tracks do
 		if not model.Parent or not track.root.Parent then
 			forget(model)
@@ -334,7 +338,11 @@ local function step(dt: number)
 			-- Landed and settled on the server pose: nothing left to smooth.
 			forget(model)
 		else
+			local k0 = if profiling then os.clock() else 0
 			local ok, err = pcall(stepTrack, track, now, dt, off, bodyOff)
+			if profiling then
+				Probe.kind(track, os.clock() - k0)
+			end
 			if not ok then
 				warn("[RedMesa] enemy motion failed for " .. track.kind .. ": " .. tostring(err))
 				failed[model] = true
@@ -409,7 +417,7 @@ local function watch()
 end
 
 function EnemyMotion.start()
-	Body.start(tracks)
+	Body.start()
 	Probe.start(tracks)
 	-- First in the frame: before the camera, VehicleFx, InfantryRig, the HUD
 	-- and the dust read any enemy position.
