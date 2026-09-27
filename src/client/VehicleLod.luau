@@ -22,6 +22,10 @@
 --
 -- Covers live enemies (Workspace.Enemies) and wrecks, including thrown
 -- turrets (Workspace.Wrecks). The model root is never moved.
+-- A model's descendants can replicate after the model itself (seen in
+-- Studio: an Infantry arrived with 22 of its 46 descendants), so kit parts
+-- that arrive later are picked up through DescendantAdded (QA-F: HeliKit
+-- was never culled when it replicated after the deferred first look).
 -- Studio QA: Workspace attribute VehicleLodOff = true shows every kit,
 -- VehicleLodForce = true hides every kit (A/B captures, triangle counts).
 
@@ -37,19 +41,37 @@ local UPDATE = 0.2 -- s between passes
 local REF_LENGTH = 26 -- studs: a tank's length (docs/ASSET_CONTRACTS.md scale)
 local MAX_SCALE = 2
 
-type Entry = { model: Model, kit: { BasePart }, far: boolean?, scale: number }
+type Entry = {
+	model: Model,
+	kit: { BasePart },
+	has: { [BasePart]: boolean },
+	far: boolean?,
+	scale: number,
+	conn: RBXScriptConnection?,
+}
 
 local entries: { [Model]: Entry } = {}
 local started = false
 
-local function kitParts(model: Model): { BasePart }
-	local out = {}
-	for _, d in model:GetDescendants() do
-		if d:IsA("BasePart") and not d.CanQuery and string.sub(d.Name, -3) == "Kit" then
-			table.insert(out, d)
-		end
+local function isKit(d: Instance): boolean
+	return d:IsA("BasePart") and not d.CanQuery and string.sub(d.Name, -3) == "Kit"
+end
+
+local function scaleOf(model: Model): number
+	local ok, size = pcall(model.GetExtentsSize, model)
+	local length = if ok then math.max((size :: Vector3).X, (size :: Vector3).Z) else REF_LENGTH
+	return math.clamp(length / REF_LENGTH, 1, MAX_SCALE)
+end
+
+local function addKit(e: Entry, part: BasePart)
+	if e.has[part] then
+		return
 	end
-	return out
+	e.has[part] = true
+	table.insert(e.kit, part)
+	if e.far then
+		part.LocalTransparencyModifier = 1
+	end
 end
 
 local function track(model: Instance)
@@ -59,17 +81,36 @@ local function track(model: Instance)
 	if model:GetAttribute("Kind") == "Infantry" then
 		return
 	end
-	local kit = kitParts(model)
-	if #kit > 0 then
-		local ok, size = pcall(model.GetExtentsSize, model)
-		local length = if ok then math.max((size :: Vector3).X, (size :: Vector3).Z) else REF_LENGTH
-		entries[model] = { model = model, kit = kit, far = nil, scale = math.clamp(length / REF_LENGTH, 1, MAX_SCALE) }
+	local e: Entry = { model = model, kit = {}, has = {}, far = nil, scale = 1 }
+	for _, d in model:GetDescendants() do
+		if isKit(d) then
+			addKit(e, d :: BasePart)
+		end
+	end
+	e.scale = scaleOf(model)
+	-- Kit that replicates after the model: add it and re-measure the model.
+	e.conn = model.DescendantAdded:Connect(function(d)
+		if isKit(d) then
+			addKit(e, d :: BasePart)
+			e.scale = scaleOf(model)
+		end
+	end)
+	entries[model] = e
+end
+
+local function drop(model: Model)
+	local e = entries[model]
+	if e then
+		if e.conn then
+			e.conn:Disconnect()
+		end
+		entries[model] = nil
 	end
 end
 
 local function untrack(model: Instance)
 	if model:IsA("Model") then
-		entries[model] = nil
+		drop(model)
 	end
 end
 
@@ -88,6 +129,7 @@ local function apply(e: Entry, far: boolean)
 		else
 			-- Moved to its own wreck (a thrown turret), which tracks it now.
 			table.remove(e.kit, i)
+			e.has[part] = nil
 		end
 	end
 end
@@ -101,8 +143,11 @@ local function pass()
 	local force = Workspace:GetAttribute("VehicleLodForce") == true
 	for model, e in entries do
 		if not model.Parent then
-			entries[model] = nil
+			drop(model)
 			continue
+		end
+		if #e.kit == 0 then
+			continue -- no kit yet (it may still replicate) or none at all
 		end
 		local far: boolean
 		if off then
@@ -169,7 +214,9 @@ end
 function VehicleLod.stats(): { near: number, far: number }
 	local near, far = 0, 0
 	for _, e in entries do
-		if e.far then
+		if #e.kit == 0 then
+			continue
+		elseif e.far then
 			far += 1
 		else
 			near += 1
