@@ -19,6 +19,10 @@ local Config = require(ReplicatedStorage.Shared.Config)
 
 local TerrainBuilder = {}
 
+-- Terrain boulder clusters placed by the last build (position, size), for
+-- the ground dressing's rock clusters at their feet (GroundDressing).
+TerrainBuilder.boulders = {} :: { { p: Vector2, size: number } }
+
 local terrain = Workspace.Terrain
 local M = Enum.Material
 
@@ -270,6 +274,7 @@ local function buildBoulders()
 		if TerrainBuilder.laneDistance(p) > 34 and p.Magnitude > 110 then
 			placed += 1
 			local size = rng:NextNumber(3, 8)
+			table.insert(TerrainBuilder.boulders, { p = p, size = size })
 			local material = if rng:NextNumber() < 0.6 then M.Rock else M.Sandstone
 			for _ = 1, rng:NextInteger(2, 4) do
 				local off = Vector3.new(rng:NextNumber(-1, 1), 0, rng:NextNumber(-1, 1)) * size
@@ -370,6 +375,7 @@ end
 
 function TerrainBuilder.build()
 	terrain:Clear()
+	table.clear(TerrainBuilder.boulders)
 	local covered = applyMaterialVariants()
 	for material, color in MATERIAL_COLORS do
 		terrain:SetMaterialColor(material, if covered[material] then Color3.new(1, 1, 1) else color)

@@ -25,6 +25,11 @@ def save(path: str, img: np.ndarray, bits: int = 8) -> None:
         img = img[..., None]
     h, w, c = img.shape
     spec = oiio.ImageSpec(w, h, c, oiio.UINT8 if bits == 8 else oiio.UINT16)
+    if c == 4:
+        # Our RGBA arrays hold straight (unassociated) colour. Without this
+        # OIIO treats them as premultiplied and divides RGB by alpha on
+        # write, turning low-alpha texels white.
+        spec.attribute("oiio:UnassociatedAlpha", 1)
     buf = oiio.ImageBuf(spec)
     buf.set_pixels(oiio.ROI(0, w, 0, h, 0, 1, 0, c), img)
     if not buf.write(path):

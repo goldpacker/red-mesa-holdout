@@ -7,6 +7,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local Emplacement = require(script.Parent.Emplacement)
+local GroundDressing = require(script.Parent.GroundDressing)
 local Landscape = require(script.Parent.Landscape)
 local LightingRig = require(script.Parent.LightingRig)
 local TerrainBuilder = require(script.Parent.TerrainBuilder)
@@ -15,7 +16,8 @@ local AssetLibrary = require(ReplicatedStorage.Shared.AssetLibrary)
 local WorldBuilder = {}
 
 
--- Sparse dry scrub between the lanes (boulders are terrain, see TerrainBuilder).
+-- Fallback when the ground dressing kit is missing: sparse ball scrub
+-- between the lanes (boulders are terrain, see TerrainBuilder).
 local function buildScrub(parent: Instance)
 	local rng = Random.new(1987)
 	local folder = Instance.new("Folder")
@@ -187,7 +189,9 @@ function WorldBuilder.build()
 
 	TerrainBuilder.build()
 	Landscape.build(battlefield)
-	buildScrub(battlefield)
+	if not GroundDressing.build(battlefield) then
+		buildScrub(battlefield)
+	end
 	-- Terrain written this frame isn't raycastable yet; place rocks shortly after.
 	task.delay(1, buildRockKit, battlefield)
 	buildSearchlights(battlefield)

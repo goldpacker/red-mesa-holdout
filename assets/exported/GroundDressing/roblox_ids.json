@@ -1,0 +1,30 @@
+{
+ "hashes": {
+  "dressing/color": "c42f1a112255a346",
+  "dressing/normal": "9cb1d82df6196199",
+  "glb": "27a55205625c268c"
+ },
+ "meshes": {
+  "Branch_A": "rbxassetid://84972407859424",
+  "Branch_B": "rbxassetid://101180338291554",
+  "Crater": "rbxassetid://131242857856733",
+  "Creosote": "rbxassetid://95226881264751",
+  "Grass": "rbxassetid://109510997817827",
+  "Pebbles_A": "rbxassetid://79462135827972",
+  "Pebbles_B": "rbxassetid://70643537257780",
+  "Rocks_A": "rbxassetid://76185620171115",
+  "Rocks_B": "rbxassetid://72123151180660",
+  "Saltbush": "rbxassetid://71624118863662",
+  "Scrub_A": "rbxassetid://91053348589433",
+  "Scrub_B": "rbxassetid://96303313795604",
+  "Tracks_A": "rbxassetid://133773622469599",
+  "Tracks_B": "rbxassetid://117866259789122"
+ },
+ "model": "102881253572386",
+ "textures": {
+  "dressing": {
+   "color": "rbxassetid://109600563504801",
+   "normal": "rbxassetid://117684849076413"
+  }
+ }
+}

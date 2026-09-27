@@ -1,0 +1,38 @@
+# ENV-3 (road/wash strips + ground dressing), Studio playtest (Server), 2026-09-26 ~18:08
+# Build: GroundStrips model 125341361938926 (63 parts, 39 with runtime PreciseConvexDecomposition),
+# GroundDressing model 102881253572386 (14 meshes, 1229 placed). Checks run ~40 s after Play.
+LOS check from turret muzzle 0, 72, 0 (hip = ground+3.0; 1353 non-query visible parts included): ALL PASS
+Road       end (0,-92) ground 2.0  PASS  feet+ hip+ head+  | along lane: 42/42 samples visible
+ScrubLeft  end (-50,-85) ground 2.0  PASS  feet+ hip+ head+  | along lane: 40/40 samples visible
+ScrubRight end (50,-85) ground 2.0  PASS  feet+ hip+ head+  | along lane: 40/40 samples visible
+WashLeft   end (-90,-40) ground -3.3  PASS  feet+ hip+ head+  | along lane: 45/45 samples visible
+WashRight  end (90,-40) ground -3.3  PASS  feet+ hip+ head+  | along lane: 45/45 samples visible
+
+Ground check: terrain height enemies snap to, every 20 studs along each lane
+Road       42 samples  terrain y min 2.0 max 2.0 mean 2.0  digest 18060  max surface-above-terrain 0.3 at (1,-460) Workspace.Battlefield.GroundDressing.Strips.Road_C05_edgeA
+ScrubLeft  40 samples  terrain y min 2.0 max 2.0 mean 2.0  digest 16400  max surface-above-terrain 0.0
+ScrubRight 40 samples  terrain y min 2.0 max 2.0 mean 2.0  digest 16400  max surface-above-terrain 0.0
+WashLeft   45 samples  terrain y min -3.4 max -3.1 mean -3.3  digest -34191  max surface-above-terrain 0.0
+WashRight  45 samples  terrain y min -3.4 max -3.2 mean -3.3  digest -34501  max surface-above-terrain 0.0
+Digests identical to P0 (tools/qa/baselines/p0-los-ground.txt) and ENV-2. The road's 0.3 is the road strip itself
+(core +0.12, berm +0.20, alpha edge +0.28 over the terrain); the wash lanes run between the bank strips (0.0).
+
+# Earlier runs this session (fixed before the run above)
+# 1. Road FAIL (feet- hip-, 38/42 along the lane): Road_C08_edgeA's Box volume reached y 7.1 because the strip end
+#    climbed the mesa-foot terrain under the talus. Fix: under the landscape mesh the strip stays at floor level
+#    (strips.py under_mesa) and strip parts thicker than 0.6 studs get precise collision (GroundDressing).
+# 2. Road PASS but feet- at the lane end (Road_C08_core box 1.0 above the terrain): fixed by the same precise collision.
+# 3. ScrubLeft/Right surface-above-terrain 0.2/0.3 from pebble patches and a tyre track on the scrub lanes:
+#    pebbles now keep 18 studs from every lane, tracks 18 studs from the scrub lanes at 5 points along the ribbon.
+
+# Enemies (wave 5 started with startWave 5, integrity held, 85 s + 70 s)
+startWave: true; enemies seen 32
+Infantry: root above terrain 3.9..3.9 (555 samples)   (same as ENV-2: 3.9)
+Tank: root (PrimaryPart) above terrain 3.4..3.4; Buggy: 3.2..4.7 (PrimaryPart centre, not ENV-2's ground-frame metric;
+      terrain and snapping code unchanged, digests identical)
+infantry closest 92; 23 reached r<105: lane ends (0,-92) x13, (-50,-85) x5, (50,-85) x5
+
+# Impacts (MG bursts, DebugYaw/Pitch/Fire, gunsight): on the road at (13, 2, -245) and on the WashRight bank at
+# (278, 0.7, -167) (terrain Mud under the bank strip): dust puffs sit on the visible surface, no floating
+# (qa/beauty/env-3/checks/mg_impact_road.jpg, mg_impact_wash_bank.jpg).
+# Console: [RedMesa] world built / server ready / client ready only.

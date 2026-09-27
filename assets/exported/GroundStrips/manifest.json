@@ -1,0 +1,2428 @@
+{
+ "name": "GroundStrips",
+ "primary": null,
+ "pivots": {
+  "": [
+   0.0,
+   0.0,
+   0.0
+  ]
+ },
+ "parts": [
+  {
+   "name": "Road_C00_core",
+   "path": "",
+   "center": [
+    -57.4742,
+    2.12,
+    -931.4535
+   ],
+   "size": [
+    108.0369,
+    0.0,
+    28.0
+   ],
+   "rotation": [
+    [
+     0.485643,
+     0.0,
+     -0.874157
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.874157,
+     0.0,
+     0.485643
+    ]
+   ],
+   "tex": "road",
+   "tris": 864,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Ground",
+   "alpha": "Opaque"
+  },
+  {
+   "name": "Road_C00_edge",
+   "path": "",
+   "center": [
+    -57.4742,
+    2.2,
+    -931.4535
+   ],
+   "size": [
+    108.0369,
+    0.0,
+    35.0
+   ],
+   "rotation": [
+    [
+     0.485643,
+     0.0,
+     -0.874157
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.874157,
+     0.0,
+     0.485643
+    ]
+   ],
+   "tex": "strips",
+   "tris": 432,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Ground",
+   "alpha": "Opaque"
+  },
+  {
+   "name": "Road_C00_edgeA",
+   "path": "",
+   "center": [
+    -57.4742,
+    2.28,
+    -931.4535
+   ],
+   "size": [
+    108.0369,
+    0.0,
+    50.0
+   ],
+   "rotation": [
+    [
+     0.485643,
+     0.0,
+     -0.874157
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.874157,
+     0.0,
+     0.485643
+    ]
+   ],
+   "tex": "strips",
+   "tris": 1296,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Ground",
+   "alpha": "Transparency"
+  },
+  {
+   "name": "Road_C01_core",
+   "path": "",
+   "center": [
+    -4.521,
+    2.12,
+    -836.1379
+   ],
+   "size": [
+    110.0376,
+    0.0,
+    28.0
+   ],
+   "rotation": [
+    [
+     0.485643,
+     0.0,
+     -0.874157
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.874157,
+     0.0,
+     0.485643
+    ]
+   ],
+   "tex": "road",
+   "tris": 880,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Ground",
+   "alpha": "Opaque"
+  },
+  {
+   "name": "Road_C01_edge",
+   "path": "",
+   "center": [
+    -4.521,
+    2.2,
+    -836.1379
+   ],
+   "size": [
+    110.0376,
+    0.0,
+    35.0
+   ],
+   "rotation": [
+    [
+     0.485643,
+     0.0,
+     -0.874157
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.874157,
+     0.0,
+     0.485643
+    ]
+   ],
+   "tex": "strips",
+   "tris": 440,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Ground",
+   "alpha": "Opaque"
+  },
+  {
+   "name": "Road_C01_edgeA",
+   "path": "",
+   "center": [
+    -4.521,
+    2.28,
+    -836.1379
+   ],
+   "size": [
+    110.0376,
+    0.0,
+    50.0
+   ],
+   "rotation": [
+    [
+     0.485643,
+     0.0,
+     -0.874157
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.874157,
+     0.0,
+     0.485643
+    ]
+   ],
+   "tex": "strips",
+   "tris": 1320,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Ground",
+   "alpha": "Transparency"
+  },
+  {
+   "name": "Road_C02_core",
+   "path": "",
+   "center": [
+    41.9496,
+    2.12,
+    -737.8752
+   ],
+   "size": [
+    114.4621,
+    0.0,
+    43.4682
+   ],
+   "rotation": [
+    [
+     0.218625,
+     0.0,
+     -0.975809
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.975809,
+     0.0,
+     0.218625
+    ]
+   ],
+   "tex": "road",
+   "tris": 864,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Ground",
+   "alpha": "Opaque"
+  },
+  {
+   "name": "Road_C02_edge",
+   "path": "",
+   "center": [
+    42.1528,
+    2.2,
+    -737.2945
+   ],
+   "size": [
+    117.6637,
+    0.0,
+    50.3251
+   ],
+   "rotation": [
+    [
+     0.218625,
+     0.0,
+     -0.975809
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.975809,
+     0.0,
+     0.218625
+    ]
+   ],
+   "tex": "strips",
+   "tris": 432,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Ground",
+   "alpha": "Opaque"
+  },
+  {
+   "name": "Road_C02_edgeA",
+   "path": "",
+   "center": [
+    42.5882,
+    2.28,
+    -736.0503
+   ],
+   "size": [
+    124.5241,
+    0.0,
+    65.0186
+   ],
+   "rotation": [
+    [
+     0.218625,
+     0.0,
+     -0.975809
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.975809,
+     0.0,
+     0.218625
+    ]
+   ],
+   "tex": "strips",
+   "tris": 1296,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Ground",
+   "alpha": "Transparency"
+  },
+  {
+   "name": "Road_C03_core",
+   "path": "",
+   "center": [
+    19.8178,
+    2.12,
+    -639.6356
+   ],
+   "size": [
+    110.0376,
+    0.0,
+    28.0
+   ],
+   "rotation": [
+    [
+     -0.447214,
+     0.0,
+     -0.894427
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.894427,
+     0.0,
+     -0.447214
+    ]
+   ],
+   "tex": "road",
+   "tris": 880,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Ground",
+   "alpha": "Opaque"
+  },
+  {
+   "name": "Road_C03_edge",
+   "path": "",
+   "center": [
+    19.8178,
+    2.2,
+    -639.6356
+   ],
+   "size": [
+    110.0376,
+    0.0,
+    35.0
+   ],
+   "rotation": [
+    [
+     -0.447214,
+     0.0,
+     -0.894427
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.894427,
+     0.0,
+     -0.447214
+    ]
+   ],
+   "tex": "strips",
+   "tris": 440,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Ground",
+   "alpha": "Opaque"
+  },
+  {
+   "name": "Road_C03_edgeA",
+   "path": "",
+   "center": [
+    19.8178,
+    2.28,
+    -639.6356
+   ],
+   "size": [
+    110.0376,
+    0.0,
+    50.0
+   ],
+   "rotation": [
+    [
+     -0.447214,
+     0.0,
+     -0.894427
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.894427,
+     0.0,
+     -0.447214
+    ]
+   ],
+   "tex": "strips",
+   "tris": 1320,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Ground",
+   "alpha": "Transparency"
+  },
+  {
+   "name": "Road_C04_core",
+   "path": "",
+   "center": [
+    -16.7302,
+    2.12,
+    -540.2048
+   ],
+   "size": [
+    112.7374,
+    0.0,
+    44.133
+   ],
+   "rotation": [
+    [
+     -0.053752,
+     0.0,
+     -0.998554
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.998554,
+     0.0,
+     -0.053752
+    ]
+   ],
+   "tex": "road",
+   "tris": 864,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Ground",
+   "alpha": "Opaque"
+  },
+  {
+   "name": "Road_C04_edge",
+   "path": "",
+   "center": [
+    -16.8761,
+    2.2,
+    -540.189
+   ],
+   "size": [
+    115.5742,
+    0.0,
+    50.843
+   ],
+   "rotation": [
+    [
+     -0.053752,
+     0.0,
+     -0.998554
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.998554,
+     0.0,
+     -0.053752
+    ]
+   ],
+   "tex": "strips",
+   "tris": 432,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Ground",
+   "alpha": "Opaque"
+  },
+  {
+   "name": "Road_C04_edgeA",
+   "path": "",
+   "center": [
+    -17.1888,
+    2.28,
+    -540.155
+   ],
+   "size": [
+    121.653,
+    0.0,
+    65.2214
+   ],
+   "rotation": [
+    [
+     -0.053752,
+     0.0,
+     -0.998554
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.998554,
+     0.0,
+     -0.053752
+    ]
+   ],
+   "tex": "strips",
+   "tris": 1296,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Ground",
+   "alpha": "Transparency"
+  },
+  {
+   "name": "Road_C05_core",
+   "path": "",
+   "center": [
+    9.7041,
+    2.12,
+    -437.9038
+   ],
+   "size": [
+    110.0376,
+    0.0,
+    28.0
+   ],
+   "rotation": [
+    [
+     0.362446,
+     0.0,
+     -0.932005
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.932005,
+     0.0,
+     0.362446
+    ]
+   ],
+   "tex": "road",
+   "tris": 880,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Ground",
+   "alpha": "Opaque"
+  },
+  {
+   "name": "Road_C05_edge",
+   "path": "",
+   "center": [
+    9.7041,
+    2.2,
+    -437.9038
+   ],
+   "size": [
+    110.0376,
+    0.0,
+    35.0
+   ],
+   "rotation": [
+    [
+     0.362446,
+     0.0,
+     -0.932005
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.932005,
+     0.0,
+     0.362446
+    ]
+   ],
+   "tex": "strips",
+   "tris": 440,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Ground",
+   "alpha": "Opaque"
+  },
+  {
+   "name": "Road_C05_edgeA",
+   "path": "",
+   "center": [
+    9.7041,
+    2.28,
+    -437.9038
+   ],
+   "size": [
+    110.0376,
+    0.0,
+    50.0
+   ],
+   "rotation": [
+    [
+     0.362446,
+     0.0,
+     -0.932005
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.932005,
+     0.0,
+     0.362446
+    ]
+   ],
+   "tex": "strips",
+   "tris": 1320,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Ground",
+   "alpha": "Transparency"
+  },
+  {
+   "name": "Road_C06_core",
+   "path": "",
+   "center": [
+    31.0172,
+    2.12,
+    -335.6733
+   ],
+   "size": [
+    113.5163,
+    0.0,
+    38.2269
+   ],
+   "rotation": [
+    [
+     -0.076776,
+     0.0,
+     -0.997048
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.997048,
+     0.0,
+     -0.076776
+    ]
+   ],
+   "tex": "road",
+   "tris": 864,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Ground",
+   "alpha": "Opaque"
+  },
+  {
+   "name": "Road_C06_edge",
+   "path": "",
+   "center": [
+    31.0754,
+    2.2,
+    -336.159
+   ],
+   "size": [
+    115.5693,
+    0.0,
+    45.1854
+   ],
+   "rotation": [
+    [
+     -0.076776,
+     0.0,
+     -0.997048
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.997048,
+     0.0,
+     -0.076776
+    ]
+   ],
+   "tex": "strips",
+   "tris": 432,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Ground",
+   "alpha": "Opaque"
+  },
+  {
+   "name": "Road_C06_edgeA",
+   "path": "",
+   "center": [
+    31.2002,
+    2.28,
+    -337.1999
+   ],
+   "size": [
+    119.9685,
+    0.0,
+    60.0963
+   ],
+   "rotation": [
+    [
+     -0.076776,
+     0.0,
+     -0.997048
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.997048,
+     0.0,
+     -0.076776
+    ]
+   ],
+   "tex": "strips",
+   "tris": 1296,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Ground",
+   "alpha": "Transparency"
+  },
+  {
+   "name": "Road_C07_core",
+   "path": "",
+   "center": [
+    9.1064,
+    2.12,
+    -227.0066
+   ],
+   "size": [
+    112.949,
+    0.0,
+    30.941
+   ],
+   "rotation": [
+    [
+     -0.196484,
+     0.0,
+     -0.980507
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.980507,
+     0.0,
+     -0.196484
+    ]
+   ],
+   "tex": "road",
+   "tris": 880,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Ground",
+   "alpha": "Opaque"
+  },
+  {
+   "name": "Road_C07_edge",
+   "path": "",
+   "center": [
+    9.0494,
+    2.2,
+    -226.7268
+   ],
+   "size": [
+    113.7533,
+    0.0,
+    37.939
+   ],
+   "rotation": [
+    [
+     -0.196484,
+     0.0,
+     -0.980507
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.980507,
+     0.0,
+     -0.196484
+    ]
+   ],
+   "tex": "strips",
+   "tris": 440,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Ground",
+   "alpha": "Opaque"
+  },
+  {
+   "name": "Road_C07_edgeA",
+   "path": "",
+   "center": [
+    8.9272,
+    2.28,
+    -226.1272
+   ],
+   "size": [
+    115.4768,
+    0.0,
+    52.9346
+   ],
+   "rotation": [
+    [
+     -0.196484,
+     0.0,
+     -0.980507
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.980507,
+     0.0,
+     -0.196484
+    ]
+   ],
+   "tex": "strips",
+   "tris": 1320,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Ground",
+   "alpha": "Transparency"
+  },
+  {
+   "name": "Road_C08_core",
+   "path": "",
+   "center": [
+    0.0,
+    2.5723,
+    -120.0212
+   ],
+   "size": [
+    108.0369,
+    0.9046,
+    28.0
+   ],
+   "rotation": [
+    [
+     0.0,
+     0.0,
+     -1.0
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     1.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "tex": "road",
+   "tris": 864,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Ground",
+   "alpha": "Opaque"
+  },
+  {
+   "name": "Road_C08_edge",
+   "path": "",
+   "center": [
+    0.0,
+    2.5817,
+    -120.0212
+   ],
+   "size": [
+    108.0369,
+    0.7634,
+    35.0
+   ],
+   "rotation": [
+    [
+     0.0,
+     0.0,
+     -1.0
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     1.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "tex": "strips",
+   "tris": 432,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Ground",
+   "alpha": "Opaque"
+  },
+  {
+   "name": "Road_C08_edgeA",
+   "path": "",
+   "center": [
+    0.0,
+    2.6432,
+    -120.0212
+   ],
+   "size": [
+    108.0369,
+    0.7264,
+    50.0
+   ],
+   "rotation": [
+    [
+     0.0,
+     0.0,
+     -1.0
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     1.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "tex": "strips",
+   "tris": 1296,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Ground",
+   "alpha": "Transparency"
+  },
+  {
+   "name": "WashL_C00_bank",
+   "path": "",
+   "center": [
+    -609.5334,
+    -0.399,
+    -738.396
+   ],
+   "size": [
+    100.007,
+    5.0698,
+    46.75
+   ],
+   "rotation": [
+    [
+     0.447214,
+     0.0,
+     -0.894427
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.894427,
+     0.0,
+     0.447214
+    ]
+   ],
+   "tex": "strips",
+   "tris": 1584,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Sand",
+   "alpha": "Opaque"
+  },
+  {
+   "name": "WashL_C00_bankA",
+   "path": "",
+   "center": [
+    -609.6739,
+    -0.4616,
+    -738.3257
+   ],
+   "size": [
+    100.007,
+    5.4563,
+    64.4286
+   ],
+   "rotation": [
+    [
+     0.447214,
+     0.0,
+     -0.894427
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.894427,
+     0.0,
+     0.447214
+    ]
+   ],
+   "tex": "strips",
+   "tris": 1188,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Sand",
+   "alpha": "Transparency"
+  },
+  {
+   "name": "WashL_C01_bank",
+   "path": "",
+   "center": [
+    -562.2373,
+    -0.364,
+    -644.6423
+   ],
+   "size": [
+    110.0077,
+    5.0504,
+    46.45
+   ],
+   "rotation": [
+    [
+     0.447214,
+     0.0,
+     -0.894427
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.894427,
+     0.0,
+     0.447214
+    ]
+   ],
+   "tex": "strips",
+   "tris": 1760,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Sand",
+   "alpha": "Opaque"
+  },
+  {
+   "name": "WashL_C01_bankA",
+   "path": "",
+   "center": [
+    -562.2021,
+    -0.4639,
+    -644.6598
+   ],
+   "size": [
+    110.0077,
+    5.4608,
+    63.9714
+   ],
+   "rotation": [
+    [
+     0.447214,
+     0.0,
+     -0.894427
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.894427,
+     0.0,
+     0.447214
+    ]
+   ],
+   "tex": "strips",
+   "tris": 1320,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Sand",
+   "alpha": "Transparency"
+  },
+  {
+   "name": "WashL_C02_bank",
+   "path": "",
+   "center": [
+    -512.9738,
+    -0.3789,
+    -547.1613
+   ],
+   "size": [
+    108.7548,
+    5.1005,
+    47.1302
+   ],
+   "rotation": [
+    [
+     0.454204,
+     0.0,
+     -0.890898
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.890898,
+     0.0,
+     0.454204
+    ]
+   ],
+   "tex": "strips",
+   "tris": 1728,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Sand",
+   "alpha": "Opaque"
+  },
+  {
+   "name": "WashL_C02_bankA",
+   "path": "",
+   "center": [
+    -512.7791,
+    -0.4136,
+    -547.1686
+   ],
+   "size": [
+    109.0309,
+    5.5542,
+    64.9261
+   ],
+   "rotation": [
+    [
+     0.454204,
+     0.0,
+     -0.890898
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.890898,
+     0.0,
+     0.454204
+    ]
+   ],
+   "tex": "strips",
+   "tris": 1296,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Sand",
+   "alpha": "Transparency"
+  },
+  {
+   "name": "WashL_C03_bank",
+   "path": "",
+   "center": [
+    -462.3001,
+    -0.4014,
+    -452.0582
+   ],
+   "size": [
+    108.0075,
+    5.0245,
+    46.375
+   ],
+   "rotation": [
+    [
+     0.478852,
+     0.0,
+     -0.877896
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.877896,
+     0.0,
+     0.478852
+    ]
+   ],
+   "tex": "strips",
+   "tris": 1728,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Sand",
+   "alpha": "Opaque"
+  },
+  {
+   "name": "WashL_C03_bankA",
+   "path": "",
+   "center": [
+    -462.0414,
+    -0.4427,
+    -452.1993
+   ],
+   "size": [
+    108.0075,
+    5.4592,
+    63.8571
+   ],
+   "rotation": [
+    [
+     0.478852,
+     0.0,
+     -0.877896
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.877896,
+     0.0,
+     0.478852
+    ]
+   ],
+   "tex": "strips",
+   "tris": 1296,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Sand",
+   "alpha": "Transparency"
+  },
+  {
+   "name": "WashL_C04_bank",
+   "path": "",
+   "center": [
+    -410.8588,
+    -0.4221,
+    -355.9479
+   ],
+   "size": [
+    110.0077,
+    4.9857,
+    46.3
+   ],
+   "rotation": [
+    [
+     0.478852,
+     0.0,
+     -0.877896
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.877896,
+     0.0,
+     0.478852
+    ]
+   ],
+   "tex": "strips",
+   "tris": 1760,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Sand",
+   "alpha": "Opaque"
+  },
+  {
+   "name": "WashL_C04_bankA",
+   "path": "",
+   "center": [
+    -410.9967,
+    -0.4307,
+    -355.8726
+   ],
+   "size": [
+    110.0077,
+    5.4916,
+    63.7429
+   ],
+   "rotation": [
+    [
+     0.478852,
+     0.0,
+     -0.877896
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.877896,
+     0.0,
+     0.478852
+    ]
+   ],
+   "tex": "strips",
+   "tris": 1320,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Sand",
+   "alpha": "Transparency"
+  },
+  {
+   "name": "WashL_C05_bank",
+   "path": "",
+   "center": [
+    -350.4097,
+    -0.4255,
+    -268.6708
+   ],
+   "size": [
+    112.9679,
+    5.1051,
+    48.1488
+   ],
+   "rotation": [
+    [
+     0.667166,
+     0.0,
+     -0.744909
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.744909,
+     0.0,
+     0.667166
+    ]
+   ],
+   "tex": "strips",
+   "tris": 1728,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Sand",
+   "alpha": "Opaque"
+  },
+  {
+   "name": "WashL_C05_bankA",
+   "path": "",
+   "center": [
+    -351.0445,
+    -0.452,
+    -269.1456
+   ],
+   "size": [
+    114.8321,
+    5.4568,
+    65.9828
+   ],
+   "rotation": [
+    [
+     0.667166,
+     0.0,
+     -0.744909
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.744909,
+     0.0,
+     0.667166
+    ]
+   ],
+   "tex": "strips",
+   "tris": 1296,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Sand",
+   "alpha": "Transparency"
+  },
+  {
+   "name": "WashL_C06_bank",
+   "path": "",
+   "center": [
+    -273.9847,
+    -0.3609,
+    -187.1851
+   ],
+   "size": [
+    111.4652,
+    5.0538,
+    46.3989
+   ],
+   "rotation": [
+    [
+     0.684966,
+     0.0,
+     -0.728575
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.728575,
+     0.0,
+     0.684966
+    ]
+   ],
+   "tex": "strips",
+   "tris": 1728,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Sand",
+   "alpha": "Opaque"
+  },
+  {
+   "name": "WashL_C06_bankA",
+   "path": "",
+   "center": [
+    -273.3628,
+    -0.4312,
+    -186.925
+   ],
+   "size": [
+    112.7509,
+    5.5059,
+    63.9202
+   ],
+   "rotation": [
+    [
+     0.684966,
+     0.0,
+     -0.728575
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.728575,
+     0.0,
+     0.684966
+    ]
+   ],
+   "tex": "strips",
+   "tris": 1296,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Sand",
+   "alpha": "Transparency"
+  },
+  {
+   "name": "WashL_C07_bank",
+   "path": "",
+   "center": [
+    -194.4393,
+    -0.3957,
+    -116.2739
+   ],
+   "size": [
+    110.6456,
+    5.006,
+    46.072
+   ],
+   "rotation": [
+    [
+     0.806293,
+     0.0,
+     -0.591516
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.591516,
+     0.0,
+     0.806293
+    ]
+   ],
+   "tex": "strips",
+   "tris": 1760,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Sand",
+   "alpha": "Opaque"
+  },
+  {
+   "name": "WashL_C07_bankA",
+   "path": "",
+   "center": [
+    -194.6144,
+    -0.45,
+    -116.2319
+   ],
+   "size": [
+    110.8816,
+    5.5171,
+    63.397
+   ],
+   "rotation": [
+    [
+     0.806293,
+     0.0,
+     -0.591516
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.591516,
+     0.0,
+     0.806293
+    ]
+   ],
+   "tex": "strips",
+   "tris": 1320,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Sand",
+   "alpha": "Transparency"
+  },
+  {
+   "name": "WashL_C08_bank",
+   "path": "",
+   "center": [
+    -106.5747,
+    -0.285,
+    -51.2247
+   ],
+   "size": [
+    108.0075,
+    5.1701,
+    45.4
+   ],
+   "rotation": [
+    [
+     0.806405,
+     0.0,
+     -0.591364
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.591364,
+     0.0,
+     0.806405
+    ]
+   ],
+   "tex": "strips",
+   "tris": 1728,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Sand",
+   "alpha": "Opaque"
+  },
+  {
+   "name": "WashL_C08_bankA",
+   "path": "",
+   "center": [
+    -106.807,
+    -0.4246,
+    -50.9079
+   ],
+   "size": [
+    108.0075,
+    5.5488,
+    62.3714
+   ],
+   "rotation": [
+    [
+     0.806405,
+     0.0,
+     -0.591364
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.591364,
+     0.0,
+     0.806405
+    ]
+   ],
+   "tex": "strips",
+   "tris": 1296,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Sand",
+   "alpha": "Transparency"
+  },
+  {
+   "name": "WashR_C00_bank",
+   "path": "",
+   "center": [
+    609.0526,
+    -0.3305,
+    -737.5182
+   ],
+   "size": [
+    98.0068,
+    4.9096,
+    43.975
+   ],
+   "rotation": [
+    [
+     -0.447214,
+     0.0,
+     -0.894427
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.894427,
+     0.0,
+     -0.447214
+    ]
+   ],
+   "tex": "strips",
+   "tris": 1552,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Sand",
+   "alpha": "Opaque"
+  },
+  {
+   "name": "WashR_C00_bankA",
+   "path": "",
+   "center": [
+    609.1756,
+    -0.4504,
+    -737.4568
+   ],
+   "size": [
+    98.0068,
+    5.4192,
+    60.2
+   ],
+   "rotation": [
+    [
+     -0.447214,
+     0.0,
+     -0.894427
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.894427,
+     0.0,
+     -0.447214
+    ]
+   ],
+   "tex": "strips",
+   "tris": 1164,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Sand",
+   "alpha": "Transparency"
+  },
+  {
+   "name": "WashR_C01_bank",
+   "path": "",
+   "center": [
+    562.036,
+    -0.4385,
+    -644.7429
+   ],
+   "size": [
+    110.0077,
+    5.0401,
+    45.85
+   ],
+   "rotation": [
+    [
+     -0.447214,
+     0.0,
+     -0.894427
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.894427,
+     0.0,
+     -0.447214
+    ]
+   ],
+   "tex": "strips",
+   "tris": 1760,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Sand",
+   "alpha": "Opaque"
+  },
+  {
+   "name": "WashR_C01_bankA",
+   "path": "",
+   "center": [
+    561.8955,
+    -0.472,
+    -644.8132
+   ],
+   "size": [
+    110.0077,
+    5.4335,
+    63.0571
+   ],
+   "rotation": [
+    [
+     -0.447214,
+     0.0,
+     -0.894427
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.894427,
+     0.0,
+     -0.447214
+    ]
+   ],
+   "tex": "strips",
+   "tris": 1320,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Sand",
+   "alpha": "Transparency"
+  },
+  {
+   "name": "WashR_C02_bank",
+   "path": "",
+   "center": [
+    512.8489,
+    -0.4271,
+    -547.2456
+   ],
+   "size": [
+    108.7288,
+    5.0687,
+    45.0492
+   ],
+   "rotation": [
+    [
+     -0.454204,
+     0.0,
+     -0.890898
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.890898,
+     0.0,
+     -0.454204
+    ]
+   ],
+   "tex": "strips",
+   "tris": 1728,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Sand",
+   "alpha": "Opaque"
+  },
+  {
+   "name": "WashR_C02_bankA",
+   "path": "",
+   "center": [
+    512.501,
+    -0.4783,
+    -547.3416
+   ],
+   "size": [
+    108.9911,
+    5.3993,
+    61.7059
+   ],
+   "rotation": [
+    [
+     -0.454204,
+     0.0,
+     -0.890898
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.890898,
+     0.0,
+     -0.454204
+    ]
+   ],
+   "tex": "strips",
+   "tris": 1296,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Sand",
+   "alpha": "Transparency"
+  },
+  {
+   "name": "WashR_C03_bank",
+   "path": "",
+   "center": [
+    463.5182,
+    -0.4341,
+    -451.3938
+   ],
+   "size": [
+    108.0075,
+    5.1079,
+    44.95
+   ],
+   "rotation": [
+    [
+     -0.478852,
+     0.0,
+     -0.877896
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.877896,
+     0.0,
+     -0.478852
+    ]
+   ],
+   "tex": "strips",
+   "tris": 1728,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Sand",
+   "alpha": "Opaque"
+  },
+  {
+   "name": "WashR_C03_bankA",
+   "path": "",
+   "center": [
+    463.8976,
+    -0.4801,
+    -451.1869
+   ],
+   "size": [
+    108.0075,
+    5.4627,
+    61.6857
+   ],
+   "rotation": [
+    [
+     -0.478852,
+     0.0,
+     -0.877896
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.877896,
+     0.0,
+     -0.478852
+    ]
+   ],
+   "tex": "strips",
+   "tris": 1296,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Sand",
+   "alpha": "Transparency"
+  },
+  {
+   "name": "WashR_C04_bank",
+   "path": "",
+   "center": [
+    410.7271,
+    -0.3603,
+    -356.0197
+   ],
+   "size": [
+    110.0077,
+    4.9537,
+    44.95
+   ],
+   "rotation": [
+    [
+     -0.478852,
+     0.0,
+     -0.877896
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.877896,
+     0.0,
+     -0.478852
+    ]
+   ],
+   "tex": "strips",
+   "tris": 1760,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Sand",
+   "alpha": "Opaque"
+  },
+  {
+   "name": "WashR_C04_bankA",
+   "path": "",
+   "center": [
+    410.7961,
+    1.7658,
+    -355.9821
+   ],
+   "size": [
+    110.0077,
+    9.9148,
+    61.6857
+   ],
+   "rotation": [
+    [
+     -0.478852,
+     0.0,
+     -0.877896
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.877896,
+     0.0,
+     -0.478852
+    ]
+   ],
+   "tex": "strips",
+   "tris": 1320,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Sand",
+   "alpha": "Transparency"
+  },
+  {
+   "name": "WashR_C05_bank",
+   "path": "",
+   "center": [
+    350.1388,
+    -0.439,
+    -269.0664
+   ],
+   "size": [
+    113.1866,
+    5.0421,
+    46.971
+   ],
+   "rotation": [
+    [
+     -0.667166,
+     0.0,
+     -0.744909
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.744909,
+     0.0,
+     -0.667166
+    ]
+   ],
+   "tex": "strips",
+   "tris": 1728,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Sand",
+   "alpha": "Opaque"
+  },
+  {
+   "name": "WashR_C05_bankA",
+   "path": "",
+   "center": [
+    350.4538,
+    -0.473,
+    -269.9078
+   ],
+   "size": [
+    115.1653,
+    5.4054,
+    63.8354
+   ],
+   "rotation": [
+    [
+     -0.667166,
+     0.0,
+     -0.744909
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.744909,
+     0.0,
+     -0.667166
+    ]
+   ],
+   "tex": "strips",
+   "tris": 1296,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Sand",
+   "alpha": "Transparency"
+  },
+  {
+   "name": "WashR_C06_bank",
+   "path": "",
+   "center": [
+    274.1147,
+    -0.4278,
+    -187.2368
+   ],
+   "size": [
+    111.2103,
+    5.0994,
+    47.1417
+   ],
+   "rotation": [
+    [
+     -0.684966,
+     0.0,
+     -0.728575
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.728575,
+     0.0,
+     -0.684966
+    ]
+   ],
+   "tex": "strips",
+   "tris": 1728,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Sand",
+   "alpha": "Opaque"
+  },
+  {
+   "name": "WashR_C06_bankA",
+   "path": "",
+   "center": [
+    273.5525,
+    -0.4833,
+    -187.0116
+   ],
+   "size": [
+    112.3625,
+    5.4131,
+    65.1737
+   ],
+   "rotation": [
+    [
+     -0.684966,
+     0.0,
+     -0.728575
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.728575,
+     0.0,
+     -0.684966
+    ]
+   ],
+   "tex": "strips",
+   "tris": 1296,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Sand",
+   "alpha": "Transparency"
+  },
+  {
+   "name": "WashR_C07_bank",
+   "path": "",
+   "center": [
+    194.2015,
+    -0.3948,
+    -116.5582
+   ],
+   "size": [
+    110.598,
+    5.0237,
+    46.2337
+   ],
+   "rotation": [
+    [
+     -0.806293,
+     0.0,
+     -0.591516
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.591516,
+     0.0,
+     -0.806293
+    ]
+   ],
+   "tex": "strips",
+   "tris": 1760,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Sand",
+   "alpha": "Opaque"
+  },
+  {
+   "name": "WashR_C07_bankA",
+   "path": "",
+   "center": [
+    194.2505,
+    -0.4877,
+    -116.6673
+   ],
+   "size": [
+    110.8092,
+    5.4155,
+    63.6373
+   ],
+   "rotation": [
+    [
+     -0.806293,
+     0.0,
+     -0.591516
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.591516,
+     0.0,
+     -0.806293
+    ]
+   ],
+   "tex": "strips",
+   "tris": 1320,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Sand",
+   "alpha": "Transparency"
+  },
+  {
+   "name": "WashR_C08_bank",
+   "path": "",
+   "center": [
+    106.1311,
+    -0.3219,
+    -51.8295
+   ],
+   "size": [
+    108.0075,
+    5.2438,
+    47.5
+   ],
+   "rotation": [
+    [
+     -0.806405,
+     0.0,
+     -0.591364
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.591364,
+     0.0,
+     -0.806405
+    ]
+   ],
+   "tex": "strips",
+   "tris": 1728,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Sand",
+   "alpha": "Opaque"
+  },
+  {
+   "name": "WashR_C08_bankA",
+   "path": "",
+   "center": [
+    106.1311,
+    -0.4471,
+    -51.8295
+   ],
+   "size": [
+    108.0075,
+    5.4942,
+    65.5714
+   ],
+   "rotation": [
+    [
+     -0.806405,
+     0.0,
+     -0.591364
+    ],
+    [
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.591364,
+     0.0,
+     -0.806405
+    ]
+   ],
+   "tex": "strips",
+   "tris": 1296,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Sand",
+   "alpha": "Transparency"
+  }
+ ],
+ "attachments": [],
+ "markers": [],
+ "textures": {
+  "strips": {
+   "color": "GroundStrips_strips_color.png",
+   "normal": "GroundStrips_strips_normal.png"
+  }
+ },
+ "terrain_textures": {
+  "road": "Road"
+ },
+ "texel_density": {
+  "strips": 10.7,
+  "road": 32.0
+ },
+ "previews": [],
+ "triangles": 77728,
+ "meta": {
+  "kit": "ground_strips",
+  "no_primary": true
+ }
+}

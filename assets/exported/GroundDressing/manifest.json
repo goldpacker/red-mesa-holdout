@@ -1,0 +1,408 @@
+{
+ "name": "GroundDressing",
+ "primary": null,
+ "pivots": {
+  "": [
+   0.0,
+   0.0,
+   0.0
+  ]
+ },
+ "parts": [
+  {
+   "name": "Scrub_A",
+   "path": "",
+   "center": [
+    0.0,
+    1.2651,
+    0.0
+   ],
+   "size": [
+    4.5966,
+    2.8303,
+    4.5966
+   ],
+   "tex": "dressing",
+   "tris": 98,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "Grass",
+   "alpha": "Transparency",
+   "double_sided": true,
+   "pivot_offset": [
+    -0.0,
+    -1.2651,
+    -0.0
+   ]
+  },
+  {
+   "name": "Scrub_B",
+   "path": "",
+   "center": [
+    -0.0,
+    1.2421,
+    0.0
+   ],
+   "size": [
+    3.8045,
+    2.7842,
+    3.8045
+   ],
+   "tex": "dressing",
+   "tris": 56,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "Wood",
+   "alpha": "Transparency",
+   "double_sided": true,
+   "pivot_offset": [
+    0.0,
+    -1.2421,
+    -0.0
+   ]
+  },
+  {
+   "name": "Creosote",
+   "path": "",
+   "center": [
+    0.0,
+    2.565,
+    0.0
+   ],
+   "size": [
+    5.5496,
+    5.43,
+    5.5496
+   ],
+   "tex": "dressing",
+   "tris": 98,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "Grass",
+   "alpha": "Transparency",
+   "double_sided": true,
+   "pivot_offset": [
+    -0.0,
+    -2.565,
+    -0.0
+   ]
+  },
+  {
+   "name": "Saltbush",
+   "path": "",
+   "center": [
+    0.0,
+    1.3264,
+    0.0
+   ],
+   "size": [
+    6.4433,
+    2.9529,
+    6.4433
+   ],
+   "tex": "dressing",
+   "tris": 66,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "Grass",
+   "alpha": "Transparency",
+   "double_sided": true,
+   "pivot_offset": [
+    -0.0,
+    -1.3264,
+    -0.0
+   ]
+  },
+  {
+   "name": "Grass",
+   "path": "",
+   "center": [
+    -0.0084,
+    0.593,
+    0.0255
+   ],
+   "size": [
+    2.7654,
+    1.4861,
+    2.2818
+   ],
+   "tex": "dressing",
+   "tris": 48,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Grass",
+   "alpha": "Transparency",
+   "double_sided": true,
+   "pivot_offset": [
+    0.0084,
+    -0.593,
+    -0.0255
+   ]
+  },
+  {
+   "name": "Branch_A",
+   "path": "",
+   "center": [
+    -0.138,
+    0.5467,
+    -0.4191
+   ],
+   "size": [
+    5.9835,
+    1.1692,
+    2.3691
+   ],
+   "tex": "dressing",
+   "tris": 78,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "Wood",
+   "alpha": "Opaque",
+   "double_sided": false,
+   "pivot_offset": [
+    0.138,
+    -0.5467,
+    0.4191
+   ]
+  },
+  {
+   "name": "Branch_B",
+   "path": "",
+   "center": [
+    -0.2174,
+    0.3832,
+    -0.6708
+   ],
+   "size": [
+    4.9232,
+    0.8315,
+    3.8317
+   ],
+   "tex": "dressing",
+   "tris": 78,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "Wood",
+   "alpha": "Opaque",
+   "double_sided": false,
+   "pivot_offset": [
+    0.2174,
+    -0.3832,
+    0.6708
+   ]
+  },
+  {
+   "name": "Pebbles_A",
+   "path": "",
+   "center": [
+    0.1305,
+    0.0697,
+    0.2908
+   ],
+   "size": [
+    4.8307,
+    0.3638,
+    4.5174
+   ],
+   "tex": "dressing",
+   "tris": 320,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Rock",
+   "alpha": "Opaque",
+   "double_sided": false,
+   "pivot_offset": [
+    -0.1305,
+    -0.0697,
+    -0.2908
+   ]
+  },
+  {
+   "name": "Pebbles_B",
+   "path": "",
+   "center": [
+    -0.1104,
+    0.0682,
+    -0.1291
+   ],
+   "size": [
+    7.455,
+    0.3962,
+    6.6996
+   ],
+   "tex": "dressing",
+   "tris": 440,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Rock",
+   "alpha": "Opaque",
+   "double_sided": false,
+   "pivot_offset": [
+    0.1104,
+    -0.0682,
+    0.1291
+   ]
+  },
+  {
+   "name": "Rocks_A",
+   "path": "",
+   "center": [
+    0.3353,
+    0.3202,
+    0.5217
+   ],
+   "size": [
+    5.9172,
+    2.5796,
+    6.8844
+   ],
+   "tex": "dressing",
+   "tris": 240,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "Rock",
+   "alpha": "Opaque",
+   "double_sided": false,
+   "pivot_offset": [
+    -0.3353,
+    -0.3202,
+    -0.5217
+   ]
+  },
+  {
+   "name": "Rocks_B",
+   "path": "",
+   "center": [
+    0.4295,
+    0.2701,
+    0.4969
+   ],
+   "size": [
+    4.2023,
+    2.4586,
+    7.2239
+   ],
+   "tex": "dressing",
+   "tris": 280,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "Rock",
+   "alpha": "Opaque",
+   "double_sided": false,
+   "pivot_offset": [
+    -0.4295,
+    -0.2701,
+    -0.4969
+   ]
+  },
+  {
+   "name": "Tracks_A",
+   "path": "",
+   "center": [
+    -0.5177,
+    0.07,
+    3.1156
+   ],
+   "size": [
+    60.1094,
+    0.0,
+    33.1567
+   ],
+   "tex": "dressing",
+   "tris": 44,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Sand",
+   "alpha": "Transparency",
+   "double_sided": false,
+   "pivot_offset": [
+    0.5177,
+    -0.07,
+    -3.1156
+   ]
+  },
+  {
+   "name": "Tracks_B",
+   "path": "",
+   "center": [
+    -0.5382,
+    0.07,
+    -3.6747
+   ],
+   "size": [
+    78.6299,
+    0.0,
+    35.5609
+   ],
+   "tex": "dressing",
+   "tris": 56,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Sand",
+   "alpha": "Transparency",
+   "double_sided": false,
+   "pivot_offset": [
+    0.5382,
+    -0.07,
+    3.6747
+   ]
+  },
+  {
+   "name": "Crater",
+   "path": "",
+   "center": [
+    0.0,
+    0.12,
+    0.0
+   ],
+   "size": [
+    20.0,
+    0.12,
+    20.0
+   ],
+   "tex": "dressing",
+   "tris": 252,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Sand",
+   "alpha": "Transparency",
+   "double_sided": false,
+   "pivot_offset": [
+    -0.0,
+    -0.12,
+    -0.0
+   ]
+  }
+ ],
+ "attachments": [],
+ "markers": [],
+ "textures": {
+  "dressing": {
+   "color": "GroundDressing_dressing_color.png",
+   "normal": "GroundDressing_dressing_normal.png"
+  }
+ },
+ "texel_density": {
+  "dressing": 64.0
+ },
+ "previews": [],
+ "triangles": 2154,
+ "meta": {
+  "kit": "ground_dressing",
+  "no_primary": true
+ }
+}

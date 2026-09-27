@@ -42,6 +42,16 @@ Cycles bakes into each chunk's normal map.
 | `rock_face_03` | Fracture detail, slickrock tops, talus rubble | Luminance high-passed; height map as bump; colour discarded |
 | `gravelly_sand` | Wind-blown sand on ledges and at the foot | Luminance only, under our ochre/pale sand colours |
 
+Ground strips and dressing (ENV-3, `tools/env/ground/`) fetch nothing new.
+The road core mesh shows the terrain `RedMesaRoad` maps (from
+`gravelly_sand`, above) with its ruts turned to follow the road; the strip
+atlas (`strip_textures.py`) resamples our terrain `Road`, `Sand` and `Wash`
+textures (from `gravelly_sand`, `aerial_beach_01`, `mud_cracked_dry_03`)
+under procedural gravel berms, pebble beds, rills and lip crust; the
+dressing atlas (`dressing_textures.py`) crops our terrain `Rock` texture
+(from `rock_face_03`) for pebbles and rock clusters. Plants, bark, tyre
+tracks, craters and contact shadows are painted procedurally.
+
 ## Hard-surface (HS) — `python3 tools/assets/cc0.py fetch`
 
 Used through `photo=` layers in `tools/assets/rmh/materials.py`: the photo
