@@ -377,7 +377,7 @@ local function step(dt: number)
 			end
 		end
 	end
-	Probe.frame(tracks, now, os.clock() - t0)
+	Probe.frame(tracks, now, os.clock() - t0, dt)
 end
 
 -- The newest server pose of a model's Root (nil if not tracked).
@@ -411,7 +411,11 @@ local function watch()
 		if child:IsA("Model") then
 			-- Attributes and welds replicate with the model; wait a frame so
 			-- every descendant has arrived.
-			task.defer(register, child)
+			task.defer(function()
+				local t0 = os.clock()
+				register(child)
+				Probe.work(os.clock() - t0)
+			end)
 		end
 	end
 	for _, child in enemies:GetChildren() do
@@ -436,7 +440,9 @@ local function watch()
 	end)
 	while true do
 		task.wait(0.5)
+		local t0 = os.clock()
 		local ok, err = pcall(sweep, enemies)
+		Probe.work(os.clock() - t0)
 		if not ok then
 			warn("[RedMesa] enemy motion sweep failed: " .. tostring(err))
 		end

@@ -1,14 +1,24 @@
 --!strict
 -- Studio-only instrumentation for EnemyMotion (LOOK-3 evidence). A client
 -- BindableFunction ReplicatedStorage.EnemyMotionDebug answers:
---   ("stats")                      per-track sample rate, jitter and offsets
+--   ("stats")                      per-track sample rate, jitter, offsets,
+--                                  ignored decorative parts, age of the track
 --   ("log", { id = n, seconds = s }) starts a per-frame log of one enemy
 --   ("getlog")                     returns rows { t, new (a sample arrived
 --                                  this frame), sampleT, then 12 CFrame
 --                                  components each of: the smoothed pose,
 --                                  the drawn Root (incl. body motion), the
 --                                  newest server sample }
---   ("cost")                       mean / max Luau ms per frame since last call
+--   ("cost")                       Luau ms per frame since the last call:
+--                                  meanMs / maxMs     everything EnemyMotion ran,
+--                                  stepMeanMs / stepMaxMs  the per-frame track loop,
+--                                  watchMeanMs / watchMaxMs  qualification work
+--                                    (registration, re-checks, event handlers;
+--                                    work done between frames is charged to
+--                                    the next frame),
+--                                  watchCalls         how many pieces of it ran,
+--                                  worstFrameMs       the longest render frame,
+--                                  frames
 -- In a live game it does nothing.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -17,7 +27,26 @@ local RunService = game:GetService("RunService")
 local Probe = {}
 
 local enabled = RunService:IsStudio()
-local costSum, costMax, costFrames = 0, 0, 0
+Probe.enabled = enabled
+
+type Cost = {
+	frames: number,
+	sum: number,
+	max: number,
+	stepSum: number,
+	stepMax: number,
+	watchSum: number,
+	watchMax: number,
+	watchCalls: number,
+	worstFrame: number,
+}
+
+local function newCost(): Cost
+	return { frames = 0, sum = 0, max = 0, stepSum = 0, stepMax = 0, watchSum = 0, watchMax = 0, watchCalls = 0, worstFrame = 0 }
+end
+
+local cost = newCost()
+local pendingWatch = 0 -- s of qualification work since the last frame
 local logId: number? = nil
 local logUntil = 0
 local logRows: { { number } } = {}
@@ -28,13 +57,31 @@ local function idOf(model: Model): number?
 	return if type(id) == "number" then id else nil
 end
 
-function Probe.frame(tracks: { [Model]: any }, now: number, cost: number)
+-- Charges `seconds` of qualification work to the next frame; `calls`
+-- (default 1) is how many pieces of work that was.
+function Probe.work(seconds: number, calls: number?)
+	if enabled then
+		pendingWatch += seconds
+		cost.watchCalls += calls or 1
+	end
+end
+
+-- `step`: s spent in the track loop this frame; `dt`: the render frame time.
+function Probe.frame(tracks: { [Model]: any }, now: number, step: number, dt: number)
 	if not enabled then
 		return
 	end
-	costSum += cost
-	costFrames += 1
-	costMax = math.max(costMax, cost)
+	local watch = pendingWatch
+	pendingWatch = 0
+	local total = step + watch
+	cost.frames += 1
+	cost.sum += total
+	cost.max = math.max(cost.max, total)
+	cost.stepSum += step
+	cost.stepMax = math.max(cost.stepMax, step)
+	cost.watchSum += watch
+	cost.watchMax = math.max(cost.watchMax, watch)
+	cost.worstFrame = math.max(cost.worstFrame, dt)
 	if not logId then
 		return
 	end
@@ -77,9 +124,31 @@ local function stats(): { any }
 			wreck = track.wreck,
 			treads = track.tracks ~= nil,
 			ignored = track.ignored,
+			ageS = if track.born then math.floor((os.clock() - track.born) * 100) / 100 else nil,
 		})
 	end
 	return out
+end
+
+local function ms(seconds: number): number
+	return math.floor(seconds * 1e6) / 1e3
+end
+
+local function report(): { [string]: number }
+	local c = cost
+	local n = math.max(c.frames, 1)
+	cost = newCost()
+	return {
+		meanMs = ms(c.sum / n),
+		maxMs = ms(c.max),
+		stepMeanMs = ms(c.stepSum / n),
+		stepMaxMs = ms(c.stepMax),
+		watchMeanMs = ms(c.watchSum / n),
+		watchMaxMs = ms(c.watchMax),
+		watchCalls = c.watchCalls,
+		worstFrameMs = ms(c.worstFrame),
+		frames = c.frames,
+	}
 end
 
 function Probe.start(tracks: { [Model]: any })
@@ -100,9 +169,7 @@ function Probe.start(tracks: { [Model]: any })
 		elseif cmd == "getlog" then
 			return logRows
 		elseif cmd == "cost" then
-			local r = { meanMs = if costFrames > 0 then costSum / costFrames * 1000 else 0, maxMs = costMax * 1000, frames = costFrames }
-			costSum, costMax, costFrames = 0, 0, 0
-			return r
+			return report()
 		end
 		return nil
 	end
