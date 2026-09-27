@@ -256,7 +256,8 @@ Config.Waves = {
 		time = "Sunset",
 		crates = { 28, 52, 76 },
 		crateBias = "Rockets",
-		weather = { storm = { at = 46, hold = 18, amount = 1 } },
+		-- capped at 0.8: at 1 the gunsight probe read 2.80-2.92:1 (< 3)
+		weather = { storm = { at = 46, hold = 18, amount = 0.8 } },
 		groups = {
 			g("Jet", "CanyonRun", 1, 10, 1),
 			g("Tank", "Road", 1, 25, 1),
