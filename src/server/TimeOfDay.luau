@@ -55,7 +55,12 @@ local PRESETS: { [string]: Preset } = {
 			ColorShift_Top = rgb(255, 236, 206), ColorShift_Bottom = rgb(70, 84, 120),
 			EnvironmentDiffuseScale = 0.5, EnvironmentSpecularScale = 1, ShadowSoftness = 0.08,
 		},
-		atmosphere = { Density = 0.3, Offset = 0.3, Haze = 0.9, Glare = 0.2, Color = rgb(226, 212, 198), Decay = rgb(178, 150, 128) },
+		-- Density 0.27 (LOOK-5 fix 1): 0.30 lifted the darks of a tank at
+		-- 430 studs (inside its firing window) to 2.84:1 against the road;
+		-- 0.27 gives 4.17:1 (darkest quartile, LOOK-5 report). Offset and
+		-- Haze only shape the far wall and sky (measured: no change on basin
+		-- subjects), so they stay and keep the depth.
+		atmosphere = { Density = 0.27, Offset = 0.3, Haze = 0.9, Glare = 0.2, Color = rgb(226, 212, 198), Decay = rgb(178, 150, 128) },
 		grade = { Contrast = 0.34, Saturation = -0.08, TintColor = rgb(255, 252, 248), Brightness = -0.03 },
 		bloom = { Intensity = 0.45, Size = 24, Threshold = 2.4 },
 		rays = { Intensity = 0.04, Spread = 0.5 },
@@ -71,7 +76,10 @@ local PRESETS: { [string]: Preset } = {
 			ColorShift_Top = rgb(255, 196, 132), ColorShift_Bottom = rgb(88, 86, 136),
 			EnvironmentDiffuseScale = 0.46, EnvironmentSpecularScale = 1, ShadowSoftness = 0.1,
 		},
-		atmosphere = { Density = 0.28, Offset = 0.3, Haze = 1.2, Glare = 0.6, Color = rgb(236, 196, 160), Decay = rgb(160, 112, 100) },
+		-- Density 0.24 (LOOK-5 fix 1): at 0.28 the warm haze lifted a 430-stud
+		-- tank to 2.36:1 against the orange road (pre-LOOK-5 already read
+		-- 2.61); 0.24 gives 3.98:1 (darkest quartile, LOOK-5 report).
+		atmosphere = { Density = 0.24, Offset = 0.3, Haze = 1.2, Glare = 0.6, Color = rgb(236, 196, 160), Decay = rgb(160, 112, 100) },
 		grade = { Contrast = 0.32, Saturation = -0.06, TintColor = rgb(255, 242, 228), Brightness = -0.02 },
 		bloom = { Intensity = 0.55, Size = 24, Threshold = 2.2 },
 		rays = { Intensity = 0.16, Spread = 0.65 },

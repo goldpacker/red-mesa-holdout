@@ -1,0 +1,128 @@
+{
+ "afternoon_1-title": {
+  "captured": "2026-09-27T03:04:48",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "534eca9"
+ },
+ "afternoon_2-turret": {
+  "captured": "2026-09-27T03:05:03",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "534eca9"
+ },
+ "afternoon_3-gunsight": {
+  "captured": "2026-09-27T03:05:11",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "534eca9"
+ },
+ "afternoon_4-flank": {
+  "captured": "2026-09-27T03:05:19",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "534eca9"
+ },
+ "afternoon_5-night": {
+  "captured": "2026-09-27T03:05:28",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "534eca9"
+ },
+ "afternoon_6-boss": {
+  "captured": "2026-09-27T03:05:42",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "534eca9"
+ },
+ "lateafternoon_1-title": {
+  "captured": "2026-09-27T03:11:13",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "534eca9"
+ },
+ "lateafternoon_2-turret": {
+  "captured": "2026-09-27T03:11:27",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "534eca9"
+ },
+ "lateafternoon_3-gunsight": {
+  "captured": "2026-09-27T03:11:35",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "534eca9"
+ },
+ "lateafternoon_4-flank": {
+  "captured": "2026-09-27T03:11:44",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "534eca9"
+ },
+ "lateafternoon_5-night": {
+  "captured": "2026-09-27T03:11:53",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "534eca9"
+ },
+ "lateafternoon_6-boss": {
+  "captured": "2026-09-27T03:12:07",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "534eca9"
+ },
+ "sunset_2-turret": {
+  "captured": "2026-09-27T03:06:08",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "534eca9"
+ },
+ "sunset_6-boss": {
+  "captured": "2026-09-27T03:06:16",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "534eca9"
+ }
+}
