@@ -146,9 +146,9 @@ Config.Lanes = {
 --   * a perfect player never waits more than ~10 s with loads in the air
 --     and nothing to shoot; waves last ~60-100 s for the perfect-aim bot,
 --     a full run ~16 min;
---   * buggies don't land while a tank is still being rocketed (waves 7
---     and 9): the human-like bot's losses came from buggies strafing
---     during tank fights.
+--   * buggies land >= 10 s after a tank touches down, never just before
+--     one (waves 5, 7 and 9): the human-like bot's losses came from buggies
+--     strafing, and troopers walking in, while it rocketed a tank.
 -- `time` selects the lighting preset (TimeOfDay.luau; daylight only:
 -- Afternoon, LateAfternoon, Sunset); `crates` lists the seconds at which a
 -- supply crate drops. Kinds missing at runtime are skipped with a warning,
@@ -218,15 +218,15 @@ Config.Waves = {
 		crates = { 28, 64 },
 		groups = {
 			g("Infantry", "Road", 6, 25, 0.9),
-			g("Buggy", "WashLeft", 2, 31, 2.5),
-			g("Tank", "Road", 1, 37, 1),
-			g("Infantry", "ScrubLeft", 5, 44, 0.8),
-			g("Buggy", "WashRight", 2, 50, 2.5),
+			g("Tank", "Road", 1, 31, 1),
+			g("Buggy", "WashLeft", 2, 41, 2.5),
+			g("Infantry", "ScrubLeft", 5, 45, 0.8),
+			g("Buggy", "WashRight", 2, 52, 2.5),
 			g("Infantry", "ScrubRight", 5, 57, 0.8),
-			g("Tank", "Road", 1, 63, 1),
-			g("Buggy", "WashLeft", 1, 70, 1),
-			g("Buggy", "WashRight", 1, 72, 1),
-			g("Infantry", "Road", 8, 76, 0.6),
+			g("Tank", "Road", 1, 62, 1),
+			g("Buggy", "WashLeft", 1, 72, 1),
+			g("Buggy", "WashRight", 1, 74, 1),
+			g("Infantry", "Road", 7, 80, 0.6),
 		},
 	},
 	{ -- 6: "look up now" reactions
