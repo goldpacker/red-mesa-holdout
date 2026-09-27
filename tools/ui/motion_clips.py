@@ -5,8 +5,8 @@
         [--crop x,y,w,h] [--fps 60] [--frames 12] [--start 0.5] [--scale 1]
 
 Writes, next to <out_prefix>:
-  <prefix>.mp4          the (cropped) clip, H.264, for playback
-  <prefix>.gif          the same, looping, 30 fps, max 480 px wide
+  <prefix>.mp4          the (cropped) clip, H.264, max --width px wide
+  <prefix>.gif          the same, looping, 20 fps, max 360 px wide
   <prefix>_strip.jpg    --frames consecutive frames side by side (a frame
                         sequence: equal spacing = smooth, repeats/jumps = steps)
 
@@ -36,6 +36,8 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--frames", type=int, default=12)
     ap.add_argument("--start", type=float, default=0.5, help="seconds into the clip for the strip")
     ap.add_argument("--scale", type=float, default=1.0, help="scale of the strip frames")
+    ap.add_argument("--width", type=int, default=896, help="max width of the mp4")
+    ap.add_argument("--vf", default="", help="extra ffmpeg filters after the crop (e.g. eq=gamma=1.5)")
     a = ap.parse_args(argv)
 
     src = Path(a.recording)
@@ -45,12 +47,14 @@ def main(argv: list[str]) -> int:
     if a.crop:
         x, y, w, h = (int(v) for v in a.crop.split(","))
         vf.append(f"crop={w}:{h}:{x}:{y}")
+    if a.vf:
+        vf.append(a.vf)
     base = ",".join(vf) if vf else "null"
 
-    run(["ffmpeg", "-y", "-i", str(src), "-vf", f"{base},fps={a.fps},scale=trunc(iw/2)*2:trunc(ih/2)*2",
-         "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "20", "-an", str(prefix.with_suffix(".mp4"))])
+    run(["ffmpeg", "-y", "-i", str(src), "-vf", f"{base},fps={a.fps},scale='min({a.width},iw)':-2:flags=lanczos",
+         "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "24", "-an", str(prefix.with_suffix(".mp4"))])
     run(["ffmpeg", "-y", "-i", str(prefix.with_suffix(".mp4")), "-vf",
-         "fps=30,scale='min(480,iw)':-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse",
+         "fps=20,scale='min(360,iw)':-1:flags=lanczos,split[s0][s1];[s0]palettegen=max_colors=128[p];[s1][p]paletteuse=dither=bayer",
          str(prefix.with_suffix(".gif"))])
     with tempfile.TemporaryDirectory() as tmp:
         pattern = str(Path(tmp) / "f%03d.png")
