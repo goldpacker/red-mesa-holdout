@@ -4,7 +4,10 @@
 -- (assets/ui/look/*.png, made by tools/ui/look_textures.py).
 
 return {
+	film_grain = "rbxassetid://80382475593624",
 	heat_haze = "rbxassetid://107428255439724",
+	lens_flare = "rbxassetid://90257633472049",
 	searchlight_cone = "rbxassetid://119493808669484",
-	vignette = "rbxassetid://85198297728006",
+	vignette = "rbxassetid://128569175998849",
+	vignette_corner = "rbxassetid://98162240916225",
 }

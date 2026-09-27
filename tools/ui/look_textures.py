@@ -1,4 +1,4 @@
-"""Generates the Look workstream's post/lighting textures (LOOK-1).
+"""Generates the Look workstream's post/lighting textures (LOOK-1, LOOK-5).
 
     tools/ui/py.sh tools/ui/look_textures.py            # writes assets/ui/look/*.png
 
@@ -11,7 +11,13 @@ Studio), so beam textures are authored along/across and written transposed:
                         core with no hard edge.
   heat_haze.png         Thin wavy horizontal shimmer lines, tileable in U,
                         faded at the top and bottom of the band.
-  vignette.png          Black radial vignette for the gunsight overlay.
+  vignette.png          256² black radial vignette for the gunsight overlay
+                        (and, much fainter, LOOK-5's full-screen film vignette).
+  vignette_corner.png   128² film-vignette corner (LOOK-5), rotated per corner.
+  film_grain.png        128² film grain tile, black/white grains with the
+                        strength in alpha (LOOK-5, client/PostFxFilm).
+  lens_flare.png        256x128 sun glare atlas: glow, ring, hex, disc, streak
+                        (LOOK-5, client/PostFxFilm).
 
 Pure numpy + zlib (runs on Blender's bundled Python, which has numpy).
 Deterministic: same seed, same bytes.
@@ -125,7 +131,9 @@ def heat_haze() -> np.ndarray:
 
 
 def vignette() -> np.ndarray:
-    n = 512
+    # 256² since LOOK-5 (QA-B reclaim item 7): a smooth radial gradient
+    # loses nothing, and GUI images are resident as uncompressed RGBA8.
+    n = 256
     ys, xs = np.mgrid[0:n, 0:n]
     x = (xs + 0.5) / n * 2.0 - 1.0
     y = (ys + 0.5) / n * 2.0 - 1.0
@@ -139,6 +147,79 @@ def vignette() -> np.ndarray:
     return out
 
 
+def vignette_corner() -> np.ndarray:
+    """One corner of the film vignette (LOOK-5): darkest in the top-left
+    corner, falling to zero at the tile's far edges, so four rotated copies
+    darken only the screen corners (a full-screen translucent layer costs
+    ~0.5 ms of GPU in the busy scene; four corners cover about a third)."""
+    n = 128
+    ys, xs = np.mgrid[0:n, 0:n]
+    d = np.sqrt(((xs + 0.5) / n) ** 2 + ((ys + 0.5) / n) ** 2)
+    alpha = (1.0 - smoothstep(0.0, 1.0, d)) ** 1.6
+    out = rgba(np.clip(alpha, 0.0, 1.0))
+    out[..., 0], out[..., 1], out[..., 2] = 0.05, 0.045, 0.035
+    return out
+
+
+def film_grain() -> np.ndarray:
+    """Full-screen film grain tile (LOOK-5): fine, slightly clumped grain,
+    tileable. Dark grains are black and light grains white, with the grain's
+    strength in alpha, so one overlay both darkens and lightens around the
+    pixel's own value (no grey veil). Drawn 1:1 in screen pixels and jittered
+    every frame by client/PostFxFilm."""
+    n = 128
+    grain = periodic_noise(n, n, 51, sigma_u=0.55, sigma_v=0.55)
+    clumps = periodic_noise(n, n, 52, sigma_u=1.6, sigma_v=1.6)
+    g = 0.8 * grain + 0.35 * clumps
+    g /= g.std() + 1e-9
+    out = np.empty((n, n, 4))
+    light = (g > 0).astype(float)
+    out[..., 0] = out[..., 1] = out[..., 2] = light
+    out[..., 3] = np.clip(np.abs(g) / 2.6, 0.0, 1.0)
+    return out
+
+
+def lens_flare() -> np.ndarray:
+    """Sun glare atlas (LOOK-5), white, tinted by ImageColor3 in
+    client/PostFxFilm. Cells (x, y, w, h in pixels):
+      glow  (0, 0, 128, 128)   soft sun bloom with a hot core
+      ring  (128, 0, 64, 64)   thin soft ring ghost
+      hex   (192, 0, 64, 64)   hexagonal aperture ghost, brighter rim
+      disc  (128, 64, 64, 64)  soft round ghost
+      streak (192, 64, 64, 64) short horizontal lens streak"""
+    out = np.zeros((128, 256, 4))
+    out[..., :3] = 1.0
+
+    def cell(size: int) -> tuple[np.ndarray, np.ndarray]:
+        ys, xs = np.mgrid[0:size, 0:size]
+        x = (xs + 0.5) / size * 2.0 - 1.0
+        y = (ys + 0.5) / size * 2.0 - 1.0
+        return x, y
+
+    x, y = cell(128)
+    r = np.sqrt(x * x + y * y)
+    glow = 0.55 * np.exp(-((r / 0.16) ** 2)) + 0.45 * np.exp(-((r / 0.48) ** 2))
+    out[0:128, 0:128, 3] = glow * smoothstep(1.0, 0.8, r)
+
+    x, y = cell(64)
+    r = np.sqrt(x * x + y * y)
+    ring = np.exp(-(((r - 0.72) / 0.08) ** 2)) * 0.8 + 0.12 * smoothstep(0.85, 0.2, r)
+    out[0:64, 128:192, 3] = ring * smoothstep(1.0, 0.9, r)
+
+    angle = np.arctan2(y, x)
+    sector = np.pi / 3.0
+    hex_r = r * np.cos((np.mod(angle, sector)) - sector / 2.0) / np.cos(sector / 2.0)
+    hexa = 0.35 * smoothstep(0.82, 0.74, hex_r) + 0.45 * np.exp(-(((hex_r - 0.76) / 0.05) ** 2))
+    out[0:64, 192:256, 3] = hexa * smoothstep(0.95, 0.85, hex_r)
+
+    disc = smoothstep(0.9, 0.35, r) * 0.7
+    out[64:128, 128:192, 3] = disc
+
+    streak = np.exp(-((y / 0.06) ** 2)) * smoothstep(1.0, 0.0, np.abs(x)) ** 1.5
+    out[64:128, 192:256, 3] = streak
+    return out
+
+
 def beam(fn):
     """Authored as rows = across, columns = along; Roblox wants columns across."""
     return lambda: np.ascontiguousarray(np.transpose(fn(), (1, 0, 2)))
@@ -148,6 +229,9 @@ TEXTURES = {
     "searchlight_cone": beam(searchlight_cone),
     "heat_haze": beam(heat_haze),
     "vignette": vignette,
+    "film_grain": film_grain,
+    "vignette_corner": vignette_corner,
+    "lens_flare": lens_flare,
 }
 
 

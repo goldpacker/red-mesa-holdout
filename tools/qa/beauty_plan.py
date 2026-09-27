@@ -2,7 +2,7 @@
 See tools/qa/BEAUTY.md.
 
     python3 tools/qa/beauty_plan.py p1-env                       # all 30
-    python3 tools/qa/beauty_plan.py p1-env --shots 2,4 --tods sunset,night
+    python3 tools/qa/beauty_plan.py p1-env --shots 2,4 --tods afternoon,sunset
 
 Order: shot by shot, every preset for each, so the frozen subjects are
 spawned only once per stage. The plan ends with the save command.
@@ -12,7 +12,8 @@ from __future__ import annotations
 import argparse
 import time
 
-TODS = {"afternoon": "Afternoon", "lateafternoon": "LateAfternoon", "sunset": "Sunset", "dusk": "Dusk", "night": "Night"}
+# Daylight only since 3397923 (spec §7.1): no dusk or night presets.
+TODS = {"afternoon": "Afternoon", "lateafternoon": "LateAfternoon", "sunset": "Sunset"}
 SHOTS = {1: "title", 2: "turret", 3: "gunsight", 4: "flank", 5: "night", 6: "boss"}
 
 

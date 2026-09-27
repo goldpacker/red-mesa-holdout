@@ -3,7 +3,11 @@
 --   * gunsight depth of field: while aiming, a subtle near blur that keeps
 --     the target and everything beyond it sharp (no far blur at all);
 --   * heat haze: faint shimmering bands low over the hot basin, daytime
---     only (scrolling-texture Beams facing the turret; no custom shaders).
+--     only (scrolling-texture Beams facing the turret; no custom shaders);
+--   * LOOK-5 (one per-frame step drives them all, PostFxPresets first):
+--     PostFxAir (low dust layers, sun shafts), PostFxFilm (grain, vignette,
+--     sun glare; `FilmFxOff` turns it off) and PostFxStorm (the storm
+--     lighting state driven by Lighting.StormAmount).
 -- Everything here is created on the client, so it costs the server nothing
 -- and toggles per frame without replication.
 
@@ -12,7 +16,11 @@ local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local AimController = require(script.Parent.AimController)
+local Air = require(script.Parent.PostFxAir)
 local Assets = require(script.Parent.PostFxAssets)
+local Film = require(script.Parent.PostFxFilm)
+local Presets = require(script.Parent.PostFxPresets)
+local Storm = require(script.Parent.PostFxStorm)
 
 local PostFx = {}
 
@@ -36,12 +44,12 @@ local HAZE_BANDS = {
 }
 local HAZE_TRANSPARENCY = 0.84 -- at full strength (texture alpha does the rest)
 local HAZE_COLOR = Color3.fromRGB(255, 236, 214)
+-- Off at sunset (LOOK-5): at a quarter strength it barely showed, and the
+-- busy sunset waves are where the GPU budget binds.
 local HAZE_STRENGTH: { [string]: number } = {
 	Afternoon = 1,
 	LateAfternoon = 0.75,
-	Sunset = 0.25,
-	Dusk = 0,
-	Night = 0,
+	Sunset = 0,
 }
 
 local camera = Workspace.CurrentCamera
@@ -166,7 +174,10 @@ end
 local hazeDriver = Instance.new("NumberValue")
 local hazeTween: Tween? = nil
 
+local hazeStorm = 0 -- a dust storm hides the shimmer
+
 local function applyHazeStrength(level: number)
+	level *= 1 - hazeStorm
 	for _, band in bands do
 		local v = 1 - (1 - HAZE_TRANSPARENCY) * level * band.strength
 		for _, item in band.beams do
@@ -218,8 +229,30 @@ local function pauseForBeauty()
 	end
 end
 
+-- ------------------------------------------------------------------ LOOK-5 step
+local airReady = false
+
+local function step(dt: number)
+	updateDof(dt)
+	Presets.step()
+	local look = Presets.current()
+	local storm = Presets.storm()
+	Film.update(dt, look, storm)
+	Storm.update(storm, Presets.preset())
+	if airReady then
+		Air.update(look, storm, Presets.fading())
+	end
+	if math.abs(storm - hazeStorm) > 0.01 or (storm == 0 and hazeStorm ~= 0) then
+		hazeStorm = storm
+		applyHazeStrength(hazeDriver.Value)
+	end
+end
+
 function PostFx.start()
 	ensureDof()
+	Presets.start()
+	Film.start()
+	Storm.start()
 	task.spawn(function()
 		-- Terrain is written by the server at start and replicates after the
 		-- Battlefield folder; wait until the basin floor is raycastable.
@@ -231,11 +264,13 @@ function PostFx.start()
 		hazeDriver.Changed:Connect(applyHazeStrength)
 		buildHaze()
 		updateHaze()
+		Air.build()
+		airReady = true
 		Workspace:GetAttributeChangedSignal("TimeOfDay"):Connect(updateHaze)
 		Workspace:GetAttributeChangedSignal("BeautyShot"):Connect(pauseForBeauty)
 		pauseForBeauty()
 	end)
-	RunService.RenderStepped:Connect(updateDof)
+	RunService.RenderStepped:Connect(step)
 end
 
 return PostFx

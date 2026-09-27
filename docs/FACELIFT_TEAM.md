@@ -191,3 +191,18 @@ Contracts for Update 2:
 - **Storms:** a wave's `weather` field starts a storm. VFX owns particles
   and density; Look owns the lighting state; both keep the readability
   rule.
+- **Storm lighting interface (LOOK-5):** `Lighting` attribute
+  `StormAmount`, a number 0..1 (absent = 0). VFX-4's weather is its only
+  writer and ramps it (onset, hold, clear); a client write stays local, a
+  server write replicates. Look's `client/PostFxStorm` blends every client
+  toward the preset's storm look at that amount (sun × 0.4 with soft
+  shadows, warm-brown ambient and Atmosphere haze, shorter view distance,
+  no glare or sun rays, warm client grade) and `client/PostFxAir` thickens
+  the low dust layer; at 0 the server's exact preset values are restored.
+  Look alone keeps enemies ≥ 3:1 at engagement range at `StormAmount` 1;
+  VFX's particles must fit in what is left (grayscale check at the peak).
+  Don't write the storm into `Lighting`/`Atmosphere` properties directly.
+- **Film treatment (LOOK-5):** grain, vignette and sun glare are one
+  client layer (`client/PostFxFilm`, ScreenGui `FilmFx` under the HUD);
+  Workspace attribute `FilmFxOff = true` (or `PostFxFilm.ENABLED = false`)
+  turns it all off.

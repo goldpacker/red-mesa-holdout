@@ -138,7 +138,11 @@ local function updateVignette()
 	local integrity = GameState.get("Integrity") or 100
 	local group = refs.vignetteFrame :: CanvasGroup
 	local inWave = GameState.phase() == "Wave"
-	if integrity <= Config.Integrity.LOW_THRESHOLD and inWave then
+	local low = integrity <= Config.Integrity.LOW_THRESHOLD and inWave
+	-- Hidden, not just transparent, when unused: a full-screen CanvasGroup
+	-- still costs GPU at GroupTransparency 1 (LOOK-5 A/B).
+	group.Visible = low
+	if low then
 		group.GroupTransparency = 0.35 + 0.25 * math.sin(os.clock() * 6)
 	else
 		group.GroupTransparency = 1

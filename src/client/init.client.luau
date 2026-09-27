@@ -25,7 +25,6 @@ Hud.start()
 Screens.start()
 ThreatHud.start()
 EnemyVisuals.start()
-NightFx.start()
 PostFx.start()
 -- Studio-only beauty-shot rig (tools/qa/BEAUTY.md); a no-op in live games.
 require(ReplicatedStorage.Shared.BeautyShots).startClient()

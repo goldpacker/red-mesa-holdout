@@ -7,7 +7,7 @@ tools (to bring Studio forward) and Bash.
 
 | What | Command |
 |---|---|
-| Capture a set (full or subset) | §2 — `python3 tools/qa/beauty_plan.py <set> [--shots 2,4] [--tods sunset,night]` prints the steps |
+| Capture a set (full or subset) | §2 — `python3 tools/qa/beauty_plan.py <set> [--shots 2,4] [--tods afternoon,sunset]` prints the steps |
 | File the captures | `tools/qa/py tools/qa/beauty_save.py --set <set> --since <epoch> <names…>` |
 | Before/after pairs + contact sheet | `tools/qa/py tools/qa/beauty_compare.py p0-baseline <set> [--gray]` |
 | Grayscale readability sheet | `tools/qa/py tools/qa/grayscale.py --set <set>` or `… <images> --out <dir>` |
@@ -30,8 +30,10 @@ perf baseline: `docs/PERF_BUDGET.md`.
 ## 1. The six shots
 
 Defined in `src/shared/BeautyShots.luau` (camera, FOV, mode, staging),
-captured at each of the five time-of-day presets → 30 images per full set,
-named `qa/beauty/<set>/<tod>_<n>-<shot>.jpg` at **1190×1080**.
+captured at each of the three time-of-day presets → 18 images per full set
+(30 before the game went daylight-only, 3397923: sets up to `env-3`/`look-3`
+also have `dusk_*`/`night_*` files), named
+`qa/beauty/<set>/<tod>_<n>-<shot>.jpg` at **1190×1080**.
 
 | # | Name | Mode | What it shows | HUD |
 |---|---|---|---|---|
@@ -39,24 +41,23 @@ named `qa/beauty/<set>/<tod>_<n>-<shot>.jpg` at **1190×1080**.
 | 2 | `turret` | player turret camera, yaw −2°, pitch −7.5° | the normal third-person view over the gun: road column, helicopter, basin, cliffs, sky | yes |
 | 3 | `gunsight` | machine-gun gunsight (aiming), yaw −3.5°, pitch −13.5° | infantry, buggy and tank on the road at 220–410 studs | yes |
 | 4 | `flank` | free camera (430, 70, −700) → (−20, 25, −190), FOV 45 | the basin from the right flank: mesa + emplacement, rear/flank cliffs, basin floor, the column | hidden |
-| 5 | `night` | free camera (95, 30, −560) → (−50, 70, −40), FOV 45 | from the basin back up at the mesa: searchlights, emplacement lights, flares, enemy lights | hidden |
+| 5 | `night` | free camera (95, 30, −560) → (−50, 70, −40), FOV 45 | from the basin back up at the mesa (the name dates from the night presets; kept so sets compare) | hidden |
 | 6 | `boss` | player turret camera, yaw −1°, pitch −6° | the Siege Crawler coming up the road (425 studs) with three escorts; boss bar | yes |
 
-ToD tags: `afternoon`, `lateafternoon`, `sunset`, `dusk`, `night` (the
-`TimeOfDay` presets `Afternoon`, `LateAfternoon`, `Sunset`, `Dusk`,
-`Night`). The HUD shows wave 3/4/7/8/9 by preset (10 for the boss) and a
-fixed score of 12480.
+ToD tags: `afternoon`, `lateafternoon`, `sunset` (the `TimeOfDay` presets
+`Afternoon`, `LateAfternoon`, `Sunset`; daylight only since 3397923). The
+HUD shows wave 3/4/7 by preset (10 for the boss) and a fixed score of
+12480.
 
 **Staged subjects** (frozen: no movement, firing, damage or despawn):
 - shots 2–5: 5 infantry (aim pose) on the road, a buggy, a tank, a hovering
-  helicopter; at dusk and night three fixed flares.
+  helicopter.
 - shot 6: the Siege Crawler + 3 infantry.
 
 What makes it deterministic: the preset is set directly (no tween); the
 wave director is stopped so `Enemies.update` never runs; positions and
-headings are fixed; the searchlights are pinned to fixed angles and
-NightFx's random flares are replaced by fixed ones; first-encounter tips
-are waited out. Two captures of the same shot in different play sessions
+headings are fixed; the (dormant) searchlights are pinned to fixed angles;
+first-encounter tips are waited out. Two captures of the same shot in different play sessions
 differ by a mean of 1.4/255 (rotor angle, dust particles, shadow jitter).
 
 ---
@@ -89,7 +90,7 @@ caffeinate -u -t 2                      # wake the display
 
 Print the exact steps for your set:
 ```bash
-python3 tools/qa/beauty_plan.py p1-env --shots 2,4,5 --tods sunset,night
+python3 tools/qa/beauty_plan.py p1-env --shots 2,4,5 --tods afternoon,sunset
 ```
 It prints a `SINCE=<epoch>` line, then for each image two MCP calls:
 
@@ -106,7 +107,7 @@ It prints a `SINCE=<epoch>` line, then for each image two MCP calls:
 Then file every capture since `SINCE`, in order:
 ```bash
 tools/qa/py tools/qa/beauty_save.py --set p1-env --since 1790436000 \
-    sunset_2-turret night_2-turret sunset_4-flank night_4-flank sunset_5-night night_5-night
+    afternoon_2-turret sunset_2-turret afternoon_4-flank sunset_4-flank afternoon_5-night sunset_5-night
 ```
 This copies the MCP's image blobs (saved by Claude Code under
 `~/.claude/projects/-Users-xichaowang-projects-beach-head-opus/**/tool-results/mcp-Roblox_Studio-blob-*.jpg`)
@@ -127,8 +128,8 @@ then `start_stop_play(false)` and `tools/studio-lock.sh release <you>`.
 
 ### 2.4 Full set
 
-`python3 tools/qa/beauty_plan.py <set>` (all 6 shots × 5 presets, 30
-captures, ~6 minutes). Commit the set folder with your milestone:
+`python3 tools/qa/beauty_plan.py <set>` (all 6 shots × 3 presets, 18
+captures, ~4 minutes). Commit the set folder with your milestone:
 `git add qa/beauty/<set> && git commit -m "…" -- qa/beauty/<set>`.
 
 ### 2.5 Viewport size check
@@ -247,10 +248,11 @@ additive (never-drawn ids, early in a session), and per-asset costs come from
   override at `RenderPriority.Last + 10` for title/free shots, disables
   every `ScreenGui` for free shots, hides the `BossBar` for non-boss shots,
   pins the searchlights (`Battlefield.Searchlights.SearchlightN` with
-  `Head`/`Lens`/`Pool`) and creates the fixed flares at dusk/night.
+  `Head`/`Lens`/`Pool`; dormant props since the night presets went, so
+  this and the dusk/night flare staging no longer change anything).
 - **Contract for other workstreams:** client visuals that are driven by the
   clock or randomness should pause while `Workspace:GetAttribute("BeautyShot")`
-  is set (NightFx does: its sweep and random flares stop). If you rename or
+  is set (PostFx's shimmer and shafts do). If you rename or
   restructure the searchlights, the `BossBar`, the flare look
   (`BeautyShots.makeFlare` mirrors NightFx's flare) or the title camera
   (`SHOTS[1].camera` mirrors AimController's title pan at t = 0), update

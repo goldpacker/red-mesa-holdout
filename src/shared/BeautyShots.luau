@@ -18,19 +18,19 @@ local Workspace = game:GetService("Workspace")
 local BeautyShots = {}
 
 -- Time-of-day presets (server/TimeOfDay) in capture order, and the file tag
--- each gets in `qa/beauty/<set>/<tag>_<n>-<shot>.jpg`.
-BeautyShots.PRESETS = { "Afternoon", "LateAfternoon", "Sunset", "Dusk", "Night" }
+-- each gets in `qa/beauty/<set>/<tag>_<n>-<shot>.jpg`. Daylight only since
+-- 3397923 (spec §7.1): the dusk and night presets are gone; earlier sets
+-- keep their dusk_*/night_* files for history.
+BeautyShots.PRESETS = { "Afternoon", "LateAfternoon", "Sunset" }
 BeautyShots.TAGS = {
 	Afternoon = "afternoon",
 	LateAfternoon = "lateafternoon",
 	Sunset = "sunset",
-	Dusk = "dusk",
-	Night = "night",
 }
 
 -- Wave number shown on the HUD for combat shots at each preset (the first
 -- wave that uses that lighting with the staged enemy mix).
-BeautyShots.WAVE_FOR = { Afternoon = 3, LateAfternoon = 4, Sunset = 7, Dusk = 8, Night = 9 }
+BeautyShots.WAVE_FOR = { Afternoon = 3, LateAfternoon = 4, Sunset = 7 }
 BeautyShots.SCORE = 12480
 
 export type Subject = {
