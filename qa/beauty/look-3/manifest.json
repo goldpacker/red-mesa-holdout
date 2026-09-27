@@ -36,6 +36,8 @@
   "motion/strobe_pairs.jpg": "Step vs smooth sheet (tools/ui/motion_sheet.py): per vehicle, raw replicated poses (MotionOff) vs EnemyMotion; one marker per rendered frame at the drawn Root (blue oldest, yellow newest) + 2x crop + measured per-frame numbers",
   "motion/strobe_tank_raw.jpg": "Tank #1 driving, raw: 17 of 35 frames frozen, per-frame speed cv 0.98 (dust and HUD off for clarity)",
   "motion/strobe_tank_smooth.jpg": "Same tank, EnemyMotion: 0 frozen, per-frame speed cv 0.12; tread band visible on the ground run",
-  "extra/boss_wave_left_turret_off_tracked.jpg": "Wave 10 (night), rocket gunsight on the HS-5 Siege Crawler after real rockets threw off its left turret while EnemyMotion tracked it (30 Hz replication, 0/59 frozen frames, planted track welds, no tread strip); console clean"
+  "extra/boss_wave_left_turret_off_tracked.jpg": "Wave 10 (night), rocket gunsight on the HS-5 Siege Crawler after real rockets threw off its left turret while EnemyMotion tracked it (30 Hz replication, 0/59 frozen frames, planted track welds, no tread strip); console clean",
+  "fix1/night_infantry_lamp_lit_tracked.jpg": "Fix 1: night wave 9, camera fixed to a walking soldier whose client LampGlow (anchored, CanQuery=false) is lit; EnemyMotion tracks him (1 decorative part ignored)",
+  "fix1/night_infantry_lamp_strobe_smooth.jpg": "Fix 1: same soldier, one marker per rendered frame at the drawn Root over 40 frames: 0 of 39 frozen (the soldier has walked out of frame left)"
  }
 }

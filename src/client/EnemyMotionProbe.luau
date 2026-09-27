@@ -76,6 +76,7 @@ local function stats(): { any }
 			bodyOffset = math.floor((drawn - track.pos).Magnitude * 1000) / 1000,
 			wreck = track.wreck,
 			treads = track.tracks ~= nil,
+			ignored = track.ignored,
 		})
 	end
 	return out

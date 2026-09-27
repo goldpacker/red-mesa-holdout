@@ -71,6 +71,7 @@ export type Track = {
 	tracks: Tracks.State?,
 	wreck: boolean,
 	raw: boolean,
+	ignored: number, -- decorative anchored parts left alone (rootOf)
 }
 
 local tracks: { [Model]: Track } = {}
@@ -82,26 +83,45 @@ local function same(a: CFrame, b: CFrame): boolean
 		and a.UpVector:Dot(b.UpVector) > EPS_DOT
 end
 
--- Only models moved as one welded assembly under an anchored Root can be
--- smoothed by moving Root alone (Rig.prepare, Infantry).
-local function rootOf(model: Model): BasePart?
-	local root = model:FindFirstChild("Root")
-	if not (root and root:IsA("BasePart") and root.Anchored) then
-		return nil
+-- Which models can be smoothed by moving Root alone.
+-- Root is the model's PrimaryPart when it is called "Root", else its child
+-- (or descendant) "Root", and it must be anchored: the server moves the
+-- whole enemy by setting that one CFrame (EnemyTypes/Common/Rig, Infantry).
+-- Any other anchored part is judged on its own:
+--   - decorative (CanQuery = false): ignored. These are client-side extras
+--     that their owners re-pose from the drawn model every frame, e.g.
+--     InfantryRig's LampGlow, created when a helmet lamp turns on at
+--     dusk/night; a detached piece on its way to Wrecks is also no-query.
+--   - a hit volume (CanQuery = true): the server places it on its own
+--     (TestDummyAir's Wing; a weak point mid-detach). Moving Root alone
+--     would pull the drawn model off that hit box, so the model is not
+--     smoothed while such a part is there.
+-- Returns the root and the number of ignored decorative parts.
+local function rootOf(model: Model): (BasePart?, number)
+	local root: Instance? = model.PrimaryPart
+	if not (root and root.Name == "Root") then
+		root = model:FindFirstChild("Root") or model:FindFirstChild("Root", true)
 	end
+	if not (root and root:IsA("BasePart") and root.Anchored) then
+		return nil, 0
+	end
+	local ignored = 0
 	for _, d in model:GetDescendants() do
 		if d ~= root and d:IsA("BasePart") and d.Anchored then
-			return nil
+			if d.CanQuery then
+				return nil, 0
+			end
+			ignored += 1
 		end
 	end
-	return root
+	return root :: BasePart, ignored
 end
 
 local function register(model: Model)
 	if tracks[model] or not model.Parent then
 		return
 	end
-	local root = rootOf(model)
+	local root, ignored = rootOf(model)
 	local kind = model:GetAttribute("Kind")
 	if not root or type(kind) ~= "string" then
 		return
@@ -125,6 +145,7 @@ local function register(model: Model)
 		tracks = Tracks.new(model, kind, root),
 		wreck = false,
 		raw = false,
+		ignored = ignored,
 	}
 	tracks[model] = track
 end
@@ -134,6 +155,43 @@ local function forget(model: Model)
 	if track then
 		tracks[model] = nil
 		Tracks.destroy(track.tracks)
+	end
+end
+
+-- Stops smoothing a model that is still in play: the drawn Root goes back
+-- to the newest server pose and the track welds to their authored C0.
+local function release(track: Track)
+	tracks[track.model] = nil
+	Tracks.destroy(track.tracks)
+	local last = track.samples[#track.samples]
+	if last and track.root.Parent then
+		track.root.CFrame = CFrame.new(last.pos) * last.rot
+	end
+end
+
+-- Every half second: pick up enemies that couldn't be smoothed before and
+-- re-check the tracked ones (parts can be anchored or added after spawn).
+local failed: { [Model]: boolean } = {}
+local function sweep(enemies: Instance)
+	for _, child in enemies:GetChildren() do
+		if child:IsA("Model") and not tracks[child] and not failed[child] then
+			register(child)
+		end
+	end
+	for model, track in tracks do
+		if not track.wreck then
+			local root, ignored = rootOf(model)
+			if root ~= track.root then
+				release(track)
+			else
+				track.ignored = ignored
+			end
+		end
+	end
+	for model in failed do
+		if not model.Parent then
+			failed[model] = nil
+		end
 	end
 end
 
@@ -314,6 +372,7 @@ local function step(dt: number)
 			local ok, err = pcall(stepTrack, track, now, dt, off, bodyOff)
 			if not ok then
 				warn("[RedMesa] enemy motion failed for " .. track.kind .. ": " .. tostring(err))
+				failed[model] = true
 				forget(model)
 			end
 		end
@@ -375,6 +434,13 @@ local function watch()
 			forget(child :: Model)
 		end
 	end)
+	while true do
+		task.wait(0.5)
+		local ok, err = pcall(sweep, enemies)
+		if not ok then
+			warn("[RedMesa] enemy motion sweep failed: " .. tostring(err))
+		end
+	end
 end
 
 function EnemyMotion.start()
