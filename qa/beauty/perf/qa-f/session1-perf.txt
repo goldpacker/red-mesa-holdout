@@ -1,0 +1,108 @@
+QA-F perf session 1 (2026-09-27 06:17-06:35 PDT), build 33f37c4 (VFX-4 fix 1 d23f767 in; clean src/assets tree),
+Studio lock held, quiet machine (both Blender slots free, load 1.7-2.6), viewport 1177x1068, QualityLevel 15,
+Edit-datamodel GraphicsTexture before play 176.0 MB (179.8 earlier the same morning).
+Scenes: airdropSeed 7, integrity held at 100, MG bot range 450 with idle aim = turret beauty angle (yaw -2, pitch -7.5);
+each wave gets 3 extra debug sorties at 34 s (8 Infantry Road, 1 Tank ScrubLeft, 2 Buggy ScrubRight) on top of its own,
+probed at ~47-55 s (while the extras descend). Storm peak = WeatherStormForce 1 (capped to 0.8 at Sunset by DustStorm.PRESET_CAP);
+storm wall = WeatherStormFrontAt -1100 (StormAmount 0.117).
+
+=== Play 1 ===
+[qa-f p1 title] 06:17:59 Title Afternoon
+fps avg 60.0  1%-low 56.9  (worst 17.9 ms)
+Scene tris 483,677  DC 417  Shadows 55,495 / 44  CPU 3.02 ms  GPU 6.29 ms
+GraphicsTexture 222.3  Particles 132.8  Terrain 77.7  Parts 14.9  MeshParts 12.9
+4626 instances, 2053 MeshParts | 62 emitters (62 on, ~516 continuous particles), 107 beams, 5 lights (0 on) | WeatherFx 59
+
+[qa-f p1 wave8 sunset +3 sorties] 06:19:07
+fps 60.0 / 56.1 (worst 18.0)  tris 529,588  DC 437  shadows 324,848 / 133  CPU 3.03  GPU 6.24
+GraphicsTexture 256.4  Particles 133.3
+6631 instances, 2388 MeshParts | 180 emitters (68 on, ~169), 123 beams, 38 lights (24 on)
+enemies Helicopter 2, Infantry 8, Jet 1 | airborne loads 11, transports 4
+
+[qa-f p1 wave9 sunset +3 sorties] 06:20:11
+fps 60.0 / 56.2 (worst 18.0)  tris 583,554  DC 480  shadows 351,348 / 162  CPU 3.24  GPU 5.21
+GraphicsTexture 251.0  Particles 133.7
+7555 instances, 2583 MeshParts | 184 emitters (72 on, ~299), 131 beams, 40 lights (22 on)
+enemies Buggy 2, Helicopter 2, Infantry 5, Tank 1 | airborne loads 19, transports 8
+
+[qa-f p1 wave10 boss sunset +3 sorties] 06:21:11
+fps 60.0 / 55.8 (worst 18.1)  tris 554,465  DC 461  shadows 244,811 / 108  CPU 3.01  GPU 6.46
+GraphicsTexture 254.0  Particles 133.7
+6837 instances, 2442 MeshParts | 153 emitters (68 on, ~223), 131 beams, 27 lights (9 on)
+enemies Helicopter 1, Infantry 11, SiegeCrawler 1 | airborne loads 12, transports 4
+
+[qa-f p1 wave9 STORM PEAK, StormAmount 0.8] 06:22:20 (~58 s into the wave)
+fps 60.0 / 53.5 (worst 18.9)  tris 586,529  DC 489  shadows 356,853 / 172  CPU 3.15  GPU 6.10
+GraphicsTexture 248.6  Particles 134.0
+197 emitters (72 on, ~890 continuous), 132 beams | enemies Buggy 2, Helicopter 2, Infantry 4, Tank 1 | airborne 18, transports 8
+
+[qa-f p1 wave9 STORM WALL held at -1100, StormAmount 0.117] 06:22:32
+fps 60.0 / 52.9 (worst 19.5)  tris 578,506  DC 498  shadows 476,550 / 291  CPU 3.38  GPU 6.15
+GraphicsTexture 249.7  Particles 134.1
+195 emitters (81 on, ~714), 132 beams | enemies Buggy 4, Helicopter 2, Infantry 12, Tank 3 | airborne 4, transports 4
+
+Console (play 1): [RedMesa] world built in 0.41s / server ready / client ready. Nothing else.
+
+=== Play 2 (fresh play) ===
+[qa-f p2 title] 06:23:51
+fps 60.0 / 53.8 (worst 18.8)  tris 481,651  DC 416  shadows 55,431 / 45  CPU 3.05  GPU 6.02
+GraphicsTexture 228.1  Particles 133.8  Terrain 77.7
+
+[qa-f p2 wave8 sunset +3 sorties] 06:24:55
+fps 60.0 / 53.7 (worst 18.9)  tris 522,864  DC 434  shadows 329,856 / 139  CPU 3.09  GPU 4.82
+GraphicsTexture 256.4  Particles 134.4 | 200 emitters (67 on, ~233), 127 beams, 41 lights (23 on)
+enemies Helicopter 2, Infantry 8, Jet 1 | airborne 11, transports 4
+
+[qa-f p2 wave9 sunset +3 sorties] 06:25:58
+fps 60.0 / 54.0 (worst 18.7)  tris 586,023  DC 484  shadows 340,494 / 159  CPU 3.24  GPU 6.26
+GraphicsTexture 256.8  Particles 134.5 | 182 emitters (72 on, ~350), 125 beams, 40 lights (22 on)
+enemies Buggy 2, Helicopter 2, Infantry 6, Tank 1 | airborne 19, transports 8
+
+[qa-f p2 wave9 STORM PEAK, StormAmount 0.8] 06:26:14 (~63 s into the wave)
+fps 60.0 / 53.4 (worst 19.2)  tris 582,227  DC 491  shadows 347,381 / 162  CPU 3.24  GPU 6.82
+GraphicsTexture 256.8 | 210 emitters (86 on, ~1319 continuous), 142 beams, 50 lights (31 on)
+enemies Buggy 4, Helicopter 2, Infantry 11, Tank 3 | airborne 1, transports 4
+
+[qa-f p2 wave9 STORM WALL held at -1100] 06:26:26
+fps 60.0 / 53.6 (worst 19.0)  tris 568,738  DC 501  shadows 476,022 / 285  CPU 3.28  GPU 7.04
+209 emitters (85 on, ~772), 142 beams, 56 lights (35 on) | enemies Buggy 5, Helicopter 3, Infantry 4, Tank 3
+
+[qa-f p2 wave10 boss sunset +3 sorties] 06:27:31
+fps 60.0 / 53.1 (worst 19.0)  tris 550,350  DC 465  shadows 233,559 / 106  CPU 3.16  GPU 6.09
+GraphicsTexture 254.2  Particles 134.8 | 196 emitters (67 on, ~297), 144 beams, 37 lights (12 on)
+enemies Helicopter 1, Infantry 10, SiegeCrawler 1 | airborne 15, transports 4
+
+--- Storm-wall shadow check (play 2, wave 9, ~30 s in, 3 s blocks alternating none / wall held at -1100) ---
+none  GPU 5.63  DC 421  shadowTris 210841  shadowDC 88
+wall  GPU 7.15  DC 437  shadowTris 512704  shadowDC 351
+none  GPU 7.64  DC 456  shadowTris 535298  shadowDC 358
+wall  GPU 5.52  DC 493  shadowTris 522337  shadowDC 350
+none  GPU 6.00  DC 464  shadowTris 566188  shadowDC 377
+wall  GPU 5.92  DC 465  shadowTris 550808  shadowDC 367
+=> the high shadow counts are not the wall (they stay high with it off); they follow the view and the
+   scene as the wave fills. WeatherFx has 0 shadow-casting parts. The storm lighting only changes
+   ShadowSoftness 0.14 -> 0.21 and Brightness 3.90 -> 3.72.
+
+--- Shadow load by view direction (play 2, wave 9, bot off, pitch -7.5, 1.5 s blocks) ---
+yaw   -2: GPU 4.70  DC 441 tris 531k  shadowTris 369k  shadowDC 178
+yaw  -45: GPU 4.32  DC 375 tris 399k  shadowTris 434k  shadowDC 203
+yaw  -80: GPU 5.74  DC 286 tris 345k  shadowTris 522k  shadowDC 291
+yaw   45: GPU 5.30  DC 377 tris 407k  shadowTris 342k  shadowDC 161
+yaw   80: GPU 4.63  DC 305 tris 348k  shadowTris 375k  shadowDC 173
+yaw  120: GPU 5.33  DC 215 tris 249k  shadowTris 350k  shadowDC 130
+yaw  180: GPU 4.53  DC 191 tris 238k  shadowTris 328k  shadowDC 173
+yaw -120: GPU 4.37  DC 197 tris 222k  shadowTris 264k  shadowDC 111
+(a per-group CastShadow-off attribution was attempted but the live wave moved too much between blocks
+ to attribute; not used)
+
+--- Layer A/B in the boss wave (play 2, wave 10 +3 sorties, ~30 s in, MG bot; paired, order alternated) ---
+4 rounds x 2.2 s per side:
+WeatherOff    on 5.33 / off 6.28 ms: paired on-off mean -0.95, median -0.90 (range -1.69..-0.31), DC +4
+AirdropFxOff  on 6.08 / off 5.93 ms: paired on-off mean +0.15, median +0.12 (range -0.19..+0.55), DC +30
+FilmFxOff     on 6.06 / off 5.46 ms: paired on-off mean +0.61, median +0.63 (range +0.27..+0.89), DC -10
+AirFxOff      on 6.28 / off 6.45 ms: paired on-off mean -0.17, median -0.08 (range -1.10..+0.59), DC +15
+6 rounds x 2 s per side (a fresh wave 10, ~28 s in):
+grain (ImageLabel.Visible)   on 5.70 / off 6.01: paired mean -0.31 median -0.27 (range -1.09..+0.58)
+vignette corners (Visible)   on 6.22 / off 5.64: paired mean +0.58 median +0.55 (range -0.92..+2.33)
+whole FilmFx (FilmFxOff)     on 6.14 / off 5.52: paired mean +0.62 median +0.63 (range +0.10..+1.11)
+(grain ImageTransparency 0.940, 1217x1108 px; glare not visible in the boss view)

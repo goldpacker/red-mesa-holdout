@@ -1,0 +1,114 @@
+QA-F full fresh-start 10-wave run, perfect-aim bot (QA_Human = false: range 900, no handicaps), build 33f37c4
+(clean tree: VFX-4 fix 1 d23f767 and QA-F VehicleLod 8c8669d in), fresh Play -> StartGame from Title at 06:37:45 PDT,
+unpinned airdrop seed, weather live (storms on waves 3 and 7), QualityLevel 15, Studio in front.
+Server: tools/qa/autoplay_watch.server.luau (AdWatchTiming = false). Client: tools/qa/autoplay_full.client.luau plus
+the QA-F hand-off frame recorder (RenderPriority.Last+30; per load: frames with body and enemy both drawn, empty
+frames between the body's last drawn frame and the enemy's first, root-to-root gap).
+
+[AD-QA] PACE wave 1 attempt 1 Intermission: 59.2s | integrity 100 -> 100 (min 100) | entry 0.0 chutes 13.2 land 26.3 engage 26.4 | idle-in-flight 10.3s @47 | beat gap 12.1s @1 | sorties 5 | land->kill median 0.5s p90 1.1s (n 21) | idle>8s: 0-26 47-57
+[AD-QA] wave 1 Intermission: landed 21 direct 0 outOfBand 0 stuck 0 land 501-800 | integrity 100 score 1920 | drops announced 21 landed 21 cancelled 0 pending 0 fallbacks 0 nudged 2 late 1 (max 2.37s) land 501-800 maxPlan 15.2ms
+[QA] DAMAGE wave 1 Intermission: none
+[AD-QA] PACE wave 2 attempt 1 Intermission: 65.0s | integrity 100 -> 100 (min 100) | entry 0.4 chutes 13.3 land 26.3 engage 26.4 | idle-in-flight 5.2s @52 | beat gap 7.5s @2 | sorties 8 | land->kill median 0.5s p90 1.0s (n 25) | idle>8s: 0-26
+[AD-QA] wave 2 Intermission: landed 25 direct 0 outOfBand 0 stuck 0 land 404-757 | integrity 100 score 4080 | drops announced 46 landed 46 cancelled 0 pending 0 fallbacks 0 nudged 2 late 1 (max 2.37s) land 404-800 maxPlan 15.2ms
+[QA] DAMAGE wave 2 Intermission: none
+[AD-QA] PACE wave 3 attempt 1 Intermission: 65.6s | integrity 100 -> 100 (min 100) | entry 0.0 chutes 12.2 land 25.2 engage 25.3 | idle-in-flight 5.6s @49 | beat gap 5.4s @49 | sorties 6 | land->kill median 0.8s p90 2.0s (n 21) | idle>8s: 0-25
+[AD-QA] wave 3 Intermission: landed 21 direct 0 outOfBand 0 stuck 0 land 513-795 | integrity 100 score 6210 | drops announced 67 landed 67 cancelled 0 pending 0 fallbacks 0 nudged 2 late 2 (max 2.37s) land 404-800 maxPlan 15.6ms
+[QA] DAMAGE wave 3 Intermission: none
+[AD-QA] PACE wave 4 attempt 1 Intermission: 75.5s | integrity 100 -> 100 (min 100) | entry 0.0 chutes 13.4 land 26.5 engage 10.1 | idle-in-flight 4.4s @29 | beat gap 6.1s @4 | sorties 4 | land->kill median 0.5s p90 1.1s (n 19) | idle>8s: 0-10
+[AD-QA] wave 4 Intermission: landed 19 direct 0 outOfBand 0 stuck 0 land 440-763 | integrity 100 score 8360 | drops announced 86 landed 86 cancelled 0 pending 0 fallbacks 0 nudged 3 late 3 (max 2.37s) land 404-800 maxPlan 16.2ms
+[QA] DAMAGE wave 4 Intermission: none
+[AD-QA] PACE wave 5 attempt 1 Intermission: 85.0s | integrity 100 -> 100 (min 100) | entry 0.5 chutes 13.2 land 26.3 engage 26.4 | idle-in-flight 6.7s @46 | beat gap 5.5s @13 | sorties 10 | land->kill median 0.7s p90 3.3s (n 31) | idle>8s: 0-26
+[AD-QA] wave 5 Intermission: landed 31 direct 0 outOfBand 0 stuck 0 land 367-796 | integrity 100 score 10970 | drops announced 117 landed 117 cancelled 0 pending 0 fallbacks 0 nudged 6 late 3 (max 2.37s) land 367-800 maxPlan 16.2ms
+[QA] DAMAGE wave 5 Intermission: none
+[AD-QA] PACE wave 6 attempt 1 Intermission: 78.5s | integrity 100 -> 88 (min 88) | entry 0.0 chutes 11.6 land 24.7 engage 8.1 | idle-in-flight 4.0s @30 | beat gap 8.0s @0 | sorties 3 | land->kill median 0.4s p90 4.2s (n 17) | idle>8s: 0-8
+[AD-QA] wave 6 Intermission: landed 17 direct 0 outOfBand 0 stuck 0 land 421-705 | integrity 100 score 13930 | drops announced 134 landed 134 cancelled 0 pending 0 fallbacks 0 nudged 6 late 4 (max 2.37s) land 367-800 maxPlan 16.2ms
+[QA] DAMAGE wave 6 Intermission: bomb 12.0
+[AD-QA] PACE wave 7 attempt 1 Intermission: 83.7s | integrity 100 -> 88 (min 88) | entry 1.7 chutes 14.2 land 25.5 engage 10.2 | idle-in-flight 8.2s @35 | beat gap 8.1s @2 | sorties 8 | land->kill median 0.3s p90 4.1s (n 23) | idle>8s: 0-10 35-43
+[AD-QA] wave 7 Intermission: landed 23 direct 0 outOfBand 0 stuck 0 land 381-727 | integrity 100 score 16760 | drops announced 157 landed 157 cancelled 0 pending 0 fallbacks 0 nudged 6 late 4 (max 2.37s) land 367-800 maxPlan 16.2ms
+[QA] DAMAGE wave 7 Intermission: bomb 12.0
+[AD-QA] PACE wave 8 attempt 1 Intermission: 88.7s | integrity 100 -> 100 (min 100) | entry 2.2 chutes 15.6 land 29.0 engage 1.1 | idle-in-flight 3.4s @80 | beat gap 3.5s @46 | sorties 4 | land->kill median 0.9s p90 5.2s (n 24) | idle>8s: none
+[AD-QA] wave 8 Intermission: landed 24 direct 0 outOfBand 0 stuck 0 land 400-776 | integrity 100 score 19890 | drops announced 181 landed 181 cancelled 0 pending 0 fallbacks 0 nudged 8 late 4 (max 2.37s) land 367-800 maxPlan 16.2ms
+[QA] DAMAGE wave 8 Intermission: none
+[AD-QA] PACE wave 9 attempt 1 Intermission: 107.9s | integrity 100 -> 100 (min 100) | entry 0.8 chutes 12.9 land 26.0 engage 18.0 | idle-in-flight 4.6s @31 | beat gap 6.3s @7 | sorties 11 | land->kill median 0.4s p90 5.6s (n 26) | idle>8s: 0-18
+[AD-QA] wave 9 Intermission: landed 26 direct 0 outOfBand 0 stuck 0 land 406-686 | integrity 100 score 23100 | drops announced 207 landed 207 cancelled 0 pending 0 fallbacks 0 nudged 10 late 4 (max 2.37s) land 367-800 maxPlan 16.2ms
+[QA] DAMAGE wave 9 Intermission: none
+[AD-QA] BOSS DOWN: 4 loads pending at that moment (cancelled so far 0)
+[AD-QA] PACE wave 10 attempt 1 Intermission: 132.7s | integrity 100 -> 84 (min 84) | entry 7.3 chutes 22.8 land 38.1 engage 2.2 | idle-in-flight 0.0s @0 | beat gap 2.0s @0 | sorties 7 | land->kill median 1.5s p90 6.5s (n 26) | idle>8s: none
+[AD-QA] wave 10 Intermission: landed 26 direct 0 outOfBand 0 stuck 0 land 397-724 | integrity 100 score 43580 | drops announced 237 landed 233 cancelled 4 pending 0 fallbacks 0 nudged 10 late 4 (max 2.37s) land 367-800 maxPlan 16.2ms
+[QA] DAMAGE wave 10 Intermission: bossCannon 16.0
+[AD-QA] 0.5 s later: pending 0, cancelled 4
+[AD-QA] RUN victory in 16.4 min (from wave 1 intro), 0 retries, score 43580
+
+Client at Victory: QA_Drops 233, QA_GroundNoDrop 0, QA_DropOutOfBand 0, QA_Retries 0; AirdropFx children 0;
+AirdropFx attributes: Handoffs 233, HandoffMaxDelay 0.056 s, HandoffMaxOffset 2.307 studs, Deflects 1, PassThroughs 16.
+Hand-off frame recorder (60,903 rendered frames): 233 hand-offs recorded; frames with the descending body and the
+enemy both drawn: 0; empty frames between the body's last drawn frame and the enemy's first: 0 (max 0).
+Root-to-root gap at the hand-off: Infantry n=203 max flat 0.41, dy -0.06..+0.03; Tank n=10 max flat 0.37, dy 0.00;
+Buggy n=20 max flat 1.68 (already driving when it replicates), dy -0.10..+0.02.
+Wave 1 infantry skinned: all 4 on the field at first check had 21 Bones and a skinned MeshPart Body.
+Transition LateAfternoon -> Sunset (wave 6 -> 7 intermission) watched live: largest per-frame change of
+ClockTime/Brightness/ExposureCompensation/OutdoorAmbient/Ambient 0.0028, no frame over 0.05; captures
+qa/beauty/final/live/ (intermission a, b).
+Console for the whole session: only [RedMesa] world built / server ready / client ready plus [AD-QA]/[QA] lines.
+No errors, no warnings.
+
+Then (same session, remotes fired by the client exactly as the end-screen buttons do; Screens.luau:280-285):
+- Victory state: score 43580, SessionBest 43580, rockets 8, missiles 4, wrecks 10, AirdropFx 0, Sunset.
+- Play Again (Victory -> Restart remote): Wave 1, integrity 100, score 0, SessionBest 43580 kept, rockets 8,
+  missiles 4, wrecks 0, enemies 0, Afternoon (ClockTime 15.20), new airdrop seed 1005900577 (21 loads pending).
+- 26 s into that wave 1: forced defeat (setIntegrity 0): Defeat, pending loads 0, enemies 0, client AirdropFx 0;
+  RetryButton visible. Retry Wave: Wave 1, integrity 100, score 0, rockets 8, missiles 4, wrecks 0, same seed
+  1005900577 (a retried wave replays its drops).
+- Forced defeat -> Restart: Wave 1, integrity 100, score 0, SessionBest 43580, rockets 8, missiles 4, wrecks 0,
+  Afternoon, new seed 62245219.
+- Console after all of it: [RedMesa] ready lines plus [AD-QA]/[QA] lines only. No errors, no warnings.
+- Watcher note: the 7 'LANDED AFTER BOSS DOWN (+76-82 s)' lines after Play Again are the new run's wave-1 landings; the watcher's boss-down flag is never reset between runs (watcher artifact, not a game bug).
+
+=== Airdrop checks (same Studio session, 06:58-07:08) ===
+dropZoneCheck seed 1: 602 landings / 153 sorties (35 formation followers), 83 rocks: 0 violations; distance 329-800; air time 10.8-20.0 s; 0 fallbacks; max plan 4.1 ms; 59 timed groups, late 0; info 11/602 out of hip-height sight (walk into view).
+dropZoneCheck seed 2: 602 landings: 0 violations; distance 345-799; air time 11.2-20.0 s; 0 fallbacks; max plan 3.5 ms; late 0; info 13/602 out of sight.
+losCheck: ALL PASS (1941 non-query visible parts included): Road 42/42, ScrubLeft 40/40, ScrubRight 40/40, WashLeft 45/45, WashRight 45/45; every end feet+ hip+ head+.
+groundCheck digests: Road 18060, ScrubLeft 16400, ScrubRight 16400, WashLeft -34191, WashRight -34501 (identical to P0). Max surface above terrain: road 0.3 (strip edge), scrub 0.1 (trample), wash 1.5/1.6 (the ENV-3F LOS-only bank hull, known).
+No effect (wave 5, debug sortie of 8 troopers + a tank, gunsight tracking a trooper under canopy at 647 studs, y 218):
+  1.2 s MG burst -> Deflects +7, PassThroughs +6, score 20 -> 20 (unchanged), no hit marker; capture qa/beauty/final/checks/noeffect_gunsight_deflect.jpg.
+  (Two earlier attempts fired nothing useful: the MG was overheated, then the aim used the third-person camera formula and sat ~12 studs low in the gunsight; both discarded.)
+AA missile on a descending trooper: selected and held on it 2.5 s -> the LockBox never appeared; a fire pulse without a lock launched nothing (missiles 4 -> 4, projectiles 0).
+Seed variation, wave 5 announced landings (client, AirdropSortie payloads, first 62 s):
+  seed 101: 31 loads: I(119,-593) I(81,-597) I(47,-582) I(23,-581) I(-31,-587) I(-52,-581) T(-11,-544) B(-337,-202) B(-253,-259) I(-234,-681) I(-208,-698) I(-178,-714) I(-133,-713) I(-122,-736) B(325,-300) B(449,-278) I(148,-674) I(164,-622) I(193,-621) I(208,-593) I(262,-572) T(77,-702) B(-318,-268) B(390,-259) I(94,-434) I(63,-444) I(28,-425) I(-13,-435) I(-40,-430) I(-73,-438) I(-110,-459)
+  seed 202: 17 loads so far: B(418,-276) B(418,-376) I(69,-536) I(120,-535) I(154,-530) I(169,-515) I(219,-509) T(21,-678) B(-418,-293) B(486,-566) I(100,-541) I(72,-553) I(59,-518) I(6,-513) I(-17,-512) I(-49,-512) I(-94,-513)
+  seed 202 vs 101: mean distance to the nearest same-kind landing of the other seed 80 studs (max 291); 0 of 17 within 5 studs.
+  (Retry keeps the seed, Play Again/Restart roll a new one: see the end-screen checks above.)
+
+=== Boss check (wave 10, human-like bot QA_Human = true: range 700 / 1000 in the boss wave, aim error 0.6 deg,
+reaction 0.7 s, MG bursts; QA_MaxRetries 2), same Studio session, 07:12-07:35, build 33f37c4 ===
+Each seed: setIntegrity 80 (a run's typical boss start: wave-9 end ~50-57 + the 25 repair; AD-3 used 82 and 75),
+airdropSeed pinned (a retry replays the same drops), startWave 10. Retries restore the checkpoint (integrity 80)
+and restock. Caveat: the first attempt of seeds 404 and 505 started straight after the previous seed's last defeat,
+so its rockets/missiles may not have been full; attempts 2-3 are clean retries.
+seed 303: attempt 1 Defeat 84 s (damage: bomb 12, bossCannon 16, rifle 62)
+          attempt 2 Defeat 128 s (bomb 24, bossCannon 64, bossTurret 6, rifle 23)
+          attempt 3 Defeat 141 s (bomb 24, bossCannon 32, bossTurret 3, rifle 41)   -> not won in 3 attempts
+seed 404: attempt 1 Defeat 118 s (bossCannon 64, bossTurret 18, rifle 8)
+          attempt 2 Defeat 141 s (bomb 24, bossCannon 32, rifle 33)
+          attempt 3 cleared 187 s, integrity 80 -> min 7 (32 after the clear repair) (bomb 24, bossCannon 32, bossTurret 3, rifle 14) -> Victory, 2 retries
+seed 505: attempt 1 Defeat 141 s (bomb 24, rifle 69)
+          attempt 2 Defeat 141 s (bomb 24, bossCannon 16, rifle 63)
+          attempt 3 Defeat 101 s (bomb 12, bossCannon 48, rifle 36)   -> not won in 3 attempts
+AD-3 (for reference): seed 101 won first try at 12 %, seed 202 won on the 2nd attempt at 8 %.
+=> Not "won comfortably" on any seed; on 2 of 3 new seeds the human-like bot cannot win in 3 attempts.
+Watcher PACE lines for the boss attempts (integrity at the end is before the clear repair; land->kill = how long the
+human-like bot leaves a landed load alive):
+seed 303 a1 Defeat 84.5s | integrity 80 -> 1 (min 1) | sorties 5 | land->kill median 40.7s p90 43.3s (n 18)
+seed 303 a2 Defeat 128.0s | integrity 80 -> 5 (min 5) | sorties 6 | land->kill median 14.9s p90 34.6s (n 22)
+seed 303 a3 Defeat 141.0s | integrity 80 -> 12 (min 2) | sorties 6 | land->kill median 24.2s p90 48.5s (n 22)
+seed 404 a1 Defeat 117.8s | integrity 80 -> 6 (min 6) | sorties 5 | land->kill median 31.6s p90 51.6s (n 22)
+seed 404 a2 Defeat 141.4s | integrity 80 -> 3 (min 3) | sorties 6 | land->kill median 36.0s p90 51.4s (n 22)
+seed 404 a3 Intermission (won) 187.3s | integrity 80 -> 7 (min 7) | sorties 8 | land->kill median 14.2s p90 49.8s (n 30)
+seed 505 a1 Defeat 141.0s | integrity 80 -> 9 (min 9) | sorties 6 | land->kill median 35.0s p90 61.2s (n 22)
+seed 505 a2 Defeat 141.0s | integrity 80 -> 9 (min 7) | sorties 6 | land->kill median 33.6s p90 60.9s (n 22)
+seed 505 a3 Defeat 101.2s | integrity 80 -> 10 (min 10) | sorties 5 | land->kill median 28.2s p90 50.9s (n 22)
+(The "-> N" value is the last integrity the watcher saw before the killing blow: the defeats are mostly a boss-cannon
+shot or a bomb at single-digit integrity. Many attempts end at 141 s, i.e. late in the fight.)
+Drops over all boss attempts: 0 direct spawns, 0 out of band, 0 stuck, 0 fallbacks; airborne escorts cancelled on
+each defeat/clear (the "LANDED AFTER BOSS DOWN" lines are the watcher's never-reset flag, not late landings).
+Console for the session: no errors, no warnings.
