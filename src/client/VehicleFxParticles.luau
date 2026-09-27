@@ -284,9 +284,19 @@ local function groundBlast(at: Vector3, s: number, rocky: boolean, near: boolean
 	}), 1)
 end
 
+-- Listeners told about every explosion (position, scale), e.g. the birds
+-- that scatter from blasts (VFX-4, client/Birds).
+local blastListeners: { (Vector3, number) -> () } = {}
+function Particles.onExplosion(fn: (Vector3, number) -> ())
+	table.insert(blastListeners, fn)
+end
+
 -- `scale` ~0.5 small burst, 1 = our rocket / a buggy, 1.5-2 tank or bomb,
 -- 2.4-4 boss. Ground layers go on the terrain found under `position`.
 function Particles.explosion(position: Vector3, scale: number, opts: Blast?)
+	for _, fn in blastListeners do
+		task.spawn(fn, position, scale)
+	end
 	-- Big blasts (tank, bomb, boss finale) may exceed the cap a little so a
 	-- burst of small ones never swallows them.
 	local cap = if scale >= 1.5 then MAX_EXPLOSIONS + 6 else MAX_EXPLOSIONS

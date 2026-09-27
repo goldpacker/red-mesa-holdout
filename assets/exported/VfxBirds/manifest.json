@@ -1,0 +1,123 @@
+{
+ "name": "VfxBirds",
+ "primary": "Root",
+ "pivots": {
+  "": [
+   0.0,
+   0.0,
+   -0.0
+  ]
+ },
+ "parts": [
+  {
+   "name": "Vulture",
+   "path": "",
+   "center": [
+    0.0,
+    0.1781,
+    0.3
+   ],
+   "size": [
+    8.0134,
+    0.8562,
+    3.44
+   ],
+   "tex": null,
+   "tris": 324,
+   "query": false,
+   "collide": false,
+   "flat": [
+    0.17,
+    0.14,
+    0.12
+   ],
+   "material": "Fabric",
+   "shadow": false
+  },
+  {
+   "name": "Crow",
+   "path": "",
+   "center": [
+    7.0,
+    0.0025,
+    0.105
+   ],
+   "size": [
+    0.4,
+    0.335,
+    1.69
+   ],
+   "tex": null,
+   "tris": 108,
+   "query": false,
+   "collide": false,
+   "flat": [
+    0.1,
+    0.1,
+    0.11
+   ],
+   "material": "Fabric",
+   "shadow": false
+  },
+  {
+   "name": "CrowWingR",
+   "path": "",
+   "center": [
+    7.12,
+    0.08,
+    -0.05
+   ],
+   "size": [
+    3.2,
+    0.04,
+    0.76
+   ],
+   "tex": null,
+   "tris": 26,
+   "query": false,
+   "collide": false,
+   "flat": [
+    0.1,
+    0.1,
+    0.11
+   ],
+   "material": "Fabric",
+   "shadow": false
+  },
+  {
+   "name": "CrowWingL",
+   "path": "",
+   "center": [
+    6.88,
+    0.08,
+    -0.05
+   ],
+   "size": [
+    3.2,
+    0.04,
+    0.76
+   ],
+   "tex": null,
+   "tris": 26,
+   "query": false,
+   "collide": false,
+   "flat": [
+    0.1,
+    0.1,
+    0.11
+   ],
+   "material": "Fabric",
+   "shadow": false
+  }
+ ],
+ "attachments": [],
+ "markers": [],
+ "textures": {},
+ "texel_density": {},
+ "previews": [
+  "assets/previews/VfxBirds.png",
+  "assets/previews/VfxBirds_side.png"
+ ],
+ "triangles": 484,
+ "meta": {}
+}

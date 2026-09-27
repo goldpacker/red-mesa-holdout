@@ -1,0 +1,13 @@
+{
+ "hashes": {
+  "glb": "bbc48bcd05030e95"
+ },
+ "meshes": {
+  "Crow": "rbxassetid://79204284486562",
+  "CrowWingL": "rbxassetid://138378301107081",
+  "CrowWingR": "rbxassetid://85398960011578",
+  "Vulture": "rbxassetid://73674311877053"
+ },
+ "model": "128355300454782",
+ "textures": {}
+}

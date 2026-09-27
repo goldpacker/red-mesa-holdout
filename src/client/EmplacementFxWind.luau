@@ -12,13 +12,14 @@
 -- net simply stays still.
 
 local AssetService = game:GetService("AssetService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local Wind = {}
 
--- Wind: a steady breeze from the basin (world -Z toward +Z, a little from
--- the left) with slow gusts.
-local WIND_DIR = Vector3.new(0.35, 0, 1).Unit
+-- Wind: a steady breeze with slow gusts, blowing the way shared/Wind (the
+-- one wind every effect reads, VFX-4) blows.
+local WIND_DIR = require(ReplicatedStorage.Shared.Wind).DIRECTION
 local WIND_BASE = 0.55
 local GUST = 0.45
 

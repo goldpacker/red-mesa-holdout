@@ -1,0 +1,80 @@
+<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" version="4">
+  <Item class="Model" referent="RBX00000001">
+    <Properties>
+      <string name="Name">VfxBirds</string>
+      <OptionalCoordinateFrame name="WorldPivotData"><CFrame><X>0</X><Y>0</Y><Z>-0</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CFrame></OptionalCoordinateFrame>
+    </Properties>
+    <Item class="MeshPart" referent="RBX00000002">
+      <Properties>
+        <string name="Name">Vulture</string>
+        <Content name="MeshId"><url>rbxassetid://73674311877053</url></Content>
+        <Vector3 name="InitialSize"><X>8.0134</X><Y>0.8562</Y><Z>3.44</Z></Vector3>
+        <Vector3 name="size"><X>8.0134</X><Y>0.8562</Y><Z>3.44</Z></Vector3>
+        <CoordinateFrame name="CFrame"><X>0</X><Y>0.1781</Y><Z>0.3</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="CollisionFidelity">2</token>
+        <float name="Transparency">0</float>
+        <token name="Material">1312</token>
+        <Color3uint8 name="Color3uint8">4281017375</Color3uint8>
+      </Properties>
+    </Item>
+    <Item class="MeshPart" referent="RBX00000003">
+      <Properties>
+        <string name="Name">Crow</string>
+        <Content name="MeshId"><url>rbxassetid://79204284486562</url></Content>
+        <Vector3 name="InitialSize"><X>0.4</X><Y>0.335</Y><Z>1.69</Z></Vector3>
+        <Vector3 name="size"><X>0.4</X><Y>0.335</Y><Z>1.69</Z></Vector3>
+        <CoordinateFrame name="CFrame"><X>7</X><Y>0.0025</Y><Z>0.105</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="CollisionFidelity">2</token>
+        <float name="Transparency">0</float>
+        <token name="Material">1312</token>
+        <Color3uint8 name="Color3uint8">4279900700</Color3uint8>
+      </Properties>
+    </Item>
+    <Item class="MeshPart" referent="RBX00000004">
+      <Properties>
+        <string name="Name">CrowWingR</string>
+        <Content name="MeshId"><url>rbxassetid://85398960011578</url></Content>
+        <Vector3 name="InitialSize"><X>3.2</X><Y>0.04</Y><Z>0.76</Z></Vector3>
+        <Vector3 name="size"><X>3.2</X><Y>0.04</Y><Z>0.76</Z></Vector3>
+        <CoordinateFrame name="CFrame"><X>7.12</X><Y>0.08</Y><Z>-0.05</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="CollisionFidelity">2</token>
+        <float name="Transparency">0</float>
+        <token name="Material">1312</token>
+        <Color3uint8 name="Color3uint8">4279900700</Color3uint8>
+      </Properties>
+    </Item>
+    <Item class="MeshPart" referent="RBX00000005">
+      <Properties>
+        <string name="Name">CrowWingL</string>
+        <Content name="MeshId"><url>rbxassetid://138378301107081</url></Content>
+        <Vector3 name="InitialSize"><X>3.2</X><Y>0.04</Y><Z>0.76</Z></Vector3>
+        <Vector3 name="size"><X>3.2</X><Y>0.04</Y><Z>0.76</Z></Vector3>
+        <CoordinateFrame name="CFrame"><X>6.88</X><Y>0.08</Y><Z>-0.05</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="CollisionFidelity">2</token>
+        <float name="Transparency">0</float>
+        <token name="Material">1312</token>
+        <Color3uint8 name="Color3uint8">4279900700</Color3uint8>
+      </Properties>
+    </Item>
+  </Item>
+</roblox>

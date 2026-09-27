@@ -188,3 +188,51 @@ with `RedMesaDebug:Invoke("beauty", {shot = 2, tod = ...})`, trigger, then
   ahead, up, fov, lookBack)` chase cameras for moving vehicles; `H.particles()` / `H.sample(seconds)` live particle estimate
   (continuous emitters' Rate x mean lifetime + the one-shot estimate).
   Captures: `qa/beauty/vfx-3/`.
+
+## Weather and life (VFX-4)
+
+| Module | What |
+|---|---|
+| `src/shared/Wind.luau` | the one wind: `Wind.at(t)` → (flat drift velocity studs/s, strength, gust 0..1), deterministic in server time `t`; `DIRECTION` (2.6, 0, 1.1).Unit, `SPEED` 2.8 studs/s at strength 1 (= the old `Effects.WIND`, which now derives from it), `now()`, `direction(t)`, `gust(t)`, `base(t)`; client storm overlay `setStorm(amount, dir, gain)`. Test: `python3 tools/vfx/qa/wind_test.py` |
+| `src/client/Weather.luau` | entry (`init.client`): one render-step loop feeding each module a frame (wind, camera, zoom, storm weight, combat density); clears and hides everything during staged beauty shots; Studio switches |
+| `src/client/WeatherStreamers.luau` | sand streamers: 15 box-emitter tiles on the basin floor turned to the wind, rate from the gust delayed by upwind distance (a gust band sweeps across the basin at 70 studs/s); pale, flat, camera-facing smears (`Squash` −2); puffs off 8 dune crests and plumes off 5 canyon-rim lee edges found by a 40-stud terrain survey |
+| `src/client/WeatherDevils.luau` | dust devils (≤ 2, one in busy fights, none in storms): a spinning funnel (orbiting emission point + spinning sprites) and a foot skirt; wander with the wind; die early after 2.5 s in the centre of the view |
+| `src/client/WeatherSmoke.luau` | thin grey smoke columns from ENV-4's hulks (`Smoke = "light"`), bent by the wind; far columns denser and darker (haze) |
+| `src/client/Birds.luau` | 5 vultures circling in two thermals (banked by speed/radius, grounded in storms); crow flocks (7–12, one per 12 s, ≤ 2 flocks) that burst up from explosions on the basin floor (`VehicleFxParticles.onExplosion`) and flap away |
+| `src/client/DustStorm.luau` | storms from `Config.Waves[n].weather.storm`: the wall (3 layers of vertical Beam curtains on the dust-band texture, billowing top, crest billows within 1,150 studs), the storm body (pale veils high over the basin), near streaks past the gun (not in the gunsight), `Lighting.StormAmount` (Look's storm lighting) and the storm wind |
+| `src/client/EffectsLight.luau` | dust light for a low sun: particles are never shadowed, get the full sun, and `Brightness` does nothing on lit particles, so the dust **Color** is scaled by the sun's height (×0.51 at Sunset), ×0.8 more in the terrain's shadow, and thinned when seen against the sun. Motion dust uses it too (AD-2 carry-in) |
+
+- **Textures:** none new. Streamers, devils, storm crest/body/near and
+  wreck smoke use `DustDrift`; the wall reuses Look's `searchlight_cone`
+  beam texture (`PostFxAssets`).
+- **Meshes:** `VfxBirds` (`tools/assets/models/vfx_birds.py`, untextured
+  `flat` Fabric parts, 484 tris): `Vulture` (soaring pose, ~8-stud span),
+  `Crow` + `CrowWingL/R` (wing origin = shoulder joint, flapped by rotation).
+- **Budget:** every continuous emitter is on `EffectsLod` (zoom-corrected);
+  streamers are capped at 130 particles/s (×(1 + storm)); the ambient layers
+  thin with the number of live enemies (`Weather` density: 1 up to 4
+  enemies, 0.35 at 12+; crest/rim plumes go first). Measured: busy wave 9
+  at Sunset GPU-neutral, storm peak and wall phase neutral
+  (`docs/PERF_BUDGET.md` §4).
+- **Engine facts found here (Studio):** particles are not drawn beyond
+  ~1,200–1,700 studs (a 250-stud sprite at 1,216 drew, at 1,740 did not);
+  `ParticleEmitter.Brightness` has no visible effect on lit particles;
+  velocity-aligned sprites stand up as vertical shafts when the velocity
+  points toward the camera; a Beam with a 4-keypoint Transparency drew
+  nothing; FaceCamera beams seen nearly end-on twist into bowties.
+- **Studio switches** (Workspace attributes, Client datamodel):
+  `WeatherOff` (all weather off, particles cleared: perf A/B),
+  `WeatherLive` (keep weather in staged beauty shots),
+  `WeatherStormTest = <hold s>` (run a storm now; `WeatherStormPeak` its
+  amount), `WeatherStormForce = <0..1>` (static storm, no wall),
+  `WeatherStormFrontAt = <s>` (hold the wall at s, −2100..0),
+  `WeatherDevilNow = true` (spawn a devil), `WeatherDevilAimOff = true`
+  (suspend the aim rule for captures), `WeatherBirdsAt = Vector3` (scatter
+  a flock there), `FxDustLightOff` (low-sun dust light off). Published:
+  `WeatherSurvey`, `WeatherStreamerRate`, `WeatherDevils`, `WeatherBirds`,
+  `WeatherStorm`, `WeatherDensity`.
+- **QA scripts** (`tools/vfx/qa/`): `enemyboxes.client.luau` +
+  `readability.py` (enemy contrast ratio on a capture, LOOK-5's measure:
+  10th-percentile dark in the box vs the ring median, (bg+5)/(dark+5)),
+  `weather_ab.client.luau` (paired in-session GPU A/B: weather on/off,
+  storm peak, wall phase), `wind_test.py` (offline Wind contract test).

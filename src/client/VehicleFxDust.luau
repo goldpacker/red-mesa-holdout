@@ -13,14 +13,21 @@
 --
 -- LOD: client/EffectsLod (fewer, larger particles far away, none beyond a
 -- per-kind cutoff) plus a global cap of MAX_RATE particles/s.
+-- Low sun (VFX-4, AD-2 carry-in): client/EffectsLight darkens the dust tint
+-- with the sun's height, more where the terrain shadows it (particles are
+-- never shadowed in Roblox and get the full sun, so pale sunset dust burned
+-- out to white and hid the tank), and thins it when the camera looks into
+-- the sun through it.
 -- Studio QA: Workspace attribute FxDustOff = true stops new dust (A/B);
--- FxDustRate / FxDustSources publish the live totals.
+-- FxDustLightOff = true turns the low-sun light off; FxDustRate /
+-- FxDustSources publish the live totals.
 
 local Debris = game:GetService("Debris")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Effects = require(script.Parent.Effects)
+local Light = require(script.Parent.EffectsLight)
 local Lod = require(script.Parent.EffectsLod)
 
 local Dust = {}
@@ -127,7 +134,8 @@ type Source = {
 	strength: number,
 	rateK: number,
 	sizeK: number,
-	dim: number,
+	bright: number, -- emitter Brightness last written
+	thin: number, -- extra transparency last written
 	desired: number,
 }
 type Rig = { model: Model, spec: Spec, sources: { Source }, due: number }
@@ -299,7 +307,8 @@ function Dust.add(model: Model, kind: string)
 				strength = 0,
 				rateK = 1,
 				sizeK = 1,
-				dim = -1,
+				bright = -1,
+				thin = -1,
 				desired = 0,
 			})
 		end
@@ -394,12 +403,19 @@ local function tick(rig: Rig, dustOff: boolean)
 		if spec.mode == "wheel" or spec.mode == "track" then
 			src.ground = probe(p, 16 * spec.scale)
 		end
-		src.target = tintOf(src.ground):Lerp(NIGHT_TINT, NIGHT_TINT_MIX * dim)
-		if math.abs(dim - src.dim) > 0.02 then
-			src.dim = dim
+		-- Light (EffectsLight): the sun's height and the terrain's shadow
+		-- scale the tint (Brightness does nothing on lit particles); looking
+		-- into the sun thins it. Plus the legacy night dimming.
+		local lightK, lightThin = Light.dust(src.att.WorldPosition)
+		src.target = Light.scale(tintOf(src.ground):Lerp(NIGHT_TINT, NIGHT_TINT_MIX * dim), lightK)
+		local bright = 1 + (NIGHT_BRIGHTNESS - 1) * dim
+		local thin = math.max(NIGHT_THIN * dim, lightThin)
+		if math.abs(bright - src.bright) > 0.03 or math.abs(thin - src.thin) > 0.03 then
+			src.bright = bright
+			src.thin = thin
 			for _, em in src.emitters do
-				em.e.Brightness = 1 + (NIGHT_BRIGHTNESS - 1) * dim
-				em.e.Transparency = thinner(em.transparency, NIGHT_THIN * dim)
+				em.e.Brightness = bright
+				em.e.Transparency = thinner(em.transparency, thin)
 			end
 		end
 		src.strength = if dustOff then 0 else strengthOf(spec, src, p)

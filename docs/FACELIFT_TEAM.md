@@ -188,6 +188,24 @@ Contracts for Update 2:
 - **Wind:** VFX publishes `src/shared/Wind.luau` (direction, strength, gust
   at time t). Look, ENV (flutter) and AD (chute drift) read it; nothing
   else defines wind.
+  (VFX-4) `Wind.at(t) -> (velocity: Vector3, strength: number, gust: number)`
+  with `t` = `Workspace:GetServerTimeNow()`: deterministic (same t, same
+  wind on server and every client), no state, a few sines. `velocity` is
+  flat (Y = 0), studs/s, `Wind.SPEED` (2.8) × strength along the mean
+  `Wind.DIRECTION` = (2.6, 0, 1.1).Unit (from the far-left basin toward the
+  right and the mesa; the old `Effects.WIND`, which now derives from it)
+  veering ±12°; `strength` 1 = mean breeze, 0.77–2.2; `gust` 0..1 envelope
+  (~24 % of the time above 0.3). Also `Wind.now()`, `Wind.direction(t)`,
+  `Wind.gust(t)`, `Wind.base(t)`. Client-only storm overlay: during a dust
+  storm `client/DustStorm` calls `Wind.setStorm(amount, dir, gain)` and
+  `Wind.at` turns toward the storm and blows up to 2.6× harder; the server
+  never sets it. Scale it for your use (AD's chute drift uses it as is).
+  Offline test: `python3 tools/vfx/qa/wind_test.py`.
+- **Weather (VFX-4):** `Config.Waves[n].weather = { storm = { at, hold,
+  amount } }` (waves 3 and 7). Weather is client-only: `Workspace.WeatherFx`
+  (non-query parts), emitters on Terrain attachments. During a staged
+  beauty shot it is cleared and hidden unless Workspace `WeatherLive` is
+  set; Workspace `WeatherOff` turns it all off (Studio).
 - **Storms:** a wave's `weather` field starts a storm. VFX owns particles
   and density; Look owns the lighting state; both keep the readability
   rule.

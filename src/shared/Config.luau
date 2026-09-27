@@ -154,6 +154,12 @@ Config.Lanes = {
 -- supply crate drops. Kinds missing at runtime are skipped with a warning,
 -- so waves never hang on unfinished content. Other per-wave fields may be
 -- added (e.g. VFX's `weather`).
+-- `weather` (VFX-4, client visuals only, no gameplay effect):
+--   weather = { storm = { at = <s>, hold = <s>, amount = <0..1> } }
+--   a dust storm's wall reaches the outpost `at` seconds into the wave
+--   (it appears on the horizon ~38 s earlier), holds `hold` seconds, then
+--   clears within ~16 s; `amount` caps Lighting.StormAmount at the peak
+--   (client/DustStorm; readability-checked at the wave's preset).
 local function g(kind: string, lane: string, count: number, at: number, spacing: number)
 	return { kind = kind, lane = lane, count = count, at = at, spacing = spacing }
 end
@@ -189,6 +195,7 @@ Config.Waves = {
 		time = "Afternoon",
 		crates = { 20, 50 },
 		crateBias = "Rockets",
+		weather = { storm = { at = 44, hold = 16, amount = 1 } },
 		groups = {
 			g("Infantry", "Road", 5, 25, 1.0),
 			g("Tank", "Road", 1, 32, 1),
@@ -249,6 +256,7 @@ Config.Waves = {
 		time = "Sunset",
 		crates = { 28, 52, 76 },
 		crateBias = "Rockets",
+		weather = { storm = { at = 46, hold = 18, amount = 1 } },
 		groups = {
 			g("Jet", "CanyonRun", 1, 10, 1),
 			g("Tank", "Road", 1, 25, 1),

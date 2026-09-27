@@ -129,5 +129,7 @@ end)
 require(script.EnemyMotion).start()
 -- AD-1: transports, parachute descents and the airborne "no effect".
 require(script.Airdrop).start()
+-- VFX-4: wind-blown sand, dust devils, wreck smoke, birds, dust storms.
+require(script.Weather).start()
 
 print("[RedMesa] client ready")

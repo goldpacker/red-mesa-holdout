@@ -25,7 +25,7 @@ local Effects = {}
 local MAX_LIVE = 160 -- live tracers (the original cap on short-lived effect parts)
 local MAX_TRACERS = 48
 local PIVOT = Config.TURRET_PIVOT
-local WIND = Vector3.new(2.6, 0, 1.1) -- smoke drift (studs/s^2), same way everywhere
+local WIND = (require(ReplicatedStorage.Shared.Wind) :: any).DIRECTION * 2.8 -- smoke drift (studs/s^2): shared/Wind's mean wind
 
 local AMBER = Color3.fromRGB(255, 178, 36) -- art bible: our tracer amber
 local RED = Color3.fromRGB(255, 74, 58) -- enemy tracer red
