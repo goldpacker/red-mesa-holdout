@@ -1,0 +1,26 @@
+{"build": "LOOK-3B event-driven EnemyMotionWatch (uncommitted at the time), AD-1 in-progress airdrop code live (30/33 wave-9 enemies had DropLoadId)",
+ "scene": "wave 9 (Night), integrity held at 100, QualityLevel 15, Studio in front",
+ "unit_test": "watch_test.client.luau: ALL PASS (27 checks); burst of 60 synthetic 150-part models spread over 40 frames, worst drain 1.135 ms",
+ "part_counts": "Helicopter 8 parts (1 anchored), Infantry 12 (2 anchored at night: Root + LampGlow), Jet 7, Tank 10, Buggy 8; scan with 2 signals/part 0.011-0.019 ms per model vs walk-only 0.003-0.004 ms",
+ "busy_early": [
+  {"maxMs":0.451,"watchMeanMs":0.001,"watchMaxMs":0.057,"worstFrameMs":18.284,"stepMeanMs":0.272,"enemiesAvg":22.1,"trackedAvg":22.1,"frames":1210,"stepMaxMs":0.449,"watchCalls":3,"meanMs":0.273},
+  {"maxMs":0.345,"watchMeanMs":0.001,"watchMaxMs":0.122,"worstFrameMs":18.291,"stepMeanMs":0.237,"enemiesAvg":24.1,"trackedAvg":24.1,"frames":1207,"stepMaxMs":0.344,"watchCalls":10,"meanMs":0.238}],
+ "busy_full": [
+  {"maxMs":0.864,"watchMeanMs":0.001,"watchMaxMs":0.003,"worstFrameMs":18.518,"stepMeanMs":0.287,"enemiesAvg":33,"trackedAvg":33,"frames":1206,"stepMaxMs":0.862,"watchCalls":0,"meanMs":0.288},
+  {"maxMs":0.442,"watchMeanMs":0.001,"watchMaxMs":0.006,"worstFrameMs":18.229,"stepMeanMs":0.269,"enemiesAvg":33,"trackedAvg":33,"frames":1209,"stepMaxMs":0.441,"watchCalls":0,"meanMs":0.27}],
+ "lamp_lit": {"tod":"Night","lampLit":22,"lampLitTracked":22,"lampLitIgnored1":22,"enemies":{"Helicopter":3,"Infantry":22,"Buggy":5,"Tank":3},"tracked":{"Helicopter":3,"Infantry":22,"Buggy":5,"Tank":3},"untracked":[]},
+ "lamp_lit_walker_log": "soldier #35: 60 frames, drawn frozen 15 at [45,47..60] (stopped: state Aim), raw frozen 45; soldier #32: 72 frames, drawn step median 0.150 max 0.159",
+ "hit_volume_on_live_soldier": "anchored CanQuery part added on server -> client untracked (tracked=false); removed -> tracked again, ageS 4.13",
+ "detach_transient_on_live_tank": "tank #9 ageS 179.01 @ t=72499.49 -> 185.76 @ t=72506.24 (continuous, never released)",
+ "airdrop_infantry": [
+  "Infantry #38: arrived at (-175,5,-581), 607 studs from origin; tracked on first frame; first drawn pose 0.000 studs from arrival pose; max step 0.236 over 45 frames; frozen 1",
+  "Infantry #39: (-190,5,-542) 575 studs; first frame tracked; 0.000; max step 0.266; frozen 1",
+  "Infantry #40: (-198,5,-521) 558 studs; first frame tracked; 0.000; max step 0.241; frozen 1",
+  "Infantry #41: (-235,5,-500) 553 studs; first frame tracked; 0.000; max step 0.224; frozen 1",
+  "Infantry #42: (-237,5,-462) 520 studs; first frame tracked; 0.000; max step 0.215; frozen 1",
+  "Infantry #43: (166,5,-666) 687 studs; first frame tracked; 0.000; max step 0.211; frozen 1"],
+ "airdrop_vehicles": "2 attempts (Buggy x2 WashRight/WashLeft, Tank Road) via RedMesaDebug airdrop: no Buggy/Tank with DropLoadId entered Workspace.Enemies within 100-110 s (AD-1 in progress)",
+ "wave10": "SiegeCrawler tracked",
+ "autoplay_kills_25s_wave10_tail": {"maxMs":0.148,"watchMeanMs":0.001,"wreckKinds":"Helicopter,Jet","wrecksFolder":2,"watchMaxMs":0.066,"wreckTrackSamples":4,"worstFrameMs":19.154,"stepMeanMs":0.08,"enemiesAvg":5.2,"trackedAvg":5.5,"frames":1569,"stepMaxMs":0.144,"watchCalls":148,"meanMs":0.082},
+ "console": "world built / server ready / client ready / wave 9 timed out; plus one AssistantCommand:9 'announced' error from another agent's execute_luau"
+}

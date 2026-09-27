@@ -1,0 +1,11 @@
+{"build": "LOOK-3B final: EnemyMotionWatch + Body.drop + probe with per-kind profile (f72d728 plus the working-tree Body/probe changes committed after this session); AD-1 committed airdrops live; airdropSeed 7",
+ "scene": "wave 9 (Night), integrity held at 100, QualityLevel 15, Studio in front; windows start ~75 s after startWave (same protocol and seed as rematch-before.json)",
+ "busy": [
+  {"maxMs":0.321,"watchMeanMs":0.001,"frames":1209,"worstFrameMs":18.14,"stepMeanMs":0.224,"enemiesAvg":22.5,"trackedAvg":22.5,"watchMaxMs":0.057,"stepMaxMs":0.32,"watchCalls":3,"meanMs":0.225},
+  {"maxMs":0.308,"watchMeanMs":0.001,"frames":1206,"stepMaxMs":0.307,"worstFrameMs":18.361,"stepMeanMs":0.217,"enemiesAvg":25.3,"trackedAvg":25.3,"watchMaxMs":0.12,"kindsAtEnd":{"Helicopter":3,"Buggy":5,"Tank":3,"Infantry":19},"watchCalls":27,"meanMs":0.219},
+  {"maxMs":0.409,"watchMeanMs":0.001,"frames":1208,"stepMaxMs":0.408,"worstFrameMs":18.295,"stepMeanMs":0.273,"enemiesAvg":33,"trackedAvg":33,"watchMaxMs":0.073,"kindsAtEnd":{"Helicopter":3,"Buggy":5,"Tank":3,"Infantry":22},"watchCalls":15,"meanMs":0.274}],
+ "profile_20s_33_enemies": {"maxMs":0.489,"watchMeanMs":0,"watchMaxMs":0.005,"worstFrameMs":18.16,"stepMeanMs":0.268,"frames":1200,"perKind":{"Helicopter":"9.9 us x 3600","Infantry":"4.6 us x 26400","Buggy":"10.6 us x 6000","Tank":"20.2 us x 3600"},"stepMaxMs":0.488,"watchCalls":0,"meanMs":0.268},
+ "recoil_check": ["BuggyBurst #9: body offset before 0.054, peak within 0.6 s 0.063","BuggyBurst #27: 0.161 -> 0.153","BuggyBurst #23: 0.17 -> 0.168","Rocket #22: 0.106 -> 0.115","Rocket #22: 0.037 -> 0.149","Rocket #22: 0.055 -> 0.149","BuggyBurst #24: 0.07 -> 0.096","Rocket #22: 0.109 -> 0.149"],
+ "autoplay_kills_25s": {"maxMs":0.253,"watchMeanMs":0.001,"wreckKinds":"Helicopter,Buggy","wrecksFolder":6,"wreckTracksAtEnd":0,"frames":1570,"wreckTrackSamples":9,"worstFrameMs":18.533,"stepMeanMs":0.151,"enemiesAvg":12.4,"trackedAvg":13.1,"watchMaxMs":0.013,"stepMaxMs":0.251,"watchCalls":282,"meanMs":0.153},
+ "console": "world built / server ready / client ready only"
+}

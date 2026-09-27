@@ -1,0 +1,8 @@
+{"build": "bf68b38 EnemyMotion.luau + 9c0a50c EnemyMotionBody.luau (its 2 s byId loop timed as watch work) + current probe; AD-1 committed airdrops live; airdropSeed 7",
+ "scene": "wave 9 (Night), integrity held at 100, QualityLevel 15, Studio in front; windows start ~75 s after startWave",
+ "busy": [
+  {"maxMs":0.614,"watchMeanMs":0.008,"frames":1206,"worstFrameMs":18.249,"stepMeanMs":0.216,"enemiesAvg":22.6,"trackedAvg":22.6,"watchMaxMs":0.369,"stepMaxMs":0.31,"watchCalls":52,"meanMs":0.224},
+  {"maxMs":0.567,"watchMeanMs":0.008,"frames":1207,"stepMaxMs":0.355,"worstFrameMs":18.141,"stepMeanMs":0.215,"enemiesAvg":26,"trackedAvg":26,"watchMaxMs":0.334,"kindsAtEnd":{"Helicopter":3,"Buggy":5,"Tank":3,"Infantry":22},"watchCalls":60,"meanMs":0.224},
+  {"maxMs":0.68,"watchMeanMs":0.01,"frames":1207,"stepMaxMs":0.402,"worstFrameMs":18.311,"stepMeanMs":0.273,"enemiesAvg":33,"trackedAvg":33,"watchMaxMs":0.37,"kindsAtEnd":{"Helicopter":3,"Buggy":5,"Tank":3,"Infantry":22},"watchCalls":49,"meanMs":0.283}],
+ "autoplay_kills_25s": {"maxMs":0.653,"watchMeanMs":0.005,"wreckKinds":"Helicopter,Buggy","wrecksFolder":7,"frames":1570,"wreckTrackSamples":12,"worstFrameMs":18.686,"stepMeanMs":0.171,"enemiesAvg":13.2,"trackedAvg":14.1,"watchMaxMs":0.363,"stepMaxMs":0.358,"watchCalls":65,"meanMs":0.176}
+}

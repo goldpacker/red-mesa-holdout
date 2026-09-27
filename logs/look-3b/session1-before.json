@@ -1,0 +1,48 @@
+{
+ "build": "9c0a50c EnemyMotion + LOOK-3B probe (sweep and deferred register timed as watch work)",
+ "scene": "wave 9 (Night), integrity held at 100, QualityLevel 15, Studio in front, load avg 2.4/12 cores, blender slots free",
+ "busy_no_kills": [
+  {
+   "maxMs": 0.853,
+   "watchMeanMs": 0.01,
+   "watchMaxMs": 0.461,
+   "worstFrameMs": 18.479,
+   "stepMeanMs": 0.309,
+   "enemiesAvg": 29.5,
+   "trackedAvg": 29.5,
+   "frames": 1208,
+   "stepMaxMs": 0.537,
+   "watchCalls": 50,
+   "meanMs": 0.32
+  },
+  {
+   "maxMs": 0.815,
+   "watchMeanMs": 0.011,
+   "watchMaxMs": 0.452,
+   "worstFrameMs": 18.535,
+   "stepMeanMs": 0.309,
+   "enemiesAvg": 33.6,
+   "trackedAvg": 33.6,
+   "frames": 1209,
+   "stepMaxMs": 0.509,
+   "watchCalls": 40,
+   "meanMs": 0.32
+  }
+ ],
+ "autoplay_kills_25s": {
+  "maxMs": 0.618,
+  "watchMeanMs": 0.004,
+  "wrecksFolder": 7,
+  "watchMaxMs": 0.346,
+  "wreckTrackSamples": 14,
+  "worstFrameMs": 18.716,
+  "stepMeanMs": 0.169,
+  "enemiesAvg": 13.3,
+  "trackedAvg": 14.4,
+  "frames": 1571,
+  "stepMaxMs": 0.368,
+  "watchCalls": 51,
+  "meanMs": 0.174
+ },
+ "note": "AD-1's airdrop files were being written 19:40-19:45 and this play session started ~19:37, so this scene probably had lane spawns; the session-1 after run had airdrops. Use rematch-before/after.json (same code, same seed) for the A/B."
+}

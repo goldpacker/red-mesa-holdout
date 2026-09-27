@@ -1,0 +1,197 @@
+-- LOOK-3B: EnemyMotionWatch unit test. Paste into execute_luau (Client
+-- datamodel) during a Studio playtest. It requires a private clone of the
+-- module (fresh state, its own queue), builds synthetic models that are
+-- never parented to the Workspace, and checks every qualification rule and
+-- event path. Returns one PASS/FAIL line per check.
+local src = game:GetService("Players").LocalPlayer.PlayerScripts:WaitForChild("Client")
+local folder = Instance.new("Folder")
+src.EnemyMotionProbe:Clone().Parent = folder
+local wm = src.EnemyMotionWatch:Clone()
+wm.Parent = folder
+local W = require(wm) :: any
+
+local out = {}
+local fails = 0
+local function check(name: string, cond: boolean, detail: any?)
+	if not cond then
+		fails += 1
+	end
+	table.insert(out, (if cond then "PASS " else "FAIL ") .. name .. (if detail ~= nil then "  [" .. tostring(detail) .. "]" else ""))
+end
+
+local verdict: { [Model]: { root: BasePart?, ignored: number, n: number, nils: number } } = {}
+local function apply(model: Model, root: BasePart?, ignored: number)
+	local v = verdict[model] or { root = nil, ignored = 0, n = 0, nils = 0 }
+	v.root, v.ignored, v.n = root, ignored, v.n + 1
+	if root == nil then
+		v.nils += 1
+	end
+	verdict[model] = v
+end
+local function part(parent: Instance, name: string, anchored: boolean, query: boolean): Part
+	local p = Instance.new("Part")
+	p.Name = name
+	p.Anchored = anchored
+	p.CanQuery = query
+	p.Parent = parent
+	return p
+end
+local function drain(): number
+	task.wait() -- deferred signals fire
+	return W.drain(apply)
+end
+
+-- 1. A plain enemy: anchored Root (PrimaryPart), welded hull, turret sub-model.
+local m = Instance.new("Model")
+m:SetAttribute("Kind", "Buggy")
+local root = part(m, "Root", true, false)
+m.PrimaryPart = root
+local hull = part(m, "Hull", false, true)
+local turret = Instance.new("Model")
+turret.Name = "Turret"
+turret.Parent = m
+local gun = part(turret, "Gun", false, true)
+W.add(m)
+check("new model judged on first drain", drain() == 1)
+check("smoothable, root found", verdict[m] and verdict[m].root == root and verdict[m].ignored == 0)
+check("idle: nothing to judge", drain() == 0 and drain() == 0)
+
+-- 2. Decorative anchored part (LampGlow): ignored.
+local lamp = part(m, "LampGlow", true, false)
+check("decorative part added -> re-judged", drain() == 1)
+check("decorative part ignored, still smoothable", verdict[m].root == root and verdict[m].ignored == 1, verdict[m].ignored)
+lamp.Parent = turret
+drain()
+check("decorative part moved inside the model: still ignored once", verdict[m].root == root and verdict[m].ignored == 1, verdict[m].ignored)
+
+-- 3. Anchored hit volume added, then removed.
+local wing = part(m, "Wing", true, true)
+drain()
+check("anchored hit volume blocks", verdict[m].root == nil)
+wing.Parent = nil
+drain()
+check("hit volume removed -> smoothable again", verdict[m].root == root)
+
+-- 4. In-place flips on existing parts.
+hull.Anchored = true
+drain()
+check("welded query part anchored in place blocks", verdict[m].root == nil)
+hull.Anchored = false
+drain()
+check("... unanchored again -> smoothable", verdict[m].root == root)
+lamp.CanQuery = true
+drain()
+check("decorative part turned queryable blocks", verdict[m].root == nil)
+lamp.CanQuery = false
+drain()
+check("... back to no-query -> smoothable, ignored 1", verdict[m].root == root and verdict[m].ignored == 1)
+
+-- 5. Kit.detach transient: anchored in place and moved out in one step.
+local nilsBefore = verdict[m].nils
+gun.Anchored = true
+turret.Parent = nil
+drain()
+check("detach transient never blocks", verdict[m].root == root and verdict[m].nils == nilsBefore, verdict[m].nils - nilsBefore)
+check("detached piece forgotten (no stale signals)", (function()
+	gun.CanQuery = false
+	return drain() == 0
+end)())
+
+-- 6. Root unanchored / re-anchored.
+root.Anchored = false
+drain()
+check("unanchored Root -> not smoothable", verdict[m].root == nil)
+root.Anchored = true
+drain()
+check("re-anchored Root -> smoothable", verdict[m].root == root)
+
+-- 7. Root replaced.
+root:Destroy()
+drain()
+check("Root destroyed -> not smoothable", verdict[m].root == nil)
+local root2 = part(m, "Root", true, false)
+m.PrimaryPart = root2
+drain()
+check("new Root found", verdict[m].root == root2)
+root2.Name = "Hull2"
+drain()
+check("Root renamed away -> not smoothable", verdict[m].root == nil)
+root2.Name = "Root"
+drain()
+check("renamed back -> smoothable again", verdict[m].root == root2)
+
+-- 8. Kind attribute change re-judges.
+m:SetAttribute("Kind", "Tank")
+check("Kind change re-judges", drain() == 1)
+
+-- 9. Root nested, no PrimaryPart.
+local n = Instance.new("Model")
+n:SetAttribute("Kind", "Infantry")
+local body = Instance.new("Model")
+body.Parent = n
+local nroot = part(body, "Root", true, false)
+W.add(n)
+drain()
+check("nested Root without PrimaryPart found", verdict[n] and verdict[n].root == nroot)
+
+-- 10. Removed models are left alone.
+W.remove(n)
+part(n, "Blocker", true, true)
+check("removed model: no work", drain() == 0)
+
+-- 11. Existing blocker at spawn (TestDummyAir-like): never smoothable, no retries.
+local d = Instance.new("Model")
+d:SetAttribute("Kind", "Helicopter")
+local droot = part(d, "Root", true, false)
+d.PrimaryPart = droot
+part(d, "Wing", true, true)
+W.add(d)
+drain()
+check("spawned with a hit volume: not smoothable", verdict[d] and verdict[d].root == nil)
+check("... and no re-scans afterwards", drain() == 0 and drain() == 0)
+W.remove(d)
+
+-- 12. Burst: 60 models of 150 parts arrive at once; the drain budget
+-- spreads the scans over frames and every model is judged exactly once.
+local burst = {}
+for i = 1, 60 do
+	local b = Instance.new("Model")
+	b:SetAttribute("Kind", "Tank")
+	local r = part(b, "Root", true, false)
+	b.PrimaryPart = r
+	for j = 1, 149 do
+		local p = Instance.new("Part")
+		p.Anchored = false
+		p.Parent = b
+	end
+	burst[i] = b
+	W.add(b)
+end
+local frames, total, worst, t0 = 0, 0, 0, 0
+while total < 60 and frames < 200 do
+	task.wait()
+	t0 = os.clock()
+	local k = W.drain(apply)
+	worst = math.max(worst, os.clock() - t0)
+	total += k
+	frames += 1
+end
+local judged = 0
+for _, b in burst do
+	if verdict[b] and verdict[b].root and verdict[b].n == 1 then
+		judged += 1
+	end
+end
+check("burst: all 60 judged once", judged == 60, judged)
+check("burst spread over frames", frames > 1, string.format("%d frames, worst drain %.3f ms, %.3f ms per 150-part scan", frames, worst * 1000, worst * 1000 / math.max(1, 60 / frames)))
+local models, parts = W.counts()
+table.insert(out, string.format("watching %d models, %d parts with signals", models, parts))
+for _, b in burst do
+	W.remove(b)
+	b:Destroy()
+end
+W.remove(m)
+m:Destroy()
+folder:Destroy()
+table.insert(out, 1, if fails == 0 then "ALL PASS" else fails .. " FAILED")
+return table.concat(out, "\n")
