@@ -107,22 +107,58 @@
   "normalised": "exact",
   "git_head": "534eca9"
  },
- "sunset_2-turret": {
-  "captured": "2026-09-27T03:06:08",
+ "sunset_1-title": {
+  "captured": "2026-09-27T04:03:31",
   "source_size": [
    1190,
    1080
   ],
   "normalised": "exact",
-  "git_head": "534eca9"
+  "git_head": "46bbae4"
+ },
+ "sunset_2-turret": {
+  "captured": "2026-09-27T04:03:46",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "46bbae4"
+ },
+ "sunset_3-gunsight": {
+  "captured": "2026-09-27T04:03:55",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "46bbae4"
+ },
+ "sunset_4-flank": {
+  "captured": "2026-09-27T04:04:03",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "46bbae4"
+ },
+ "sunset_5-night": {
+  "captured": "2026-09-27T04:04:12",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "46bbae4"
  },
  "sunset_6-boss": {
-  "captured": "2026-09-27T03:06:16",
+  "captured": "2026-09-27T04:04:26",
   "source_size": [
    1190,
    1080
   ],
   "normalised": "exact",
-  "git_head": "534eca9"
+  "git_head": "46bbae4"
  }
 }

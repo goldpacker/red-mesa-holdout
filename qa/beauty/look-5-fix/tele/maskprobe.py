@@ -1,6 +1,6 @@
 """Masked readability probe (LOOK-5 fix).
 usage: maskprobe.py normal.jpg mask.jpg rects.txt [--viewport WxH] [--label L] [--crops outdir]
-Body = pixels painted solid magenta in the mask capture (eroded 1 px), inside the
+Body = pixels painted solid magenta in the mask capture (strict colour test, eroded 2 px), inside the
 enemy's projected box. Ground = median luma of a ring around that body (dilated
 body, excluding every masked pixel), from the normal capture. Luma = Rec.709 on
 sRGB 0..255. ratio = (ground + 5) / (body + 5), for the body median ("main body")
@@ -28,7 +28,8 @@ c = A / 255.0
 lin = np.where(c <= 0.03928, c / 12.92, ((c + 0.055) / 1.055) ** 2.4)
 Y = lin @ [0.2126, 0.7152, 0.0722]  # WCAG relative luminance (tools/qa/palette.py)
 R, G, B = M[..., 0], M[..., 1], M[..., 2]
-mag = (R > 140) & (B > 130) & (G < 125) & ((R + B) / 2 - G > 70)
+# strict: the Neon paint's glow halo (blended with the background) must not count as body
+mag = (R > 215) & (B > 205) & (G < 95)
 mag_img = Image.fromarray((mag * 255).astype(np.uint8))
 body_all = np.asarray(mag_img.filter(ImageFilter.MinFilter(5))) > 0
 any_near = np.asarray(mag_img.filter(ImageFilter.MaxFilter(9))) > 0

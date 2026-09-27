@@ -1,0 +1,12 @@
+look-5      afternoon_2-turret       Infa1=4.03 Infa2=3.49 Infa3=3.36 Infa4=2.91 Infa5=2.57 Bugg6=3.15 Tank7=2.59 Heli8=1.30 
+look-5-fix  afternoon_2-turret       Infa1=5.70 Infa2=4.67 Infa3=4.31 Infa4=3.72 Infa5=3.17 Bugg6=4.31 Tank7=3.37 Heli8=1.36 
+look-5      afternoon_6-boss         Sieg9=3.14 Infa10=3.47 Infa11=2.20 Infa12=2.57 
+look-5-fix  afternoon_6-boss         Sieg9=4.58 Infa10=5.38 Infa11=2.55 Infa12=3.13 
+look-5      lateafternoon_2-turret   Infa1=3.29 Infa2=2.73 Infa3=2.79 Infa4=2.29 Infa5=2.04 Bugg6=2.66 Tank7=2.31 Heli8=1.30 
+look-5-fix  lateafternoon_2-turret   Infa1=4.90 Infa2=3.71 Infa3=3.81 Infa4=2.84 Infa5=2.60 Bugg6=4.16 Tank7=3.43 Heli8=1.37 
+look-5      lateafternoon_6-boss     Sieg9=3.02 Infa10=2.82 Infa11=1.80 Infa12=2.19 
+look-5-fix  lateafternoon_6-boss     Sieg9=5.83 Infa10=5.14 Infa11=2.19 Infa12=2.92 
+look-5      sunset_2-turret          Infa1=3.39 Infa2=3.17 Infa3=3.27 Infa4=2.37 Infa5=2.19 Bugg6=3.72 Tank7=3.15 Heli8=1.41 
+look-5-fix  sunset_2-turret          Infa1=3.17 Infa2=3.20 Infa3=3.56 Infa4=2.83 Infa5=2.58 Bugg6=5.21 Tank7=4.90 Heli8=1.47 
+look-5      sunset_6-boss            Sieg9=5.21 Infa10=4.19 Infa11=1.90 Infa12=3.12 
+look-5-fix  sunset_6-boss            Sieg9=8.71 Infa10=5.69 Infa11=2.10 Infa12=3.73 

@@ -56,8 +56,8 @@ local PRESETS: { [string]: Preset } = {
 			EnvironmentDiffuseScale = 0.5, EnvironmentSpecularScale = 1, ShadowSoftness = 0.08,
 		},
 		-- Density 0.27 (LOOK-5 fix 1): 0.30 lifted the darks of a tank at
-		-- 430 studs (inside its firing window) to 2.84:1 against the road;
-		-- 0.27 gives 4.17:1 (darkest quartile, LOOK-5 report). Offset and
+		-- 430 studs (inside its firing window) to 2.83:1 against the road;
+		-- 0.27 gives 4.12:1 (darkest quartile, LOOK-5 report). Offset and
 		-- Haze only shape the far wall and sky (measured: no change on basin
 		-- subjects), so they stay and keep the depth.
 		atmosphere = { Density = 0.27, Offset = 0.3, Haze = 0.9, Glare = 0.2, Color = rgb(226, 212, 198), Decay = rgb(178, 150, 128) },
@@ -77,8 +77,8 @@ local PRESETS: { [string]: Preset } = {
 			EnvironmentDiffuseScale = 0.46, EnvironmentSpecularScale = 1, ShadowSoftness = 0.1,
 		},
 		-- Density 0.24 (LOOK-5 fix 1): at 0.28 the warm haze lifted a 430-stud
-		-- tank to 2.36:1 against the orange road (pre-LOOK-5 already read
-		-- 2.61); 0.24 gives 3.98:1 (darkest quartile, LOOK-5 report).
+		-- tank to 2.34:1 against the orange road (pre-LOOK-5 already read
+		-- 2.59); 0.24 gives 3.92:1 (darkest quartile, LOOK-5 report).
 		atmosphere = { Density = 0.24, Offset = 0.3, Haze = 1.2, Glare = 0.6, Color = rgb(236, 196, 160), Decay = rgb(160, 112, 100) },
 		grade = { Contrast = 0.32, Saturation = -0.06, TintColor = rgb(255, 242, 228), Brightness = -0.02 },
 		bloom = { Intensity = 0.55, Size = 24, Threshold = 2.2 },
@@ -94,7 +94,11 @@ local PRESETS: { [string]: Preset } = {
 			ColorShift_Top = rgb(255, 170, 110), ColorShift_Bottom = rgb(110, 90, 160),
 			EnvironmentDiffuseScale = 0.42, EnvironmentSpecularScale = 1, ShadowSoftness = 0.14,
 		},
-		atmosphere = { Density = 0.25, Offset = 0.32, Haze = 1.3, Glare = 0.7, Color = rgb(232, 182, 156), Decay = rgb(118, 88, 112) },
+		-- Density 0.22 (LOOK-5 fix 1, back to its pre-LOOK-5 value): 0.25
+		-- lifted the tank at 430 studs from 3.82:1 (pre-LOOK-5) to 3.36:1 and
+		-- the boss escorts to 3.69:1; 0.22 gives 5.48 / 5.26 (darkest
+		-- quartile) and leaves storm headroom for VFX-4.
+		atmosphere = { Density = 0.22, Offset = 0.32, Haze = 1.3, Glare = 0.7, Color = rgb(232, 182, 156), Decay = rgb(118, 88, 112) },
 		grade = { Contrast = 0.32, Saturation = -0.16, TintColor = rgb(255, 244, 238), Brightness = -0.02 },
 		bloom = { Intensity = 0.8, Size = 26, Threshold = 1.8 },
 		rays = { Intensity = 0.2, Spread = 0.7 },
