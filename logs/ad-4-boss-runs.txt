@@ -1,0 +1,167 @@
+AD-4 boss wave retune: bot runs (wave 10 only, RedMesaDebug startWave 10, start integrity 80, airdropSeed pinned).
+Bot: tools/qa/autoplay_full.client.luau, QA_Human = true (range 700 / 1000 in the boss wave, aim error 0.6 deg,
+reaction 0.7 s, MG bursts), QA_MaxRetries 2. Probe: tools/qa/autoplay_boss.client.luau ([BOSS] / [BOSS-T] lines).
+Each seed runs in a fresh Play session: StartGame is not needed; the player's ammo is the spawn default (8 rockets,
+4 missiles) at attempt 1, and every retry restores the checkpoint (integrity 80) and restocks.
+Probe crate counts use the first letter of the contents: M = Missiles, R = Repair and Rockets (both "R"; the larger
+count is rockets, since the crawler's crates are rocket-biased).
+
+=== Seed diagnostic: wave-10 opening groups per seed (these are the only seeded part of the boss wave) ===
+(the crawler's own rng picks the escort lanes, crate contents and turret timing; enemy speeds and the bot's aim
+jitter are unseeded too, so each attempt differs even on a pinned seed)
+seed 101 Infantry5 ScrubLeft land 39.2 entry 6.1 d 509,510,514,515,533
+seed 101 Infantry5 ScrubRight land 42.7 entry 7.8 d 633,669,672,692,720
+seed 202 Infantry5 ScrubLeft land 39.0 entry 8.6 d 599,617,625,631,684
+seed 202 Infantry5 ScrubRight land 42.4 entry 12.3 d 707,732,743,780,781
+seed 303 Infantry5 ScrubLeft land 38.5 entry 6.9 d 484,488,493,497,515
+seed 303 Infantry5 ScrubRight land 41.1 entry 10.9 d 581,594,611,613,626
+seed 404 Infantry5 ScrubLeft land 37.1 entry 4.6 d 667,690,702,734,760
+seed 404 Infantry5 ScrubRight land 40.5 entry 12.7 d 625,646,666,679,698
+seed 505 Infantry5 ScrubLeft land 38.1 entry 9.7 d 698,701,722,743,777
+seed 505 Infantry5 ScrubRight land 41.1 entry 11.1 d 566,567,571,571,584
+
+=== BEFORE (build a674fe0), instrumented baseline, seed 505 ===
+[BOSS] seed 505 attempt 1 Defeat 84.8s | integrity 80 -> 0 (min 0) | dmg bomb 12.0, bossCannon 32.0, bossTurret 3.0, rifle 48.0 | cannon shots 2 | rifle/20s 0/0/0/27/21 | trooper-s in range 225 (max 18 at once) | inf landed/20s 0/5/9/4/4 (n 22, <500 4) | rockets fired 20, starved 20s | crates spawned M1R1R5 taken M1R1R4 | jets 1 killed 1, helis killed 1
+[BOSS-T] seed 505 attempt 1: cannon 68,85 | I5<ScrubLeft>land38,d699-777,t0@0 I5<ScrubRight>land41,d567-585,t0@0 I4<ScrubLeft>land44,d558-587,t0@17 I4<ScrubRight>land71,d398-420,t0@43 crateR@46 TurretLeftDown@52 crateR@52 jet@53 crateM@56 crateR@57 I4<ScrubLeft>land98,d644-685,t0@69 crateR@70 TurretRightDown@76 crateR@77
+[BOSS] seed 505 attempt 2 Defeat 101.3s | integrity 80 -> 0 (min 0) | dmg bomb 12.0, bossCannon 48.0, bossTurret 6.0, rifle 33.0 | cannon shots 3 | rifle/20s 0/0/0/2/30/1 | trooper-s in range 154 (max 8 at once) | inf landed/20s 0/5/9/4/4 (n 22, <500 4) | rockets fired 21, starved 64s | crates spawned M2R1R5 taken M2R1R5 | jets 1 killed 1, helis killed 1
+[BOSS-T] seed 505 attempt 2: cannon 68,85,101 | I5<ScrubLeft>land38,d699-777,t0@0 I5<ScrubRight>land41,d567-585,t0@0 TurretRightDown@16 I4<ScrubRight>land52,d545-572,t0@17 crateR@18 crateR@31 I4<ScrubRight>land71,d398-420,t0@43 crateM@45 crateR@48 jet@53 crateR@64 I4<ScrubRight>land96,d636-677,t0@69 crateM@71 crateR@83 TurretLeftDown@87 crateR@99
+[BOSS] seed 505 attempt 3 Intermission 172.0s | integrity 80 -> 46 (min 21) | dmg bomb 24.0, bossCannon 32.0, rifle 33.0 | cannon shots 2 | rifle/20s 0/0/0/2/26/4/0/0/1 | trooper-s in range 148 (max 8 at once) | inf landed/20s 0/5/9/4/4/0/4/0/4/4 (n 34, <500 6) | rockets fired 35, starved 112s | crates spawned R3R9 taken R3R9 | jets 3 killed 2, helis killed 3
+[BOSS-T] seed 505 attempt 3: cannon 68,85 | I5<ScrubLeft>land38,d699-777,t0@0 I5<ScrubRight>land41,d567-585,t0@0 TurretRightDown@15 I4<ScrubRight>land52,d545-572,t0@17 crateR@18 crateR@31 crateR@42 I4<ScrubRight>land71,d398-420,t0@43 crateR@47 jet@53 crateR@65 TurretLeftDown@67 I4<ScrubLeft>land98,d644-685,t0@69 crateR@71 crateR@81 MainCannonDown@87 CoreExposed@87 crateR@99 I4<ScrubRight>land137,d474-520,t0@108 crateR@116 jet@118 crateR@134 I4<ScrubRight>land164,d701-725,t0@134 crateR@150 I4<ScrubLeft>land189,d551-633,t0@160 crateR@167 jet@170 BossDead@172 BossDead@172
+Bot audit after the session: QA_Drops 70, QA_GroundNoDrop 0, QA_DropOutOfBand 0. Console: no errors or warnings.
+
+=== AFTER v1: EnemyConfig.SiegeCrawler.ESCORT_FIRST 12 -> 38; Config.Waves[10].dropCentre = { Infantry = { 580, 760 } } ===
+(probe crate labels from here on: Mi = Missiles, Re = Repair, Ro = Rockets)
+dropZoneCheck { samples 600, seed 1, wave 10 }: 602 landing points from 153 sorties (35 formation followers), 83 rocks: 0 violations;
+  landing distance 401-800 (buggies/tanks included); 0 fallback sorties; max plan 3.5 ms; 59 touchdown-timed groups, late 0;
+  8/602 landings out of hip-height sight (information).
+  (a first call straight after Play read 226/602 "out of sight", blocked by Landscape_Mesa: the mesa meshes were still loading;
+  the same call repeated read 8/602. The default bands, seed 1: 11/602; wave 10 bands, seed 2: 20/602, 0 violations.)
+dropZoneCheck { samples 600, seed 2, wave 10 }: 602 landing points, 0 violations, 0 fallbacks, max plan 5.3 ms.
+
+seed 505:
+[AD4-W] wave 10 Intermission: landed 26 direct 0 outOfBand 0 stuck 0 land 573-772 | fallbacks 0 late 0 maxPlan 5.4ms pending 0 cancelled 18
+[BOSS] seed 505 attempt 1 Intermission 188.0s | integrity 80 -> 32 (min 7) | dmg bomb 24.0, bossCannon 32.0, rifle 37.0 | cannon shots 2 | rifle/20s 0/0/0/5/20/12 | trooper-s in range 168 (max 6 at once) | inf landed/20s 0/5/5/4/1/3/4/0/4/4/4 (n 34, <500 0) | rockets fired 33, starved 102s | crates spawned Mi2Re2Ro9 taken Mi2Re2Ro9 | jets 2 killed 2, helis killed 3
+[BOSS-T] seed 505 attempt 1: cannon 68,85 | I5<ScrubLeft>land38,d713-772,t0@0 I5<ScrubRight>land41,d659-680,t0@0 I4<ScrubLeft>land69,d656-692,t0@43 crateRo@44 crateRo@50 TurretLeftDown@51 crateRe@56 crateRo@58 TurretRightDown@61 crateMi@67 I4<ScrubLeft>land100,d573-599,t0@69 crateMi@73 jet@79 crateRo@81 I4<ScrubLeft>land124,d699-740,t0@95 crateRo@98 MainCannonDown@101 CoreExposed@101 crateRo@116 crateRo@133 I4<Road>land166,d610-653,t0@134 jet@144 crateRe@149 I4<ScrubLeft>land194,d723-751,t0@160 crateRo@167 crateRo@186 I4<ScrubLeft>land214,d634-716,t0@186 BossDead@188 BossDead@188
+Bot audit: QA_Drops 26, QA_GroundNoDrop 0, QA_DropOutOfBand 0. Console: no errors or warnings.
+
+seed 303:
+[AD4-W] wave 10 Intermission: landed 22 direct 0 outOfBand 0 stuck 0 land 553-798 | fallbacks 0 late 0 maxPlan 5.4ms pending 0 cancelled 4
+[BOSS] seed 303 attempt 1 Intermission 137.8s | integrity 80 -> 72 (min 47) | dmg bomb 12.0, bossCannon 16.0, rifle 5.0 | cannon shots 1 | rifle/20s 0/0/0/0/0/0/5 | trooper-s in range 23 (max 2 at once) | inf landed/20s 0/4/6/4/4/0/4/0/4 (n 26, <500 0) | rockets fired 34, starved 77s | crates spawned Mi1Ro9 taken Mi1Ro9 | jets 1 killed 1, helis killed 2
+[BOSS-T] seed 303 attempt 1: cannon 68 | I5<ScrubLeft>land38,d620-652,t0@0 I5<ScrubRight>land41,d662-707,t0@0 TurretRightDown@16 crateRo@17 crateRo@32 crateRo@38 I4<ScrubRight>land73,d641-717,t0@43 crateRo@48 TurretLeftDown@54 crateRo@67 I4<Road>land97,d554-588,t0@69 MainCannonDown@71 CoreExposed@71 crateMi@73 jet@79 crateRo@81 I4<ScrubRight>land125,d718-798,t0@95 crateRo@100 crateRo@117 crateRo@134 I4<Road>land165,d598-624,t0@134 BossDead@138 BossDead@138
+Bot audit: QA_Drops 22, QA_GroundNoDrop 0, QA_DropOutOfBand 0. Console: no errors or warnings.
+
+seed 404:
+[AD4-W] wave 10 Defeat: landed 15 direct 0 outOfBand 0 stuck 0 land 677-787 | fallbacks 0 late 0 maxPlan 2.6ms pending 7 cancelled 0
+[BOSS] seed 404 attempt 1 Defeat 101.4s | integrity 80 -> 0 (min 0) | dmg bomb 12.0, bossCannon 48.0, bossTurret 3.0, rifle 26.0 | cannon shots 3 | rifle/20s 0/0/0/1/24/1 | trooper-s in range 120 (max 7 at once) | inf landed/20s 0/5/5/4/0/4/4 (n 22, <500 0) | rockets fired 23, starved 60s | crates spawned Mi3Ro5 taken Mi3Ro5 | jets 1 killed 1, helis killed 1
+[BOSS-T] seed 404 attempt 1: cannon 68,85,101 | I5<ScrubLeft>land37,d693-787,t0@0 I5<ScrubRight>land40,d677-750,t0@0 TurretRightDown@15 crateRo@17 crateRo@33 crateMi@43 I4<ScrubRight>land70,d726-768,t0@43 crateMi@51 crateRo@67 I4<ScrubLeft>land101,d700-743,t0@69 crateRo@73 TurretLeftDown@76 jet@79 crateRo@85 I4<ScrubRight>land127,d651-729,t0@95 crateMi@101
+[AD4-W] wave 10 Intermission: landed 26 direct 0 outOfBand 0 stuck 0 land 588-787 | fallbacks 0 late 0 maxPlan 3.7ms pending 0 cancelled 11
+[BOSS] seed 404 attempt 2 Intermission 171.6s | integrity 80 -> 74 (min 49) | dmg bomb 24.0, bossCannon 32.0, rifle 5.0 | cannon shots 2 | rifle/20s 0/0/0/0/5 | trooper-s in range 25 (max 3 at once) | inf landed/20s 0/5/5/4/0/4/4/0/4/4 (n 30, <500 0) | rockets fired 35, starved 110s | crates spawned Re3Ro9 taken Re3Ro9 | jets 2 killed 2, helis killed 2
+[BOSS-T] seed 404 attempt 2: cannon 68,85 | I5<ScrubLeft>land37,d693-787,t0@0 I5<ScrubRight>land40,d677-750,t0@0 TurretRightDown@16 crateRo@19 crateRo@31 crateRe@37 I4<ScrubLeft>land67,d720-768,t0@43 crateRo@49 TurretLeftDown@55 crateRo@67 I4<ScrubLeft>land101,d700-743,t0@69 crateRe@73 jet@79 crateRo@82 MainCannonDown@90 CoreExposed@90 I4<ScrubRight>land127,d651-729,t0@95 crateRo@99 crateRo@117 I4<ScrubLeft>land162,d589-638,t0@134 crateRe@139 jet@144 crateRo@155 I4<ScrubLeft>land193,d692-751,t0@160 crateRo@166 BossDead@172 BossDead@172
+(same seed, same opening landings in both attempts; rifle 26 vs 5 and 3 vs 9 rocket crates: the swing is the unseeded part)
+Bot audit: QA_Drops 41, QA_GroundNoDrop 0, QA_DropOutOfBand 0, QA_Retries 1. Console: no errors or warnings.
+
+(comment-only edits to the two AD-4 comments in Config/EnemyConfig after seed 404; values unchanged; sync confirmed)
+seed 101:
+[AD4-W] wave 10 Intermission: landed 18 direct 0 outOfBand 0 stuck 0 land 590-761 | fallbacks 0 late 0 maxPlan 2.0ms pending 0 cancelled 4
+[BOSS] seed 101 attempt 1 Intermission 123.2s | integrity 80 -> 67 (min 42) | dmg bomb 12.0, bossCannon 16.0, rifle 10.0 | cannon shots 1 | rifle/20s 0/0/0/0/10 | trooper-s in range 45 (max 4 at once) | inf landed/20s 0/3/7/4/3/1/4 (n 22, <500 0) | rockets fired 35, starved 60s | crates spawned Ro9 taken Ro9 | jets 1 killed 1, helis killed 1
+[BOSS-T] seed 101 attempt 1: cannon 68 | I5<ScrubLeft>land39,d630-654,t0@0 I5<ScrubRight>land43,d674-762,t0@0 TurretRightDown@16 crateRo@18 crateRo@33 crateRo@39 I4<ScrubRight>land76,d699-744,t0@43 crateRo@47 TurretLeftDown@52 I4<ScrubLeft>land99,d591-613,t0@69 crateRo@71 crateRo@78 MainCannonDown@78 CoreExposed@78 jet@79 crateRo@84 I4<ScrubRight>land130,d598-620,t0@95 crateRo@98 crateRo@118 BossDead@123 BossDead@123
+Bot audit: QA_Drops 18, QA_GroundNoDrop 0, QA_DropOutOfBand 0, QA_Retries 0. Console: no errors or warnings.
+
+seed 202:
+[AD4-W] wave 10 Intermission: landed 22 direct 0 outOfBand 0 stuck 0 land 592-790 | fallbacks 0 late 0 maxPlan 1.7ms pending 0 cancelled 0
+[BOSS] seed 202 attempt 1 Intermission 140.1s | integrity 80 -> 58 (min 34) | dmg bomb 12.0, bossCannon 16.0, bossTurret 1.5, rifle 17.0 | cannon shots 1 | rifle/20s 0/0/0/0/10/5/2 | trooper-s in range 84 (max 4 at once) | inf landed/20s 0/3/7/4/2/2/4 (n 22, <500 0) | rockets fired 34, starved 78s | crates spawned Mi1Ro9 taken Mi1Ro9 | jets 1 killed 1, helis killed 1
+[BOSS-T] seed 202 attempt 1: cannon 68 | I5<ScrubLeft>land39,d666-746,t0@0 I5<ScrubRight>land42,d714-791,t0@0 TurretRightDown@16 crateRo@18 crateMi@31 crateRo@34 I4<ScrubLeft>land69,d698-712,t0@43 crateRo@48 crateRo@67 I4<Road>land99,d718-757,t0@69 TurretLeftDown@72 crateRo@76 jet@79 MainCannonDown@80 CoreExposed@80 crateRo@82 I4<ScrubRight>land126,d592-670,t0@95 crateRo@100 crateRo@116 crateRo@136 BossDead@140 BossDead@140
+Bot audit: QA_Drops 22, QA_GroundNoDrop 0, QA_DropOutOfBand 0, QA_Retries 0. Console: no errors or warnings.
+
+v1 summary: 505 won 1st (min 7), 303 won 1st (min 47), 404 won 2nd (min 49; attempt 1 lost at 101 s), 101 won 1st (min 42),
+202 won 1st (min 34). 5/5 seeds within <= 2 retries; 4/5 on the first attempt (5 wins in 6 attempts).
+That is past the reference ("usually takes a retry or two"), so v2 backs the escort cycle off part of the way.
+
+=== AFTER v2: as v1 (committed 90a9b45) but ESCORT_FIRST 38 -> 25 ===
+seed 505:
+[AD4-W] wave 10 Intermission: landed 26 direct 0 outOfBand 0 stuck 0 land 573-772 | fallbacks 0 late 0 maxPlan 5.6ms pending 0 cancelled 6
+[BOSS] seed 505 attempt 1 Intermission 171.6s | integrity 80 -> 70 (min 45) | dmg bomb 24.0, bossCannon 16.0, rifle 5.0 | cannon shots 1 | rifle/20s 0/0/0/2/3 | trooper-s in range 28 (max 3 at once) | inf landed/20s 0/5/5/4/4/4/0/4/0/4 (n 30, <500 0) | rockets fired 34, starved 108s | crates spawned Mi2Re1Ro9 taken Mi2Re1Ro9 | jets 2 killed 2, helis killed 2
+[BOSS-T] seed 505 attempt 1: cannon 68 | I5<ScrubLeft>land38,d713-772,t0@0 I5<ScrubRight>land41,d659-680,t0@0 TurretRightDown@16 crateRo@18 I4<ScrubRight>land65,d642-669,t0@30 crateRo@32 crateRo@38 crateRo@49 I4<ScrubLeft>land87,d573-599,t0@56 TurretLeftDown@58 crateRo@66 jet@66 MainCannonDown@70 CoreExposed@70 crateRe@76 I4<ScrubLeft>land111,d699-740,t0@82 crateMi@83 crateRo@100 crateRo@119 I4<ScrubLeft>land158,d614-651,t0@121 jet@131 crateMi@132 I4<ScrubLeft>land181,d723-751,t0@147 crateRo@149 crateRo@168 BossDead@172 BossDead@172
+Bot audit: QA_Drops 26, QA_GroundNoDrop 0, QA_DropOutOfBand 0, QA_Retries 0. Console: no errors or warnings.
+
+seed 404:
+[AD4-W] wave 10 Intermission: landed 22 direct 0 outOfBand 0 stuck 0 land 649-787 | fallbacks 0 late 0 maxPlan 1.9ms pending 0 cancelled 4
+[BOSS] seed 404 attempt 1 Intermission 142.2s | integrity 80 -> 63 (min 38) | dmg bomb 12.0, bossCannon 16.0, rifle 14.0 | cannon shots 1 | rifle/20s 0/0/0/0/11/3 | trooper-s in range 74 (max 4 at once) | inf landed/20s 0/5/9/0/4/4/0/0/4 (n 26, <500 0) | rockets fired 35, starved 74s | crates spawned Mi1Ro9 taken Mi1Ro9 | jets 1 killed 1, helis killed 2
+[BOSS-T] seed 404 attempt 1: cannon 68 | I5<ScrubLeft>land37,d693-787,t0@0 I5<ScrubRight>land40,d677-750,t0@0 TurretRightDown@17 crateRo@18 I4<ScrubLeft>land54,d720-768,t0@30 crateMi@30 crateRo@34 crateRo@47 I4<ScrubLeft>land88,d700-743,t0@56 crateRo@64 jet@66 TurretLeftDown@67 crateRo@71 MainCannonDown@80 CoreExposed@80 crateRo@81 I4<ScrubLeft>land114,d649-724,t0@82 crateRo@98 crateRo@115 I4<ScrubLeft>land162,d589-638,t0@134 crateRo@136 BossDead@142 BossDead@142
+Bot audit: QA_Drops 22, QA_GroundNoDrop 0, QA_DropOutOfBand 0, QA_Retries 0. Console: no errors or warnings.
+v2 so far: 505 won 1st (min 45), 404 won 1st (min 38). Same picture as v1: the far band carries most of the change.
+Next, v3: the far band alone (ESCORT_FIRST back to 12), to see whether one knob is enough and lands nearer the reference.
+
+=== v3 (rejected): the far band alone, ESCORT_FIRST back to 12 ===
+[AD4-W] wave 10 Defeat: landed 22 direct 0 outOfBand 0 stuck 0 land 574-772 | fallbacks 0 late 0 maxPlan 5.7ms pending 0 cancelled 0
+[BOSS] seed 505 attempt 1 Defeat 108.4s | integrity 80 -> 0 (min 0) | dmg bomb 12.0, bossCannon 32.0, rifle 46.0 | cannon shots 2 | rifle/20s 0/0/0/0/31/15 | trooper-s in range 209 (max 8 at once) | inf landed/20s 0/5/9/4/4 (n 22, <500 0) | rockets fired 26, starved 64s | crates spawned Mi1Re1Ro6 taken Mi1Re1Ro6 | jets 1 killed 1, helis killed 1
+[BOSS-T] seed 505 attempt 1: cannon 68,85 | I5<ScrubLeft>land38,d713-772,t0@0 I5<ScrubRight>land41,d659-680,t0@0 TurretRightDown@16 I4<ScrubLeft>land43,d656-692,t0@17 crateRo@21 crateRo@31 crateRe@42 I4<ScrubRight>land70,d574-598,t0@43 crateRo@48 jet@53 TurretLeftDown@54 crateRo@66 I4<ScrubLeft>land98,d699-740,t0@69 crateMi@72 crateRo@85 MainCannonDown@88 CoreExposed@88 crateRo@98
+[AD4-W] wave 10 Defeat: landed 22 direct 0 outOfBand 0 stuck 0 land 573-772 | fallbacks 0 late 0 maxPlan 7.8ms pending 0 cancelled 0
+[BOSS] seed 505 attempt 2 Defeat 117.8s | integrity 80 -> 0 (min 0) | dmg bomb 12.0, bossCannon 64.0, bossTurret 6.0, rifle 36.0 | cannon shots 4 | rifle/20s 0/0/0/2/27/7 | trooper-s in range 166 (max 8 at once) | inf landed/20s 0/5/9/4/4 (n 22, <500 0) | rockets fired 18, starved 82s | crates spawned Mi2Re3Ro4 taken Mi2Re3Ro4 | jets 1 killed 1, helis killed 1
+[BOSS-T] seed 505 attempt 2: cannon 68,85,101,118 | I5<ScrubLeft>land38,d713-772,t0@0 I5<ScrubRight>land41,d659-680,t0@0 TurretRightDown@15 crateRe@16 I4<ScrubLeft>land43,d656-692,t0@17 crateRo@35 I4<ScrubLeft>land74,d573-599,t0@43 crateRe@45 crateRo@48 jet@53 crateRe@64 I4<ScrubRight>land96,d690-732,t0@69 crateMi@72 crateRo@83 TurretLeftDown@89 crateMi@99 crateRo@116
+[AD4-W] wave 10 Defeat: landed 22 direct 0 outOfBand 0 stuck 0 land 573-772 | fallbacks 0 late 0 maxPlan 7.8ms pending 0 cancelled 0
+[BOSS] seed 505 attempt 3 Defeat 111.9s | integrity 80 -> 0 (min 0) | dmg bomb 12.0, bossCannon 16.0, rifle 52.0 | cannon shots 1 | rifle/20s 0/0/0/6/31/15 | trooper-s in range 236 (max 10 at once) | inf landed/20s 0/5/9/4/4 (n 22, <500 0) | rockets fired 32, starved 55s | crates spawned Ro8 taken Ro8 | jets 1 killed 1, helis killed 1
+[BOSS-T] seed 505 attempt 3: cannon 68 | I5<ScrubLeft>land38,d713-772,t0@0 I5<ScrubRight>land41,d659-680,t0@0 TurretRightDown@15 crateRo@16 I4<ScrubLeft>land43,d656-692,t0@17 crateRo@30 crateRo@35 I4<ScrubLeft>land74,d573-599,t0@43 crateRo@48 TurretLeftDown@52 jet@53 crateRo@64 MainCannonDown@68 CoreExposed@68 I4<ScrubLeft>land98,d699-740,t0@69 crateRo@71 crateRo@82 crateRo@99
+[QA] wave 10: retry cap 2 reached, bot stopped
+Bot audit: QA_Drops 66, QA_GroundNoDrop 0, QA_DropOutOfBand 0. Console: no errors or warnings.
+=> not won in 3. Rifle 46/36/52, 27-31 of it in the 80-100 s window, up to 10 troopers in rifle range at once: with the far
+band the opening drop walks longer and meets the first escort stick (landed 43 s) in rifle range. The first escort call
+has to move; the band alone is not enough. Back to v2 (ESCORT_FIRST 25) for the remaining seeds.
+
+=== v2 again (ESCORT_FIRST 25, same text as the v2 runs above), remaining seeds ===
+seed 303:
+[AD4-W] wave 10 Intermission: landed 30 direct 0 outOfBand 0 stuck 0 land 565-800 | fallbacks 0 late 0 maxPlan 5.7ms pending 0 cancelled 4
+[BOSS] seed 303 attempt 1 Intermission 189.5s | integrity 80 -> 34 (min 10) | dmg bomb 24.0, bossCannon 48.0, bossTurret 1.5, rifle 7.0 | cannon shots 3 | rifle/20s 0/0/0/3/4 | trooper-s in range 46 (max 4 at once) | inf landed/20s 0/4/7/3/4/4/0/4/4/0/4 (n 34, <500 0) | rockets fired 34, starved 134s | crates spawned Mi3Re1Ro9 taken Mi3Re1Ro9 | jets 3 killed 2, helis killed 3
+[BOSS-T] seed 303 attempt 1: cannon 68,85,101 | I5<ScrubLeft>land38,d620-652,t0@0 I5<ScrubRight>land41,d662-707,t0@0 TurretRightDown@14 crateRo@16 I4<ScrubRight>land60,d641-717,t0@30 crateRe@31 crateRo@33 crateRo@47 I4<ScrubLeft>land85,d565-604,t0@56 jet@66 crateRo@66 TurretLeftDown@71 crateMi@76 I4<ScrubLeft>land111,d711-800,t0@82 crateMi@83 crateRo@99 MainCannonDown@102 CoreExposed@102 I4<ScrubLeft>land150,d602-624,t0@121 crateMi@123 jet@131 crateRo@132 I4<ScrubRight>land175,d583-598,t0@147 crateRo@149 crateRo@167 I4<Road>land202,d755-787,t0@173 jet@183 crateRo@186 BossDead@189 BossDead@189
+Bot audit: QA_Drops 30, QA_GroundNoDrop 0, QA_DropOutOfBand 0, QA_Retries 0. Console: no errors or warnings.
+
+seed 101:
+[AD4-W] wave 10 Intermission: landed 22 direct 0 outOfBand 0 stuck 0 land 590-761 | fallbacks 0 late 0 maxPlan 4.1ms pending 0 cancelled 4
+[BOSS] seed 101 attempt 1 Intermission 156.1s | integrity 80 -> 53 (min 28) | dmg bomb 24.0, bossCannon 16.0, rifle 22.0 | cannon shots 1 | rifle/20s 0/0/0/5/11/5/1 | trooper-s in range 108 (max 5 at once) | inf landed/20s 0/3/7/4/4/4/0/0/4 (n 26, <500 0) | rockets fired 35, starved 94s | crates spawned Mi1Re1Ro9 taken Mi1Re1Ro9 | jets 2 killed 2, helis killed 2
+[BOSS-T] seed 101 attempt 1: cannon 68 | I5<ScrubLeft>land39,d630-654,t0@0 I5<ScrubRight>land43,d674-762,t0@0 TurretRightDown@15 crateRo@18 I4<ScrubLeft>land63,d696-744,t0@30 crateRo@32 crateMi@39 crateRo@48 I4<ScrubLeft>land86,d591-613,t0@56 crateRo@65 jet@66 TurretLeftDown@68 crateRo@76 MainCannonDown@82 CoreExposed@82 I4<ScrubRight>land117,d598-620,t0@82 crateRo@83 crateRo@99 crateRe@116 I4<Road>land165,d697-710,t0@134 crateRo@135 jet@144 crateRo@149 BossDead@156 BossDead@156
+Bot audit: QA_Drops 22, QA_GroundNoDrop 0, QA_DropOutOfBand 0, QA_Retries 0. Console: no errors or warnings.
+
+seed 202:
+[AD4-W] wave 10 Defeat: landed 18 direct 0 outOfBand 0 stuck 0 land 666-790 | fallbacks 0 late 0 maxPlan 3.9ms pending 4 cancelled 0
+[BOSS] seed 202 attempt 1 Defeat 109.3s | integrity 80 -> 0 (min 0) | dmg bomb 12.0, bossCannon 16.0, rifle 52.0 | cannon shots 1 | rifle/20s 0/0/0/1/32/19 | trooper-s in range 226 (max 9 at once) | inf landed/20s 0/3/11/0/4/4 (n 22, <500 0) | rockets fired 32, starved 54s | crates spawned Ro8 taken Ro8 | jets 1 killed 1, helis killed 1
+[BOSS-T] seed 202 attempt 1: cannon 68 | I5<ScrubLeft>land39,d666-746,t0@0 I5<ScrubRight>land42,d714-791,t0@0 TurretRightDown@15 crateRo@17 I4<ScrubLeft>land56,d698-712,t0@30 crateRo@30 crateRo@40 crateRo@50 I4<ScrubRight>land88,d725-765,t0@56 TurretLeftDown@60 crateRo@64 jet@66 MainCannonDown@70 CoreExposed@70 crateRo@76 I4<ScrubLeft>land110,d589-670,t0@82 crateRo@83 crateRo@100
+[AD4-W] wave 10 Intermission: landed 34 direct 0 outOfBand 0 stuck 0 land 584-791 | fallbacks 0 late 0 maxPlan 3.9ms pending 0 cancelled 8
+[BOSS] seed 202 attempt 2 Intermission 219.9s | integrity 80 -> 37 (min 12) | dmg bomb 36.0, bossCannon 48.0, rifle 4.0 | cannon shots 3 | rifle/20s 0/0/0/0/1/3 | trooper-s in range 34 (max 3 at once) | inf landed/20s 0/3/7/4/4/4/0/0/4/4/4/0/4 (n 38, <500 0) | rockets fired 33, starved 159s | crates spawned Mi4Re2Ro9 taken Mi4Re2Ro9 | jets 3 killed 3, helis killed 3
+[BOSS-T] seed 202 attempt 2: cannon 68,85,101 | I5<ScrubLeft>land39,d666-746,t0@0 I5<ScrubRight>land42,d714-791,t0@0 TurretRightDown@15 crateRo@18 I4<ScrubRight>land61,d701-719,t0@30 crateRo@30 crateRe@39 crateRo@48 I4<ScrubRight>land88,d725-765,t0@56 crateRo@64 jet@66 TurretLeftDown@67 crateMi@71 I4<ScrubLeft>land110,d589-670,t0@82 crateMi@83 crateRo@101 MainCannonDown@104 CoreExposed@104 crateRe@117 I4<ScrubLeft>land163,d750-761,t0@134 crateMi@139 jet@144 crateMi@158 I4<ScrubRight>land190,d673-698,t0@160 crateRo@167 crateRo@186 I4<Road>land218,d584-634,t0@186 jet@196 crateRo@208 I4<ScrubLeft>land243,d629-697,t0@212 crateRo@218 BossDead@220 BossDead@220
+Bot audit: QA_Drops 52, QA_GroundNoDrop 0, QA_DropOutOfBand 0, QA_Retries 1. Console: no errors or warnings.
+
+v2 summary: 505 won 1st (min 45), 404 won 1st (min 38), 303 won 1st (min 10), 101 won 1st (min 28), 202 won 2nd (min 12;
+attempt 1 lost at 109 s to rifle 52 with up to 9 troopers in range: the first escort stick, landed at 56 s, still reached
+rifle range with the opening drop). Same pass rate as v1, but the pile-up swing is still there at 25 s.
+=> DECISION: v1 (ESCORT_FIRST 38, committed 90a9b45) is the final value; its first escort stick lands ~67-76 s and has never
+reached rifle range with the opening drop (max 7 troopers in range at once over its 6 attempts vs 8-18 before).
+
+=== FINAL (v1, 90a9b45): perfect-aim bot (QA_Human = false), unpinned seed, start 100, two boss attempts in one session ===
+[AD4-W] BOSS DOWN: 4 loads pending (cancelled so far 0)  -> 0.5 s later: pending 0, cancelled 4
+[AD4-W] wave 10 Intermission: landed 30 direct 0 outOfBand 0 stuck 0 land 575-746 | fallbacks 0 late 0 maxPlan 3.8ms pending 0 cancelled 4
+[BOSS] seed unpinned-perfect attempt 1 Intermission 183.8s | integrity 100 -> 75 (min 50) | dmg bomb 12.0, bossCannon 32.0, bossTurret 6.0 | cannon shots 2 | rifle/20s  | trooper-s in range 0 (max 0 at once) | inf landed/20s 0/5/5/4/4/0/4/4/0/4/4 (n 34, <500 0) | rockets fired 33, starved 132s | crates spawned Mi4Ro9 taken Mi4Ro9 | jets 3 killed 2, helis killed 3
+[BOSS-T] seed unpinned-perfect attempt 1: cannon 68,85 | I5<ScrubLeft>land38,d628-659,t0@0 I5<ScrubRight>land42,d586-683,t0@0 crateMi@15 TurretRightDown@15 crateRo@29 crateMi@33 I4<ScrubLeft>land69,d704-746,t0@43 crateRo@46 crateRo@63 I4<ScrubRight>land97,d575-649,t0@69 crateMi@70 jet@79 crateRo@82 TurretLeftDown@84 I4<ScrubLeft>land126,d611-630,t0@95 crateRo@97 MainCannonDown@99 CoreExposed@99 crateRo@114 I4<Road>land153,d688-707,t0@121 jet@131 crateRo@131 I4<ScrubLeft>land180,d707-736,t0@147 crateMi@148 crateRo@165 I4<ScrubLeft>land204,d633-697,t0@173 crateRo@182 jet@183 BossDead@184 BossDead@184
+[AD4-W] Victory: integrity 75 score 15140
+[AD4-W] BOSS DOWN: 8 loads pending (cancelled so far 4)  -> 0.5 s later: pending 0, cancelled 12
+[AD4-W] wave 10 Intermission: landed 30 direct 0 outOfBand 0 stuck 0 land 583-746 | fallbacks 0 late 0 maxPlan 3.8ms pending 0 cancelled 12
+[BOSS] seed unpinned-perfect attempt 2 Intermission 202.6s | integrity 100 -> 100 (min 75) | dmg bossCannon 32.0, bossTurret 3.0 | cannon shots 2 | rifle/20s  | trooper-s in range 0 (max 0 at once) | inf landed/20s 0/5/5/4/1/3/4/4/4/0/4/4 (n 38, <500 0) | rockets fired 34, starved 146s | crates spawned Mi2Re3Ro9 taken Mi2Re3Ro9 | jets 3 killed 3, helis killed 3
+[BOSS-T] seed unpinned-perfect attempt 2: cannon 68,85 | I5<ScrubLeft>land38,d628-659,t0@0 I5<ScrubRight>land42,d586-683,t0@0 crateRo@15 TurretRightDown@15 crateMi@29 crateMi@32 I4<ScrubLeft>land69,d704-746,t0@43 crateRo@46 crateRo@63 I4<Road>land100,d583-653,t0@69 crateRo@70 TurretLeftDown@74 jet@79 crateRe@81 I4<ScrubLeft>land126,d611-630,t0@95 crateRo@97 MainCannonDown@100 CoreExposed@100 crateRo@115 I4<ScrubRight>land155,d695-721,t0@121 jet@131 crateRe@134 I4<ScrubRight>land172,d702-725,t0@147 crateRo@148 crateRe@165 I4<ScrubRight>land204,d624-694,t0@173 crateRo@182 jet@183 I4<ScrubRight>land231,d698-764,t0@199 crateRo@199 BossDead@203 BossDead@203
+[AD4-W] Victory: integrity 100 score 25960
+Client after the session: AirdropFx empty; QA_Drops 60, QA_GroundNoDrop 0, QA_DropOutOfBand 0, retries 0. Console: no errors or warnings.
+Note: 184 and 203 s are longer than the 132.7 s (QA-F) / 134.4 s (AD-3) of the pre-AD-4 full runs; checked below with the
+same probe on the pre-AD-4 values (apples to apples).
+
+=== A/B check of the perfect-aim boss length: pre-AD-4 values in the working tree for one session (ESCORT_FIRST 12, no
+dropCentre; restored to 90a9b45 straight after, sync confirmed), same probe, unpinned seed, start 100 ===
+[BOSS] seed unpinned-perfect-BEFORE attempt 1 Intermission 136.4s | integrity 100 -> 100 (min 84) | dmg bossCannon 16.0 | cannon shots 1 | rifle/20s  | trooper-s in range 0 (max 0 at once) | inf landed/20s 0/5/9/4/0/4/4/4 (n 30, <500 14) | rockets fired 35, starved 81s | crates spawned Mi1Ro9 taken Mi1Ro9 | jets 2 killed 2, helis killed 2
+[BOSS-T] seed unpinned-perfect-BEFORE attempt 1: cannon 68 | I5<ScrubLeft>land37,d441-459,t0@0 I5<ScrubRight>land43,d399-491,t0@0 crateRo@15 TurretRightDown@15 I4<ScrubLeft>land49,d606-639,t0@17 crateRo@32 crateRo@36 I4<ScrubRight>land71,d389-447,t0@43 crateRo@46 TurretLeftDown@49 jet@53 crateRo@63 MainCannonDown@69 CoreExposed@69 I4<ScrubLeft>land103,d556-598,t0@69 crateMi@70 crateRo@80 I4<Road>land125,d623-638,t0@95 crateRo@97 jet@105 crateRo@114 I4<ScrubLeft>land149,d502-552,t0@121 crateRo@132 BossDead@136 BossDead@136
+Reading: every perfect-aim boss kill above took 33-35 rockets (8 + nine rocket crates); the fight ends when the ninth rocket
+crate has been shot. BEFORE got 9 rocket crates of 10 (by 132 s); the two AFTER attempts got 9 of 13 and 9 of 14 (by 182
+and 199 s). Crate contents come from the unseeded crate rng; AD-4 changes neither crates nor the boss.
+
+=== FINAL (v1, 90a9b45): perfect-aim bot, third sample (fresh session) ===
+[BOSS] seed unpinned-perfect-AFTER attempt 1 Intermission 134.2s | integrity 100 -> 100 (min 84) | dmg bossCannon 16.0 | cannon shots 1 | rifle/20s  | trooper-s in range 0 (max 0 at once) | inf landed/20s 0/2/8/4/4/0/4/4 (n 26, <500 0) | rockets fired 34, starved 81s | crates spawned Mi1Ro9 taken Mi1Ro9 | jets 2 killed 1, helis killed 2
+[BOSS-T] seed unpinned-perfect-AFTER attempt 1: cannon 68 | I5<ScrubLeft>land39,d636-716,t0@0 I5<ScrubRight>land42,d549-653,t0@0 crateRo@15 TurretRightDown@16 crateRo@29 crateRo@34 I4<ScrubLeft>land68,d680-709,t0@43 crateRo@46 TurretLeftDown@52 crateRo@67 I4<Road>land98,d667-717,t0@69 MainCannonDown@71 CoreExposed@71 crateMi@71 jet@79 crateRo@80 I4<ScrubLeft>land124,d571-618,t0@95 crateRo@100 crateRo@117 I4<Road>land149,d623-676,t0@121 jet@131 crateRo@131 BossDead@134 BossDead@134
+=> with the same crate luck as BEFORE (9 rocket crates of 10) the fight is the same length: 134.2 s vs 136.4 s.
+Client after the session: AirdropFx empty; QA_Drops 22, QA_GroundNoDrop 0, QA_DropOutOfBand 0. Edit datamodel checked
+afterwards: no stray QA modules, no Workspace attributes. Console for every session: no errors, no warnings.

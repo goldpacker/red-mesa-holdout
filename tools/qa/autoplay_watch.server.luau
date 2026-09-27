@@ -342,6 +342,8 @@ local phaseConn = state:GetAttributeChangedSignal("Phase"):Connect(function()
 		paceBegin()
 	elseif phase == "WaveIntro" then
 		logFromNext = sortieCount()
+		-- A new wave (or a retry, or the next run) starts with the boss up.
+		bossDownAt = nil
 		if state:GetAttribute("Wave") == 1 and previous ~= "Defeat" then
 			run.start, run.retries = serverNow(), 0
 			table.clear(defeats)
