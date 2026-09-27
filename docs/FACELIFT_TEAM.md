@@ -156,3 +156,38 @@ Each milestone dispatch names a report file. Write the full report there:
 what changed, evidence (commands, check output, playtest notes, beauty-shot
 paths, perf numbers), edits outside your ownership, known issues, and what
 the next milestone should know. Reply to the lead with a short status only.
+
+---
+
+## Update 2 — airdrop arrivals and cinematic environment (2026-09-26)
+
+Plan: `docs/AIRDROP_ENVIRONMENT_PLAN.md`. Spec: `GAME_SPEC.md` §6.1, §7,
+§8, §13–15. Everything above still applies, with these changes.
+
+**Gameplay may change only in the Airdrop workstream**, and only as spec
+§6.1/§8 describe (arrival by airdrop, wave retune). Every other workstream
+stays visual only.
+
+| Workstream | Adds to its ownership |
+|---|---|
+| **Airdrop (AD)** — new | new `src/server/Airdrop*.luau`, `src/client/Airdrop*.luau`, `src/shared/AirdropConfig.luau`; `src/server/WaveDirector.luau`; the spawn entry points (`opts.landAt`) in `src/server/Enemies.luau` and `src/server/EnemyTypes/{Infantry,Buggy,Tank}.luau` — additive, behaviour after landing unchanged; the wave table in `src/shared/Config.luau` (`Config.Waves` only); `tools/qa/autoplay*.luau` (bots); `tools/audio/**`, `src/client/SfxSheet.luau` and new sound names in `src/client/Sfx.luau`; the client "no effect" feedback hook in `src/client/WeaponController.luau` (additive) |
+| **Hard-surface** | `tools/assets/models/{transport,parachute*,drop_platform}.py` and their assets |
+| **Environment** | new `src/server/{Dressing,ConflictDressing}*.luau`, `tools/env/dressing/**`, their assets |
+| **VFX** | new `src/client/{Weather,Wind,Birds,DustStorm}*.luau`, `src/shared/Wind.luau`, `tools/vfx/**` additions; a `weather` field per wave in `Config.Waves` (additive; coordinate with AD) |
+| **Look** | storm lighting states and the film treatment in `LightingRig`/`TimeOfDay`/`PostFx*` |
+| **QA-tools** | as before; plus the final before/after page inputs |
+
+Contracts for Update 2:
+- **Sortie event:** AD publishes `AirdropSortie` (server → client) with the
+  path, timing and each load's `landPos`/`landT`; clients render transports
+  and descents from it. Document the payload in `docs/ARCHITECTURE.md`'s
+  event list (AD may append there).
+- **Airborne visuals:** client-only, under `Workspace.AirdropFx`, tagged
+  `Airborne = true`, `CanQuery` true only for the client's own "no effect"
+  raycast. Server weapons never see them.
+- **Wind:** VFX publishes `src/shared/Wind.luau` (direction, strength, gust
+  at time t). Look, ENV (flutter) and AD (chute drift) read it; nothing
+  else defines wind.
+- **Storms:** a wave's `weather` field starts a storm. VFX owns particles
+  and density; Look owns the lighting state; both keep the readability
+  rule.
