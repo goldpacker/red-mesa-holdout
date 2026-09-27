@@ -1,0 +1,71 @@
+QA-B session 1 (19:54-20:06, 2026-09-26) — texture residency and removal attribution
+HEAD aecd5a1 at start; working tree: AD-1 airdrop (src/server/Airdrop*, WaveDirector, Config, Enemies, EnemyTypes), ENV-3F ground
+(GroundDressing/GroundStrips rbxmx + GroundDressing.luau), LOOK-3B (EnemyMotion*), QA-B NightFx one-liner.
+Machine: NOT quiet — HS headless Blender build (DropPlatform) running at ~1000 % CPU, blender-lock slot 1 held by hs.
+Memory numbers only from this session (no frame times). Viewport 1177x1068, QualityLevel 15.
+
+1. Fresh Play, title camera, GraphicsTexture every 5 s:
+   5s 227.8  10s 227.8  15s 227.9  20s 228.1  25s 228.1  30s 228.1  35s 228.1  40s 228.1
+
+2. Check capture: beauty shot 2 Afternoon -> qa/beauty/qa-b/afternoon_2-turret.jpg (1190x1080).
+
+3. Preset cycle with the shot-2 stage (5 infantry, buggy, tank, helicopter), GraphicsTexture every 1.5 s:
+   LateAfternoon 241.9 | 241.9 | Sunset 244.2 x4 | Dusk 265.5 (both skies resident) | Dusk 244.2 x3 |
+   Night 260.2 (both skies) | Night 238.9 x4 | final Night 238.9
+   -> a sky swap briefly holds two skies (+21 MB) and frees the old one within ~1.5 s.
+
+4. Boss stage (shot 6 Night) + Tank, Buggy, Helicopter, Jet spawned, killAll (wrecks: Tank, Buggy,
+   Helicopter, Jet, SiegeCrawler + its 4 armour pieces), then SiegeCrawler, Tank, Buggy, Helicopter,
+   Jet, 2 Infantry spawned live (frozen: director stopped), one supply crate.
+
+5. Texture tour (tools/qa/texture_tour.client.luau, 480 views):
+   GraphicsTexture 257.1 -> all-round from the turret 270.1 -> enemy/wreck/crate close-ups 294.0
+   -> every textured mesh close 308.5 -> after the tour (gunsight aimed once) 301.9
+   Then 40 s at the turret camera: 301.9 flat (resident mips are not released).
+
+6. Removal attribution (tools/qa/texture_attrib.client.luau), in order; freed MB is GraphicsTexture:
+01 HS Emplacement normal              refs  66  tex  301.87 ->  301.87  (- 0.00)
+02 HS Emplacement rough               refs  66  tex  301.87 ->  301.87  (- 0.00)
+03 HS Emplacement metal               refs  59  tex  301.87 ->  301.87  (- 0.00)
+04 HS Emplacement color               refs  66  tex  301.87 ->  296.54  (- 5.33)
+   (whole Emplacement + EmplacementFxLocal then parented to nil: 296.54 flat for 48 s)
+08 ENV sky (active preset)            refs   6  tex  296.54 ->  264.48  (-32.06)
+05 ENV terrain MV normal              refs   8  tex  264.48 ->  264.48  (- 0.00)
+06 ENV terrain MV rough               refs   8  tex  264.48 ->  264.48  (- 0.00)
+07 ENV terrain MV color               refs   8  tex  264.48 ->  264.48  (- 0.00)
+09 ENV Landscape_Mesa                 refs  22  tex  264.48 ->  231.43  (-33.05)
+10 ENV landscape walls                refs  32  tex  231.43 ->  220.76  (-10.67)
+11 ENV landscape buttes               refs   8  tex  220.76 ->  220.76  (- 0.00)
+12 ENV cliff kit                      refs  64  tex  220.76 ->  210.10  (-10.67)
+13 ENV rock kit                       refs 220  tex  210.10 ->  204.76  (- 5.33)
+14 ENV GroundStrips                   refs  84  tex  204.76 ->  204.76  (- 0.00)
+15 ENV GroundDressing                 refs 2428  tex  204.76 ->  204.10  (- 0.67)
+16 HS Gunsights                       refs   0  (not in the Workspace; ReplicatedStorage templates only)
+17 HS SiegeCrawler                    refs  96  tex  204.10 ->  190.75  (-13.34)
+18 HS SiegeCrawler wreck              refs  24  tex  190.75 ->  188.09  (- 2.67)
+19 HS Tank                            refs  32  tex  188.09 ->  185.42  (- 2.67)
+20 HS Buggy                           refs  16  tex  185.42 ->  182.08  (- 3.33)
+21 HS Helicopter                      refs   7  tex  182.08 ->  179.42  (- 2.67)
+22 HS Jet                             refs  14  tex  179.42 ->  176.75  (- 2.67)
+23 HS TrimEnemy sheet                 refs 160  tex  176.75 ->  172.75  (- 4.00)
+24 HS vehicle wrecks                  refs  58  tex  172.75 ->  170.41  (- 2.34)
+25 HS SupplyCrate                     refs   0  (crate already gone)
+26 CHAR InfantrySkinned               refs  16  tex  170.41 ->  167.74  (- 2.67)
+27 CHAR Infantry rigid + spike        refs   0  (not referenced anywhere rendered)
+28 VFX flipbooks                      refs  51  tex  167.74 ->  164.57  (- 3.17)
+29 VFX debris                         refs   0
+30 Look UI kit                        refs 100  tex  164.57 ->  164.60  (+ 0.02)
+31 Look post/searchlight              refs  71  tex  164.60 ->  164.60  (- 0.00)
+32 Look tread motion                  refs   6  tex  164.60 ->  164.26  (- 0.33)
+   Total freed 137.6 MB of 301.9; residual 164.3.
+
+7. Everything else removed client-side (all Workspace children but Terrain, all PlayerGui, all
+   MaterialVariants), 6 s each:
+   now:                 GraphicsMeshParts 13.4  GraphicsParticles 70.9  GraphicsParts 9.8  GraphicsTerrain 87.3  GraphicsTexture 164.3
+   no world/HUD:        GraphicsMeshParts 13.4  GraphicsParticles 70.2  GraphicsParts 6.4  GraphicsTerrain 87.3  GraphicsTexture 164.3
+   no MaterialVariants: GraphicsMeshParts 13.4  GraphicsParticles 70.2  GraphicsParts 6.4  GraphicsTerrain 87.3  GraphicsTexture 164.3
+
+Reading: removal frees memory only for some textures and in 0.33 MB steps (5.33 = 16 steps), so it
+is a lower bound per group and order-dependent; the other ~78 MB above the P0 floor stays cached
+after its last reference is gone. Additive measurement in a fresh session is the reliable A/B.
+Console: only "[RedMesa] world built / server ready / client ready" — no errors or warnings.

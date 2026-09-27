@@ -105,7 +105,9 @@ table.sort(tags, function(a, b)
 end)
 local tagText = {}
 for _, t in tags do
-	table.insert(tagText, string.format("%s %.0f", t[1], t[2]))
+	-- Graphics* tags are the budget ones: one decimal so repeat spreads show.
+	local fmt = if string.sub(t[1], 1, 8) == "Graphics" then "%s %.1f" else "%s %.0f"
+	table.insert(tagText, string.format(fmt, t[1], t[2]))
 end
 add("memory by tag: %s", table.concat(tagText, "  "))
 
