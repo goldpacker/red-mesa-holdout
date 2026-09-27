@@ -1,0 +1,22 @@
+{
+ "armour": {
+  "file": "SiegeCrawler_armour_wreck.png",
+  "px": 512,
+  "source": "f8b46d3480c44e71"
+ },
+ "deck": {
+  "file": "SiegeCrawler_deck_wreck.png",
+  "px": 512,
+  "source": "065bbab9cf91725c"
+ },
+ "hull": {
+  "file": "SiegeCrawler_hull_wreck.png",
+  "px": 512,
+  "source": "8c649da8f81e5a44"
+ },
+ "turrets": {
+  "file": "SiegeCrawler_turrets_wreck.png",
+  "px": 512,
+  "source": "c743b42f35d23e3a"
+ }
+}

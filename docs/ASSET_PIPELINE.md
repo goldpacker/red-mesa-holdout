@@ -252,6 +252,43 @@ side).
   re-bakes with sub-2/255 noise; copy the untouched groups' PNGs back from
   HEAD so `upload` skips them (hash) and their ids stay.
 
+### Siege Crawler, wrecks and LOD (HS-5)
+
+- **Siege Crawler** (`models/siege_crawler.py` + `models/siege_crawler_turrets.py`):
+  four high-poly-baked 1024² atlases (`hull`, `armour` = skirts and plow,
+  `deck`, `turrets` = weak points, core armour and sockets) and the shared
+  `TrimEnemy` sheet for the twin-belt tracks (the `track` strip at ~2×,
+  five periods round the loop) and all crew-scale kit. Crew-scale pieces
+  (jerrycans, periscopes, rails at 3 studs, ladder rungs every 1.1 studs,
+  tools) keep their real size: that is what makes the 90-stud hull read
+  huge. `solid(bm)` turns a `side_prism` outward *before* `Part.add`, so a
+  `texel=` function never depends on how the shell came out.
+- **`texture_group(..., metal_px=512)`** (opt-in): the metalness map is
+  saved at that size (a chip mask needs few pixels; 512² is a quarter of the
+  memory). Used by the crawler, Tank and Buggy.
+- **`a.preview_hide_transparent = True`** (opt-in): previews leave out
+  parts that are invisible in the file (Transparency ≥ 0.99, or
+  `hidden_preview=True`) unless a camera view lists them in `"show"`.
+- **Wreck maps** (`tools/assets/build.sh WreckMaps`, `models/wreck_maps.py`,
+  Blender's numpy, no bake): each vehicle's baked colour/metal/normal maps
+  become a 512² burnt colour map `<Name>_<group>_wreck.png` (char, blistered
+  paint remnants with ash rims, rust on chips/convex edges/blotches, dust
+  turned to ash, markings burnt to oxide) plus `wreck.json` (the hash of the
+  colour map it came from). `publish.py upload <Name>` uploads it only while
+  that hash still matches the group's colour map, so **after rebuilding a
+  vehicle (or the TrimEnemy sheet) re-run `build.sh WreckMaps`** - a stale
+  wreck map is dropped with a warning and `Kit.char` falls back to tinting
+  the live SurfaceAppearance. The rbxmx puts a Folder `Wreck` with the burnt
+  SurfaceAppearance (wreck colour + the part's own normal/roughness) under
+  every textured part; `Kit.char` swaps it in on death.
+- **Runtime facts (Studio, 2026-09-26):** `SurfaceAppearance.Color` (tint)
+  is writable by game scripts; the map `*Content` properties are read-only;
+  imported MeshParts have `RenderFidelity = Automatic` (engine LOD) and it
+  can't be changed from game scripts.
+- **Vehicle LOD** (`src/client/VehicleLod.luau`): engine mesh LOD (Automatic)
+  plus client culling of every `*Kit` part (CanQuery false) beyond 400
+  zoom-corrected studs. New kit parts should keep the `Kit` suffix.
+
 ### Axis handling (verified in Studio)
 Roblox's glTF importer turns an asset 180° about up. `export_glb` rotates
 mesh data 180° about Z just for the export, so a model built facing +Y in

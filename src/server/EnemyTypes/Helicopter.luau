@@ -23,6 +23,9 @@ Helicopter.kind = "Helicopter"
 local CFG = EnemyConfig.Helicopter
 local FLIGHT = EnemyConfig.Flight
 local PIVOT = Config.TURRET_PIVOT
+-- Crash landing box (visual only): inside the terrain's edge (TerrainBuilder
+-- floor |x| <= 1000, -1500 <= z <= 400). X = |x| limit, Y = min z, Z = max z.
+local CRASH_EDGE = Vector3.new(980, -1480, 380)
 
 local function build(): Model
 	local asset = Kit.loadAsset("Helicopter", { "Root", "MainRotor", "TailRotor", "RocketMuzzleL", "RocketMuzzleR" })
@@ -244,6 +247,16 @@ function Helicopter.spawn(ctx: Types.Context, laneName: string, rng: Random): Ty
 		local spin = 0
 		local cf = frame
 		local elapsed = 0
+		-- HS-5 (visual): a helicopter killed while still rising behind a
+		-- canyon wall is past the terrain's edge, with nothing under it (it
+		-- used to fall to y -979). Carry the crash in over the wall so the
+		-- wreck comes to rest on its rim like the others.
+		local over: Vector3? = nil
+		if not Kit.terrainHit(frame.Position + Vector3.new(0, 60, 0), frame.Position - Vector3.new(0, 900, 0)) then
+			local x = math.clamp(frame.Position.X, -CRASH_EDGE.X, CRASH_EDGE.X)
+			local z = math.clamp(frame.Position.Z, CRASH_EDGE.Y, CRASH_EDGE.Z)
+			over = Vector3.new(x, math.max(frame.Position.Y, Kit.groundY(x, z) + 14), z)
+		end
 		local conn: RBXScriptConnection
 		conn = RunService.Heartbeat:Connect(function(dt)
 			if not model.Parent then
@@ -254,6 +267,18 @@ function Helicopter.spawn(ctx: Types.Context, laneName: string, rng: Random): Ty
 			spin = math.min(spin + dt * 5, 7)
 			v = Vector3.new(v.X * (1 - dt * 0.5), v.Y - 55 * dt, v.Z * (1 - dt * 0.5))
 			local nextPos = cf.Position + v * dt
+			if over then
+				local target = over :: Vector3
+				local flat = Vector3.new(target.X - nextPos.X, 0, target.Z - nextPos.Z)
+				local step = 70 * dt
+				if flat.Magnitude <= step then
+					nextPos = Vector3.new(target.X, math.max(nextPos.Y, target.Y), target.Z)
+					over = nil
+				else
+					nextPos = Vector3.new(nextPos.X, math.max(nextPos.Y, target.Y), nextPos.Z) + flat.Unit * step
+				end
+				v = Vector3.new(0, math.min(v.Y, 0), 0)
+			end
 			local hit = Kit.terrainHit(cf.Position, nextPos + Vector3.new(0, -3, 0))
 			if hit or elapsed > 7 then
 				conn:Disconnect()

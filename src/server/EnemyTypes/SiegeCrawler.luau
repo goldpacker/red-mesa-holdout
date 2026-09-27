@@ -141,11 +141,21 @@ function SiegeCrawler.spawn(ctx: Types.Context, laneName: string, rng: Random): 
 		anchor.Parent = model
 	end
 
+	-- HS-5: the torn-metal socket left in the hull where a weak point (or
+	-- the core armour) was blown off; hidden in the asset until then.
+	local function revealSocket(name: string)
+		local socket = model:FindFirstChild(name .. "Socket", true)
+		if socket and socket:IsA("BasePart") then
+			socket.Transparency = 0
+		end
+	end
+
 	local function throwPiece(name: string, scale: number)
 		local piece = Kit.detach(model, name)
 		if not piece then
 			return
 		end
+		revealSocket(name)
 		Kit.char(piece)
 		piece:SetAttribute("FxScale", scale)
 		piece:SetAttribute("State", "Thrown")

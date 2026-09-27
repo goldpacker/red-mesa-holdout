@@ -1,0 +1,12 @@
+{
+ "hull": {
+  "file": "Tank_hull_wreck.png",
+  "px": 256,
+  "source": "22c5c4159b15358b"
+ },
+ "turret": {
+  "file": "Tank_turret_wreck.png",
+  "px": 256,
+  "source": "5ed278e9ff731452"
+ }
+}

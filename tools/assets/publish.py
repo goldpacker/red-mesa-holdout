@@ -109,6 +109,7 @@ def upload(name: str) -> None:
             tex.setdefault(group, {})[ch] = f"rbxassetid://{res['assetId']}"
             hashes[key] = h
             print(f"uploaded {key}: {res['assetId']}")
+    upload_wreck(name, out, manifest, ids)
     save_ids(ids_path, ids)
     if trim_only:
         print(f"trim sheet {name}: maps uploaded; assets using it pick the ids up in `publish.py rbxmx`")
@@ -121,6 +122,43 @@ def upload(name: str) -> None:
         print("meshes cached; run `publish.py rbxmx` if needed")
     else:
         print(f"next: run {snippet.relative_to(ROOT)} in Studio (Edit) and pass its JSON to `publish.py meshes {name}`")
+
+
+def upload_wreck(name: str, out: Path, manifest: dict, ids: dict) -> None:
+    """Burnt-wreck colour maps (HS-5, `tools/assets/build.sh WreckMaps` ->
+    `<Name>_<group>_wreck.png` + `wreck.json`). A map is uploaded (and
+    later written into the rbxmx) only while the colour map it was derived
+    from is still the group's current one; otherwise it is dropped with a
+    warning, so a rebuilt asset never ships a wreck map for an old UV layout
+    (Kit.char then falls back to tinting the live SurfaceAppearance)."""
+    record_path = out / "wreck.json"
+    record = json.loads(record_path.read_text()) if record_path.exists() else {}
+    wreck = ids.setdefault("wreck", {})
+    hashes = ids.setdefault("hashes", {})
+    for group in list(wreck):
+        if group not in record:
+            del wreck[group]
+            hashes.pop(f"wreck/{group}", None)
+    for group, info in record.items():
+        files = manifest.get("textures", {}).get(group, {})
+        fresh = files.get("color") and sha(out / files["color"]) == info.get("source")
+        if not fresh:
+            print(f"WARNING {name}/{group}: wreck map is stale (colour map changed); "
+                  "run `tools/assets/build.sh WreckMaps` - dropped for now")
+            wreck.pop(group, None)
+            hashes.pop(f"wreck/{group}", None)
+            continue
+        f = out / info["file"]
+        h = sha(f)
+        key = f"wreck/{group}"
+        if hashes.get(key) == h and wreck.get(group):
+            continue
+        res = opencloud.upload(str(f), "Image", f"RMH_{name}_{group}_wreck")
+        wreck[group] = f"rbxassetid://{res['assetId']}"
+        hashes[key] = h
+        print(f"uploaded {key}: {res['assetId']}")
+    if not wreck:
+        ids.pop("wreck", None)
 
 
 def meshes(name: str, source: str) -> None:
@@ -193,6 +231,10 @@ def with_shared(manifest: dict, ids: dict) -> dict:
         if not maps:
             raise SystemExit(f"{manifest['name']}: shared group {group} needs {source}'s maps: run `publish.py upload {source}`")
         merged["textures"][group] = maps
+        src_wreck = load(source)[2].get("wreck", {})
+        sheet_wreck = next(iter(src_wreck.values()), None) if len(src_wreck) == 1 else src_wreck.get("sheet")
+        if sheet_wreck:
+            merged["wreck"] = dict(merged.get("wreck", {}), **{group: sheet_wreck})
     return merged
 
 

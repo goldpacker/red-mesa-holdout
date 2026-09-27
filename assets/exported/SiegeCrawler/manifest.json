@@ -38,7 +38,44 @@
     91.198
    ],
    "tex": "hull",
-   "tris": 5596,
+   "tris": 1454,
+   "material": "Metal",
+   "hitbox": true
+  },
+  {
+   "name": "Skirts",
+   "path": "",
+   "center": [
+    0.0,
+    6.99,
+    -2.9
+   ],
+   "size": [
+    43.0,
+    12.82,
+    86.6
+   ],
+   "tex": "armour",
+   "tris": 1124,
+   "query": false,
+   "material": "Metal"
+  },
+  {
+   "name": "HullKit",
+   "path": "",
+   "center": [
+    0.0,
+    12.5485,
+    1.8278
+   ],
+   "size": [
+    40.1,
+    12.7119,
+    86.2045
+   ],
+   "tex": "trim",
+   "tris": 7156,
+   "query": false,
    "material": "Metal"
   },
   {
@@ -54,9 +91,10 @@
     12.275,
     78.9374
    ],
-   "tex": "tracks",
-   "tris": 3868,
-   "material": "Metal"
+   "tex": "trim",
+   "tris": 3814,
+   "material": "Metal",
+   "hitbox": true
   },
   {
    "name": "TrackR",
@@ -71,9 +109,10 @@
     12.275,
     78.9374
    ],
-   "tex": "tracks",
-   "tris": 3868,
-   "material": "Metal"
+   "tex": "trim",
+   "tris": 3814,
+   "material": "Metal",
+   "hitbox": true
   },
   {
    "name": "Deck",
@@ -89,7 +128,26 @@
     66.2171
    ],
    "tex": "deck",
-   "tris": 1876,
+   "tris": 1774,
+   "material": "Metal",
+   "hitbox": true
+  },
+  {
+   "name": "DeckKit",
+   "path": "",
+   "center": [
+    0.0,
+    30.0895,
+    19.2945
+   ],
+   "size": [
+    25.6501,
+    32.6211,
+    32.751
+   ],
+   "tex": "trim",
+   "tris": 3608,
+   "query": false,
    "material": "Metal"
   },
   {
@@ -106,8 +164,9 @@
     18.6452
    ],
    "tex": "turrets",
-   "tris": 504,
-   "material": "Metal"
+   "tris": 762,
+   "material": "Metal",
+   "hitbox": true
   },
   {
    "name": "CannonBarrel",
@@ -123,8 +182,9 @@
     29.9
    ],
    "tex": "turrets",
-   "tris": 648,
-   "material": "Metal"
+   "tris": 910,
+   "material": "Metal",
+   "hitbox": true
   },
   {
    "name": "CannonGlow",
@@ -152,6 +212,24 @@
    "shadow": false
   },
   {
+   "name": "CannonKit",
+   "path": "MainCannon",
+   "center": [
+    0.0,
+    26.175,
+    -14.192
+   ],
+   "size": [
+    14.64,
+    11.05,
+    18.716
+   ],
+   "tex": "trim",
+   "tris": 1700,
+   "query": false,
+   "material": "Metal"
+  },
+  {
    "name": "TurretLeftBody",
    "path": "TurretLeft",
    "center": [
@@ -165,7 +243,26 @@
     16.6
    ],
    "tex": "turrets",
-   "tris": 634,
+   "tris": 542,
+   "material": "Metal",
+   "hitbox": true
+  },
+  {
+   "name": "TurretLeftKit",
+   "path": "TurretLeft",
+   "center": [
+    -14.772,
+    22.7,
+    -19.4695
+   ],
+   "size": [
+    3.784,
+    4.6,
+    3.579
+   ],
+   "tex": "trim",
+   "tris": 192,
+   "query": false,
    "material": "Metal"
   },
   {
@@ -182,7 +279,26 @@
     16.6
    ],
    "tex": "turrets",
-   "tris": 634,
+   "tris": 542,
+   "material": "Metal",
+   "hitbox": true
+  },
+  {
+   "name": "TurretRightKit",
+   "path": "TurretRight",
+   "center": [
+    14.772,
+    22.7,
+    -19.4695
+   ],
+   "size": [
+    3.784,
+    4.6,
+    3.579
+   ],
+   "tex": "trim",
+   "tris": 192,
+   "query": false,
    "material": "Metal"
   },
   {
@@ -199,14 +315,15 @@
     6.8
    ],
    "tex": null,
-   "tris": 80,
+   "tris": 82,
    "query": true,
    "neon": [
     1.0,
     0.33,
     0.12
    ],
-   "material": "Neon"
+   "material": "Neon",
+   "hitbox": true
   },
   {
    "name": "CoreArmor",
@@ -221,23 +338,100 @@
     7.2,
     13.8
    ],
-   "tex": "armor",
-   "tris": 682,
+   "tex": "turrets",
+   "tris": 820,
    "query": true,
-   "material": "Metal"
+   "material": "Metal",
+   "hitbox": true
+  },
+  {
+   "name": "TurretLeftSocket",
+   "path": "",
+   "center": [
+    -15.2,
+    17.5737,
+    -20.0
+   ],
+   "size": [
+    8.1,
+    2.3031,
+    8.1
+   ],
+   "tex": "turrets",
+   "tris": 816,
+   "query": false,
+   "material": "Metal",
+   "transparency": 1
+  },
+  {
+   "name": "TurretRightSocket",
+   "path": "",
+   "center": [
+    15.2149,
+    17.6659,
+    -20.0
+   ],
+   "size": [
+    8.1298,
+    2.502,
+    8.1
+   ],
+   "tex": "turrets",
+   "tris": 816,
+   "query": false,
+   "material": "Metal",
+   "transparency": 1
+  },
+  {
+   "name": "MainCannonSocket",
+   "path": "",
+   "center": [
+    0.0,
+    20.387,
+    -12.0
+   ],
+   "size": [
+    14.9,
+    2.9943,
+    14.9
+   ],
+   "tex": "turrets",
+   "tris": 936,
+   "query": false,
+   "material": "Metal",
+   "transparency": 1
+  },
+  {
+   "name": "CoreArmorSocket",
+   "path": "",
+   "center": [
+    0.0,
+    26.2001,
+    20.9751
+   ],
+   "size": [
+    12.8,
+    2.7295,
+    12.8497
+   ],
+   "tex": "turrets",
+   "tris": 888,
+   "query": false,
+   "material": "Metal",
+   "transparency": 1
   },
   {
    "name": "Beacons",
    "path": "",
    "center": [
     0.0,
-    33.9,
-    3.0
+    32.8,
+    14.7
    ],
    "size": [
-    21.256,
-    25.5,
-    66.8559
+    39.4559,
+    28.5,
+    40.6559
    ],
    "tex": null,
    "tris": 384,
@@ -252,6 +446,34 @@
   }
  ],
  "attachments": [
+  {
+   "name": "Headlight",
+   "part": "Root",
+   "pos": [
+    -18.3,
+    13.75,
+    -40.0
+   ],
+   "axis": [
+    0.0,
+    -0.1191,
+    -0.9929
+   ]
+  },
+  {
+   "name": "Headlight",
+   "part": "Root",
+   "pos": [
+    18.3,
+    13.75,
+    -40.0
+   ],
+   "axis": [
+    0.0,
+    -0.1191,
+    -0.9929
+   ]
+  },
   {
    "name": "Muzzle",
    "part": "CannonBarrel",
@@ -303,11 +525,11 @@
    "metal": "SiegeCrawler_hull_metal.png",
    "normal": "SiegeCrawler_hull_normal.png"
   },
-  "tracks": {
-   "color": "SiegeCrawler_tracks_color.png",
-   "rough": "SiegeCrawler_tracks_rough.png",
-   "metal": "SiegeCrawler_tracks_metal.png",
-   "normal": "SiegeCrawler_tracks_normal.png"
+  "armour": {
+   "color": "SiegeCrawler_armour_color.png",
+   "rough": "SiegeCrawler_armour_rough.png",
+   "metal": "SiegeCrawler_armour_metal.png",
+   "normal": "SiegeCrawler_armour_normal.png"
   },
   "deck": {
    "color": "SiegeCrawler_deck_color.png",
@@ -320,19 +542,27 @@
    "rough": "SiegeCrawler_turrets_rough.png",
    "metal": "SiegeCrawler_turrets_metal.png",
    "normal": "SiegeCrawler_turrets_normal.png"
-  },
-  "armor": {
-   "color": "SiegeCrawler_armor_color.png",
-   "rough": "SiegeCrawler_armor_rough.png",
-   "metal": "SiegeCrawler_armor_metal.png",
-   "normal": "SiegeCrawler_armor_normal.png"
   }
+ },
+ "texel_density": {
+  "hull": 12.4,
+  "armour": 16.5,
+  "trim": 30.4,
+  "deck": 18.0,
+  "turrets": 15.1
  },
  "previews": [
   "assets/previews/SiegeCrawler.png",
   "assets/previews/SiegeCrawler_rear.png",
-  "assets/previews/SiegeCrawler_side.png"
+  "assets/previews/SiegeCrawler_side.png",
+  "assets/previews/SiegeCrawler_close_front.png",
+  "assets/previews/SiegeCrawler_cam_player.png",
+  "assets/previews/SiegeCrawler_cam_mid.png",
+  "assets/previews/SiegeCrawler_sockets.png"
  ],
- "triangles": 18854,
- "meta": {}
+ "triangles": 32406,
+ "meta": {},
+ "shared_textures": {
+  "trim": "TrimEnemy"
+ }
 }

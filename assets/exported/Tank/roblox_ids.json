@@ -2,13 +2,15 @@
  "hashes": {
   "glb": "da3f88b9274c6f25",
   "hull/color": "22c5c4159b15358b",
-  "hull/metal": "cae79a02d755e6fe",
+  "hull/metal": "f60f270b19f6c540",
   "hull/normal": "30dbeb2353814d85",
   "hull/rough": "ea4b04e6e93810d9",
   "turret/color": "5ed278e9ff731452",
-  "turret/metal": "746b3d279ee84281",
+  "turret/metal": "6e8073c76e72bd33",
   "turret/normal": "93e5e2a126dac9f5",
-  "turret/rough": "4ef62c083db6e82b"
+  "turret/rough": "4ef62c083db6e82b",
+  "wreck/hull": "83a41218424fc0e9",
+  "wreck/turret": "bfd7bd08d88f8aae"
  },
  "meshes": {
   "Barrel": "rbxassetid://77471173430923",
@@ -24,15 +26,19 @@
  "textures": {
   "hull": {
    "color": "rbxassetid://122440170865556",
-   "metal": "rbxassetid://87737019843596",
+   "metal": "rbxassetid://76332743241151",
    "normal": "rbxassetid://133440878353399",
    "rough": "rbxassetid://86592420814889"
   },
   "turret": {
    "color": "rbxassetid://76528821677765",
-   "metal": "rbxassetid://119714753041699",
+   "metal": "rbxassetid://86164981525829",
    "normal": "rbxassetid://124038358332583",
    "rough": "rbxassetid://123462964481108"
   }
+ },
+ "wreck": {
+  "hull": "rbxassetid://138557836960268",
+  "turret": "rbxassetid://111262202585055"
  }
 }

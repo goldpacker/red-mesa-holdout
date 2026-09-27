@@ -406,7 +406,7 @@ def bake_groups(asset, out_dir, samples):
         if opts.get("high"):
             log(f"bake group {group} from high poly ({len(objs)} parts, {size}px)")
             _unwrap(objs, margin=6.0 / size, down=opts.get("down"), back=opts.get("back"))
-            imgs, files = _bake_high(asset, group, objs, size, out_dir, channels, opts["high"])
+            imgs, files = _bake_high(asset, group, objs, size, out_dir, channels, opts["high"], opts.get("metal_px"))
             textures[group] = {"files": files, "images": imgs, "objects": objs, "density": texel_density(objs, size, opts.get("down") is not None, opts.get("back") is not None)}
             continue
         if opts.get("sheet"):
@@ -423,6 +423,7 @@ def bake_groups(asset, out_dir, samples):
             t0 = time.time()
             img = _new_image(f"{asset.name}_{group}_{ch}", size, ch)
             _bake_channel(objs, mats, img, ch)
+            _shrink_metal(img, ch, opts.get("metal_px"), size)
             path = out_dir / f"{asset.name}_{group}_{ch}.png"
             _save_png(img, path, grayscale=ch in ("rough", "metal"))
             imgs[ch] = img
@@ -435,7 +436,14 @@ def bake_groups(asset, out_dir, samples):
 _RAY_VIS = ("visible_camera", "visible_diffuse", "visible_glossy", "visible_transmission", "visible_volume_scatter", "visible_shadow")
 
 
-def _bake_high(asset, group, objs, size, out_dir, channels, opts):
+def _shrink_metal(img, channel, px, size):
+    """Opt-in (HS-5, texture_group(metal_px=...)): store the metalness map
+    at a lower resolution than the other channels."""
+    if channel == "metal" and px and px < size:
+        img.scale(px, px)
+
+
+def _bake_high(asset, group, objs, size, out_dir, channels, opts, metal_px=None):
     """Selected-to-active bake of a group from its parts' high-poly copies
     (Part.add rounds every hard edge; Part.detail adds bolts, welds, slats).
     The game meshes are hidden from rays meanwhile, so AO grime and edge
@@ -461,6 +469,7 @@ def _bake_high(asset, group, objs, size, out_dir, channels, opts):
             t0 = time.time()
             img = _new_image(f"{asset.name}_{group}_{ch}", size, ch)
             _bake_channel([target], [tm], img, ch, sources=highs, cage=opts.get("cage", 0.1), ray=opts.get("ray", 0.3))
+            _shrink_metal(img, ch, metal_px, size)
             path = out_dir / f"{asset.name}_{group}_{ch}.png"
             _save_png(img, path, grayscale=ch in ("rough", "metal"))
             imgs[ch] = img
@@ -498,6 +507,11 @@ def render_previews(asset, views, samples=96):
     scene.render.image_settings.compression = 100
     objs = [o for o in asset.objects if not o.get("rmh_invisible")]
     lo, hi = _bounds(objs)
+    if getattr(asset, "preview_hide_transparent", False):
+        # Opt-in (HS-5): what Roblox shows - no parts that are invisible in the file.
+        for o in objs:
+            if o.get("rmh_hidden_preview") or (o.get("rmh_transparency") or 0) >= 0.99:
+                o.hide_render = True
     center = (lo + hi) / 2
     radius = (hi - lo).length / 2
 
@@ -575,11 +589,16 @@ def _render_camera_view(asset, scene, cam, view, base_res):
     hidden = [o for o in asset.objects if o.name in view.get("hide", ()) and not o.hide_render]
     for o in hidden:
         o.hide_render = True
+    shown = [o for o in asset.objects if o.name in view.get("show", ()) and o.hide_render]
+    for o in shown:
+        o.hide_render = False
     path = ROOT / "assets" / "previews" / f"{asset.name}{view['label']}.png"
     scene.render.filepath = str(path)
     bpy.ops.render.render(write_still=True)
     for o in hidden:
         o.hide_render = False
+    for o in shown:
+        o.hide_render = True
     data.sensor_fit, data.lens = old
     scene.render.resolution_x, scene.render.resolution_y = base_res
     log(f"preview {path.name}")

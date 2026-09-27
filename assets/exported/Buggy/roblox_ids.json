@@ -1,10 +1,11 @@
 {
  "hashes": {
   "body/color": "6399695ae6540b8d",
-  "body/metal": "85d90eca3648534d",
+  "body/metal": "7037931c8189c648",
   "body/normal": "0e34e5a38a7d914e",
   "body/rough": "b58cb199a646ce23",
-  "glb": "eaeb958e01a7ac26"
+  "glb": "eaeb958e01a7ac26",
+  "wreck/body": "b389d6c218094268"
  },
  "meshes": {
   "BuggyKit": "rbxassetid://89983438691425",
@@ -19,9 +20,12 @@
  "textures": {
   "body": {
    "color": "rbxassetid://111403413344216",
-   "metal": "rbxassetid://100890382068884",
+   "metal": "rbxassetid://79042740907121",
    "normal": "rbxassetid://71423800734488",
    "rough": "rbxassetid://136332271632366"
   }
+ },
+ "wreck": {
+  "body": "rbxassetid://70674450308387"
  }
 }

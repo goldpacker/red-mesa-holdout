@@ -3,7 +3,8 @@
   "body/color": "d7174283c1de5934",
   "body/normal": "0d44dde6d617534c",
   "body/rough": "bbb2438c48cc4593",
-  "glb": "8a7a07175ef1d35d"
+  "glb": "8a7a07175ef1d35d",
+  "wreck/body": "79129273529ca976"
  },
  "meshes": {
   "HeliKit": "rbxassetid://92167336761309",
@@ -18,5 +19,8 @@
    "normal": "rbxassetid://136853546218789",
    "rough": "rbxassetid://114971326779261"
   }
+ },
+ "wreck": {
+  "body": "rbxassetid://76265841408450"
  }
 }

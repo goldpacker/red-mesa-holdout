@@ -294,21 +294,46 @@ local function wrecksFolder(): Instance
 	return Workspace:FindFirstChild("Wrecks") or Workspace
 end
 
--- Burns the paint off a model: darkens every part, kills its lights and
--- makes it ignore weapon raycasts.
+-- Burns the paint off a model: swaps in its burnt-wreck look, kills its
+-- lights and makes it ignore weapon raycasts.
 local CHARRED = Color3.fromRGB(22, 20, 19)
+-- HS-5: tint for a textured part with no wreck set of its own (a stale or
+-- missing Wreck folder): the live maps, burnt dark brown.
+local BURNT = Color3.fromRGB(88, 70, 58)
+
+-- The burnt SurfaceAppearance an imported part carries in its `Wreck`
+-- folder (assets/roblox/*.rbxmx, tools/assets/models/wreck_maps.py: a
+-- charred, rusted, blistered colour map on the part's own normal and
+-- roughness maps). Returns true when it was swapped in.
+local function swapWreck(part: BasePart, live: SurfaceAppearance, tint: Color3): boolean
+	local folder = part:FindFirstChild("Wreck")
+	local wreck = folder and folder:FindFirstChildWhichIsA("SurfaceAppearance")
+	if not wreck then
+		return false
+	end
+	live:Destroy()
+	wreck.Color = tint
+	wreck.Parent = part
+	folder:Destroy()
+	part:SetAttribute("Burnt", true)
+	return true
+end
 
 function Kit.char(model: Instance)
+	-- One slight tint per wreck, so parts sharing an atlas stay seamless.
+	local k = math.random()
+	local tint = Color3.new(1, 1, 1):Lerp(Color3.fromRGB(214, 200, 188), k)
 	for _, d in model:GetDescendants() do
 		if d:IsA("BasePart") then
 			d.CanQuery = false
 			local textured = d:FindFirstChildWhichIsA("SurfaceAppearance")
-			if textured then
-				-- An imported mesh's Color is untextured white: burn it outright.
-				textured:Destroy()
-				d.Color = CHARRED:Lerp(Color3.fromRGB(60, 52, 46), math.random() * 0.4)
-				d.Material = Enum.Material.Slate
-			else
+			if textured and not d:GetAttribute("Burnt") then
+				d:SetAttribute("Burnt", true)
+				if not swapWreck(d, textured, tint) then
+					-- No wreck set: burn the live maps with a tint (keeps their detail).
+					textured.Color = BURNT:Lerp(Color3.fromRGB(70, 58, 50), k)
+				end
+			elseif not textured then
 				if d.Material == Enum.Material.Neon or d.Material == Enum.Material.Glass then
 					d.Material = Enum.Material.Slate
 				end

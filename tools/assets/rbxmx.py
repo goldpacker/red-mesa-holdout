@@ -157,6 +157,19 @@ def build(manifest, ids):
                         # earlier build had (absent properties are left as-is).
                         sa.props.append(f'<Content name="{prop_name}"><null></null></Content>')
                 node.children.append(sa)
+                wreck = ids.get("wreck", {}).get(p.get("tex") or "")
+                if wreck:
+                    # HS-5: the burnt look Kit.char swaps in on death (own
+                    # normal/roughness maps, a 512² wreck colour map).
+                    folder = Node("Folder", "Wreck", ref())
+                    wsa = Node("SurfaceAppearance", "SurfaceAppearance", ref())
+                    wsa.props.append(prop("Content", "ColorMap", wreck))
+                    for key, prop_name in (("normal", "NormalMap"), ("rough", "RoughnessMap")):
+                        if maps.get(key):
+                            wsa.props.append(prop("Content", prop_name, maps[key]))
+                    wsa.props.append('<Content name="MetalnessMap"><null></null></Content>')
+                    folder.children.append(wsa)
+                    node.children.append(folder)
         if p.get("pivot_offset") is not None:
             node.props.append(cframe_xml("CoordinateFrame", "PivotOffset", p["pivot_offset"]))
         model_for(p["path"]).children.append(node)

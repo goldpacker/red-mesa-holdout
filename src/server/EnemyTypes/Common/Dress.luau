@@ -121,6 +121,17 @@ function Dress.crawler(model: Model)
 		return
 	end
 	Dress.ground(model)
+	-- HS-5 asset: two Headlight attachments in big fender lamp clusters, so
+	-- the round lamps Dress.ground makes are scaled up to the crawler.
+	for _, d in model:GetChildren() do
+		if d:IsA("BasePart") and d.Name == "Headlight" then
+			d.Size = Vector3.new(1.25, 1.25, 0.3)
+			local spot = d:FindFirstChildWhichIsA("SpotLight")
+			if spot then
+				spot.Range = 110
+			end
+		end
+	end
 	local glow = model:FindFirstChild("CannonGlow", true)
 	if glow and glow:IsA("BasePart") and not glow:FindFirstChildWhichIsA("PointLight") then
 		glow.Transparency = 1

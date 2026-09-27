@@ -430,8 +430,8 @@ def turret_kit(a, T):
 def build(**kw):
     a = Asset("Tank", pivot=(0, 0, 0), tex_size=1024)
     a.fix_inside_out = True
-    a.texture_group("hull", 1024, high={"hp": 0.06, "cage": 0.12, "ray": 0.3}, down=0.3, back=0.6)
-    a.texture_group("turret", 1024, high={"hp": 0.05, "cage": 0.12, "ray": 0.3}, down=0.3)
+    a.texture_group("hull", 1024, high={"hp": 0.06, "cage": 0.12, "ray": 0.3}, down=0.3, back=0.6, metal_px=512)
+    a.texture_group("turret", 1024, high={"hp": 0.05, "cage": 0.12, "ray": 0.3}, down=0.3, metal_px=512)
     T = trim.use(a, "trim", "TrimEnemy")
     a.pivot("Turret", RING)
     materials(a)

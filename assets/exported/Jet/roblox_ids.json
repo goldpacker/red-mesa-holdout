@@ -3,7 +3,8 @@
   "body/color": "8afbe7e2a82bf6db",
   "body/normal": "09db45341a1a7de8",
   "body/rough": "640dba20a482f220",
-  "glb": "819175e1bb34de99"
+  "glb": "819175e1bb34de99",
+  "wreck/body": "fd4342f22d4fcb73"
  },
  "meshes": {
   "Bombs": "rbxassetid://135169115451199",
@@ -17,5 +18,8 @@
    "normal": "rbxassetid://98999951935495",
    "rough": "rbxassetid://103728300042224"
   }
+ },
+ "wreck": {
+  "body": "rbxassetid://116702158175982"
  }
 }

@@ -276,6 +276,11 @@ class Asset:
         # Opt-in (HS-3): turn inside-out closed shells outward at build time
         # (geo.side_prism returns them inside-out; Roblox culls back faces).
         self.fix_inside_out = False
+        # Opt-in (HS-5): previews leave out parts that are invisible in the
+        # file (Transparency >= 0.99, e.g. hidden sockets, glow spheres) and
+        # parts flagged hidden_preview=True, unless a camera view lists them
+        # in "show".
+        self.preview_hide_transparent = False
 
     # --- description ----------------------------------------------------
     def part(self, name, path="", tex="main", **flags):
@@ -289,17 +294,22 @@ class Asset:
         self.specs[name] = base
         return name
 
-    def texture_group(self, name, size, sheet=False, metal=True, high=None, down=None, back=None):
+    def texture_group(self, name, size, sheet=False, metal=True, high=None, down=None, back=None, metal_px=None):
         """Extra atlas. `sheet=True`: holds templates only (see module doc).
         `metal=False`: skip the metalness map (non-metal groups).
         Opt-in (HS-3): `high={"hp": 0.05, "cage": 0.1, "ray": 0.3}` bakes the
         group from a high-poly copy (see Part.add/detail); `down=0.3` gives
         downward-facing UV islands (hull bellies) that much texel density;
         `back=0.5` the same for islands facing the model's rear (-Y: enemy
-        vehicles drive at the player). Declare groups before adding parts."""
+        vehicles drive at the player). Opt-in (HS-5): `metal_px=512` saves
+        the metalness map at that size (a chip mask needs far fewer pixels
+        than the colour; a 512² map is a quarter of the memory). Declare
+        groups before adding parts."""
         self.tex_size[name] = size
-        if sheet or not metal or high or down or back:
+        if sheet or not metal or high or down or back or metal_px:
             self.group_opts[name] = {"sheet": sheet, "metal": metal}
+            if metal_px:
+                self.group_opts[name]["metal_px"] = metal_px
             if high:
                 self.group_opts[name]["high"] = dict(high) if isinstance(high, dict) else {}
             if down:
