@@ -57,6 +57,21 @@ earlier "never publish / never push" rules:
   after the user's real-client playtest and the maturity questionnaire.
 Listing art and text are in `assets/listing/`.
 
+**Release status (2026-09-27, 10:33):**
+- **GitHub:** https://github.com/goldpacker/red-mesa-holdout. Public, both
+  branches, default `opus-5.5-run-01`.
+- **Roblox:** published **private** as a new experience "Red Mesa Holdout"
+  (Place 81446709679456, Universe 10768349365). Name, description and
+  Computer-only devices are set from Studio. Team Create and Data Sharing
+  are off.
+- **Left for the user on Creator Hub** (Studio no longer edits these):
+  - icon (`assets/listing/icon.png`);
+  - thumbnails (`assets/listing/thumb_1..4_*.png`);
+  - **server size 1** (single-player game);
+  - the maturity questionnaire;
+  - a real-client playtest;
+  - then Public.
+
 ## Known bugs / gaps
 - **No lag compensation on server hitscan** (found 2026-09-26 by the Look
   agent): at ~100 ms latency, MG shots at a moving buggy's centre hit
