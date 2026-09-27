@@ -26,6 +26,14 @@ local Sfx = require(script.Parent.Sfx)
 
 local VehicleFx = {}
 
+-- LOOK-3 hook: EnemyMotion moves the body on its suspension; the buggy's
+-- wheels take the inverse so they stay on the ground (identity when
+-- EnemyMotion is absent or the body is still).
+local motionOk, EnemyMotion = pcall(require, script.Parent.EnemyMotion)
+local function wheelCounter(model: Model, motor: Motor6D): CFrame
+	return if motionOk then EnemyMotion.wheelCounter(model, motor) else CFrame.identity
+end
+
 local PIVOT = Config.TURRET_PIVOT
 local ENGINE_LOOPS = { Tank = "TankEngine", Buggy = "BuggyEngine", Helicopter = "HeliRotor", SiegeCrawler = "TankEngine" }
 local TURRET_RATE = { Tank = 1.1, Buggy = 3.5, SiegeCrawler = 0.5 }
@@ -262,7 +270,7 @@ local function animate(v: Vehicle, dt: number, now: number)
 		for _, w in { "WheelFL", "WheelFR", "WheelRL", "WheelRR" } do
 			local m = v.motors[w]
 			if m then
-				m.Transform = CFrame.Angles(v.spin, 0, 0)
+				m.Transform = wheelCounter(model, m) * CFrame.Angles(v.spin, 0, 0)
 			end
 		end
 	elseif v.kind == "Helicopter" then

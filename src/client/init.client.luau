@@ -126,4 +126,7 @@ WeaponController.on("Overheat", function()
 	AimController.shake(0.2)
 end)
 
+-- LOOK-3: enemy root smoothing and body motion (rendering only).
+require(script.EnemyMotion).start()
+
 print("[RedMesa] client ready")
