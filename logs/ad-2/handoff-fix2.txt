@@ -1,0 +1,52 @@
+AD-2 fix round 2: latency-aware hand-off grace. Studio play session 4 (2026-09-27 02:30,
+wave 4 LateAfternoon, integrity held) with Studio's NetworkSettings.IncomingReplicationLag
+(set from execute_luau; restored to 0 afterwards, checked in Edit).
+
+Grace = clamp(max(2 x GetNetworkPing, 1.5 x observed replication delay) + 0.25, 0.4, 1.5) s.
+The observed delay is the time from landT to the frame this client first sees the load's
+model; it jumps up at once and eases down 20 % per hand-off. Past the grace the body fades
+out over 0.3 s; an enemy arriving later hands off at once, with a small dust puff at its feet.
+Note: GetNetworkPing read 0.003 s under Studio's simulated lag (the lag only delays incoming
+replication), so here the observed-delay term does the work; on a real connection both apply.
+
+Unit test (offline, the real AirdropStyle.luau): python3 tools/qa/airdrop/run_grace_test.py
+-> 12 cases + 5 monotone checks, ALL PASS.
+
+1) IncomingReplicationLag 0.3 s, fresh client (observed delay 0 -> grace 0.4):
+   sorties: 6 Infantry + Tank + 2 Buggies, recorder per frame.
+load 15: body last drawn landT+0.329 | enemy first frame landT+0.347 | both 0 | empty 0 | pos gap 0.36 (dy 0.00)
+load 16: body last drawn landT+0.329 | enemy first frame landT+0.346 | both 0 | empty 0 | pos gap 0.32 (dy 0.00)
+load 17: body last drawn landT+0.329 | enemy first frame landT+0.346 | both 0 | empty 0 | pos gap 0.19 (dy 0.00)
+load 18: body last drawn landT+0.313 | enemy first frame landT+0.330 | both 0 | empty 0 | pos gap 0.16 (dy 0.00)
+load 19: body last drawn landT+0.312 | enemy first frame landT+0.330 | both 0 | empty 0 | pos gap 0.18 (dy 0.00)
+load 20: body last drawn landT+0.329 | enemy first frame landT+0.347 | both 0 | empty 0 | pos gap 0.36 (dy 0.00)
+load 21 (Tank):  body last drawn landT+0.324 | enemy first frame landT+0.342 | both 0 | empty 0 | pos gap 0.37
+load 22 (Buggy): body last drawn landT+0.333 | enemy first frame landT+0.352 | both 0 | empty 0 | pos gap 1.58
+load 23 (Buggy): body last drawn landT+0.334 | enemy first frame landT+0.351 | both 0 | empty 0 | pos gap 1.42
+AirdropFx: Handoffs 16, HandoffsRetired 0, HandoffMaxDelay 0.351 s
+
+2) Lag raised to 0.9 s mid-session (observed ~0.35 -> grace ~0.77):
+   the first load to land after the change (a wave load) retired at 0.767 s and its enemy
+   arrived later (HandoffsRetired 1, HandoffsAfterRetire 1); that arrival stretched the grace
+   to 1.5 s, and the next 6 recorded loads handed off normally:
+load 29: body last drawn landT+0.922 | enemy first frame landT+0.939 | both 0 | empty 0 | pos gap 0.38 (dy 0.00)
+load 30: body last drawn landT+0.921 | enemy first frame landT+0.939 | both 0 | empty 0 | pos gap 0.35 (dy 0.00)
+load 31: body last drawn landT+0.905 | enemy first frame landT+0.923 | both 0 | empty 0 | pos gap 0.19 (dy 0.00)
+load 32: body last drawn landT+0.905 | enemy first frame landT+0.923 | both 0 | empty 0 | pos gap 0.16 (dy 0.00)
+load 33: body last drawn landT+0.921 | enemy first frame landT+0.938 | both 0 | empty 0 | pos gap 0.37 (dy 0.00)
+load 34 (Buggy): body last drawn landT+0.932 | enemy first frame landT+0.950 | both 0 | empty 0 | pos gap 1.59
+
+3) Lag 1.6 s (beyond the 1.5 s ceiling): every load retires at +1.5 s and fades; the enemy
+   arrives mid-fade and takes over at once (+ dust puff):
+load 35: fade started landT+1.519 | body last drawn landT+1.636 | enemy first frame landT+1.654 | both 0 | empty 0 | pos gap 0.32 (dy 0.00)
+load 36: fade started landT+1.519 | body last drawn landT+1.636 | enemy first frame landT+1.652 | both 0 | empty 0 | pos gap 0.19 (dy 0.00)
+load 37: fade started landT+1.518 | body last drawn landT+1.635 | enemy first frame landT+1.653 | both 0 | empty 0 | pos gap 0.36 (dy 0.00)
+load 38 (Tank): fade started landT+1.518 (transparency 0.05 -> 0.33 over 5 frames) | body last drawn landT+1.602 | enemy first frame landT+1.621 | both 0 | empty 0 | pos gap 0.18
+AirdropFx at the end: Handoffs 38, HandoffsRetired 5, HandoffsAfterRetire 5, HandoffGrace 1.500, HandoffMaxDelay 1.653 s
+(Only when replication is slower than grace + 0.3 s fade, i.e. > 1.8 s, would an empty gap
+open; the enemy then appears on the collapsed canopy with a dust puff.)
+
+Clip: qa/beauty/ad-2/seq_lateafternoon_tank-late-arrival_1.6s-lag.jpg (tank at its landing
+spot before and after the take-over; a collapsing canopy crosses this close, low test camera at
++0.96..+1.36 s, hiding the moment itself; the recorder numbers above cover it).
+Console: world built / server ready / client ready only.

@@ -11,9 +11,12 @@
 -- both stand at landPos, same facing). A vehicle killed on its landing
 -- tick reaches the client already in Workspace.Wrecks (its wreck takes
 -- over the same way); a model the client never sees at all (added and
--- removed within one replication step) is covered by a short grace after
--- landT (AirdropStyle.HANDOFF_GRACE), after which the body is retired as
--- if handed off. Canopies and pallets stay behind a few seconds, capped.
+-- removed within one replication step) is covered by a grace after landT
+-- that follows this client's latency (AirdropStyle.handoffGrace: ping and
+-- the replication delay observed on earlier hand-offs), after which the
+-- body fades out. If the enemy does turn up after that (a very slow
+-- connection), it appears on the collapsed canopy with a puff of dust.
+-- Canopies and pallets stay behind a few seconds, capped.
 --
 -- Airborne loads are invincible because the server has nothing to hit. A
 -- machine-gun round that meets one here shows "no effect" (AirdropFx:
@@ -23,6 +26,7 @@
 -- CanQuery false except during that one raycast.
 
 local CollectionService = game:GetService("CollectionService")
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
@@ -58,6 +62,7 @@ type LoadState = {
 	state: string,
 	landedAt: number,
 	handed: boolean,
+	retiredAt: number?, -- server time the body started fading with no enemy seen
 }
 
 local sorties: { [number]: SortieState } = {}
@@ -66,6 +71,32 @@ local sorties: { [number]: SortieState } = {}
 -- the model leaves again, so an add + remove between two frames is still
 -- seen.
 local landed: { [number]: Model } = {}
+-- DropLoadId -> server time this client first saw that model.
+local seenAt: { [number]: number } = {}
+
+-- This client's latency, for the hand-off grace.
+local net = { ping = 0, pingAt = -math.huge, seen = 0 }
+
+local function handoffGrace(): number
+	local now = os.clock()
+	if now - net.pingAt > Style.Handoff.PING_EVERY then
+		net.pingAt = now
+		local player = Players.LocalPlayer
+		local ok, ping = pcall(function()
+			return player:GetNetworkPing()
+		end)
+		if ok and typeof(ping) == "number" then
+			net.ping = ping
+		end
+	end
+	return Style.handoffGrace(net.ping, net.seen)
+end
+
+-- Observed replication delay: jumps up at once, eases down slowly.
+local function observeDelay(delay: number)
+	local d = math.max(delay, 0)
+	net.seen = if d > net.seen then d else net.seen + (d - net.seen) * 0.2
+end
 local fxFolder: Folder? = nil
 local sawCanopy = false
 
@@ -145,7 +176,7 @@ local function onSortie(p: any)
 		entered = false,
 	}
 	for _, l in clean do
-		table.insert(s.loads, { data = l, sortie = s, visual = nil, mod = nil, state = "Stowed", landedAt = 0, handed = false })
+		table.insert(s.loads, { data = l, sortie = s, visual = nil, mod = nil, state = "Stowed", landedAt = 0, handed = false, retiredAt = nil })
 	end
 	sorties[data.id] = s
 end
@@ -229,35 +260,58 @@ local function stepLoad(ls: LoadState, t: number)
 		end
 	end
 	-- Landed: hide the body the frame the real enemy (or its wreck)
-	-- appears, or once the grace after landT has passed with nothing seen;
-	-- canopies/pallets linger and fade either way.
+	-- appears. With nothing seen once the latency-aware grace has passed,
+	-- fade the body out; an enemy that still turns up after that appears
+	-- on the collapsed canopy with a puff of dust. Canopies/pallets linger
+	-- and fade either way.
 	local v = ls.visual
 	if not ls.handed then
 		local model = landed[l.loadId]
-		if model or t - l.landT > Style.HANDOFF_GRACE then
+		if model then
 			ls.handed = true
-			if model then
-				recordHandOff(ls, model)
-			else
-				bump("HandoffsRetired")
+			recordHandOff(ls, model)
+			-- Late arrivals count too: they are what should stretch the grace.
+			local seen = seenAt[l.loadId]
+			if seen then
+				observeDelay(seen - l.landT)
 			end
 			if v then
 				ls.mod.handOff(v)
 			end
+			if ls.retiredAt then
+				-- Late arrival (a slow connection): bridge the pop-in.
+				bump("HandoffsAfterRetire")
+				local root = model.PrimaryPart
+				local at = if root then Vector3.new(root.Position.X, l.landPos.Y, root.Position.Z) else l.landPos
+				Fx.touchdown(at, l.kind)
+			end
+		elseif not ls.retiredAt then
+			local grace = handoffGrace()
+			if t - l.landT > grace then
+				ls.retiredAt = t
+				bump("HandoffsRetired")
+				folder():SetAttribute("HandoffGrace", grace)
+				if v then
+					ls.mod.retire(v, t)
+				end
+			end
 		end
 	end
+	local released = ls.handed or ls.retiredAt ~= nil
 	if not v then
-		if ls.handed then
+		if released then
 			ls.state = "Done"
 			landed[l.loadId] = nil
+			seenAt[l.loadId] = nil
 		end
 		return
 	end
-	if ls.mod.stepGround(v, t) and ls.handed then
+	if ls.mod.stepGround(v, t) and released then
 		ls.mod.destroy(v)
 		ls.visual = nil
 		ls.state = "Done"
 		landed[l.loadId] = nil
+		seenAt[l.loadId] = nil
 	end
 end
 
@@ -392,6 +446,7 @@ local function clear(everything: boolean)
 	end
 	if everything then
 		table.clear(landed)
+		table.clear(seenAt)
 		Hud.clear()
 	end
 end
@@ -497,6 +552,7 @@ local function watchFolder(name: string)
 		local id = child:GetAttribute("DropLoadId")
 		if typeof(id) == "number" and child:IsA("Model") and not landed[id] then
 			landed[id] = child
+			seenAt[id] = Workspace:GetServerTimeNow()
 		end
 	end
 	for _, child in f:GetChildren() do

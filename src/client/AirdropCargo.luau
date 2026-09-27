@@ -63,6 +63,8 @@ export type Load = {
 	thumped: boolean,
 	touched: boolean,
 	handed: boolean,
+	retireAt: number?, -- no enemy seen in time: fading out since then
+	fading: { BasePart },
 	final: CFrame?, -- the server's landed frame (vehicle pivot)
 	palletFinal: CFrame?,
 	groundedAt: number?,
@@ -254,6 +256,8 @@ function Cargo.new(parent: Instance, sortie: AirdropPath.Sortie, l: AirdropPath.
 		thumped = false,
 		touched = false,
 		handed = false,
+		retireAt = nil,
+		fading = {},
 		final = nil,
 		palletFinal = nil,
 		groundedAt = nil,
@@ -429,9 +433,34 @@ function Cargo.handOff(ld: Load)
 	end
 end
 
+-- No replicated enemy in time (client/Airdrop's latency-aware grace): the
+-- vehicle fades out over Style.Handoff.RETIRE_FADE instead of vanishing.
+function Cargo.retire(ld: Load, t: number)
+	if ld.handed or ld.retireAt then
+		return
+	end
+	ld.retireAt = t
+	for _, p in ld.vehicle do
+		if p.Transparency < 1 then
+			table.insert(ld.fading, p)
+		end
+	end
+end
+
 -- After touchdown: canopies lie, linger and fade; the pallet lingers,
 -- then sinks and fades. True when everything is gone.
 function Cargo.stepGround(ld: Load, t: number): boolean
+	local retireAt = ld.retireAt
+	if retireAt and not ld.handed then
+		local k = (t - retireAt) / Style.Handoff.RETIRE_FADE
+		if k >= 1 then
+			Cargo.handOff(ld)
+		else
+			for _, p in ld.fading do
+				p.Transparency = math.clamp(k, 0, 1)
+			end
+		end
+	end
 	local G = Style.Ground
 	local done = ld.handed
 	for _, c in ld.chutes do

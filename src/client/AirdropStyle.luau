@@ -106,13 +106,33 @@ Style.Ground = {
 }
 
 -- Hand-off safety net: if no model with the load's DropLoadId (in Enemies
--- or Wrecks) has reached this client this long after landT, the body is
--- retired anyway (canopy/pallet behave as after a normal hand-off). The
--- replicated enemy's first frame came 17-53 ms after landT in every
--- measured Studio hand-off (logs/ad-2); this leaves room for a real
--- player's network latency while keeping a never-seen enemy's stand-in
--- under half a second.
-Style.HANDOFF_GRACE = 0.4
+-- or Wrecks) has reached this client `handoffGrace` seconds after landT,
+-- the body is retired anyway (it fades out over RETIRE_FADE; canopy and
+-- pallet behave as after a normal hand-off). The grace follows this
+-- client's latency: twice the network ping (GetNetworkPing, a round trip)
+-- or 1.5x the replication delay it has actually observed on recent
+-- hand-offs (whichever is larger), plus a margin, kept within MIN..MAX.
+-- In Studio every measured hand-off replicated 17-53 ms after landT, so
+-- the grace sits at MIN there; a slow connection stretches it to MAX.
+Style.Handoff = {
+	MIN = 0.4,
+	MAX = 1.5,
+	MARGIN = 0.25,
+	PING_K = 2,
+	SEEN_K = 1.5,
+	RETIRE_FADE = 0.3, -- s the retired body takes to fade out
+	PING_EVERY = 2, -- s between GetNetworkPing samples
+}
+
+-- Seconds after landT before a body with no replicated enemy is retired.
+-- `ping` = LocalPlayer:GetNetworkPing() (s, round trip), `seen` = recent
+-- observed replication delay after landT (s). Pure: unit-tested offline.
+function Style.handoffGrace(ping: number?, seen: number?): number
+	local H = Style.Handoff
+	local p = if typeof(ping) == "number" and ping == ping and ping > 0 then ping else 0
+	local d = if typeof(seen) == "number" and seen == seen and seen > 0 then seen else 0
+	return math.clamp(math.max(H.PING_K * p, H.SEEN_K * d) + H.MARGIN, H.MIN, H.MAX)
+end
 
 -- Hard caps (waves 8-10 can have many loads airborne at once).
 Style.Caps = {

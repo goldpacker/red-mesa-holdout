@@ -46,6 +46,8 @@ export type Load = {
 	opened: boolean,
 	touched: boolean,
 	handed: boolean,
+	retireAt: number?, -- no enemy seen in time: fading out since then
+	fading: { BasePart },
 	centre: Vector3,
 	radius: number,
 }
@@ -97,6 +99,8 @@ function Trooper.new(parent: Instance, sortie: AirdropPath.Sortie, l: AirdropPat
 		opened = false,
 		touched = false,
 		handed = false,
+		retireAt = nil,
+		fading = {},
 		centre = lip,
 		radius = 26,
 	}
@@ -241,8 +245,33 @@ function Trooper.handOff(ld: Load)
 	Body.hide(ld.body)
 end
 
+-- No replicated enemy in time (client/Airdrop's latency-aware grace): the
+-- body fades out over Style.Handoff.RETIRE_FADE instead of vanishing.
+function Trooper.retire(ld: Load, t: number)
+	if ld.handed or ld.retireAt then
+		return
+	end
+	ld.retireAt = t
+	for _, p in ld.body.parts do
+		if p.Transparency < 1 then
+			table.insert(ld.fading, p)
+		end
+	end
+end
+
 -- After touchdown: returns true when everything has faded and can go.
 function Trooper.stepGround(ld: Load, t: number): boolean
+	local retireAt = ld.retireAt
+	if retireAt and not ld.handed then
+		local k = (t - retireAt) / Style.Handoff.RETIRE_FADE
+		if k >= 1 then
+			Trooper.handOff(ld)
+		else
+			for _, p in ld.fading do
+				p.Transparency = math.clamp(k, 0, 1)
+			end
+		end
+	end
 	local c = ld.canopy
 	if not c then
 		return ld.handed
