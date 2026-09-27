@@ -144,7 +144,7 @@ Config.Lanes = {
 --     first stick descends; groups then touch down every ~6-10 s and the
 --     largest group comes last (the peak);
 --   * a perfect player never waits more than ~10 s with loads in the air
---     and nothing to shoot; waves last ~60-100 s for the perfect-aim bot,
+--     and nothing to shoot; waves 1-9 last ~60-107 s for the perfect-aim bot,
 --     a full run ~16 min;
 --   * buggies land >= 10 s after a tank touches down, never just before
 --     one (waves 5, 7 and 9): the human-like bot's losses came from buggies

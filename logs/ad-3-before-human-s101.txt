@@ -1,0 +1,26 @@
+AD-3 baseline (table as left by AD-1 fix round 1), human-like bot = preset QA_Human (range 700 in
+waves 1-9, 1000 in wave 10; aim error 0.6 deg; reaction 0.7 s; MG bursts), airdrop seed 101, retry
+cap 3. Fresh session, StartGame from Title. Stopped during wave 9 attempt 3 (lead: release Studio
+between runs). [AD-QA] = server watcher, [QA] = bot damage audit.
+[AD-QA] PACE wave 1 attempt 1 Intermission: 85.9s | integrity 100 -> 100 (min 100) | entry 3.1 chutes 15.9 land 29.6 engage 29.7 | idle-in-flight 5.3s @38 | beat gap 10.8s @3 | sorties 5 | land->kill median 6.0s p90 15.2s (n 21) | idle>8s: 0-30
+[QA] DAMAGE wave 1 Intermission: none
+[AD-QA] PACE wave 2 attempt 1 Intermission: 93.8s | integrity 100 -> 97 (min 97) | entry 2.1 chutes 14.4 land 30.5 engage 30.6 | idle-in-flight 0.0s @0 | beat gap 11.9s @2 | sorties 8 | land->kill median 8.1s p90 15.7s (n 25) | idle>8s: 0-31
+[QA] DAMAGE wave 2 Intermission: buggy 3.3
+[AD-QA] PACE wave 3 attempt 1 Intermission: 89.0s | integrity 100 -> 99 (min 99) | entry 3.2 chutes 15.7 land 29.5 engage 29.6 | idle-in-flight 4.6s @74 | beat gap 6.5s @9 | sorties 6 | land->kill median 5.3s p90 11.3s (n 21) | idle>8s: 0-30
+[QA] DAMAGE wave 3 Intermission: rifle 1.0
+[AD-QA] PACE wave 4 attempt 1 Intermission: 98.3s | integrity 100 -> 98 (min 97) | entry 0.9 chutes 15.1 land 28.2 engage 12.2 | idle-in-flight 2.9s @88 | beat gap 11.1s @1 | sorties 4 | land->kill median 6.7s p90 16.3s (n 19) | idle>8s: 0-12
+[QA] DAMAGE wave 4 Intermission: rifle 5.0
+[AD-QA] PACE wave 5 attempt 1 Intermission: 108.3s | integrity 100 -> 97 (min 92) | entry 0.9 chutes 14.0 land 27.6 engage 27.7 | idle-in-flight 0.0s @0 | beat gap 7.6s @6 | sorties 10 | land->kill median 9.3s p90 22.0s (n 32) | idle>8s: 0-28
+[QA] DAMAGE wave 5 Intermission: buggy 2.2, rifle 9.0
+[AD-QA] PACE wave 6 attempt 1 Intermission: 112.9s | integrity 100 -> 64 (min 64) | entry 1.3 chutes 14.9 land 28.0 engage 10.1 | idle-in-flight 1.7s @82 | beat gap 8.7s @1 | sorties 3 | land->kill median 13.1s p90 20.3s (n 17) | idle>8s: 0-10
+[QA] DAMAGE wave 6 Intermission: bomb 36.0
+[AD-QA] PACE wave 7 attempt 1 Intermission: 132.6s | integrity 89 -> 27 (min 27) | entry 0.7 chutes 19.4 land 30.1 engage 30.3 | idle-in-flight 0.0s @0 | beat gap 9.6s @6 | sorties 10 | land->kill median 23.2s p90 36.4s (n 25) | idle>8s: 0-30
+[QA] DAMAGE wave 7 Intermission: bomb 24.0, buggy 38.5
+[AD-QA] PACE wave 8 attempt 1 Intermission: 114.2s | integrity 52 -> 16 (min 16) | entry 8.4 chutes 25.4 land 38.7 engage 1.1 | idle-in-flight 0.0s @0 | beat gap 1.0s @0 | sorties 4 | land->kill median 12.1s p90 35.1s (n 24) | idle>8s: none
+[QA] DAMAGE wave 8 Intermission: bomb 36.0
+[AD-QA] PACE wave 9 attempt 1 Defeat: 63.8s | integrity 41 -> 1 (min 1) | entry 2.1 chutes 15.5 land 29.3 engage 20.1 | idle-in-flight 0.0s @0 | beat gap 4.5s @16 | sorties 10 | land->kill median 9.6s p90 32.2s (n 17) | idle>8s: 0-20
+[QA] DAMAGE wave 9 Defeat: bomb 12.0, buggy 9.9, rifle 19.0
+[AD-QA] PACE wave 9 attempt 2 Defeat: 113.9s | integrity 41 -> 1 (min 1) | entry 2.1 chutes 15.5 land 29.3 engage 20.0 | idle-in-flight 3.6s @106 | beat gap 4.5s @16 | sorties 12 | land->kill median 7.7s p90 25.4s (n 24) | idle>8s: 0-20
+[QA] DAMAGE wave 9 Defeat: bomb 24.0, buggy 7.7, rifle 9.0
+All waves: landed = announced, direct 0, out of band 0, stuck 0, fallbacks 0, late 0; landings 324-797 studs.
+(Wave 9 attempt 3 was running when the session was stopped; the boss was not reached.)

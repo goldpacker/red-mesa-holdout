@@ -1,0 +1,58 @@
+AD-3 retune, single-wave checks (RedMesaDebug startWave; human-like preset: range 700, aim 0.6 deg,
+reaction 0.7 s, bursts). Start integrity = the value the wave would start with in a run
+(W6 64 + 25 = 89 for W7; W8 ~49 + 25 = 74 for W9). [AD-QA] = server watcher, [QA] = bot damage audit.
+
+Session 2 (table v5; W7 as committed, W9 v5):
+[AD-DRV] test 1/4: wave 7 seed 101 start 89
+[AD-QA] PACE wave 7 attempt 1 Intermission: 108.2s | integrity 89 -> 60 (min 60) | entry 0.3 chutes 16.2 land 26.1 engage 10.1 | idle-in-flight 6.5s @20 | beat gap 6.2s @20 | sorties 8 | land->kill median 8.0s p90 22.1s (n 23) | idle>8s: 0-10
+[QA] DAMAGE wave 7 Intermission: bomb 24.0, buggy 3.3, rifle 2.0
+[AD-DRV] test 2/4: wave 7 seed 202 start 89
+[AD-QA] PACE wave 7 attempt 1 Intermission: 111.1s | integrity 89 -> 73 (min 63) | entry 0.7 chutes 14.0 land 24.1 engage 10.0 | idle-in-flight 4.6s @20 | beat gap 7.6s @2 | sorties 8 | land->kill median 12.2s p90 30.9s (n 23) | idle>8s: 0-10
+[QA] DAMAGE wave 7 Intermission: bomb 24.0, buggy 2.2
+[AD-DRV] test 3/4: wave 9 seed 101 start 74   (W9 v5, superseded)
+[AD-QA] PACE wave 9 attempt 1 Intermission: 119.3s | integrity 74 -> 38 (min 38) | entry 0.0 chutes 12.8 land 25.9 engage 18.1 | sorties 11 | land->kill median 13.0s p90 26.6s (n 28)
+[QA] DAMAGE wave 9 Intermission: bomb 24.0, buggy 6.6, rifle 5.0
+[AD-DRV] test 4/4: wave 9 seed 202 start 74   (W9 v5, superseded)
+[AD-QA] PACE wave 9 attempt 1 Intermission: 129.6s | integrity 74 -> 14 (min 14) | entry 0.3 chutes 12.0 land 25.1 engage 18.0 | sorties 11 | land->kill median 21.1s p90 59.6s (n 28)
+[QA] DAMAGE wave 9 Intermission: bomb 24.0, buggy 14.3, heli 10.0, rifle 32.0
+All: landed = announced, direct 0, out of band 0, stuck 0, fallbacks 0; late 1 group (0.61 s); max plan 16.2 ms.
+
+Session 2b (W9 v6: buggies >= 10 s after each tank touchdown, side infantry 4 -> 3, spacing +6 s):
+[AD-DRV] test 1/2: wave 9 seed 101 start 74
+[AD-QA] PACE wave 9 attempt 1 Intermission: 127.5s | integrity 74 -> 57 (min 48) | entry 0.0 chutes 12.8 land 25.9 engage 18.2 | idle-in-flight 0.0s | beat gap 9.8s | sorties 11 | land->kill median 12.7s p90 28.3s (n 26) | landed 26 direct 0 outOfBand 0 stuck 0 land 420-703
+[QA] DAMAGE wave 9 Intermission: bomb 24.0, buggy 2.2, heli 10.0, rifle 11.0
+[AD-DRV] test 2/2: wave 9 seed 202 start 74
+[AD-QA] PACE wave 9 attempt 1 Intermission: 127.9s | integrity 74 -> 50 (min 40) | entry 0.3 chutes 12.0 land 25.1 engage 18.0 | idle-in-flight 0.0s | beat gap 7.5s | sorties 11 | land->kill median 15.4s p90 34.0s (n 26) | landed 26 direct 0 outOfBand 0 stuck 0 land 450-761
+[QA] DAMAGE wave 9 Intermission: bomb 24.0, buggy 1.1, heli 5.0, rifle 4.0
+(end above min = repair crates collected late in the wave)
+
+Session 3 (committed table 8258c36), human-like, W1-W4 x seeds 101/202, start 100:
+[AD-QA] PACE wave 1 attempt 1 Intermission: 78.6s | integrity 100 -> 100 (min 100) | entry 0.4 chutes 12.5 land 25.6 engage 25.8 | idle-in-flight 0.6s | beat gap 8.6s | sorties 5 | land->kill median 4.5s p90 17.2s (n 21) | landed 21 direct 0 outOfBand 0 stuck 0 land 399-672   [seed 101]
+[AD-QA] PACE wave 1 attempt 1 Intermission: 76.4s | integrity 100 -> 100 (min 100) | entry 0.0 chutes 12.3 land 25.3 engage 25.5 | idle-in-flight 0.0s | beat gap 8.3s | sorties 5 | land->kill median 7.0s p90 32.8s (n 21) | landed 21 direct 0 outOfBand 0 stuck 0 land 428-732   [seed 202]
+[AD-QA] PACE wave 2 attempt 1 Intermission: 83.8s | integrity 100 -> 98 (min 98) | entry 0.8 chutes 13.2 land 26.5 engage 26.6 | idle-in-flight 0.0s | beat gap 6.2s | sorties 8 | land->kill median 7.4s p90 31.1s (n 25) | landed 25 direct 0 outOfBand 0 stuck 0 land 388-779   [seed 101; DAMAGE buggy 2.2]
+[AD-QA] PACE wave 2 attempt 1 Intermission: 84.4s | integrity 100 -> 98 (min 98) | entry 0.0 chutes 12.5 land 25.5 engage 25.6 | idle-in-flight 0.0s | beat gap 6.6s | sorties 8 | land->kill median 14.9s p90 26.0s (n 25) | landed 25 direct 0 outOfBand 0 stuck 0 land 453-753   [seed 202; DAMAGE buggy 2.2]
+[AD-QA] PACE wave 3 attempt 1 Intermission: 90.7s | integrity 100 -> 100 (min 100) | entry 0.1 chutes 12.5 land 25.5 engage 25.6 | idle-in-flight 0.0s | beat gap 10.2s | sorties 6 | land->kill median 13.1s p90 28.7s (n 21) | landed 21 direct 0 outOfBand 0 stuck 0 land 433-751   [seed 101]
+[AD-QA] PACE wave 3 attempt 1 Intermission: 74.1s | integrity 100 -> 100 (min 100) | entry 0.0 chutes 12.4 land 25.5 engage 25.7 | idle-in-flight 0.0s | beat gap 7.7s | sorties 6 | land->kill median 8.7s p90 14.1s (n 21) | landed 21 direct 0 outOfBand 0 stuck 0 land 464-739   [seed 202]
+[AD-QA] PACE wave 4 attempt 1 Intermission: 80.3s | integrity 100 -> 100 (min 100) | entry 0.0 chutes 12.9 land 26.0 engage 10.2 | idle-in-flight 0.0s | beat gap 9.3s | sorties 4 | land->kill median 11.6s p90 17.0s (n 19) | landed 19 direct 0 outOfBand 0 stuck 0 land 441-597   [seed 101]
+[AD-QA] PACE wave 4 attempt 1 Intermission: 83.1s | integrity 100 -> 100 (min 100) | entry 0.0 chutes 12.9 land 25.9 engage 10.1 | idle-in-flight 0.0s | beat gap 8.3s | sorties 4 | land->kill median 10.3s p90 23.3s (n 19) | landed 19 direct 0 outOfBand 0 stuck 0 land 361-704   [seed 202]
+Console: only [RedMesa] ready lines, [AD-DRV]/[AD-QA]/[QA] lines; no errors or warnings.
+
+Session 4 (table 8258c36), human-like, W5/W6 start 100, W8 start 85 (seed 101) / 88 (seed 202):
+[AD-QA] PACE wave 5 attempt 1 Intermission: 108.0s | integrity 100 -> 75 (min 75) | entry 0.0 chutes 12.1 land 25.2 engage 25.2 | idle-in-flight 0.0s | beat gap 7.8s | sorties 10 | land->kill median 20.8s p90 44.4s (n 32) | landed 32 direct 0 outOfBand 0 stuck 0 land 348-746   [seed 101; DAMAGE buggy 4.4, rifle 21.0]
+[AD-QA] PACE wave 5 attempt 1 Intermission: 105.4s | integrity 100 -> 70 (min 70) | entry 0.7 chutes 13.3 land 26.4 engage 26.6 | idle-in-flight 0.0s | beat gap 7.8s | sorties 10 | land->kill median 19.7s p90 32.8s (n 32) | landed 32 direct 0 outOfBand 0 stuck 0 land 388-745   [seed 202; DAMAGE buggy 3.3, rifle 27.0]
+[AD-QA] PACE wave 6 attempt 1 Intermission: 86.3s | integrity 100 -> 63 (min 63) | entry 0.0 chutes 13.5 land 26.6 engage 8.1 | idle-in-flight 0.0s | beat gap 8.0s | sorties 3 | land->kill median 18.3s p90 41.5s (n 17) | landed 17 direct 0 outOfBand 0 stuck 0 land 491-795   [seed 101; DAMAGE bomb 36.0, rifle 1.0]
+[AD-QA] PACE wave 6 attempt 1 Intermission: 90.2s | integrity 100 -> 60 (min 60) | entry 0.4 chutes 12.7 land 25.8 engage 8.1 | idle-in-flight 0.0s | beat gap 7.6s | sorties 3 | land->kill median 16.1s p90 25.7s (n 17) | landed 17 direct 0 outOfBand 0 stuck 0 land 446-766   [seed 202; DAMAGE bomb 36.0, rifle 4.0]
+[AD-QA] PACE wave 8 attempt 1 Intermission: 102.0s | integrity 85 -> 48 (min 48) | entry 0.5 chutes 13.6 land 26.7 engage 1.1 | idle-in-flight 0.0s | beat gap 0.5s | sorties 4 | land->kill median 11.8s p90 36.4s (n 24) | landed 24 direct 0 outOfBand 0 stuck 0 land 398-771   [seed 101; DAMAGE bomb 36.0, rifle 1.0]
+[AD-QA] PACE wave 8 attempt 1 Intermission: 108.7s | integrity 88 -> 52 (min 52) | entry 0.8 chutes 16.1 land 29.3 engage 1.2 | idle-in-flight 0.0s | beat gap 0.8s | sorties 4 | land->kill median 16.2s p90 33.1s (n 24) | landed 24 direct 0 outOfBand 0 stuck 0 land 388-774   [seed 202; DAMAGE bomb 36.0]
+(W5 superseded by the tank/buggy separation below.)
+
+Session 5 (table 3b00897: W5 with the tank/buggy rule), human-like; W10 start = W9 end + 25 per seed:
+[AD-QA] dropZoneCheck: 602 landing points from 153 sorties (35 formation followers), seed 3, 83 rocks: 0 violations   (infantry band 400-760)
+[AD-QA] PACE wave 5 attempt 1 Intermission: 100.6s | integrity 100 -> 96 (min 96) | entry 0.0 chutes 12.1 land 25.2 engage 25.4 | idle-in-flight 0.0s | beat gap 11.2s | sorties 10 | land->kill median 12.9s p90 28.4s (n 31) | landed 31 direct 0 outOfBand 0 stuck 0 land 361-746   [seed 101; DAMAGE buggy 4.4]
+[AD-QA] PACE wave 5 attempt 1 Intermission: 102.2s | integrity 100 -> 93 (min 93) | entry 0.7 chutes 13.3 land 26.4 engage 26.6 | idle-in-flight 0.0s | beat gap 7.1s | sorties 10 | land->kill median 18.1s p90 30.5s (n 31) | landed 31 direct 0 outOfBand 0 stuck 0 land 396-745   [seed 202; DAMAGE buggy 2.2, rifle 12.0 (a repair crate)]
+[AD-QA] BOSS DOWN at 137.3s: 4 loads pending  -> 0.5 s later: pending 0
+[AD-QA] PACE wave 10 attempt 1 Intermission: 137.3s | integrity 82 -> 12 (min 12) | entry 6.1 chutes 20.4 land 39.1 engage 2.2 | idle-in-flight 0.0s | beat gap 2.0s | sorties 6 | land->kill median 29.5s p90 54.6s (n 22) | landed 22 direct 0 outOfBand 0 stuck 0 land 406-720   [seed 101; DAMAGE bomb 12.0, bossCannon 16.0, rifle 42.0]
+[AD-QA] PACE wave 10 attempt 1 Defeat: 141.3s | integrity 75 -> 9 (min 9) | entry 8.6 chutes 24.1 land 39.0 engage 2.0 | sorties 6 | land->kill median 29.7s p90 48.2s (n 22) | landed 22 direct 0 outOfBand 0 stuck 0 land 457-781   [seed 202; DAMAGE bomb 24.0, bossCannon 32.0, bossTurret 3.0, rifle 19.0]
+[AD-QA] BOSS DOWN at 141.0s: 4 loads pending  -> 0.5 s later: pending 0
+[AD-QA] PACE wave 10 attempt 2 Intermission: 141.0s | integrity 75 -> 8 (min 8) | entry 8.6 chutes 24.1 land 39.0 engage 2.0 | sorties 6 | land->kill median 37.7s p90 53.0s (n 22) | landed 22 direct 0 outOfBand 0 stuck 0 land 460-781   [seed 202 retry; DAMAGE bomb 12.0, bossCannon 16.0, bossTurret 1.5, rifle 38.0]
+Console: no errors or warnings.

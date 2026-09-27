@@ -1,0 +1,26 @@
+AD-3 final: fresh-start 10-wave run with the perfect-aim bot (QA_Human = false: range 900, no handicaps),
+table 3b00897 (+ VFX-4's uncommitted `weather` storms on waves 5 and 7 present in the tree), StartGame from
+Title, unpinned airdrop seed (rolled: 966142185). Then Play Again, Retry Wave and Restart.
+[AD-QA] PACE wave 1 attempt 1 Intermission: 59.5s | integrity 100 -> 100 (min 100) | entry 0.0 chutes 12.9 land 26.0 engage 26.1 | idle-in-flight 7.1s | beat gap 7.7s | sorties 5 | land->kill median 0.4s p90 0.9s (n 21) | landed 21 direct 0 outOfBand 0 stuck 0 land 473-588
+[AD-QA] PACE wave 2 attempt 1 Intermission: 66.1s | integrity 100 -> 100 (min 100) | entry 0.0 chutes 12.1 land 25.2 engage 25.3 | idle-in-flight 7.3s | beat gap 7.0s | sorties 8 | land->kill median 0.4s p90 1.4s (n 25) | landed 25 direct 0 outOfBand 0 stuck 0 land 396-770
+[AD-QA] PACE wave 3 attempt 1 Intermission: 65.1s | integrity 100 -> 100 (min 100) | entry 0.5 chutes 13.4 land 26.4 engage 26.6 | idle-in-flight 5.4s | beat gap 8.4s | sorties 6 | land->kill median 0.7s p90 2.6s (n 21) | landed 21 direct 0 outOfBand 0 stuck 0 land 525-758
+[AD-QA] PACE wave 4 attempt 1 Intermission: 75.3s | integrity 100 -> 100 (min 100) | entry 0.0 chutes 12.8 land 25.9 engage 10.1 | idle-in-flight 7.4s | beat gap 9.0s | sorties 4 | land->kill median 0.4s p90 1.8s (n 19) | landed 19 direct 0 outOfBand 0 stuck 0 land 583-774
+[AD-QA] PACE wave 5 attempt 1 Intermission: 81.8s | integrity 100 -> 100 (min 100) | entry 0.0 chutes 12.0 land 25.0 engage 25.1 | idle-in-flight 5.6s | beat gap 8.0s | sorties 10 | land->kill median 0.8s p90 1.7s (n 31) | landed 31 direct 0 outOfBand 0 stuck 0 land 389-754
+[AD-QA] PACE wave 6 attempt 1 Intermission: 77.5s | integrity 100 -> 100 (min 100) | entry 0.0 chutes 12.2 land 25.3 engage 8.0 | idle-in-flight 2.9s | beat gap 8.0s | sorties 3 | land->kill median 0.3s p90 3.9s (n 17) | landed 17 direct 0 outOfBand 0 stuck 0 land 453-639
+[AD-QA] PACE wave 7 attempt 1 Intermission: 83.9s | integrity 100 -> 88 (min 88) | entry 0.1 chutes 14.3 land 24.2 engage 10.2 | idle-in-flight 8.9s | beat gap 7.9s | sorties 8 | land->kill median 0.7s p90 3.9s (n 23) | landed 23 direct 0 outOfBand 0 stuck 0 land 427-763
+[AD-QA] PACE wave 8 attempt 1 Intermission: 87.3s | integrity 100 -> 88 (min 88) | entry 1.2 chutes 14.6 land 29.0 engage 1.1 | idle-in-flight 5.5s | beat gap 5.4s | sorties 4 | land->kill median 0.4s p90 1.4s (n 24) | landed 24 direct 0 outOfBand 0 stuck 0 land 456-760
+[AD-QA] PACE wave 9 attempt 1 Intermission: 106.0s | integrity 100 -> 98 (min 88) | entry 0.0 chutes 14.3 land 27.4 engage 18.1 | idle-in-flight 2.9s | beat gap 8.5s | sorties 11 | land->kill median 0.8s p90 6.3s (n 26) | landed 26 direct 0 outOfBand 0 stuck 0 land 399-753
+[AD-QA] BOSS DOWN at 134.4s: 4 loads pending  -> 0.5 s later: pending 0
+[AD-QA] PACE wave 10 attempt 1 Intermission: 134.4s | integrity 100 -> 72 (min 72) | entry 5.4 chutes 18.8 land 37.4 engage 2.1 | idle-in-flight 0.0s | beat gap 2.0s | sorties 7 | land->kill median 5.0s p90 8.6s (n 26) | landed 26 direct 0 outOfBand 0 stuck 0 land 507-756
+[AD-QA] RUN victory in 16.3 min (from wave 1 intro), 0 retries, score 33540 | drops announced 237 landed 233 cancelled 4 fallbacks 0 late 6 maxPlan 17.0ms land 390-774 seed 966142185
+[QA] DAMAGE: waves 1-6 none; 7 bomb 12; 8 bomb 12; 9 bomb 12; 10 bomb 12, bossCannon 16.
+Late groups (at = 25, the flight can't make it; they land as early as possible): W1 +0.68, W2 +1.36, W4 +1.33, W5 +0.97, W6 +1.05, W9 +3.55 s.
+Client: QA_Drops 233, QA_GroundNoDrop 0, QA_DropOutOfBand 0, retries 0; AirdropFx empty at Victory;
+  Handoffs 233, HandoffMaxDelay 0.057 s, HandoffMaxOffset 2.25 studs; Deflects 2, PassThroughs 31 (rounds at
+  landed targets crossing a descending load; the bot never targets airborne loads).
+Play Again (Victory -> Restart remote): Wave 1, integrity 100, score 0, session best 33540 kept, rockets 8,
+  missiles 4, wrecks 0, enemies 0, afternoon (ClockTime 15.2), new airdrop seed 765134922.
+Forced defeat (setIntegrity 0): Defeat, pending loads 0, AirdropFx 0. Retry Wave: Wave 1, integrity 100,
+  score 0, rockets 8, same seed 765134922 (a retried wave replays its drops).
+Forced defeat -> Restart: Wave 1, integrity 100, score 0, rockets 8, missiles 4, wrecks 0, new seed 743352612.
+Console for the whole session: only [RedMesa] ready lines and QA lines; no errors, no warnings.

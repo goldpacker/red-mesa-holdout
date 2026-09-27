@@ -1,0 +1,14 @@
+AD-3 baseline (before retune), human-like bot with QA_Range 1000 in every wave (NOT the reference
+preset: the original balance used range 700 for waves 1-9), aim 0.6, reaction 0.7, bursts, seed 101.
+Stopped during wave 8 to restart with the faithful preset. Console lines ([AD-QA] = server watcher):
+[AD-QA] PACE wave 1 attempt 1 Intermission: 90.3s | integrity 100 -> 100 (min 100) | entry 3.1 chutes 15.9 land 29.6 engage 29.7 | idle-in-flight 2.3s @41 | beat gap 10.8s @3 | sorties 5 | land->kill median 7.4s p90 18.4s (n 21) | idle>8s: 0-30
+[AD-QA] PACE wave 2 attempt 1 Intermission: 96.9s | integrity 100 -> 97 (min 97) | entry 2.1 chutes 14.4 land 30.5 engage 30.6 | idle-in-flight 0.0s @0 | beat gap 11.9s @2 | sorties 8 | land->kill median 7.2s p90 29.1s (n 25) | idle>8s: 0-31
+[AD-QA] PACE wave 3 attempt 1 Intermission: 89.2s | integrity 100 -> 98 (min 98) | entry 3.2 chutes 15.7 land 29.5 engage 29.5 | idle-in-flight 4.0s @45 | beat gap 6.5s @9 | sorties 6 | land->kill median 7.2s p90 14.7s (n 21) | idle>8s: 0-30
+[AD-QA] PACE wave 4 attempt 1 Intermission: 98.3s | integrity 100 -> 100 (min 100) | entry 0.9 chutes 15.1 land 28.2 engage 12.2 | idle-in-flight 3.6s @25 | beat gap 11.1s @1 | sorties 4 | land->kill median 5.5s p90 12.2s (n 19) | idle>8s: 0-12
+[AD-QA] PACE wave 5 attempt 1 Intermission: 109.5s | integrity 100 -> 97 (min 97) | entry 0.9 chutes 14.0 land 27.6 engage 27.8 | idle-in-flight 0.0s @0 | beat gap 7.6s @6 | sorties 10 | land->kill median 6.1s p90 22.6s (n 32) | idle>8s: 0-28
+[AD-QA] PACE wave 6 attempt 1 Intermission: 103.3s | integrity 100 -> 86 (min 86) | entry 1.3 chutes 14.9 land 28.0 engage 10.2 | idle-in-flight 2.8s @81 | beat gap 8.7s @1 | sorties 3 | land->kill median 10.3s p90 17.7s (n 17) | idle>8s: 0-10
+[AD-QA] PACE wave 7 attempt 1 Defeat: 192.6s | integrity 100 -> 6 (min 6) | entry 0.7 chutes 19.4 land 30.1 engage 30.2 | idle-in-flight 0.0s @0 | beat gap 9.6s @6 | sorties 10 | land->kill median 20.3s p90 38.8s (n 25) | idle>8s: 0-30
+    (one landed enemy lived 113.9 s: a tank left alive once rockets ran out)
+[AD-QA] PACE wave 7 attempt 2 Intermission: 119.4s | integrity 100 -> 64 (min 64) | entry 0.7 chutes 19.4 land 30.1 engage 30.3 | idle-in-flight 1.7s @77 | beat gap 9.6s @6 | sorties 10 | land->kill median 11.5s p90 23.6s (n 25) | idle>8s: 0-30
+[QA] DAMAGE wave 7 Intermission: bomb 24.0, buggy 12.1
+All waves: landed by drop = announced, direct 0, out of band 0, stuck 0, fallbacks 0, late 0; landings 324-787 studs.
