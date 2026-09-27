@@ -1,0 +1,32 @@
+QA-B session 3 (21:41-21:47, 2026-09-26) — what streams, what counts, where the floor is
+HEAD 123467e (+ HS-6 uncommitted assets). Machine NOT quiet: hs headless Blender build (blender-lock slot 1),
+load 6.1 — memory-only tests, no frame times. Viewport 1177x1068, QualityLevel 15.
+
+1. Fresh Play, title after 40 s: GraphicsTexture 221.82. 179 texture ids referenced in Workspace/Lighting/
+   MaterialService/PlayerGui (no particle emitters, no enemies), incl. the stock sun 6196665106 / moon 6444320592.
+
+2. Camera parked at y 3000 (sky only). Each texture unused before:
+   ParticleEmitter SandKick sheet, 0.5-stud particles at 300 studs      +0.00
+   ParticleEmitter Sparks sheet, 30-stud particles at 25 studs          +1.33  (mip 1 of a 1024² RGBA8 sheet)
+   Decal 1024 RGBA (Dusk Bk) on a 1-stud part at 400 studs              +5.34  (full, no streaming)
+   ImageLabel 1024 RGBA (Dusk Dn) drawn 16x16 px                        +5.34  (full, no streaming)
+   SA colour 1024 (Dusk Ft) on a 1-stud MeshPart at 400 studs           +0.67  (full, no streaming)
+   14 other flipbooks as 5-stud particles at 80 studs (~50 px each)     +0.05
+   same 14, 14-stud particles at 20 studs (~700 px each)                +13.29 (~0.95 each)
+   => particle textures stream by on-screen size and stay at or below mip 1; everything else loads its
+      full mip chain the first time it is drawn, whatever its size, and stays resident.
+
+3. Toggles in the same session (base 247.84): GlobalShadows off/on, SunRays+Bloom+ColorCorrection off/on,
+   QualityLevel 1 and back to 15: GraphicsTexture +0.00 every time (render targets are not in this tag,
+   or nothing is released).
+
+4. Terrain MaterialVariant path: a new client-side MaterialVariant (colour+normal+rough, three unused
+   1024² images) set as the Sand override — visibly drawn on the basin floor (capture viewed) —
+   GraphicsTexture +0.00, GraphicsTerrain 75.46 -> 76.71 after a second one on Sandstone (+1.25, within
+   terrain-geometry noise), "Internal" +27 MB. => terrain MaterialVariant textures are not counted in
+   GraphicsTexture at all.
+
+5. Edit datamodel after Stop (Baseplate + Terrain + SpawnLocation, stock sky, MaterialService empty):
+   GraphicsTexture 196.05 -> 177.38 within 5 s, then flat for 32 s. GraphicsParticles 79.94 (same as in
+   play: not the game's particles). => Studio's Graphics* tags are process-wide and keep a texture cache
+   across Stop/Play: a "fresh" Play starts on top of whatever earlier sessions (any agent's) left resident.

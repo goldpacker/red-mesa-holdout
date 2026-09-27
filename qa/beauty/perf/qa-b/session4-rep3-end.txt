@@ -1,0 +1,45 @@
+QA-B session 4 (22:11-22:19, 2026-09-26) — perf rep 3 (end re-measure), all-loaded tour, cache checks
+HEAD 4aa152d (AD-1 fix round 1, HS-6 assets committed; HS-6 not used in game yet).
+`git status --short src assets/roblox`: LOOK-5 work in progress synced by Rojo —
+ M src/client/EnemyMotionWatch.luau, M src/client/NightFx.luau, M src/client/PostFx.luau, M src/client/PostFxAssets.luau,
+ ?? src/client/PostFxAir.luau, ?? src/client/PostFxFilm.luau, ?? src/client/PostFxPresets.luau, ?? src/client/PostFxStorm.luau
+Machine quiet: blender-lock slots free, no headless Blender, load 2.7-3.1. Viewport 1177x1068, QualityLevel 15.
+Edit datamodel before Play: GraphicsTexture 174.88, GraphicsParticles 81.06.
+Console: only "[RedMesa] world built / server ready / client ready".
+
+[title r3] 2026-09-26 22:12
+fps avg 60.0  1%-low 56.7  (frames 481, worst 17.7 ms)
+render: SceneTriangleCount 448454  SceneDrawcallCount 412  ShadowsTriangleCount 54432  ShadowsDrawcallCount 44  RenderCPUFrameTime 2.90 ms  RenderGPUFrameTime 6.38 ms
+memory by tag: GraphicsTexture 210.4  GraphicsParticles 82.2  GraphicsTerrain 77.7  Gui 44  GraphicsMeshParts 11.8  GraphicsParts 10.0
+effects: 2 emitters, 177 beams (71 at 123467e), 6 lights; enemies: none
+
+[w1 afternoon r3] 22:13
+fps avg 60.0  1%-low 57.0  (frames 495, worst 18.3 ms)
+render: SceneTriangleCount 471635  SceneDrawcallCount 473  ShadowsTriangleCount 149231  ShadowsDrawcallCount 84  RenderCPUFrameTime 3.09 ms  RenderGPUFrameTime 6.05 ms
+memory by tag: GraphicsTexture 215.1  GraphicsParticles 82.7  GraphicsTerrain 77.2  Gui 44  GraphicsMeshParts 13.2  GraphicsParts 10.3
+effects: 50 emitters, 225 beams; enemies: Infantry 4
+
+[w9 night r3] 22:14
+fps avg 60.0  1%-low 56.6  (frames 486, worst 17.8 ms)
+render: SceneTriangleCount 474669  SceneDrawcallCount 449  ShadowsTriangleCount 262007  ShadowsDrawcallCount 144  RenderCPUFrameTime 3.01 ms  RenderGPUFrameTime 6.78 ms
+memory by tag: GraphicsTexture 253.1  GraphicsParticles 83.0  GraphicsTerrain 77.2  Gui 44  GraphicsMeshParts 13.2  GraphicsParts 10.6
+effects: 131 emitters (12 on), 229 beams, 44 lights (28 on); enemies: Buggy 2, Helicopter 1, Jet 1, Tank 1
+
+[w10 boss r3] 22:15
+fps avg 60.0  1%-low 56.3  (frames 489, worst 17.9 ms)
+render: SceneTriangleCount 470500  SceneDrawcallCount 431  ShadowsTriangleCount 249943  ShadowsDrawcallCount 138  RenderCPUFrameTime 2.85 ms  RenderGPUFrameTime 6.77 ms
+memory by tag: GraphicsTexture 257.4  GraphicsParticles 82.9  GraphicsTerrain 77.2  Gui 44  GraphicsMeshParts 13.2  GraphicsParts 10.5
+effects: 82 emitters (9 on), 215 beams, 32 lights (16 on); enemies: Helicopter 1, Infantry 6, SiegeCrawler 1
+
+All-loaded (end): after the w10 probe, Tank/Buggy/Helicopter/Jet spawned + a crate, killAll (the boss died, so the
+wave ended and the live re-spawn was refused; wrecks of every kind present), then the texture tour (430 views):
+GraphicsTexture 268.3 -> all-round from the turret 272.1 -> wreck/crate close-ups 287.6 -> every textured mesh 298.0 -> end 298.0
+
+Edit datamodel after Stop: 178.50 flat (3-12 s).
+
+Play B (fresh): title timeline 5 s 234.01, 10-40 s 235.50 (same build as rep 3, which read 210.4).
+Camera parked at the sky; two Decals on a 4-stud part at 30 studs (both visible in the capture):
+Sunset Bk (drawn as a Decal in session 2) +0.04; Sunset Rt (never drawn before) +0.00 — at this point a new
+1024² RGBA image added nothing (in session 3, 50 min earlier, the same kind of decal added +5.34).
+=> Studio's GraphicsTexture is a process-wide pool whose level depends on history (title of the same build
+210.4 vs 235.5 within 5 minutes); new loads don't always add. Per-asset costs come from the calibrated model.

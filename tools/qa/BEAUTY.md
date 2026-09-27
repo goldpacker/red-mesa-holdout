@@ -14,6 +14,10 @@ tools (to bring Studio forward) and Bash.
 | Turret line of sight to every lane end | `ServerStorage.RedMesaDebug:Invoke("losCheck")` (Server) |
 | Lane ground heights | `ServerStorage.RedMesaDebug:Invoke("groundCheck", { verbose = true })` (Server) |
 | Perf probe | paste `tools/qa/perf_probe.client.luau` into execute_luau (Client) |
+| Texture cost per asset (model) | `tools/qa/py tools/qa/texture_budget.py report [inventory.txt]` — `docs/PERF_BUDGET.md` §5.4 |
+| Texture id → source file, size | `tools/qa/py tools/qa/texture_map.py [--json out.json]` |
+| What's referenced in game / make it resident | paste `tools/qa/texture_inventory.client.luau` / `texture_tour.client.luau` (Client) |
+| Additive texture A/B with never-drawn ids | `tools/qa/texture_calib.client.luau` (Client, fresh play) |
 
 `tools/qa/py` runs the Python tools in a project-local venv (`.venv-qa`,
 git-ignored) and creates it with Pillow on first use. Nothing else is
@@ -71,6 +75,7 @@ caffeinate -u -t 2                      # wake the display
   or it stops rendering and `screen_capture` hangs). Leave the Studio window
   and panel layout alone: the viewport must stay 1190×1080 (see §6).
 - `list_roblox_studios` → the id of "Place1".
+- **Check the viewport size** (§2.5) before the first capture of a session.
 - `start_stop_play(true)`, then in the **Client** datamodel:
   ```lua
   settings().Rendering.QualityLevel = Enum.QualityLevel.Level15
@@ -125,6 +130,29 @@ then `start_stop_play(false)` and `tools/studio-lock.sh release <you>`.
 `python3 tools/qa/beauty_plan.py <set>` (all 6 shots × 5 presets, 30
 captures, ~6 minutes). Commit the set folder with your milestone:
 `git add qa/beauty/<set> && git commit -m "…" -- qa/beauty/<set>`.
+
+### 2.5 Viewport size check
+
+Captures and perf numbers are only comparable at the baseline viewport:
+**`ViewportSize` 1177×1068**, which `screen_capture` returns as a
+**1190×1080** image (the size in `qa/beauty/p0-baseline/manifest.json`).
+Docking a panel beside the 3D view narrows it: opening the Terrain Editor
+and the Toolbox left it at 893×1068 (captures ~896 px wide) until QA-B
+closed them.
+
+1. Edit (or Client) datamodel:
+   ```lua
+   return tostring(workspace.CurrentCamera.ViewportSize) -- must be "1177, 1068"
+   ```
+2. If it's narrower, take a computer-use `screenshot` and close whatever is
+   docked left or right of the viewport (panel title bar ×; the usual
+   layout is only Explorer + Properties + Assistant on the right and the
+   command bar below). Don't resize or move the Studio window. Re-check 1.
+3. Check capture: one `screen_capture` must be 1190×1080. The perf probe
+   also prints `viewport WxH` on its first line, and `beauty_save.py`
+   marks a wrong size `[resized]`/`[cropped …]`.
+
+QA-B check capture (2026-09-26): `qa/beauty/qa-b/`.
 
 ---
 
@@ -193,6 +221,13 @@ counts and enemies on screen. Scenes and baseline numbers:
 9)`, keep integrity up with `Invoke("setIntegrity", 100)` in a loop, run
 `tools/qa/autoplay.client.luau` and probe ~50 s in (prefix the probe with
 `task.wait(47)`).
+
+Texture memory caveats (QA-B, `docs/PERF_BUDGET.md` §5.3): Studio's
+`GraphicsTexture` is process-wide and keeps other sessions' textures, a
+texture loads its full mip chain the first time it's drawn and stays, and
+removing an instance doesn't reliably free its memory. So a texture A/B is
+additive (never-drawn ids, early in a session), and per-asset costs come from
+`texture_budget.py report`.
 
 ---
 

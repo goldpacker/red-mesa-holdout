@@ -1,0 +1,93 @@
+QA-B session 2 (21:16-21:31, 2026-09-26) — perf reps 1-2 and additive texture calibration
+HEAD 123467e, `git status --short src assets/roblox` clean (AD-1, ENV-3F, LOOK-3B committed).
+Machine quiet: blender-lock slots 1 and 2 free, no headless Blender, load average 2.5-2.9.
+Viewport 1177x1068, QualityLevel 15, Rojo in sync (NightFx IS_STUDIO line present in Edit).
+Procedure per rep: fresh Play -> Client QL15, wait 40 s, probe "title" (8 s) -> Server integrity loop +
+startWave(1), Client MG autoplay, probe at ~25 s -> startWave(9), probe at ~50 s -> startWave(10), probe at ~45 s.
+Console: only "[RedMesa] world built / server ready / client ready" in each play.
+
+[title r1] 2026-09-26 21:17  8s  viewport 1177x1068  quality Enum.QualityLevel.Level15  ToD Afternoon  phase Title
+fps avg 60.0  1%-low 56.8  (frames 493, worst 17.7 ms)
+render: SceneTriangleCount 448198  SceneDrawcallCount 344  ShadowsTriangleCount 58380  ShadowsDrawcallCount 47  RenderCPUFrameTime 2.90 ms  RenderGPUFrameTime 5.01 ms
+memory by tag: GraphicsTexture 232.4  GraphicsParticles 78.6  GraphicsTerrain 77.7  Gui 53  GraphicsMeshParts 11.8  GraphicsParts 9.6  GraphicsSpatialHash 0.7
+workspace: 3112 instances  1424 MeshParts  20 Parts  1424 SurfaceAppearances; effects: 0 emitters, 71 beams, 6 lights (0 on); enemies: none
+
+[w1 afternoon r1] 21:18
+fps avg 60.0  1%-low 57.1  (frames 483, worst 17.7 ms)
+render: SceneTriangleCount 469019  SceneDrawcallCount 391  ShadowsTriangleCount 137287  ShadowsDrawcallCount 75  RenderCPUFrameTime 2.91 ms  RenderGPUFrameTime 5.19 ms
+memory by tag: GraphicsTexture 236.3  GraphicsParticles 79.1  GraphicsTerrain 77.2  Gui 53  GraphicsMeshParts 13.1  GraphicsParts 10.0
+effects: 48 emitters (0 on), 119 beams, 8 lights; enemies: Infantry 3
+
+[w9 night r1] 21:19
+fps avg 60.0  1%-low 56.2  (frames 489, worst 17.9 ms)
+render: SceneTriangleCount 485994  SceneDrawcallCount 400  ShadowsTriangleCount 247052  ShadowsDrawcallCount 134  RenderCPUFrameTime 2.94 ms  RenderGPUFrameTime 5.57 ms
+memory by tag: GraphicsTexture 254.7  GraphicsParticles 79.3  GraphicsTerrain 77.2  Gui 53  GraphicsMeshParts 13.2  GraphicsParts 10.2
+effects: 120 emitters (11 on), 124 beams, 43 lights (29 on); enemies: Buggy 2, Helicopter 1, Jet 1, Tank 1
+
+[w10 boss r1] 21:20
+fps avg 60.0  1%-low 56.1  (frames 485, worst 18.4 ms)
+render: SceneTriangleCount 487007  SceneDrawcallCount 368  ShadowsTriangleCount 222843  ShadowsDrawcallCount 122  RenderCPUFrameTime 2.86 ms  RenderGPUFrameTime 4.77 ms
+memory by tag: GraphicsTexture 263.8  GraphicsParticles 79.5  GraphicsTerrain 77.2  Gui 53  GraphicsMeshParts 13.2  GraphicsParts 10.3
+effects: 80 emitters (7 on), 140 beams, 33 lights (15 on); enemies: Helicopter 1, Infantry 5, SiegeCrawler 1
+
+[title r2] 21:21
+fps avg 60.0  1%-low 54.2  (frames 485, worst 19.0 ms)
+render: SceneTriangleCount 448757  SceneDrawcallCount 345  ShadowsTriangleCount 55139  ShadowsDrawcallCount 44  RenderCPUFrameTime 3.05 ms  RenderGPUFrameTime 5.75 ms
+memory by tag: GraphicsTexture 229.9  GraphicsParticles 78.9  GraphicsTerrain 77.7  Gui 57  GraphicsMeshParts 11.8  GraphicsParts 9.7
+enemies: none
+
+[w1 afternoon r2] 21:22
+fps avg 60.0  1%-low 53.5  (frames 486, worst 18.9 ms)
+render: SceneTriangleCount 457525  SceneDrawcallCount 384  ShadowsTriangleCount 143538  ShadowsDrawcallCount 81  RenderCPUFrameTime 3.16 ms  RenderGPUFrameTime 5.34 ms
+memory by tag: GraphicsTexture 246.6  GraphicsParticles 79.3  GraphicsTerrain 77.2  Gui 57  GraphicsMeshParts 13.2  GraphicsParts 10.0
+enemies: Infantry 1
+
+[w9 night r2] 21:23
+fps avg 60.0  1%-low 53.7  (frames 488, worst 18.9 ms)
+render: SceneTriangleCount 498680  SceneDrawcallCount 392  ShadowsTriangleCount 237125  ShadowsDrawcallCount 125  RenderCPUFrameTime 2.93 ms  RenderGPUFrameTime 6.35 ms
+memory by tag: GraphicsTexture 254.4  GraphicsParticles 79.6  GraphicsTerrain 77.2  Gui 52  GraphicsMeshParts 13.2  GraphicsParts 10.3
+effects: 127 emitters (11 on), 128 beams, 44 lights (31 on); enemies: Buggy 2, Helicopter 1, Jet 1, Tank 1
+
+[w10 boss r2] 21:24
+fps avg 60.0  1%-low 53.6  (frames 483, worst 19.2 ms)
+render: SceneTriangleCount 474767  SceneDrawcallCount 357  ShadowsTriangleCount 239915  ShadowsDrawcallCount 129  RenderCPUFrameTime 2.92 ms  RenderGPUFrameTime 5.82 ms
+memory by tag: GraphicsTexture 255.4  GraphicsParticles 79.7  GraphicsTerrain 77.2  Gui 52  GraphicsMeshParts 13.2  GraphicsParts 10.3
+enemies: Helicopter 1, Infantry 9, SiegeCrawler 1
+
+--- Additive calibration (fresh Play, title, camera parked at y 3000 looking at the sky;
+    tools/qa/texture_calib.client.luau + ad-hoc variants; each texture unused before) ---
+title settled: GraphicsTexture 226.06
+01 SA colour 1024 RGB (Infantry)                   226.06 ->  226.72  (+ 0.67 MB)
+02 SA normal 1024 RGB (Infantry)                   226.72 ->  228.73  (+ 2.00 MB)
+03 SA rough 1024 L (Infantry)                      228.73 ->  229.39  (+ 0.67 MB)
+04 SA metal 1024 L (Infantry)                      229.39 ->  230.06  (+ 0.67 MB)
+05 SA full set 1024 RGB x4 (SupplyCrate main)      230.06 ->  232.68  (+ 2.62 MB)
+06 SA full set 512 (VfxDebris)                     232.68 ->  226.68  (-6.00: destroying the previous part freed memory; discarded)
+07 SA colour 1024 RGBA opaque (Sunset sky Ft)      226.68 ->  227.35  (+ 0.67 MB)
+08 Decal 1024 RGBA opaque (Sunset sky Bk)          227.35 ->  233.94  (+ 6.59 MB)
+09/10 Gunsights maps: -1.33 / +0.67 (preloaded by GunsightModels + destroy frees; discarded)
+Parts kept alive from here on (no destroy):
+ParticleEmitter 1024 RGBA (Sunset Up)        GraphicsTexture +5.34  GraphicsParticles +0.05
+Beam 1024 RGBA (Sunset Dn)                   GraphicsTexture +5.34  GraphicsParticles +0.03
+ImageLabel 1024 RGBA (Sunset Lf)             GraphicsTexture +5.34  Gui +0.00
+SA normal only 1024 (Gunsights rocket)       +0.67 (gunsight: partly preloaded)
+SA colour+rough 1024 (Gunsights rocket)      +0.67 (gunsight: partly preloaded)
+SA rough+metal 1024 L (Gunsights sights)     +0.67
+SA colour+normal 1024 (Dusk Bk + Dn)         +2.00
+SA colour 1024 (Dusk Ft)                     +0.67
+SA normal 1024 (Dusk Lf)                     +2.00
+SA full set 1024 x4 (Dusk Rt/Up, Night Bk/Dn) +2.67
+MeshPart.TextureID 1024 (Night Ft)           +0.00
+SA colour+normal 512 (SupplyCrate chute)     +5.88 (includes an unrelated 5.33 load; discarded)
+Landscape FarWall chunk clone, colour+normal 1024 (LateAfternoon Ft/Lf) +4.67 (large mesh; see report)
+Magnified flat quad (EditableMesh, UV 0..1, ~3 px per texel => top mip certain):
+quad SA colour 1024 (Night Lf)                 +0.67
+quad SA normal 1024 (Night Rt)                 +2.00
+quad SA rough 1024 (Night Up)                  +0.67
+quad SA colour+normal 1024 (LateAft Rt+Up)     +2.67
+
+Reading: SurfaceAppearance maps are block-compressed — colour 4 bpp (0.67 MB per 1024² with mips),
+normal 8 bpp (1.33), roughness+metalness packed into one 4 bpp map (0.67) that also exists whenever a
+normal map does. Decals, ParticleEmitter, Beam, ImageLabel and Sky textures are uncompressed RGBA8:
+5.33 MB per 1024² with mips (sky: 6 faces = 32.06 measured in session 1). GraphicsParticles does not
+hold particle textures.
