@@ -17,6 +17,10 @@ local PostFxAssets = require(script.Parent.PostFxAssets)
 
 local NightFx = {}
 
+-- The beauty-shot rig (Studio-only QaDebug) is the only thing that sets the
+-- BeautyShot attribute, so live clients skip the per-frame read (QA-B).
+local IS_STUDIO = RunService:IsStudio()
+
 -- Warm practical lights against the cool moonlight key (ART_BIBLE §4).
 local LAMP_WARM = Color3.fromRGB(255, 210, 150)
 -- Two layers of the same dusty-cone texture: a hot narrow core and a wide
@@ -266,7 +270,7 @@ function NightFx.start()
 		if (#lights == 0 or not lights[1].model.Parent) and Workspace:FindFirstChild("Battlefield") then
 			collect()
 		end
-		local beauty = Workspace:GetAttribute("BeautyShot") ~= nil
+		local beauty = IS_STUDIO and Workspace:GetAttribute("BeautyShot") ~= nil
 		for _, light in lights do
 			if light.beam and light.glow then
 				light.glow.Enabled = light.beam.Enabled
@@ -276,7 +280,7 @@ function NightFx.start()
 		end
 		updatePitLamp(isNight())
 		-- Studio beauty-shot rig (shared/BeautyShots) pins the lights and flares.
-		if Workspace:GetAttribute("BeautyShot") ~= nil then
+		if beauty then
 			return
 		end
 		local night = isNight()
