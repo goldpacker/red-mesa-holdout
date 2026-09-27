@@ -35,6 +35,7 @@
   "motion/strobe_jet_smooth.jpg": "Jet #36 CrossLeft inbound, EnemyMotion: 0 frozen, cv 0.13",
   "motion/strobe_pairs.jpg": "Step vs smooth sheet (tools/ui/motion_sheet.py): per vehicle, raw replicated poses (MotionOff) vs EnemyMotion; one marker per rendered frame at the drawn Root (blue oldest, yellow newest) + 2x crop + measured per-frame numbers",
   "motion/strobe_tank_raw.jpg": "Tank #1 driving, raw: 17 of 35 frames frozen, per-frame speed cv 0.98 (dust and HUD off for clarity)",
-  "motion/strobe_tank_smooth.jpg": "Same tank, EnemyMotion: 0 frozen, per-frame speed cv 0.12; tread band visible on the ground run"
+  "motion/strobe_tank_smooth.jpg": "Same tank, EnemyMotion: 0 frozen, per-frame speed cv 0.12; tread band visible on the ground run",
+  "extra/boss_wave_left_turret_off_tracked.jpg": "Wave 10 (night), rocket gunsight on the HS-5 Siege Crawler after real rockets threw off its left turret while EnemyMotion tracked it (30 Hz replication, 0/59 frozen frames, planted track welds, no tread strip); console clean"
  }
 }
