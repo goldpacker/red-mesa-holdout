@@ -61,8 +61,8 @@ ROOF_Z = 25.5
 MAIN_RING = (0.0, 12.0, 19.0)
 SIDE_RING = (15.2, 20.0, 16.4)
 CORE = (0.0, -21.0, 27.2)
-PAINT = "#3e4247"
-DARK = "#2b2d31"
+PAINT = "#34373b"  # a shade darker than the tank: the big lit faces must stay >= 3:1 on sand at sunset
+DARK = "#26282c"
 RED = "#b01c18"
 HAZARD = "#c9a227"
 DUST = "#a4876a"
@@ -77,10 +77,10 @@ BELT_W = 4.3
 
 def materials(a):
     photo = {"id": "green_metal_rust", "scale": 7.0, "color": 0.5, "sat": 0.1, "rough": 0.45, "height": 0.25}
-    paint = dict(kind="paint", color=PAINT, rough=0.5, wear=0.55, under="#8b8c89", under_metal=0.8, under_rough=0.35,
+    paint = dict(kind="paint", color=PAINT, rough=0.58, wear=0.55, under="#8b8c89", under_metal=0.8, under_rough=0.35,
                  chip_style="blotch", chip_scale=3.6, chip_bevel=0.16, ring=0.3, ring_color="#24201c",
-                 edge_convex=True, edge_convex_distance=0.45, polish=0.3, grime=0.65, streaks=0.5, dust=0.6,
-                 dust_up=0.35, dust_height=7.5, dust_color=DUST, dust_caked=0.8, caked_height=5.2, caked_color=CAKED,
+                 edge_convex=True, edge_convex_distance=0.45, polish=0.3, grime=0.65, streaks=0.5, dust=0.45,
+                 dust_up=0.2, dust_height=7.5, dust_color=DUST, dust_caked=0.8, caked_height=5.2, caked_color=CAKED,
                  rough_breakup=0.3, photo=photo, fade=0.25, fade_color="#5d6166", bevel=0.12)
     soot = [{"pos": (x, y, STACK_TOP), "dir": (0.1, -0.2, 1.0), "radius": 1.0, "length": 3.0, "spread": 0.3} for x, y in STACKS]
     soot += [{"pos": (x, y, 27.0), "dir": (0.0, 0.0, -1.0), "radius": 1.6, "length": 2.2, "spread": 0.5, "strength": 0.6} for x, y in STACKS]
@@ -88,11 +88,11 @@ def materials(a):
     soot += [{"pos": (s * 6.0, -44.6, 13.0), "dir": (0.0, -0.4, -1.0), "radius": 1.2, "length": 4.0, "spread": 0.4, "strength": 0.7} for s in (-1, 1)]
     a.material("hull", **paint, soot=soot)
     a.material("hull_dark", **dict(paint, color=DARK, photo=None, fade=0.1), soot=soot)
-    a.material("skirt", **dict(paint, dust=0.8, dust_height=9.0, caked_height=7.0))
+    a.material("skirt", **dict(paint, dust=0.55, dust_height=8.0, caked_height=5.5))
     a.material("blade", **dict(paint, color="#35383c", wear=0.8, chip_scale=2.6, dust=0.8, dust_height=6.0, caked_height=4.5,
                                 under="#6f6c68", ring=0.5, ring_color="#3a2618"))
-    a.material("deck", **dict(paint, dust_up=0.5, dust_height=0.0, dust_caked=0.0), soot=soot)
-    a.material("deck_dark", **dict(paint, color=DARK, photo=None, dust_up=0.5, dust_height=0.0, dust_caked=0.0), soot=soot)
+    a.material("deck", **dict(paint, dust_up=0.3, dust_height=0.0, dust_caked=0.0), soot=soot)
+    a.material("deck_dark", **dict(paint, color=DARK, photo=None, dust_up=0.3, dust_height=0.0, dust_caked=0.0), soot=soot)
     a.material("stack", kind="metal", color="#3a332e", rough=0.6, metal=0.7, dust=0.2, grime=0.9, edge_convex=True,
                polish=0.2, soot=soot, rough_breakup=0.4, streaks=0.7, grime_color="#2a1c14")
     a.material("rust", kind="metal", color="#4f3d31", rough=0.62, metal=0.6, grime=0.9, dust=0.4, dust_height=6.0,

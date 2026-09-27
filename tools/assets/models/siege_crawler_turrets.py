@@ -42,15 +42,15 @@ def materials(a, paint):
     msoot = [{"pos": (0, 52.3, GUN_Z), "dir": (0, -1, 0), "radius": 1.6, "length": 7.0, "spread": 0.05, "strength": 0.95}]
     ssoot = [{"pos": (s * SIDE_RING[0] + dx, 32.9, SIDE_GUN_Z), "dir": (0, -1, 0), "radius": 0.5, "length": 3.0, "spread": 0.05}
              for s in (-1, 1) for dx in (-0.8, 0.8)]
-    turret = dict(paint, dust_height=0.0, dust_caked=0.0, dust_up=0.5)
+    turret = dict(paint, dust_height=0.0, dust_caked=0.0, dust_up=0.3)
     a.material("turret", **turret, marks=band)
-    a.material("turret_dark", **dict(turret, color="#2b2d31", photo=None))
-    a.material("barrel", **dict(turret, color="#34373b", wear=0.45), soot=msoot)
+    a.material("turret_dark", **dict(turret, color="#26282c", photo=None))
+    a.material("barrel", **dict(turret, color="#2e3135", wear=0.45), soot=msoot)
     a.material("side_turret", **turret, soot=ssoot,
                marks=[{"lo": (s * SIDE_RING[0] - 3.6, 16.0, 19.2), "hi": (s * SIDE_RING[0] + 3.6, 24.5, 19.75), "color": RED} for s in (-1, 1)])
-    a.material("side_barrel", **dict(turret, color="#34373b", wear=0.45), soot=ssoot)
+    a.material("side_barrel", **dict(turret, color="#2e3135", wear=0.45), soot=ssoot)
     a.material("red_box", **dict(turret, color="#9e1a16", photo=None, wear=0.6))
-    a.material("armor", **dict(turret, dust_up=0.4))
+    a.material("armor", **dict(turret, dust_up=0.25))
     a.material("armor_red", **dict(turret, color="#9e1a16", photo=None, wear=0.6))
     # Torn, burnt steel for the sockets: charred paint, rusted and heat-tinted edges.
     a.material("torn", kind="paint", color="#1d1a18", rough=0.85, wear=0.9, under="#6a4a36", under_metal=0.4, under_rough=0.6,

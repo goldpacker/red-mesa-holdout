@@ -1,32 +1,32 @@
 {
  "hashes": {
-  "armour/color": "f8b46d3480c44e71",
-  "armour/metal": "eb41a53d9c685b05",
-  "armour/normal": "08a9e674c6824a39",
-  "armour/rough": "8f00a7fcc0c3cdfb",
-  "deck/color": "065bbab9cf91725c",
-  "deck/metal": "32fde0a161a71ac9",
-  "deck/normal": "0888bb11795e47ee",
-  "deck/rough": "5a383df78336e98d",
-  "glb": "1cc259357487828e",
-  "hull/color": "8c649da8f81e5a44",
-  "hull/metal": "59b816fa6a2d621d",
-  "hull/normal": "014931b9df3fec47",
-  "hull/rough": "8bababd37976d4a3",
-  "turrets/color": "c743b42f35d23e3a",
-  "turrets/metal": "5a79a0d477247dd9",
-  "turrets/normal": "6fa925f3a54c71af",
-  "turrets/rough": "2db4e0fcd1c12039",
-  "wreck/armour": "417836796258748f",
-  "wreck/deck": "5e1061715196791f",
-  "wreck/hull": "3c2b30e919164aaa",
-  "wreck/turrets": "3ccdd1e6a4c08705"
+  "armour/color": "d00e2187bf8b399c",
+  "armour/metal": "476a62b3bd1fa939",
+  "armour/normal": "ebb97d03cf0fe711",
+  "armour/rough": "c39ebc3de3e4b5e9",
+  "deck/color": "35c5c78bb5371aeb",
+  "deck/metal": "1d92331a2444d5d5",
+  "deck/normal": "1681803cb269e15d",
+  "deck/rough": "27dbf48681c864c4",
+  "glb": "0a354104d3bfa716",
+  "hull/color": "bc5238eb339253ca",
+  "hull/metal": "de9431f0ca3672b2",
+  "hull/normal": "5d1b19d03974c7db",
+  "hull/rough": "8882fe38e287ec71",
+  "turrets/color": "20296ef145c969f6",
+  "turrets/metal": "cae6152734fd6c99",
+  "turrets/normal": "c67afb7ebbbcffef",
+  "turrets/rough": "af2cafd80ed30ade",
+  "wreck/armour": "1bba8e9c7374fc9e",
+  "wreck/deck": "f82ed7b7485a6691",
+  "wreck/hull": "1f05d5446dada614",
+  "wreck/turrets": "1c651c023c915547"
  },
  "meshes": {
-  "Beacons": "rbxassetid://114771209811475",
+  "Beacons": "rbxassetid://111811955250719",
   "CannonBarrel": "rbxassetid://78265557106389",
   "CannonGlow": "rbxassetid://94318915374000",
-  "CannonKit": "rbxassetid://118643146188378",
+  "CannonKit": "rbxassetid://102661653698903",
   "CannonTurret": "rbxassetid://125018910735414",
   "Core": "rbxassetid://123190146550519",
   "CoreArmor": "rbxassetid://118624079295177",
@@ -46,37 +46,37 @@
   "TurretRightKit": "rbxassetid://125026705054137",
   "TurretRightSocket": "rbxassetid://111414361231361"
  },
- "model": "109267869305726",
+ "model": "115882436414681",
  "textures": {
   "armour": {
-   "color": "rbxassetid://98223595625605",
-   "metal": "rbxassetid://71576488594794",
-   "normal": "rbxassetid://131742412115340",
-   "rough": "rbxassetid://125065062317776"
+   "color": "rbxassetid://90366181847968",
+   "metal": "rbxassetid://138743647781272",
+   "normal": "rbxassetid://139167079525981",
+   "rough": "rbxassetid://81703913341292"
   },
   "deck": {
-   "color": "rbxassetid://120240763478429",
-   "metal": "rbxassetid://105386673315975",
-   "normal": "rbxassetid://98500123700883",
-   "rough": "rbxassetid://87093504944283"
+   "color": "rbxassetid://121832137395763",
+   "metal": "rbxassetid://71029970290986",
+   "normal": "rbxassetid://132673850849223",
+   "rough": "rbxassetid://125364024815377"
   },
   "hull": {
-   "color": "rbxassetid://130476781649046",
-   "metal": "rbxassetid://101035494289503",
-   "normal": "rbxassetid://88310665672786",
-   "rough": "rbxassetid://87151551420157"
+   "color": "rbxassetid://72793436567325",
+   "metal": "rbxassetid://128767163677282",
+   "normal": "rbxassetid://75686513737164",
+   "rough": "rbxassetid://74609745707263"
   },
   "turrets": {
-   "color": "rbxassetid://114821189811116",
-   "metal": "rbxassetid://124210188155590",
-   "normal": "rbxassetid://132718300810427",
-   "rough": "rbxassetid://103945509116207"
+   "color": "rbxassetid://83614727018350",
+   "metal": "rbxassetid://86026115322677",
+   "normal": "rbxassetid://85764699514479",
+   "rough": "rbxassetid://104233058016540"
   }
  },
  "wreck": {
-  "armour": "rbxassetid://96022024155429",
-  "deck": "rbxassetid://99593938821151",
-  "hull": "rbxassetid://110540798954042",
-  "turrets": "rbxassetid://74598516520878"
+  "armour": "rbxassetid://125616681848159",
+  "deck": "rbxassetid://111151608731979",
+  "hull": "rbxassetid://133096035788245",
+  "turrets": "rbxassetid://98341832111852"
  }
 }
