@@ -1,0 +1,58 @@
+AD-2 fix round 1: hand-off when the enemy dies the tick it spawns. Studio play session 3
+(2026-09-27 02:10, wave 4 LateAfternoon, integrity held), working tree after 4c7c0e3 with the fix.
+
+Fix (client/Airdrop.luau): the load watches Workspace.Enemies AND Workspace.Wrecks for its
+DropLoadId; a sighting is kept until the load is done (no ChildRemoved clearing, so an add +
+remove between two frames still counts); with nothing seen by landT + AirdropStyle.HANDOFF_GRACE
+(0.4 s) the body is retired anyway (counter AirdropFx.HandoffsRetired). The canopy collapses
+at touchdown as always; only the body hides.
+
+Test harness (server, execute_luau): a Workspace.Enemies.ChildAdded handler that, for target
+DropLoadIds, on the tick the enemy spawns does one of:
+  kill   = RedMesaDebug:Invoke("killAll") (Enemies.damage -> die(): vehicles go straight to
+           Workspace.Wrecks, infantry stay in Enemies with State Dead)
+  delete = model:Destroy()
+  strip  = model:SetAttribute("DropLoadId", nil) (the client never sees a matching model)
+Server log of the handler (server time of the spawn tick; loads' landT match to the tick):
+load 27 delete at server 1790500304.591; parent now nil
+load 23 kill at server 1790500305.391; parent now Enemies
+load 24 kill at server 1790500305.790; parent now Enemies
+load 25 delete at server 1790500306.191; parent now nil
+load 21 kill at server 1790500311.290; parent now Wrecks
+load 22 kill at server 1790500312.490; parent now Wrecks
+load 50 kill at server 1790500374.288; parent now Wrecks
+load 51 strip at server 1790500380.238; parent now Enemies
+load 52 strip at server 1790500380.638; parent now Enemies
+
+Client hand-off recorder (per frame, after the airdrop step; "enemy" = a model with the load's
+DropLoadId in Enemies or Wrecks):
+Batch A (Buggy x2 kill, Infantry: 2 kill, 1 delete, 1 control; Tank delete):
+load 25 (Infantry, delete): body hidden at landT+0.035 | no enemy seen by the recorder (the
+        client did receive the model for a moment: the sighting is kept, so it handed off at once;
+        the old code's ChildRemoved clearing would have left the body up for the 4 s timeout)
+load 23 (Infantry, kill):   body hidden at landT+0.022 | enemy first frame 1258 (+0.022) in Enemies state Dead | body last shown 1257 | both 0 | pos gap 0.16 (dy 0.00)
+load 24 (Infantry, kill):   body hidden at landT+0.019 | enemy first frame 1282 (+0.019) in Enemies state Dead | body last shown 1281 | both 0 | pos gap 0.18 (dy 0.00)
+load 21 (Buggy, kill):      body hidden at landT+0.048 | wreck first frame 1613 (+0.048) in Wrecks state Dead | body last shown 1612 | both 0 | pos gap 4.17 (wreck pivot)
+load 26 (Infantry, control): body hidden at landT+0.035 | enemy first frame 1331 (+0.035) in Enemies state Walk | both 0 | pos gap 0.39 (dy 0.00)
+load 22 (Buggy, kill):      body hidden at landT+0.048 | wreck first frame 1685 (+0.048) in Wrecks state Dead | both 0 | pos gap 4.18 (wreck pivot)
+load 27 (Tank, delete):     body hidden at landT+0.021 | no enemy seen by the recorder (as load 25)
+Batch B (Buggy kill, Infantry: 2 strip, 1 control):
+load 53 (Infantry, control): body hidden at landT+0.044 | enemy first frame 1443 (+0.044) in Enemies state Walk | both 0 | pos gap 0.39 (dy 0.00)
+load 50 (Buggy, kill):       body hidden at landT+0.041 | wreck first frame 1038 (+0.041) in Wrecks state Dead | both 0 | pos gap 4.17 (wreck pivot)
+load 51 (Infantry, strip):   body hidden at landT+0.411 | no enemy seen   <- grace fallback
+load 52 (Infantry, strip):   body hidden at landT+0.412 | no enemy seen   <- grace fallback
+AirdropFx counters after batch B: Handoffs=51 HandoffsRetired=2 HandoffMaxDelay=0.051 s
+(In the strip test the enemy itself does exist, un-tagged, so for those 0.4 s both are drawn;
+in the real case the fallback covers, there is no enemy to double.)
+
+Batch C, normal drops re-run (no targets): Tank, 4 Infantry, 2 Buggies:
+load 64: body hidden at landT+0.051 | enemy first frame 1408 (+0.051) in Enemies state Walk | body last shown 1407 | both 0 | pos gap 0.34 (dy 0.00) yaw gap 0.0
+load 69: body hidden at landT+0.035 | enemy first frame 1526 (+0.035) in Enemies state Drive | body last shown 1525 | both 0 | pos gap 0.74 (dy 0.00) yaw gap 2.5
+load 63: body hidden at landT+0.052 | enemy first frame 1372 (+0.052) in Enemies state Drive | body last shown 1371 | both 0 | pos gap 0.36 (dy 0.00) yaw gap 1.3
+load 66: body hidden at landT+0.052 | enemy first frame 1456 (+0.052) in Enemies state Walk | body last shown 1455 | both 0 | pos gap 0.36 (dy 0.00) yaw gap 4.4
+load 65: body hidden at landT+0.050 | enemy first frame 1432 (+0.050) in Enemies state Walk | body last shown 1431 | both 0 | pos gap 0.31 (dy 0.00) yaw gap 6.6
+load 68: body hidden at landT+0.038 | enemy first frame 1454 (+0.038) in Enemies state Drive | body last shown 1453 | both 0 | pos gap 0.80 (dy -0.00) yaw gap 2.5
+load 67: body hidden at landT+0.032 | enemy first frame 1468 (+0.032) in Enemies state Walk | body last shown 1467 | both 0 | pos gap 0.19 (dy -0.02) yaw gap 3.6
+AirdropFx counters at the end: Handoffs=67 HandoffsRetired=2 HandoffMaxDelay=0.052 s
+
+Console: world built / server ready / client ready and the MCP tool's camera notice only.

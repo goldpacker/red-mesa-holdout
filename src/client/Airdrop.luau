@@ -8,8 +8,12 @@
 --
 -- Hand-off: the server spawns the real enemy at landT with attribute
 -- DropLoadId; the frame it replicates, the load's body is hidden (no pop:
--- both stand at landPos, same facing). Canopies and pallets stay behind a
--- few seconds, capped.
+-- both stand at landPos, same facing). A vehicle killed on its landing
+-- tick reaches the client already in Workspace.Wrecks (its wreck takes
+-- over the same way); a model the client never sees at all (added and
+-- removed within one replication step) is covered by a short grace after
+-- landT (AirdropStyle.HANDOFF_GRACE), after which the body is retired as
+-- if handed off. Canopies and pallets stay behind a few seconds, capped.
 --
 -- Airborne loads are invincible because the server has nothing to hit. A
 -- machine-gun round that meets one here shows "no effect" (AirdropFx:
@@ -23,7 +27,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
-local AirdropConfig = require(ReplicatedStorage.Shared.AirdropConfig)
 local AirdropPath = require(ReplicatedStorage.Shared.AirdropPath)
 local Cargo = require(script.Parent.AirdropCargo)
 local Fx = require(script.Parent.AirdropFx)
@@ -58,7 +61,10 @@ type LoadState = {
 }
 
 local sorties: { [number]: SortieState } = {}
--- DropLoadId -> the landed enemy model, once it has replicated.
+-- DropLoadId -> the landed enemy model (in Enemies, or its wreck in
+-- Wrecks), once it has replicated. Kept until the load is done, even if
+-- the model leaves again, so an add + remove between two frames is still
+-- seen.
 local landed: { [number]: Model } = {}
 local fxFolder: Folder? = nil
 local sawCanopy = false
@@ -222,15 +228,18 @@ local function stepLoad(ls: LoadState, t: number)
 			return
 		end
 	end
-	-- Landed: hide the body the frame the real enemy appears (or after the
-	-- timeout); canopies/pallets linger and fade either way.
+	-- Landed: hide the body the frame the real enemy (or its wreck)
+	-- appears, or once the grace after landT has passed with nothing seen;
+	-- canopies/pallets linger and fade either way.
 	local v = ls.visual
 	if not ls.handed then
 		local model = landed[l.loadId]
-		if model or t - ls.landedAt > AirdropConfig.HANDOFF_TIMEOUT then
+		if model or t - l.landT > Style.HANDOFF_GRACE then
 			ls.handed = true
 			if model then
 				recordHandOff(ls, model)
+			else
+				bump("HandoffsRetired")
 			end
 			if v then
 				ls.mod.handOff(v)
@@ -240,6 +249,7 @@ local function stepLoad(ls: LoadState, t: number)
 	if not v then
 		if ls.handed then
 			ls.state = "Done"
+			landed[l.loadId] = nil
 		end
 		return
 	end
@@ -247,6 +257,7 @@ local function stepLoad(ls: LoadState, t: number)
 		ls.mod.destroy(v)
 		ls.visual = nil
 		ls.state = "Done"
+		landed[l.loadId] = nil
 	end
 end
 
@@ -477,24 +488,21 @@ function Airdrop.debugState(): { [string]: number }
 	return out
 end
 
-local function watchEnemies()
-	local enemies = Workspace:WaitForChild("Enemies")
+local function watchFolder(name: string)
+	local f = Workspace:WaitForChild(name, 30)
+	if not f then
+		return
+	end
 	local function added(child: Instance)
 		local id = child:GetAttribute("DropLoadId")
-		if typeof(id) == "number" and child:IsA("Model") then
+		if typeof(id) == "number" and child:IsA("Model") and not landed[id] then
 			landed[id] = child
 		end
 	end
-	for _, child in enemies:GetChildren() do
+	for _, child in f:GetChildren() do
 		added(child)
 	end
-	enemies.ChildAdded:Connect(added)
-	enemies.ChildRemoved:Connect(function(child)
-		local id = child:GetAttribute("DropLoadId")
-		if typeof(id) == "number" and landed[id] == child then
-			landed[id] = nil
-		end
-	end)
+	f.ChildAdded:Connect(added)
 end
 
 function Airdrop.start()
@@ -508,7 +516,9 @@ function Airdrop.start()
 			clear(true)
 		end
 	end)
-	task.spawn(watchEnemies)
+	task.spawn(watchFolder, "Enemies")
+	-- A vehicle killed on its landing tick replicates straight into Wrecks.
+	task.spawn(watchFolder, "Wrecks")
 	local WeaponController = require(script.Parent.WeaponController) :: any
 	WeaponController.airborneHit = Airdrop.airborneHit
 	-- A failure in the visuals never breaks the game or floods the output:

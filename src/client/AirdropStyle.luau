@@ -105,6 +105,15 @@ Style.Ground = {
 	MAX_COLLAPSED = 18,
 }
 
+-- Hand-off safety net: if no model with the load's DropLoadId (in Enemies
+-- or Wrecks) has reached this client this long after landT, the body is
+-- retired anyway (canopy/pallet behave as after a normal hand-off). The
+-- replicated enemy's first frame came 17-53 ms after landT in every
+-- measured Studio hand-off (logs/ad-2); this leaves room for a real
+-- player's network latency while keeping a never-seen enemy's stand-in
+-- under half a second.
+Style.HANDOFF_GRACE = 0.4
+
 -- Hard caps (waves 8-10 can have many loads airborne at once).
 Style.Caps = {
 	LOADS_AIRBORNE = 48, -- beyond this new loads fall as a canopy-only visual
