@@ -1,6 +1,6 @@
 --!strict
 -- Road and wash edge strips and ground dressing (FACELIFT_PLAN §4 Phase 1c
--- and 1d, ENV-3). Visual only.
+-- and 1d, ENV-3; density and zoning pass ENV-4). Visual only.
 --
 -- Strips (assets/roblox/GroundStrips.rbxmx, built by tools/env/ground/):
 -- mesh ribbons lying 0.1-0.3 studs over the live terrain along the road and
@@ -18,6 +18,15 @@
 -- the lanes (infantry walk up to 14 studs off a lane), and nothing on the
 -- road/wash strips.
 --
+-- ENV-4 zones the scatter (zoneOf): scrub-heavy flats, rocky rises (dune
+-- caps: rock clusters, pebbles, gravel patches), pebble fans below the
+-- cliffs and buttes, and trampled ground along the scrub lanes (flat
+-- trample ribbons, GroundPatches.rbxmx), plus flat patches (gravel, dry
+-- stubble, dark soil), tyre tracks along the road shoulders and the wash
+-- approaches, and more old craters with a coarse-sand dip under them.
+-- Flat pieces lie on the floor and are drawn even on the lanes; they block
+-- nothing (every piece is non-colliding and non-queryable).
+--
 -- Everything is anchored, non-colliding, CanQuery/CanTouch false, parented
 -- under Battlefield.GroundDressing (not Battlefield.Landscape, so effects
 -- land on the terrain under the strips, not on their boxes). Missing assets
@@ -33,6 +42,7 @@
 
 local AssetService = game:GetService("AssetService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Config = require(ReplicatedStorage.Shared.Config)
@@ -53,11 +63,19 @@ local BUTTES = {
 	{ Vector2.new(620, -1060), 90 },
 }
 local FLOOR_MATERIALS = { [Enum.Material.Sand] = true, [Enum.Material.Mud] = true }
--- Dressing casts shadows only this close to the turret (studs).
-local SHADOW_RANGE = 480
+-- Dressing casts shadows only this close to the turret (studs). ENV-4: 300
+-- (was 480): the busy night wave is GPU-bound and a bush beyond 300 studs
+-- is a few pixels; its shadow only costs shadow-pass triangles.
+local SHADOW_RANGE = 300
+-- The wash strips' alpha pebble-bed fringe (…_bankA) is dropped for chunks
+-- whose centre is farther than this from the turret (ENV-4 GPU offset).
+local BANK_ALPHA_RANGE = 500
 -- Strip parts thicker than this (studs) get precise collision (see buildStrips).
 local PRECISE_ABOVE = 0.6
 local SCRUB_LANES = { "ScrubLeft", "ScrubRight" }
+-- ENV-4: the dirt track from the road's far end to the ruined compound on
+-- the left flank (ConflictLayout.GROUPS[1]); all beyond the drop band.
+local COMPOUND_TRACK = { Vector2.new(-58, -884), Vector2.new(-160, -852), Vector2.new(-262, -836), Vector2.new(-322, -838) }
 
 -- name: count, clearance from any lane (studs), scale range, min spacing,
 -- clustered (scrub grows in loose groups), flat decal (needs level ground),
@@ -65,8 +83,38 @@ local SCRUB_LANES = { "ScrubLeft", "ScrubRight" }
 -- Heights: nothing is taller than 3/4 of a soldier (Infantry is 7.2 studs;
 -- the creosote at scale 1.0 is 5.4), so an airdropped soldier crossing the
 -- basin floor always shows head and shoulders over the scrub.
-type Kind = { name: string, count: number, clear: number, scale: { number }, spacing: number, cluster: boolean?, flat: boolean?, sway: number? }
+-- ENV-4: `kit` (default GroundDressing; GroundPatches for the flat
+-- patches), `zones` = acceptance weight per zone (see zoneOf; missing = 1),
+-- `near` = only within this distance of the turret.
+type Kind = { name: string, count: number, clear: number, scale: { number }, spacing: number, cluster: boolean?, flat: boolean?, sway: number?, kit: string?, zones: { [string]: number }?, near: number?, dip: boolean? }
+local SCRUB = { flat = 1, rise = 0.3, fan = 0.2 }
+local STONY = { flat = 0.12, rise = 1, fan = 1 }
 local SCATTER: { Kind } = {
+	{ name = "Scrub_A", count = 260, clear = 26, scale = { 0.7, 1.25 }, spacing = 7, cluster = true, sway = 0.05, zones = SCRUB },
+	{ name = "Scrub_B", count = 150, clear = 26, scale = { 0.7, 1.2 }, spacing = 7, cluster = true, sway = 0.05, zones = { flat = 1, rise = 0.5, fan = 0.5 } },
+	{ name = "Creosote", count = 90, clear = 32, scale = { 0.75, 1.0 }, spacing = 10, cluster = true, sway = 0.035, zones = SCRUB },
+	{ name = "Saltbush", count = 80, clear = 30, scale = { 0.7, 1.15 }, spacing = 10, cluster = true, sway = 0.04, zones = SCRUB },
+	{ name = "Grass", count = 320, clear = 22, scale = { 0.75, 1.3 }, spacing = 4, cluster = true, sway = 0.1, zones = { flat = 1, rise = 0.35, fan = 0.3 } },
+	{ name = "Branch_A", count = 45, clear = 22, scale = { 0.8, 1.3 }, spacing = 8 },
+	{ name = "Branch_B", count = 45, clear = 22, scale = { 0.8, 1.3 }, spacing = 8 },
+	-- ENV-4 GPU offset: pebble patches 220 -> 110, now on the rises and fans.
+	{ name = "Pebbles_A", count = 55, clear = 18, scale = { 0.8, 1.4 }, spacing = 6, zones = STONY },
+	{ name = "Pebbles_B", count = 55, clear = 18, scale = { 0.8, 1.4 }, spacing = 6, zones = STONY },
+	{ name = "Rocks_A", count = 36, clear = 24, scale = { 0.6, 1.2 }, spacing = 14, zones = { flat = 0.08, rise = 1, fan = 1 } },
+	{ name = "Rocks_B", count = 28, clear = 24, scale = { 0.6, 1.1 }, spacing = 14, zones = { flat = 0.08, rise = 1, fan = 1 } },
+	{ name = "Crater", count = 26, clear = 30, scale = { 0.7, 1.3 }, spacing = 45, flat = true, dip = true },
+	{ name = "Patch_Gravel", kit = "GroundPatches", count = 130, clear = 16, scale = { 0.6, 1.4 }, spacing = 16, flat = true, zones = { flat = 0.3, rise = 1, fan = 1 } },
+	{ name = "Patch_Stubble", kit = "GroundPatches", count = 180, clear = 18, scale = { 0.7, 1.5 }, spacing = 12, flat = true, cluster = true, zones = { flat = 1, rise = 0.25, fan = 0.1 } },
+	{ name = "Patch_Stain", kit = "GroundPatches", count = 50, clear = 12, scale = { 0.8, 1.6 }, spacing = 26, flat = true, zones = { flat = 1, rise = 0.3, fan = 0.2 }, near = 750 },
+}
+
+-- Studio-only perf A/B (ENV-4): with the Workspace attribute `Env4Before`
+-- set in Edit before Play, the world is built as ENV-3F left it (this
+-- scatter, 480-stud shadows, 0.35 far density, the wash fringe kept, no
+-- zoning, lane wear or conflict dressing), so the same wave can be
+-- measured before and after. Never set in a live game.
+GroundDressing.BEFORE = RunService:IsStudio() and Workspace:GetAttribute("Env4Before") == true
+local SCATTER_ENV3: { Kind } = {
 	{ name = "Scrub_A", count = 240, clear = 26, scale = { 0.7, 1.25 }, spacing = 7, cluster = true, sway = 0.05 },
 	{ name = "Scrub_B", count = 150, clear = 26, scale = { 0.7, 1.2 }, spacing = 7, cluster = true, sway = 0.05 },
 	{ name = "Creosote", count = 80, clear = 32, scale = { 0.75, 1.0 }, spacing = 10, cluster = true, sway = 0.035 },
@@ -78,13 +126,18 @@ local SCATTER: { Kind } = {
 	{ name = "Pebbles_B", count = 110, clear = 18, scale = { 0.8, 1.4 }, spacing = 6 },
 	{ name = "Crater", count = 9, clear = 30, scale = { 0.8, 1.25 }, spacing = 60, flat = true },
 }
+if GroundDressing.BEFORE then
+	SCATTER = SCATTER_ENV3
+	SHADOW_RANGE = 480
+	BANK_ALPHA_RANGE = math.huge
+end
 
 local params = RaycastParams.new()
 params.FilterType = Enum.RaycastFilterType.Include
 
-local function templates(): Instance?
+local function templates(name: string?): Instance?
 	local assets = ReplicatedStorage:FindFirstChild("Assets")
-	return assets and assets:FindFirstChild("GroundDressing")
+	return assets and assets:FindFirstChild(name or "GroundDressing")
 end
 
 local function prepare(part: BasePart)
@@ -140,7 +193,12 @@ local function density(p: Vector2): number
 	if d < 450 then
 		return 1
 	end
-	return math.max(0.35, 1 - (d - 450) / 650 * 0.65)
+	if GroundDressing.BEFORE then
+		return math.max(0.35, 1 - (d - 450) / 650 * 0.65)
+	end
+	-- ENV-4 GPU offset: the far floor is 0.2 (was 0.35); the far basin
+	-- reads through the terrain zoning and the conflict dressing instead.
+	return math.max(0.2, 1 - (d - 450) / 650 * 0.8)
 end
 
 local function ground(p: Vector2): RaycastResult?
@@ -161,6 +219,44 @@ local function level(p: Vector2, r: number, y: number): boolean
 		end
 	end
 	return true
+end
+
+-- ENV-4: the ground under a flat patch of radius r lies on the plane of
+-- `hit` (within `tol`), so the patch can be tilted to it without the
+-- terrain poking through or the patch floating.
+local function planar(p: Vector2, r: number, hit: RaycastResult, tol: number): boolean
+	local n, y0 = hit.Normal, hit.Position.Y
+	for k = 0, 7 do
+		local a = k * math.pi / 4 + 0.3
+		local o = Vector2.new(math.cos(a), math.sin(a)) * r
+		local h = ground(p + o)
+		if not h then
+			return false
+		end
+		local want = y0 - (n.X * o.X + n.Z * o.Y) / n.Y
+		if math.abs(h.Position.Y - want) > tol then
+			return false
+		end
+	end
+	return true
+end
+
+-- ENV-4 zones: "fan" (pebble fans below the flank and far walls and round
+-- the buttes), "rise" (dune caps, TerrainBuilder paints them coarse), else
+-- "flat" (scrub-heavy flats).
+local function zoneOf(p: Vector2, y: number): string
+	if math.abs(p.X) > 600 or p.Y < -1170 then
+		return "fan"
+	end
+	for _, b in BUTTES do
+		if (p - b[1]).Magnitude < b[2] + 95 then
+			return "fan"
+		end
+	end
+	if y > TerrainBuilder.RISE_Y then
+		return "rise"
+	end
+	return "flat"
 end
 
 -- Spatial hash for minimum spacing.
@@ -191,7 +287,7 @@ function Spacing:add(p: Vector2)
 	table.insert(self.grid[key], p)
 end
 
-local function place(template: BasePart, folder: Instance, at: Vector3, normal: Vector3, yaw: number, scale: number, tilt: boolean)
+local function place(template: BasePart, folder: Instance, at: Vector3, normal: Vector3, yaw: number, scale: number, tilt: boolean): BasePart
 	local part = template:Clone()
 	prepare(part)
 	-- Shadows where they read (the combat range); beyond it a bush is a few
@@ -203,11 +299,13 @@ local function place(template: BasePart, folder: Instance, at: Vector3, normal: 
 	local cf = CFrame.new(at) * CFrame.fromRotationBetweenVectors(Vector3.yAxis, up) * CFrame.Angles(0, yaw, 0)
 	part:PivotTo(cf)
 	part.Parent = folder
+	return part
 end
 
 local function scatter(kit: Instance, folder: Instance, rng: Random): number
 	local spacing = Spacing.new(32)
 	local placed = 0
+	local dips: { { p: Vector2, r: number } } = {}
 	-- Loose groups for scrub: shared cluster centres, members around them.
 	local centres: { Vector2 } = {}
 	for _ = 1, 400 do
@@ -217,15 +315,20 @@ local function scatter(kit: Instance, folder: Instance, rng: Random): number
 		end
 	end
 	for _, kind in SCATTER do
-		local template = kit:FindFirstChild(kind.name)
+		local source = if kind.kit then templates(kind.kit) else kit
+		local template = source and source:FindFirstChild(kind.name)
 		if template and template:IsA("BasePart") then
 			local sub = Instance.new("Folder")
 			sub.Name = kind.name
 			if kind.sway then
 				sub:SetAttribute("Sway", kind.sway)
 			end
+			-- patches (flat, GroundPatches kit) keep their own spacing so
+			-- they may lie under bushes and rocks
+			local grid = if kind.kit then Spacing.new(32) else spacing
+			local radius = math.max(template.Size.X, template.Size.Z) / 2
 			local count, tries = 0, 0
-			while count < kind.count and tries < kind.count * 30 do
+			while count < kind.count and tries < kind.count * 40 do
 				tries += 1
 				local p
 				if kind.cluster and #centres > 0 and rng:NextNumber() < 0.8 then
@@ -235,18 +338,38 @@ local function scatter(kit: Instance, folder: Instance, rng: Random): number
 					p = Vector2.new(rng:NextNumber(BASIN.minX, BASIN.maxX), rng:NextNumber(BASIN.minZ, BASIN.maxZ))
 				end
 				local scale = rng:NextNumber(kind.scale[1], kind.scale[2])
-				if allowed(p, kind.clear) and rng:NextNumber() < density(p) and spacing:free(p, kind.spacing * scale) then
+				local near = not kind.near or (p - TURRET).Magnitude < kind.near
+				if near and allowed(p, kind.clear) and rng:NextNumber() < density(p) and grid:free(p, kind.spacing * scale) then
 					local hit = ground(p)
-					if hit and (not kind.flat or level(p, 9 * scale, hit.Position.Y)) then
-						place(template, sub, hit.Position, hit.Normal, rng:NextNumber(0, math.pi * 2), scale, not kind.flat)
-						spacing:add(p)
-						count += 1
+					local weight = if hit and kind.zones then (kind.zones[zoneOf(p, hit.Position.Y)] or 1) else 1
+					if hit and rng:NextNumber() < weight then
+						local ok
+						if kind.kit then
+							ok = planar(p, radius * scale * 0.9, hit, 0.12)
+						elseif kind.flat then
+							ok = level(p, 9 * scale, hit.Position.Y)
+						else
+							ok = true
+						end
+						if ok then
+							place(template, sub, hit.Position, hit.Normal, rng:NextNumber(0, math.pi * 2), scale, not kind.flat or kind.kit ~= nil)
+							if kind.dip then
+								-- painted after the scatter (a voxel write can make the
+								-- terrain briefly miss raycasts)
+								table.insert(dips, { p = p, r = 8 * scale })
+							end
+							grid:add(p)
+							count += 1
+						end
 					end
 				end
 			end
 			sub.Parent = folder
 			placed += count
 		end
+	end
+	for _, d in dips do
+		TerrainBuilder.dip(d.p, d.r)
 	end
 	return placed
 end
@@ -286,6 +409,106 @@ local function tracks(kit: Instance, folder: Instance, rng: Random): number
 	end
 	sub.Parent = folder
 	return count
+end
+
+-- ENV-4: a ribbon of half-length h along `dir` lies on the plane of the
+-- ground at its centre (checked at its ends and quarter points).
+local function ribbonFits(p: Vector2, dir: Vector2, h: number, hit: RaycastResult, tol: number): boolean
+	local n, y0 = hit.Normal, hit.Position.Y
+	for _, k in { -1, -0.5, 0.5, 1 } do
+		local o = dir * (h * k)
+		local g = ground(p + o)
+		if not g then
+			return false
+		end
+		if math.abs(g.Position.Y - (y0 - (n.X * o.X + n.Z * o.Y) / n.Y)) > tol then
+			return false
+		end
+	end
+	return true
+end
+
+-- ENV-4: flat ribbons chained along a polyline, `offset` studs to its side
+-- (both sides when `both`), every `step`; `ok(p)` vetoes a spot.
+type Chain = { pts: { Vector2 }, offset: number, both: boolean?, step: number, jitter: number, chance: number, names: { string }, ok: ((Vector2) -> boolean)?, scale: { number }?, swing: number? }
+
+local function chain(kits: { Instance }, folder: Instance, c: Chain, rng: Random): number
+	local count = 0
+	for i = 1, #c.pts - 1 do
+		local a, b = c.pts[i], c.pts[i + 1]
+		local d = b - a
+		local dir = d.Unit
+		local side = Vector2.new(-dir.Y, dir.X)
+		local n = math.max(1, math.floor(d.Magnitude / c.step + 0.5))
+		for k = 0, n - 1 do
+			for _, sgn in (if c.both then { -1, 1 } else { 1 }) do
+				if rng:NextNumber() < c.chance then
+					local name = c.names[rng:NextInteger(1, #c.names)]
+					local template: Instance? = nil
+					for _, kit in kits do
+						template = template or kit:FindFirstChild(name)
+					end
+					local p = a + dir * (c.step * (k + 0.5)) + side * sgn * (c.offset + rng:NextNumber(-1, 1) * c.jitter)
+					if template and template:IsA("BasePart") and (not c.ok or (c.ok :: any)(p)) then
+						local hit = ground(p)
+						local swing = rng:NextNumber(-1, 1) * (c.swing or 0.12)
+						local along = Vector2.new(dir.X * math.cos(swing) - dir.Y * math.sin(swing), dir.X * math.sin(swing) + dir.Y * math.cos(swing))
+						if hit and ribbonFits(p, along, template.Size.X * 0.45, hit, 0.3) then
+							local scale = if c.scale then rng:NextNumber(c.scale[1], c.scale[2]) else 1
+							if rng:NextNumber() < 0.5 then
+								along = -along
+							end
+							place(template, folder, hit.Position, hit.Normal, math.atan2(-along.Y, along.X), scale, true)
+							count += 1
+						end
+					end
+				end
+			end
+		end
+	end
+	return count
+end
+
+-- ENV-4 lanes and roads: trampled ground on the scrub lanes, tyre tracks
+-- along the road shoulders and beside the wash approaches, and a dirt track
+-- from the road's far end to the ruined compound (ConflictLayout).
+local function laneWear(kit: Instance, patches: Instance?, folder: Instance, rng: Random): number
+	local sub = Instance.new("Folder")
+	sub.Name = "LaneWear"
+	local kits: { Instance } = { kit }
+	if patches then
+		table.insert(kits, 1, patches)
+	end
+	local function offStrips(p: Vector2): boolean
+		if p.Magnitude < BASIN.mesa + 10 then
+			return false
+		end
+		for name, reach in STRIP_LANES do
+			if laneDistance(p, name) < reach then
+				return false
+			end
+		end
+		return true
+	end
+	local function offLanesAndStrips(p: Vector2): boolean
+		return offStrips(p) and TerrainBuilder.laneDistance(p) > 16
+	end
+	local n = 0
+	if patches then
+		for _, lane in SCRUB_LANES do
+			n += chain(kits, sub, { pts = Config.Lanes[lane], offset = 0, step = 64, jitter = 5, chance = 0.7, names = { "Trample" }, ok = offStrips, scale = { 0.8, 1.1 }, swing = 0.08 }, rng)
+		end
+	end
+	-- vehicles that pulled off the road: short arcs leaving it at an angle
+	n += chain(kits, sub, { pts = Config.Lanes.Road, offset = 44, both = true, step = 80, jitter = 14, chance = 0.4, names = { "Tracks_A", "Tracks_B" }, ok = offLanesAndStrips, swing = 0.55 }, rng)
+	for _, lane in { "WashLeft", "WashRight" } do
+		n += chain(kits, sub, { pts = Config.Lanes[lane], offset = 60, both = true, step = 110, jitter = 14, chance = 0.4, names = { "Tracks_A", "Tracks_B" }, ok = offLanesAndStrips, swing = 0.5 }, rng)
+		-- eroded banks: stones and dead wood left on the bank tops by floods
+		n += chain(kits, sub, { pts = Config.Lanes[lane], offset = 45, both = true, step = 34, jitter = 3, chance = 0.4, names = { "Branch_A", "Pebbles_B", "Pebbles_A" }, ok = offLanesAndStrips, scale = { 0.6, 1.0 } }, rng)
+	end
+	n += chain(kits, sub, { pts = COMPOUND_TRACK, offset = 0, step = 70, jitter = 1.5, chance = 1, names = { "Tracks_B", "Tracks_A" } }, rng)
+	sub.Parent = folder
+	return n
 end
 
 -- Rock clusters and pebbles at the feet of the terrain boulders and the
@@ -359,7 +582,9 @@ local function buildStrips(folder: Instance): boolean
 	copy.Name = "Strips"
 	local precise: { MeshPart } = {}
 	for _, d in copy:GetDescendants() do
-		if d:IsA("BasePart") then
+		if d:IsA("BasePart") and string.sub(d.Name, -6) == "_bankA" and (Vector2.new(d.Position.X, d.Position.Z) - TURRET).Magnitude > BANK_ALPHA_RANGE then
+			d:Destroy()
+		elseif d:IsA("BasePart") then
 			prepare(d)
 			-- Wash pieces span the trough; a strip end climbing onto the mesa
 			-- foot is taller than a flat road chunk. Their boxes would stand
@@ -396,6 +621,9 @@ function GroundDressing.build(parent: Instance): boolean
 		local n = scatter(kit, dressing, rng)
 		n += tracks(kit, dressing, rng)
 		n += boulderFeet(kit, dressing, rng)
+		if not GroundDressing.BEFORE then
+			n += laneWear(kit, templates("GroundPatches"), dressing, rng)
+		end
 		dressing.Parent = folder
 		folder:SetAttribute("DressingCount", n)
 		folder:SetAttribute("DressingSeconds", math.floor((os.clock() - started) * 100) / 100)

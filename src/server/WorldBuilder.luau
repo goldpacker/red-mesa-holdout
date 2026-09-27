@@ -6,6 +6,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
+local ConflictDressing = require(script.Parent.ConflictDressing)
 local Emplacement = require(script.Parent.Emplacement)
 local GroundDressing = require(script.Parent.GroundDressing)
 local Landscape = require(script.Parent.Landscape)
@@ -194,6 +195,16 @@ function WorldBuilder.build()
 	end
 	-- Terrain written this frame isn't raycastable yet; place rocks shortly after.
 	task.delay(1, buildRockKit, battlefield)
+	-- Conflict dressing (ENV-4) sits on the terrain too; visual only.
+	task.delay(1.3, function()
+		if GroundDressing.BEFORE then
+			return -- Studio-only ENV-4 perf "before" build (see GroundDressing)
+		end
+		local ok, err = pcall(ConflictDressing.build, battlefield)
+		if not ok then
+			warn("[RedMesa] conflict dressing unavailable: " .. tostring(err))
+		end
+	end)
 	buildSearchlights(battlefield)
 	LightingRig.build()
 	Emplacement.build(battlefield)

@@ -70,9 +70,9 @@ local VARIANTS: { Variant } = {
 		baseMaterial = Enum.Material.Mud,
 		studsPerTile = 40,
 		pattern = Enum.MaterialPattern.Organic,
-		colorMap = "rbxassetid://71781553653788",
-		normalMap = "rbxassetid://135745167273613",
-		roughnessMap = "rbxassetid://129234944321949",
+		colorMap = "rbxassetid://80860826443975",
+		normalMap = "rbxassetid://92214645239001",
+		roughnessMap = "rbxassetid://100536892248693",
 		surface = "Sand",
 	},
 	{

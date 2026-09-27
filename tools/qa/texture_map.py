@@ -31,7 +31,7 @@ SKIP_DIRS = ("assets/ui/art/cache", "assets/source", "assets/blender")
 # Workstream that owns each asset folder (docs/FACELIFT_TEAM.md).
 OWNERS = [
     ("Landscape_", "ENV"), ("Cliff_", "ENV"), ("Rock_", "ENV"),
-    ("GroundDressing", "ENV"), ("GroundStrips", "ENV"),
+    ("GroundDressing", "ENV"), ("GroundStrips", "ENV"), ("GroundPatches", "ENV"), ("ConflictDressing", "ENV"),
     ("textures/sky", "ENV"), ("textures/terrain", "ENV"), ("textures/ground", "ENV"),
     ("Emplacement", "HS"), ("Gunsights", "HS"), ("Tank", "HS"), ("Buggy", "HS"),
     ("Helicopter", "HS"), ("Jet", "HS"), ("SiegeCrawler", "HS"), ("TrimEnemy", "HS"),

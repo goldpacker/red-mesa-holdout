@@ -23,6 +23,12 @@ local TerrainBuilder = {}
 -- the ground dressing's rock clusters at their feet (GroundDressing).
 TerrainBuilder.boulders = {} :: { { p: Vector2, size: number } }
 
+-- ENV-4 zoning: the basin floor above this height is a "rocky rise": the
+-- flat floor meshes at y 2.0 (92 % of it, ENV-4 survey) and the dune caps
+-- rise to 2.1-6; painted coarse sand here, rock clusters and pebbles in
+-- GroundDressing.
+TerrainBuilder.RISE_Y = 2.8
+
 local terrain = Workspace.Terrain
 local M = Enum.Material
 
@@ -336,6 +342,10 @@ end
 local function patchNoise(x: number, z: number): number
 	return math.noise(x / PATCH_SCALE, z / PATCH_SCALE, 3.7) * 0.7
 		+ math.noise(x / (PATCH_SCALE * 0.37), z / (PATCH_SCALE * 0.37), 9.1) * 0.3
+		-- ENV-4: ragged edges (the darker coarse sand showed the smooth
+		-- contours as long straight lines)
+		+ math.noise(x / 19, z / 19, 4.4) * 0.09
+		+ math.noise(x / 8, z / 8, 1.9) * 0.05
 end
 
 -- Large organic patches of coarse sand over the basin floor so the sand's
@@ -356,7 +366,9 @@ local function paintFloorPatches()
 				local wx = corner.X + (ix - 0.5) * 4
 				for iz = 1, size.Z do
 					local wz = corner.Z + (iz - 0.5) * 4
-					if patchNoise(wx, wz) > PATCH_THRESHOLD then
+					-- ENV-4: plus scattered medium patches (40-90 studs) so the
+					-- flats between the big ones don't read as one sheet of sand
+					if patchNoise(wx, wz) > PATCH_THRESHOLD or math.noise(wx / 46, wz / 46, 12.3) + math.noise(wx / 13, wz / 13, 5.1) * 0.18 > 0.46 then
 						for iy = 1, size.Y do
 							if materials[ix][iy][iz] == M.Sand then
 								materials[ix][iy][iz] = PATCH_MATERIAL
@@ -370,6 +382,122 @@ local function paintFloorPatches()
 				terrain:WriteVoxels(region, 4, materials, occupancies)
 			end
 		end
+	end
+end
+
+-- ENV-4 zoning paint (material only; the shape is written back unchanged,
+-- and every material used is open basin floor for the airdrop sampler:
+-- Sand, Mud, Salt). Coarse sand (Mud) on the rocky rises (dune caps above
+-- RISE_Y) and in pebble fans below the flank and far walls and round the
+-- buttes; a few pale clay pans (Salt, the wash-bed look) in low far flats.
+local FAN_BUTTES = {
+	{ Vector2.new(-380, -1120), 80 },
+	{ Vector2.new(260, -1150), 120 },
+	{ Vector2.new(-60, -1180), 70 },
+	{ Vector2.new(620, -1060), 90 },
+}
+local CLAY_PANS = {
+	{ Vector2.new(-520, -930), 48, 0.6 },
+	{ Vector2.new(330, -905), 40, 0.35 },
+	{ Vector2.new(-160, -1080), 36, 1.2 },
+	{ Vector2.new(520, -1230), 44, 2.1 },
+}
+
+local function fanAmount(x: number, z: number): number
+	-- 0..1, higher near the cliff feet, broken up by noise into lobes
+	local wall = math.max(0, 1 - (740 - math.abs(x)) / 90) -- flank walls (face ~ |x| 740)
+	wall = math.max(wall, math.max(0, 1 - (z + 1330) / 110)) -- far wall (face ~ z -1330)
+	for _, b in FAN_BUTTES do
+		local d = (Vector2.new(x, z) - b[1]).Magnitude - b[2] - 20
+		wall = math.max(wall, math.max(0, 1 - d / 70))
+	end
+	local lobes = math.noise(x / 60, z / 60, 5.3) * 0.6 + math.noise(x / 23, z / 23, 7.1) * 0.25
+	return wall + lobes - 0.35
+end
+
+local function panAmount(x: number, z: number): number
+	local best = -1
+	for _, c in CLAY_PANS do
+		local d = (Vector2.new(x, z) - c[1]).Magnitude / c[2]
+		local edge = math.noise(x / 28, z / 28, c[3]) * 0.35 + math.noise(x / 11, z / 11, c[3] + 4) * 0.12
+		best = math.max(best, 1 - d + edge)
+	end
+	return best
+end
+
+local function paintZones()
+	local chunk = 256
+	for x0 = -FLOOR_HALF_X, FLOOR_HALF_X - 1, chunk do
+		for z0 = FLOOR_MIN_Z, FLOOR_MAX_Z - 1, chunk do
+			local lo = Vector3.new(x0, -8, z0)
+			local hi = Vector3.new(math.min(x0 + chunk, FLOOR_HALF_X), 8, math.min(z0 + chunk, FLOOR_MAX_Z))
+			local region = Region3.new(lo, hi):ExpandToGrid(4)
+			local materials, occupancies = terrain:ReadVoxels(region, 4)
+			local size = materials.Size
+			local corner = region.CFrame.Position - region.Size / 2
+			local changed = false
+			for ix = 1, size.X do
+				local wx = corner.X + (ix - 0.5) * 4
+				for iz = 1, size.Z do
+					local wz = corner.Z + (iz - 0.5) * 4
+					-- surface height of this column (top occupied voxel)
+					local top = -math.huge
+					for iy = size.Y, 1, -1 do
+						local occ = occupancies[ix][iy][iz]
+						if occ > 0 then
+							top = corner.Y + (iy - 1) * 4 + occ * 4
+							break
+						end
+					end
+					local want: Enum.Material? = nil
+					if panAmount(wx, wz) > 0 and top < 2.3 then
+						want = M.Salt
+					elseif fanAmount(wx, wz) > 0 then
+						want = PATCH_MATERIAL
+					elseif top > TerrainBuilder.RISE_Y + math.noise(wx / 36, wz / 36, 2.2) * 0.5 + math.noise(wx / 11, wz / 11, 6.4) * 0.25 then
+						want = PATCH_MATERIAL
+					end
+					if want then
+						for iy = 1, size.Y do
+							local m = materials[ix][iy][iz]
+							if m == M.Sand or (want == M.Salt and m == PATCH_MATERIAL) then
+								materials[ix][iy][iz] = want
+								changed = true
+							end
+						end
+					end
+				end
+			end
+			if changed then
+				terrain:WriteVoxels(region, 4, materials, occupancies)
+			end
+		end
+	end
+end
+
+-- ENV-4: a slight colour dip under an old crater (GroundDressing): coarse
+-- sand in a disc of radius r (Sand voxels only; both are open floor).
+function TerrainBuilder.dip(p: Vector2, r: number)
+	local region = Region3.new(Vector3.new(p.X - r, -8, p.Y - r), Vector3.new(p.X + r, 8, p.Y + r)):ExpandToGrid(4)
+	local materials, occupancies = terrain:ReadVoxels(region, 4)
+	local size = materials.Size
+	local corner = region.CFrame.Position - region.Size / 2
+	local changed = false
+	for ix = 1, size.X do
+		for iz = 1, size.Z do
+			local wx, wz = corner.X + (ix - 0.5) * 4, corner.Z + (iz - 0.5) * 4
+			if (Vector2.new(wx, wz) - p).Magnitude < r * (0.75 + 0.25 * math.noise(wx / 5, wz / 5, 1.7)) then
+				for iy = 1, size.Y do
+					if materials[ix][iy][iz] == M.Sand then
+						materials[ix][iy][iz] = PATCH_MATERIAL
+						changed = true
+					end
+				end
+			end
+		end
+	end
+	if changed then
+		terrain:WriteVoxels(region, 4, materials, occupancies)
 	end
 end
 
@@ -397,6 +525,10 @@ function TerrainBuilder.build()
 	buildRoad()
 	if covered[PATCH_MATERIAL] and covered[M.Sand] then
 		paintFloorPatches()
+		-- (not in the Studio-only ENV-4 perf "before" build, GroundDressing.BEFORE)
+		if not (game:GetService("RunService"):IsStudio() and Workspace:GetAttribute("Env4Before") == true) then
+			paintZones()
+		end
 	end
 end
 

@@ -283,8 +283,10 @@ def report(inv_path: Path | None, md: Path | None) -> None:
             note = " (not in game yet)"
         elif "particle" in a["types"]:
             note = " (particles: ≤ mip 1)"
+        # one sky preset counts (all cost the same; Night until the game went
+        # daylight-only, 3397923, now Sunset, the last preset)
         counts = a["asset"] not in UNUSED | NOT_IN_GAME_YET and a["in_gt"] and (
-            a["asset"] != "sky" or key == "sky Night")
+            a["asset"] != "sky" or key == "sky Sunset")
         if counts:
             run_total += a["mb"]
             owner = owners.get(a["asset"], "?")

@@ -11,12 +11,12 @@
     "normal": "SandCoarse_normal.png",
     "roughness": "SandCoarse_rough.png"
   },
-  "mean_color": "#BE7747",
-  "roughness_mean": 0.905,
+  "mean_color": "#A86940",
+  "roughness_mean": 0.902,
   "seam_ratio": {
     "color": 0.97,
     "normal": 1.09,
-    "roughness": 0.98
+    "roughness": 0.99
   },
   "cc0_sources": [
     "gravelly_sand"

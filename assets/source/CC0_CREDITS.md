@@ -52,6 +52,21 @@ dressing atlas (`dressing_textures.py`) crops our terrain `Rock` texture
 (from `rock_face_03`) for pebbles and rock clusters. Plants, bark, tyre
 tracks, craters and contact shadows are painted procedurally.
 
+Ground patches and conflict dressing (ENV-4, `tools/env/dressing/textures.py`)
+fetch nothing new; they reuse four sources already downloaded (credited in
+the Hard-surface table below) as raw variation under our own colours:
+`concrete_floor_worn_001` (jersey barriers: re-tinted to dusty concrete
+`#948A7A`, procedural rain streaks and stains), `hessian_230` (hesco
+geotextile: re-tinted `#9C8B6E`, under a procedural welded-wire grid with
+fabric pillows and coil pins), `green_metal_rust` (fuel drums re-tinted to
+faded olive `#5B6344` / red-brown `#7A3E2C` with procedural rust, rolling
+hoops and dust; pole hardware re-tinted to galvanised grey), and
+`gravelly_sand` (mud plaster on the compound walls, re-tinted `#B48A64`;
+the gravel patch, re-tinted `#A76B44`, under procedural pebbles). Mudbrick
+courses, timber grain, crate planks, tyre tread, corrugated sheet, soot,
+scorch, stubble, boot prints and the concertina loops are procedural; the
+sand region is a crop of our terrain `Sand` texture.
+
 ## Hard-surface (HS) — `python3 tools/assets/cc0.py fetch`
 
 Used through `photo=` layers in `tools/assets/rmh/materials.py`: the photo

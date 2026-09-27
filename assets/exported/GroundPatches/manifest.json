@@ -1,0 +1,192 @@
+{
+ "name": "GroundPatches",
+ "primary": null,
+ "pivots": {
+  "": [
+   0.0,
+   0.0,
+   0.0
+  ]
+ },
+ "parts": [
+  {
+   "name": "Patch_Gravel",
+   "path": "",
+   "center": [
+    -0.1264,
+    0.07,
+    0.3684
+   ],
+   "size": [
+    20.2716,
+    0.0,
+    19.981
+   ],
+   "tex": "patches",
+   "tris": 12,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Ground",
+   "alpha": "Transparency",
+   "double_sided": false,
+   "pivot_offset": [
+    0.1264,
+    -0.07,
+    -0.3684
+   ]
+  },
+  {
+   "name": "Patch_Scorch",
+   "path": "",
+   "center": [
+    0.0236,
+    0.07,
+    -0.181
+   ],
+   "size": [
+    15.6477,
+    0.0,
+    15.8396
+   ],
+   "tex": "patches",
+   "tris": 12,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Ground",
+   "alpha": "Transparency",
+   "double_sided": false,
+   "pivot_offset": [
+    -0.0236,
+    -0.07,
+    0.181
+   ]
+  },
+  {
+   "name": "Patch_Stubble",
+   "path": "",
+   "center": [
+    -0.0944,
+    0.07,
+    0.1124
+   ],
+   "size": [
+    11.7911,
+    0.0,
+    11.854
+   ],
+   "tex": "patches",
+   "tris": 12,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Grass",
+   "alpha": "Transparency",
+   "double_sided": false,
+   "pivot_offset": [
+    0.0944,
+    -0.07,
+    -0.1124
+   ]
+  },
+  {
+   "name": "Patch_Stain",
+   "path": "",
+   "center": [
+    0.0395,
+    0.07,
+    -0.1297
+   ],
+   "size": [
+    14.4172,
+    0.0,
+    13.7899
+   ],
+   "tex": "patches",
+   "tris": 12,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Ground",
+   "alpha": "Transparency",
+   "double_sided": false,
+   "pivot_offset": [
+    -0.0395,
+    -0.07,
+    0.1297
+   ]
+  },
+  {
+   "name": "Trample",
+   "path": "",
+   "center": [
+    0.1068,
+    0.08,
+    0.472
+   ],
+   "size": [
+    72.1478,
+    0.0,
+    9.617
+   ],
+   "tex": "patches",
+   "tris": 36,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Ground",
+   "alpha": "Transparency",
+   "double_sided": false,
+   "pivot_offset": [
+    -0.1068,
+    -0.08,
+    -0.472
+   ]
+  },
+  {
+   "name": "Wire_Coil",
+   "path": "",
+   "center": [
+    0.0,
+    1.381,
+    0.001
+   ],
+   "size": [
+    16.0,
+    3.4179,
+    4.1972
+   ],
+   "tex": "patches",
+   "tris": 128,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Metal",
+   "alpha": "Transparency",
+   "double_sided": true,
+   "pivot_offset": [
+    -0.0,
+    -1.381,
+    -0.001
+   ]
+  }
+ ],
+ "attachments": [],
+ "markers": [],
+ "textures": {
+  "patches": {
+   "color": "GroundPatches_patches_color.png",
+   "normal": "GroundPatches_patches_normal.png"
+  }
+ },
+ "texel_density": {
+  "patches": 16.0
+ },
+ "previews": [],
+ "triangles": 212,
+ "meta": {
+  "kit": "GroundPatches",
+  "no_primary": true
+ }
+}

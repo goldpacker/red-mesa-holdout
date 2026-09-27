@@ -52,9 +52,9 @@
 			<Properties>
 				<string name="Name">RedMesaSandCoarse</string>
 				<token name="BaseMaterial">1344</token>
-				<Content name="ColorMap"><url>rbxassetid://71781553653788</url></Content>
-				<Content name="NormalMap"><url>rbxassetid://135745167273613</url></Content>
-				<Content name="RoughnessMap"><url>rbxassetid://129234944321949</url></Content>
+				<Content name="ColorMap"><url>rbxassetid://80860826443975</url></Content>
+				<Content name="NormalMap"><url>rbxassetid://92214645239001</url></Content>
+				<Content name="RoughnessMap"><url>rbxassetid://100536892248693</url></Content>
 				<float name="StudsPerTile">40</float>
 				<token name="MaterialPattern">1</token>
 			</Properties>

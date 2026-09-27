@@ -29,7 +29,7 @@ ROUGH_N = 256  # QA-B reclaim #13: roughness sd is 5-12/255, 256² loses nothing
 # #C9824F, bleached washes #D9B98C. Values are albedo means.
 PALETTE = {
     "sand": "#C9824F",         # ochre sand
-    "sand_coarse": "#C07847",  # gravel-lag patches, a shade darker than the sand
+    "sand_coarse": "#A9693F",  # gravel-lag patches: darker than the sand so the zones read (ENV-4)
     "road": "#9A6B48",         # packed road dirt
     "wash": "#D9B98C",         # bleached wash
     "rock": "#7A3D2B",         # between cliff shadow strata #6E3322 and rust-red
@@ -118,7 +118,7 @@ def sand_coarse():
     col, nor, disp, rough = src_set("gravelly_sand")
     out = T.recolor(col, PALETTE["sand_coarse"], contrast=1.5, chroma_keep=0.25, flatten_sigma=96)
     out = T.tint(out, 1.0 + 0.03 * T.fbm(N, 21, beta=2.4, min_period=48))
-    ph, pc, tone = T.scatter_stamps(N, 1600, 22, 1.8, 5.5, squash=0.6)
+    ph, pc, tone = T.scatter_stamps(N, 2600, 22, 1.8, 5.5, squash=0.6)
     out = T.mix(out, pebble_colors(ph, tone, "#5E3324", "#C99A70"), pc * 0.9)
     # Faint wind ripples so the patch edges blend into the rippled sand.
     yy = np.arange(N)[:, None] / N

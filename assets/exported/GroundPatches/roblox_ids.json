@@ -1,0 +1,22 @@
+{
+ "hashes": {
+  "glb": "253df25b095c8953",
+  "patches/color": "3b631f311114405d",
+  "patches/normal": "5f8e72cf19faccf7"
+ },
+ "meshes": {
+  "Patch_Gravel": "rbxassetid://134381171794067",
+  "Patch_Scorch": "rbxassetid://80837496143634",
+  "Patch_Stain": "rbxassetid://126346312475831",
+  "Patch_Stubble": "rbxassetid://114139667410590",
+  "Trample": "rbxassetid://90581713520160",
+  "Wire_Coil": "rbxassetid://96421403216617"
+ },
+ "model": "124033035905991",
+ "textures": {
+  "patches": {
+   "color": "rbxassetid://117884965742773",
+   "normal": "rbxassetid://124688513957965"
+  }
+ }
+}

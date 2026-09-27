@@ -65,7 +65,12 @@ def upload_terrain(names: list[str]) -> None:
 def upload_sky(presets: list[str]) -> None:
     ids_path = SKY / "roblox_ids.json"
     ids = load_ids(ids_path)
-    presets = presets or sorted(p.name for p in SKY.iterdir() if p.is_dir())
+    retired = {k for k, v in json.loads(SKY_PRESETS.read_text()).items() if v.get("retired")}
+    presets = presets or sorted(p.name for p in SKY.iterdir() if p.is_dir() and p.name not in retired)
+    # a retired preset's faces are never referenced: forget their ids
+    for key in [k for k in ids["ids"] if k.split("/")[0] in retired]:
+        ids["ids"].pop(key)
+        ids["hashes"].pop(key, None)
     for preset in presets:
         for face in FACES:
             f = SKY / preset / f"{preset}_{face}.png"

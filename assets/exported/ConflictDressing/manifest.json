@@ -1,0 +1,598 @@
+{
+ "name": "ConflictDressing",
+ "primary": null,
+ "pivots": {
+  "": [
+   0.0,
+   0.0,
+   0.0
+  ]
+ },
+ "parts": [
+  {
+   "name": "Hesco_3",
+   "path": "",
+   "center": [
+    0.0,
+    2.675,
+    0.0
+   ],
+   "size": [
+    12.88,
+    5.75,
+    4.48
+   ],
+   "tex": "props",
+   "tris": 246,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "Fabric",
+   "alpha": "Overlay",
+   "double_sided": false,
+   "pivot_offset": [
+    -0.0,
+    -2.675,
+    -0.0
+   ]
+  },
+  {
+   "name": "Jersey",
+   "path": "",
+   "center": [
+    -0.0011,
+    1.6,
+    0.0
+   ],
+   "size": [
+    12.092,
+    3.2,
+    2.4
+   ],
+   "tex": "props",
+   "tris": 44,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "Concrete",
+   "alpha": "Overlay",
+   "double_sided": false,
+   "pivot_offset": [
+    0.0011,
+    -1.6,
+    -0.0
+   ]
+  },
+  {
+   "name": "Drum",
+   "path": "",
+   "center": [
+    0.0,
+    1.75,
+    0.0
+   ],
+   "size": [
+    2.3,
+    3.5,
+    2.3
+   ],
+   "tex": "props",
+   "tris": 36,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "Metal",
+   "alpha": "Overlay",
+   "double_sided": false,
+   "pivot_offset": [
+    -0.0,
+    -1.75,
+    -0.0
+   ]
+  },
+  {
+   "name": "Drum_Red",
+   "path": "",
+   "center": [
+    0.0,
+    1.75,
+    0.0
+   ],
+   "size": [
+    2.3,
+    3.5,
+    2.3
+   ],
+   "tex": "props",
+   "tris": 36,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "Metal",
+   "alpha": "Overlay",
+   "double_sided": false,
+   "pivot_offset": [
+    -0.0,
+    -1.75,
+    -0.0
+   ]
+  },
+  {
+   "name": "Drums",
+   "path": "",
+   "center": [
+    0.6497,
+    1.75,
+    2.3877
+   ],
+   "size": [
+    7.1993,
+    3.5,
+    7.0754
+   ],
+   "tex": "props",
+   "tris": 180,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "Metal",
+   "alpha": "Overlay",
+   "double_sided": false,
+   "pivot_offset": [
+    -0.6497,
+    -1.75,
+    -2.3877
+   ]
+  },
+  {
+   "name": "Tyre",
+   "path": "",
+   "center": [
+    0.0,
+    0.65,
+    0.0
+   ],
+   "size": [
+    4.4,
+    1.3,
+    4.1846
+   ],
+   "tex": "props",
+   "tris": 120,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "Rubber",
+   "alpha": "Overlay",
+   "double_sided": false,
+   "pivot_offset": [
+    -0.0,
+    -0.65,
+    -0.0
+   ]
+  },
+  {
+   "name": "Tyres",
+   "path": "",
+   "center": [
+    2.0747,
+    1.9959,
+    0.5335
+   ],
+   "size": [
+    8.854,
+    3.9919,
+    5.7325
+   ],
+   "tex": "props",
+   "tris": 480,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "Rubber",
+   "alpha": "Overlay",
+   "double_sided": false,
+   "pivot_offset": [
+    -2.0747,
+    -1.9959,
+    -0.5335
+   ]
+  },
+  {
+   "name": "Crate",
+   "path": "",
+   "center": [
+    0.0,
+    1.6,
+    0.0
+   ],
+   "size": [
+    4.8,
+    3.2,
+    3.2
+   ],
+   "tex": "props",
+   "tris": 40,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "WoodPlanks",
+   "alpha": "Overlay",
+   "double_sided": false,
+   "pivot_offset": [
+    -0.0,
+    -1.6,
+    -0.0
+   ]
+  },
+  {
+   "name": "Crates",
+   "path": "",
+   "center": [
+    1.9599,
+    3.2,
+    0.4605
+   ],
+   "size": [
+    8.8737,
+    6.4,
+    4.4726
+   ],
+   "tex": "props",
+   "tris": 112,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "WoodPlanks",
+   "alpha": "Overlay",
+   "double_sided": false,
+   "pivot_offset": [
+    -1.9599,
+    -3.2,
+    -0.4605
+   ]
+  },
+  {
+   "name": "Picket",
+   "path": "",
+   "center": [
+    0.025,
+    2.1001,
+    -0.0015
+   ],
+   "size": [
+    0.2782,
+    5.0024,
+    0.2371
+   ],
+   "tex": "props",
+   "tris": 10,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Metal",
+   "alpha": "Overlay",
+   "double_sided": false,
+   "pivot_offset": [
+    -0.025,
+    -2.1001,
+    0.0015
+   ]
+  },
+  {
+   "name": "Pole",
+   "path": "",
+   "center": [
+    0.0,
+    14.75,
+    0.0
+   ],
+   "size": [
+    8.2,
+    30.5,
+    1.24
+   ],
+   "tex": "props",
+   "tris": 174,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "Wood",
+   "alpha": "Overlay",
+   "double_sided": false,
+   "pivot_offset": [
+    -0.0,
+    -14.75,
+    -0.0
+   ]
+  },
+  {
+   "name": "Pole_Snapped",
+   "path": "",
+   "center": [
+    0.0,
+    5.25,
+    0.0
+   ],
+   "size": [
+    1.24,
+    11.5,
+    1.24
+   ],
+   "tex": "props",
+   "tris": 56,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "Wood",
+   "alpha": "Overlay",
+   "double_sided": false,
+   "pivot_offset": [
+    -0.0,
+    -5.25,
+    -0.0
+   ]
+  },
+  {
+   "name": "Pole_Top",
+   "path": "",
+   "center": [
+    11.7257,
+    0.2563,
+    1.0434
+   ],
+   "size": [
+    14.5283,
+    1.0127,
+    8.2152
+   ],
+   "tex": "props",
+   "tris": 142,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "Wood",
+   "alpha": "Overlay",
+   "double_sided": false,
+   "pivot_offset": [
+    -11.7257,
+    -0.2563,
+    -1.0434
+   ]
+  },
+  {
+   "name": "Adobe_Wall",
+   "path": "",
+   "center": [
+    0.0,
+    4.3945,
+    0.0
+   ],
+   "size": [
+    24.0,
+    8.7891,
+    1.6
+   ],
+   "tex": "props",
+   "tris": 112,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "Brick",
+   "alpha": "Overlay",
+   "double_sided": false,
+   "pivot_offset": [
+    -0.0,
+    -4.3945,
+    -0.0
+   ]
+  },
+  {
+   "name": "Adobe_Gap",
+   "path": "",
+   "center": [
+    0.0,
+    4.3626,
+    2.3063
+   ],
+   "size": [
+    24.0,
+    9.0252,
+    11.0579
+   ],
+   "tex": "props",
+   "tris": 212,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "Brick",
+   "alpha": "Overlay",
+   "double_sided": false,
+   "pivot_offset": [
+    -0.0,
+    -4.3626,
+    -2.3063
+   ]
+  },
+  {
+   "name": "Adobe_Door",
+   "path": "",
+   "center": [
+    0.0,
+    4.4286,
+    0.0
+   ],
+   "size": [
+    24.0,
+    8.8572,
+    1.6
+   ],
+   "tex": "props",
+   "tris": 124,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "Brick",
+   "alpha": "Overlay",
+   "double_sided": false,
+   "pivot_offset": [
+    -0.0,
+    -4.4286,
+    -0.0
+   ]
+  },
+  {
+   "name": "Roof",
+   "path": "",
+   "center": [
+    -0.25,
+    4.2888,
+    0.2097
+   ],
+   "size": [
+    13.7954,
+    8.3024,
+    9.8194
+   ],
+   "tex": "props",
+   "tris": 76,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "CorrodedMetal",
+   "alpha": "Overlay",
+   "double_sided": true,
+   "pivot_offset": [
+    0.25,
+    -4.2888,
+    -0.2097
+   ]
+  },
+  {
+   "name": "Rubble",
+   "path": "",
+   "center": [
+    0.621,
+    1.125,
+    -0.0161
+   ],
+   "size": [
+    11.5545,
+    2.55,
+    12.1297
+   ],
+   "tex": "props",
+   "tris": 100,
+   "query": false,
+   "collide": false,
+   "shadow": true,
+   "material": "Brick",
+   "alpha": "Overlay",
+   "double_sided": false,
+   "pivot_offset": [
+    -0.621,
+    -1.125,
+    0.0161
+   ]
+  },
+  {
+   "name": "Sheet",
+   "path": "",
+   "center": [
+    0.0,
+    0.34,
+    0.0
+   ],
+   "size": [
+    6.0,
+    0.62,
+    3.0
+   ],
+   "tex": "props",
+   "tris": 16,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "CorrodedMetal",
+   "alpha": "Overlay",
+   "double_sided": true,
+   "pivot_offset": [
+    -0.0,
+    -0.34,
+    -0.0
+   ]
+  },
+  {
+   "name": "Wire_Span",
+   "path": "",
+   "center": [
+    0.0,
+    -0.9501,
+    0.0175
+   ],
+   "size": [
+    74.0112,
+    2.021,
+    6.905
+   ],
+   "tex": "props",
+   "tris": 180,
+   "query": false,
+   "collide": false,
+   "shadow": false,
+   "material": "Metal",
+   "alpha": "Overlay",
+   "double_sided": false,
+   "pivot_offset": [
+    -0.0,
+    0.9501,
+    -0.0175
+   ]
+  }
+ ],
+ "attachments": [],
+ "markers": [
+  {
+   "name": "Wire1",
+   "pos": [
+    -3.4,
+    29.299999999999997,
+    0.0
+   ],
+   "part": "Pole"
+  },
+  {
+   "name": "Wire2",
+   "pos": [
+    -1.1,
+    29.299999999999997,
+    0.0
+   ],
+   "part": "Pole"
+  },
+  {
+   "name": "Wire3",
+   "pos": [
+    3.4,
+    29.299999999999997,
+    0.0
+   ],
+   "part": "Pole"
+  }
+ ],
+ "textures": {
+  "props": {
+   "color": "ConflictDressing_props_color.png",
+   "normal": "ConflictDressing_props_normal.png"
+  }
+ },
+ "texel_density": {
+  "props": 64.0
+ },
+ "previews": [],
+ "triangles": 2496,
+ "meta": {
+  "kit": "ConflictDressing",
+  "no_primary": true
+ }
+}
