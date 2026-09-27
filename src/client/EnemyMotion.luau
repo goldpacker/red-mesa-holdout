@@ -24,6 +24,10 @@
 --    acceleration and turns, helicopter lean, jet bank, recoil rock.
 -- 3. Tank/crawler track scrolling (EnemyMotionTracks).
 --
+-- Which enemies can be smoothed is kept current from events by
+-- EnemyMotionWatch (LOOK-3B): Root found by name, decorative anchored parts
+-- ignored, an anchored hit volume blocks smoothing while it is there.
+--
 -- Child parts (turrets, rotors, wheels) stay with VehicleFx; buggy wheels
 -- ask `wheelCounter` so they stay planted while the body bobs and rolls.
 -- Studio QA: Workspace attribute MotionOff = true shows the raw replicated
@@ -37,6 +41,7 @@ local Workspace = game:GetService("Workspace")
 local Body = require(script.Parent.EnemyMotionBody)
 local Probe = require(script.Parent.EnemyMotionProbe)
 local Tracks = require(script.Parent.EnemyMotionTracks)
+local Watch = require(script.Parent.EnemyMotionWatch)
 
 local EnemyMotion = {}
 
@@ -71,7 +76,8 @@ export type Track = {
 	tracks: Tracks.State?,
 	wreck: boolean,
 	raw: boolean,
-	ignored: number, -- decorative anchored parts left alone (rootOf)
+	ignored: number, -- decorative anchored parts left alone (EnemyMotionWatch)
+	born: number, -- os.clock() at registration
 }
 
 local tracks: { [Model]: Track } = {}
@@ -83,49 +89,7 @@ local function same(a: CFrame, b: CFrame): boolean
 		and a.UpVector:Dot(b.UpVector) > EPS_DOT
 end
 
--- Which models can be smoothed by moving Root alone.
--- Root is the model's PrimaryPart when it is called "Root", else its child
--- (or descendant) "Root", and it must be anchored: the server moves the
--- whole enemy by setting that one CFrame (EnemyTypes/Common/Rig, Infantry).
--- Any other anchored part is judged on its own:
---   - decorative (CanQuery = false): ignored. These are client-side extras
---     that their owners re-pose from the drawn model every frame, e.g.
---     InfantryRig's LampGlow, created when a helmet lamp turns on at
---     dusk/night; a detached piece on its way to Wrecks is also no-query.
---   - a hit volume (CanQuery = true): the server places it on its own
---     (TestDummyAir's Wing; a weak point mid-detach). Moving Root alone
---     would pull the drawn model off that hit box, so the model is not
---     smoothed while such a part is there.
--- Returns the root and the number of ignored decorative parts.
-local function rootOf(model: Model): (BasePart?, number)
-	local root: Instance? = model.PrimaryPart
-	if not (root and root.Name == "Root") then
-		root = model:FindFirstChild("Root") or model:FindFirstChild("Root", true)
-	end
-	if not (root and root:IsA("BasePart") and root.Anchored) then
-		return nil, 0
-	end
-	local ignored = 0
-	for _, d in model:GetDescendants() do
-		if d ~= root and d:IsA("BasePart") and d.Anchored then
-			if d.CanQuery then
-				return nil, 0
-			end
-			ignored += 1
-		end
-	end
-	return root :: BasePart, ignored
-end
-
-local function register(model: Model)
-	if tracks[model] or not model.Parent then
-		return
-	end
-	local root, ignored = rootOf(model)
-	local kind = model:GetAttribute("Kind")
-	if not root or type(kind) ~= "string" then
-		return
-	end
+local function register(model: Model, root: BasePart, kind: string, ignored: number)
 	local cf = root.CFrame
 	local track: Track = {
 		model = model,
@@ -146,6 +110,7 @@ local function register(model: Model)
 		wreck = false,
 		raw = false,
 		ignored = ignored,
+		born = os.clock(),
 	}
 	tracks[model] = track
 end
@@ -169,29 +134,26 @@ local function release(track: Track)
 	end
 end
 
--- Every half second: pick up enemies that couldn't be smoothed before and
--- re-check the tracked ones (parts can be anchored or added after spawn).
+-- Models whose update raised an error; not smoothed again while in play.
 local failed: { [Model]: boolean } = {}
-local function sweep(enemies: Instance)
-	for _, child in enemies:GetChildren() do
-		if child:IsA("Model") and not tracks[child] and not failed[child] then
-			register(child)
-		end
+
+-- EnemyMotionWatch's verdict for a live enemy: `root` is nil while it can't
+-- be smoothed. Starts, keeps or releases its track to match.
+local function reconcile(model: Model, root: BasePart?, ignored: number)
+	local track = tracks[model]
+	if track and track.wreck then
+		return
 	end
-	for model, track in tracks do
-		if not track.wreck then
-			local root, ignored = rootOf(model)
-			if root ~= track.root then
-				release(track)
-			else
-				track.ignored = ignored
-			end
-		end
+	local kind = model:GetAttribute("Kind")
+	local ok = root ~= nil and type(kind) == "string" and not failed[model] and model.Parent ~= nil
+	if track and (not ok or track.root ~= root) then
+		release(track)
+		track = nil
 	end
-	for model in failed do
-		if not model.Parent then
-			failed[model] = nil
-		end
+	if track then
+		track.ignored = ignored
+	elseif ok and root and type(kind) == "string" then
+		register(model, root, kind, ignored)
 	end
 end
 
@@ -358,10 +320,13 @@ local function stepTrack(track: Track, now: number, dt: number, off: boolean, bo
 end
 
 local function step(dt: number)
+	local w0 = os.clock()
+	local judged = Watch.drain(reconcile)
 	local now = os.clock()
+	Probe.work(now - w0, judged)
 	local off = isStudio and Workspace:GetAttribute("MotionOff") == true
 	local bodyOff = isStudio and Workspace:GetAttribute("MotionBodyOff") == true
-	local t0 = os.clock()
+	local t0 = now
 	for model, track in tracks do
 		if not model.Parent or not track.root.Parent then
 			forget(model)
@@ -409,13 +374,8 @@ local function watch()
 	local wrecks = Workspace:WaitForChild("Wrecks")
 	local function added(child: Instance)
 		if child:IsA("Model") then
-			-- Attributes and welds replicate with the model; wait a frame so
-			-- every descendant has arrived.
-			task.defer(function()
-				local t0 = os.clock()
-				register(child)
-				Probe.work(os.clock() - t0)
-			end)
+			-- Judged in the next render step, before it is first drawn.
+			Watch.add(child)
 		end
 	end
 	for _, child in enemies:GetChildren() do
@@ -423,30 +383,29 @@ local function watch()
 	end
 	enemies.ChildAdded:Connect(added)
 	enemies.ChildRemoved:Connect(function(child)
+		if not child:IsA("Model") then
+			return
+		end
+		Watch.remove(child)
 		-- Moving to Wrecks keeps the track (no snap); anything else ends it.
 		task.defer(function()
-			local track = tracks[child :: Model]
+			local track = tracks[child]
 			if track and child.Parent == wrecks then
 				toWreck(track)
-			elseif track and child.Parent ~= enemies then
-				forget(child :: Model)
+			elseif child.Parent ~= enemies then
+				failed[child] = nil
+				if track then
+					forget(child)
+				end
 			end
 		end)
 	end)
 	wrecks.ChildRemoved:Connect(function(child)
+		failed[child :: Model] = nil
 		if tracks[child :: Model] then
 			forget(child :: Model)
 		end
 	end)
-	while true do
-		task.wait(0.5)
-		local t0 = os.clock()
-		local ok, err = pcall(sweep, enemies)
-		Probe.work(os.clock() - t0)
-		if not ok then
-			warn("[RedMesa] enemy motion sweep failed: " .. tostring(err))
-		end
-	end
 end
 
 function EnemyMotion.start()
