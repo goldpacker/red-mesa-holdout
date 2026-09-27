@@ -120,14 +120,25 @@ Destroying any enemy should be satisfying: infantry fall and ragdoll or topple, 
 
 Enemies must never get permanently stuck, spawn inside terrain, or remain alive out of reach in a way that prevents a wave from ending.
 
-### 6.1 Boss — The Siege Crawler (wave 10)
+### 6.1 Arrival by airdrop
+
+Ground forces don't appear out of nowhere at the far end of the basin. **Infantry, buggies and tanks are air-dropped** from enemy military transport aircraft that fly over the battlefield, which adds uncertainty about where the next threat will land.
+
+- **Transports:** an original four-engine military cargo aircraft in the enemy palette flies across the basin at high altitude. It opens its rear ramp over the drop zone and releases its load in a stick: paratroopers jump one after another, and vehicles roll out on drop platforms under a cluster of cargo parachutes. Transports can't be targeted or damaged, and they never fly over the player's mesa.
+- **Drop zone:** loads land scattered across the whole basin width, on open basin floor **300–800 studs from the outpost** (never on cliffs, buttes or the mesa slope). Where the next group lands varies from wave to wave and from run to run.
+- **Invincible in the air:** paratroopers and dropping vehicles can't be damaged until they touch down. Shots at them show a clear "no effect" response (tracers pass through or spark off; no hit marker, no score), and they can't be locked by AA missiles.
+- **Landing:** the canopy collapses and drapes on the ground, dust kicks up, and the soldier or vehicle joins the nearest approach lane and advances toward the mesa as before. Vehicles unhook from their platform and drive off.
+- **Readability:** the player sees transports crossing the horizon and chutes blossoming before anything can attack. The HUD announces incoming drops and marks them on the radar. At dusk and night the chutes and loads carry small lights so the drop stays visible.
+- **Unchanged:** helicopters and jets fly in as before. The Siege Crawler grinds in from the far end of the road as the boss entrance; its infantry escorts arrive by air.
+
+### 6.2 Boss — The Siege Crawler (wave 10)
 
 A huge multi-turreted armored land fortress that grinds slowly up the central road. It should be the single largest and most impressive object in the game.
 
 - **Weak points:** two side turrets and a heavy main cannon, each destroyed with rockets (machine gun ineffective). Each destroyed weak point visibly breaks off or bursts into flames.
 - **Main cannon:** fires a devastating shot after a long, clearly visible charge-up (glow, sound build-up, warning indicator). This teaches the player to prioritize it.
 - **Core:** once all three weak points are destroyed, the exposed core can be destroyed with rockets to kill the boss.
-- **Escorts:** infantry, helicopters, and jets continue to attack during the fight so all three weapons remain relevant.
+- **Escorts:** air-dropped infantry, helicopters, and jets continue to attack during the fight so all three weapons remain relevant.
 - **Anti-softlock:** extra supply crates (weighted toward rockets) drop during the fight so the player cannot become permanently unable to damage the boss.
 - **Death:** a multi-stage explosion sequence that is the biggest spectacle in the game, flowing directly into the victory state.
 
@@ -147,7 +158,7 @@ One polished battlefield in a desert canyon basin.
   - Open scrub and rock cover between lanes — infantry advance routes.
   - Canyon walls on the flanks — helicopters rise from behind them.
   - A long canyon axis — jets make their runs along or across it.
-- Enemies must appear far enough away to be spotted on the horizon, become identifiable, and approach, creating rising urgency.
+- Enemies must appear far enough away to be spotted, become identifiable, and approach, creating rising urgency. Ground forces arrive by airdrop (§6.1): transports cross the horizon, chutes open over the basin, and loads land 300–800 studs out before advancing along the lanes.
 - The environment should support situational awareness: clear sightlines, strong color contrast between enemies and terrain, limited clutter.
 
 ### 7.1 Time of Day Progression
@@ -167,7 +178,7 @@ Transitions happen during intermissions (or smoothly during them), never in a wa
 
 Ten waves, each roughly **60–120 seconds**, with an intermission of roughly **10–15 seconds**. A complete successful run should take about **15 minutes**.
 
-Each wave should open quietly with distant spawns and build to a peak. Difficulty increases mainly through **combinations of threats, attack directions, and overlapping timing** — not by inflating enemy health.
+Each wave should open quietly with the first transports crossing the horizon and build to a peak. Difficulty increases mainly through **combinations of threats, attack directions, and overlapping timing** — not by inflating enemy health.
 
 | Wave | Time of day | Content | Purpose |
 |---|---|---|---|
@@ -182,7 +193,7 @@ Each wave should open quietly with distant spawns and build to a peak. Difficult
 | 9 | Night | Full combined arms from every direction | Everything at once |
 | 10 | Night | Siege Crawler boss + escorts | Climax |
 
-Exact compositions, counts, spawn timing, and routes are at the developer's discretion, guided by this table.
+Exact compositions, counts, drop timing, drop points, and routes are at the developer's discretion, guided by this table. Waves are retuned after the airdrop change so difficulty stays as intended.
 
 A wave ends when all of its enemies have been destroyed (or, for the boss wave, when the Siege Crawler is destroyed and remaining escorts are cleared or dismissed). Wave completion must be reliable and never hang.
 
@@ -204,6 +215,7 @@ The first time each enemy type appears, show a short contextual tip, e.g.:
 - Tank: "Bullets can't stop armor — press **2** for rockets."
 - Helicopter: "Air threat — press **3**, hold on target to lock."
 - Jet: "Incoming jet! Lock and fire before it drops its bombs."
+- First airdrop: "Paratroopers can't be hit in the air — pick them off when they land."
 
 Tips should be brief, non-blocking, and not repeat after the player has seen them in the current session.
 
@@ -300,6 +312,11 @@ Required elements (placement is a suggestion):
   - Enemies must contrast strongly against the orange-red terrain.
 - **Lighting:** Roblox Future lighting with shadows, atmosphere, a proper sky, bloom, sun rays, and per-time-of-day color grading. Lighting is tuned per scene, not left at defaults.
 - **Effects:** particle-based and grounded — layered fireballs, sparks, dust kicks, thick smoke columns, heat shimmer where cheap, bright tracers, muzzle flashes, debris, and decals for scorch marks. Punchy enough for arcade satisfaction without cartoon shapes. Screen shake used with restraint and scaled to proximity/intensity.
+- **Environment — cinematic realism:** the models are good enough; further visual effort goes into the overall environment. Reference: the desert maps of modern military shooters (Battlefield, Call of Duty): crisp detail, strong contrast, a lived-in battlefield, and clean, readable combat spaces. Priorities, in order:
+  1. **Atmosphere and light:** haze with real depth layered through the basin, sun shafts through dust, heat shimmer, dust hanging in searchlight beams, a dramatic sky at every time of day, and a restrained film treatment (subtle grain and lens response).
+  2. **Ground realism:** no bare, repeating sand anywhere the camera looks. Dense, varied ground cover (scrub, rocks, pebbles), tyre tracks, old craters, eroded wash banks and road edges, and signs of an ongoing conflict and past habitation (burnt-out vehicle hulks, barriers and wire, power poles, a ruined roadside compound), kept off the lanes.
+  3. **Weather and life:** wind-blown sand streaming over the ground, dust devils, smoke drifting from old wrecks, birds, and occasional dust storms rolling through on some waves.
+  Weather, haze and dressing never hide an enemy at its engagement range or cover the HUD, and the performance budget stays at 60 fps on a mid-range PC at graphics level 8 with about 250 MB of texture memory.
 - **Consistency:** vehicles, weapons, environment, effects, and UI must look like they belong to the same game.
 
 No assets, logos, emblems, or names from Beach Head 2000 or any other existing game may be used or imitated.
@@ -320,11 +337,13 @@ These carry the game's visual identity and should be modeled in Blender via Pyth
 6. **Siege Crawler**, with its weak points as separable parts so they can be destroyed individually.
 7. **Mesa rock formation kit** — modular rock/cliff meshes for the mesa, canyon walls, and scattered boulders.
 8. **Infantry soldier:** a human-proportioned soldier animated procedurally from code (march, aim, throw, die): either split into limb meshes (head, torso, arms, legs, rifle) on Motor6D joints, or one skinned mesh whose bones are posed with `Bone.Transform`. No animation upload pipeline required.
+9. **Transport aircraft:** an original four-engine military cargo plane with a rear loading ramp that opens, in the enemy palette with red markings and the emblem.
+10. **Parachutes and drop platform:** a personnel canopy (deploying, open and collapsed states), a cargo-chute cluster, and a drop platform for buggies and tanks.
 
 ### 14.2 Non-Blender assets
 
 - **Terrain:** Roblox terrain for the basin floor, roads, and riverbeds, using custom PBR material variants.
-- **Small props:** sandbags, barriers, crates, parachutes, wreck debris, searchlights — simple meshes with textures (primitives acceptable only for tiny or distant details).
+- **Small props:** sandbags, barriers, crates, parachutes, wreck debris, searchlights, and environment dressing (scrub, rocks, burnt-out hulks, wire, power poles, ruined walls) — simple meshes with textures (primitives acceptable only for tiny or distant details).
 - **Textures and particles:** original or generated textures; particle flipbooks for fire, smoke, dust, and sparks.
 
 All assets must be original. CC0 (public-domain) source material, such as Poly Haven textures and HDRIs, may be used as raw input when it is substantially modified and baked into the game's own assets; every such source is credited in `assets/source/CC0_CREDITS.md`. Free assets owned by Roblox may be used where they fit the style. Paid assets may not be used.
@@ -350,6 +369,7 @@ Priority order:
    - helicopter rotors
    - tank engine and cannon
    - Siege Crawler main-cannon charge-up
+   - transport aircraft drone, ramp opening, parachute deploy, landing thuds
 4. **Feedback:**
    - taking damage
    - low-integrity alarm
@@ -357,7 +377,7 @@ Priority order:
    - wave clear
    - supply crate pickup
    - victory and defeat
-5. **Ambience and music (optional):** wind, distant battle, a tension track.
+5. **Ambience and music (optional):** wind, blowing sand, distant battle, a tension track.
 
 ---
 
