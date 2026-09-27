@@ -1,0 +1,32 @@
+AD-2 hand-off recorder, Studio play session 2 (2026-09-27 00:50), after the fixes: trooper height
+(ROOT_BELOW_HARNESS - 0.14), landing dust toned down, QA switch parking fixed. Same recorder as session 1.
+
+Sunset, wave 7, debug sortie 6 (Tank, Road):
+load 13 (Tank): recorded; clip qa/beauty/ad-2/seq_sunset_tank-touchdown.jpg (no jump, slings drop at contact)
+
+Sunset, wave 7, debug sortie 10 (6 x Infantry, ScrubLeft):
+load 28: frames 1872 | enemy first frame 1587 (t-landT +0.039) | body last shown 1586 | both 0 | pos gap 0.38 (dy 0.00) yaw gap 2.3
+load 29: frames 1872 | enemy first frame 1611 (t-landT +0.040) | body last shown 1610 | both 0 | pos gap 0.39 (dy 0.00) yaw gap 6.0
+load 25: frames 1872 | enemy first frame 1515 (t-landT +0.039) | body last shown 1514 | both 0 | pos gap 0.35 (dy 0.00) yaw gap 0.0
+load 26: frames 1872 | enemy first frame 1539 (t-landT +0.046) | body last shown 1538 | both 0 | pos gap 0.40 (dy 0.02) yaw gap 1.6
+load 30: frames 1872 | enemy first frame 1635 (t-landT +0.036) | body last shown 1634 | both 0 | pos gap 0.39 (dy 0.00) yaw gap 2.5
+load 27: frames 1872 | enemy first frame 1563 (t-landT +0.040) | body last shown 1562 | both 0 | pos gap 0.34 (dy 0.00) yaw gap 3.5
+AirdropFx counters: Handoffs=30 HandoffMaxDelay=0.048 s HandoffMaxOffset=2.16 studs (a buggy already driving)
+(The remaining horizontal gap is the enemy's own first server step: ~0.04 s at infantry speed.)
+
+Sound check (client, during the perf sorties): 3 x TransportDrone "loaded true playing true len 94.8"
+(the new sheet 101477137111610), vol 0.90, pitch 0.962 / 1.003 / 1.003 (doppler + per-aircraft base).
+
+First-airdrop tip: shown 14.6 s after wave 7 start, at the session's first canopy opening:
+"Paratroopers can't be hit in the air — pick them off when they land." (qa/beauty/ad-2/10_...)
+
+Console (both sessions): only "world built / server ready / client ready" and the MCP tool's own
+"execute_luau changed camera type" notices; nothing from game code.
+
+Perf A/B (wave 7 Sunset, 11 loads + transports airborne, Workspace.AirdropFxOff):
+on : fps 60.0 / 1%-low 56.5 | tris 629486 dc 453 shadowDC 213 | CPU 3.23 GPU 6.58 ms | AirdropFx parts 242, loads 11
+off: fps 60.0 / 1%-low 55.8 | tris 615208 dc 446 shadowDC 192 | CPU 3.03 GPU 7.01 ms
+on : fps 60.0 / 1%-low 55.6 | tris 641183 dc 465 shadowDC 215 | CPU 3.14 GPU 6.22 ms | AirdropFx parts 200, loads 11
+off: fps 60.0 / 1%-low 56.2 | tris 648442 dc 459 shadowDC 208 | CPU 3.06 GPU 6.49 ms
+on : fps 60.0 / 1%-low 56.0 | tris 650578 dc 467 shadowDC 210 | CPU 3.16 GPU 7.31 ms | (loads had landed)
+ToD Sunset, Level15, viewport 1177x1068, enemies Tank 5 Buggy 6 Infantry 30, GraphicsTexture 261.0, GraphicsParticles 98.1

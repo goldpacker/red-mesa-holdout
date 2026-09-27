@@ -109,6 +109,14 @@ local function radarLayer(): Frame?
 	return f
 end
 
+-- Is ThreatHud's jet warning up (it uses the BANNER_Y row)?
+local function jetVisible(): boolean
+	local root = Hud.getRoot()
+	local threats = root and root:FindFirstChild("Threats")
+	local jet = threats and threats:FindFirstChild("JetWarning")
+	return jet ~= nil and (jet :: GuiObject).Visible
+end
+
 local function sector(yaw: number): string
 	if yaw > CENTRE_DEG then
 		return "LEFT FLANK"
@@ -157,13 +165,7 @@ function AirdropHud.entered(s: AirdropPath.Sortie, now: number)
 	sub.Text = subline(m)
 	bannerUntil = clock + BANNER_HOLD
 	if not banner.Visible then
-		local y = BANNER_Y
-		local root = Hud.getRoot()
-		local threats = root and root:FindFirstChild("Threats")
-		local jet = threats and threats:FindFirstChild("JetWarning")
-		if jet and (jet :: GuiObject).Visible then
-			y = BANNER_Y_LOW
-		end
+		local y = if jetVisible() then BANNER_Y_LOW else BANNER_Y
 		banner.Visible = true
 		banner.Position = UDim2.new(0.5, 0, 0, y - 26)
 		banner.ImageTransparency = 0.7
@@ -228,6 +230,10 @@ function AirdropHud.step(now: number)
 			sub.Text = subline(current :: Mark)
 			local pulse = 0.5 + 0.5 * math.sin(clock * 7)
 			title.TextColor3 = C.Amber:Lerp(C.White, 0.25 * pulse)
+			-- The jet warning owns the upper row: step below it.
+			if banner.Position.Y.Offset < BANNER_Y_LOW - 1 and jetVisible() then
+				UiKit.tween(banner, 0.25, { Position = UDim2.new(0.5, 0, 0, BANNER_Y_LOW) }, Enum.EasingStyle.Quint)
+			end
 		end
 	end
 	local parent = radarLayer()

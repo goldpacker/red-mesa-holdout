@@ -1,0 +1,37 @@
+AD-2 hand-off recorder, Studio play session 1 (2026-09-26 23:30, commit 7fd29e7 code before the 0.14 height fix).
+Client recorder at RenderPriority.Last+30 (after client/Airdrop's step): per frame, the load's visual
+(trooper SkinRoot / vehicle anchor, and whether any body part is drawn) and the replicated enemy with
+that DropLoadId (its SkinRoot / pivot). "frames with both" = frames where the enemy exists and the
+descent body is still drawn (a double); "body last shown" = the frame before the enemy's first frame
+means no gap either.
+
+Afternoon, wave 1, debug sortie 5 (6 x Infantry, Road):
+load 17: frames 2274 | enemy first frame 1940 (t-landT +0.032) | body last shown frame 1939 | frames with both 0 | pos gap 0.21 (dy -0.14) yaw gap 14.1 deg
+load 21: frames 2274 | enemy first frame 2036 (t-landT +0.028) | body last shown frame 2035 | frames with both 0 | pos gap 0.23 (dy -0.14) yaw gap 3.8 deg
+load 19: frames 2274 | enemy first frame 1988 (t-landT +0.028) | body last shown frame 1987 | frames with both 0 | pos gap 0.22 (dy -0.14) yaw gap 0.4 deg
+load 20: frames 2274 | enemy first frame 2012 (t-landT +0.028) | body last shown frame 2011 | frames with both 0 | pos gap 0.24 (dy -0.14) yaw gap 3.9 deg
+load 18: frames 2274 | enemy first frame 1964 (t-landT +0.030) | body last shown frame 1963 | frames with both 0 | pos gap 0.20 (dy -0.14) yaw gap 2.4 deg
+load 16: frames 2274 | enemy first frame 1916 (t-landT +0.030) | body last shown frame 1915 | frames with both 0 | pos gap 0.21 (dy -0.14) yaw gap 6.3 deg
+AirdropFx counters after wave 1: Handoffs=27 HandoffMaxDelay=0.041 s HandoffMaxOffset=0.40 studs
+
+LateAfternoon, wave 4, debug sorties 9 (Tank, Road) and 10 (2 x Buggy, WashLeft):
+load 38 (Buggy): enemy first frame 478 (t-landT +0.042) | body last shown 477 | both 0 | pos gap 1.44 (dy 0.00) yaw gap 5.0 deg
+load 39 (Buggy): enemy first frame 550 (t-landT +0.041) | body last shown 549 | both 0 | pos gap 1.54 (dy -0.00) yaw gap 5.0 deg
+load 37 (Tank):  enemy first frame 1011 (t-landT +0.041) | body last shown 1010 | both 0 | pos gap 0.37 (dy -0.00) yaw gap 1.0 deg
+(buggies drive at ~48 studs/s: their first replicated frame is already one server step down the road)
+AirdropFx counters: Handoffs=44 HandoffMaxDelay=0.043 s HandoffMaxOffset=2.11 studs
+
+Sunset, wave 5, debug sorties 17 (6 x Infantry, ScrubRight) and 18 (Tank, Road):
+load 64: enemy first frame 1052 (t-landT +0.053) | body last shown 1051 | both 0 | pos gap 0.34 (dy -0.14) yaw gap 1.3 deg
+load 69: enemy first frame 1170 (t-landT +0.019) | body last shown 1169 | both 0 | pos gap 0.24 (dy -0.14) yaw gap 1.0 deg
+load 68: enemy first frame 1146 (t-landT +0.019) | body last shown 1145 | both 0 | pos gap 0.24 (dy -0.14) yaw gap 4.1 deg
+load 66: enemy first frame 1098 (t-landT +0.017) | body last shown 1097 | both 0 | pos gap 0.23 (dy -0.14) yaw gap 8.3 deg
+load 65: enemy first frame 1074 (t-landT +0.017) | body last shown 1073 | both 0 | pos gap 0.25 (dy -0.14) yaw gap 5.5 deg
+load 70 (Tank): enemy first frame 572 (t-landT +0.046) | body last shown 571 | both 0 | pos gap 0.34 (dy -0.00) yaw gap 1.3 deg
+load 67: enemy first frame 1124 (t-landT +0.052) | body last shown 1123 | both 0 | pos gap 0.38 (dy -0.14) yaw gap 4.7 deg
+
+No effect (Sunset, gunsight, load 89 at 510 studs, y 213): body burst 1.5 s -> Deflects +15, score 0;
+canopy burst 1.4 s -> PassThroughs +10, Deflects +0, score 0.
+
+The constant dy -0.14 on troopers (visual SkinRoot 0.14 below the enemy's) is corrected after this
+session: AirdropStyle.Trooper.ROOT_BELOW_HARNESS = 1.8 * 1.1 - 0.14.
