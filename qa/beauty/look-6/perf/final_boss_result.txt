@@ -1,0 +1,33 @@
+[final boss wave 10 Sunset, seed 7, +3 sorties at 34 s, MG bot, integrity held] 08:39:10 metric gpu: 43 complete cycles, block 10+60 frames, 151 s, zero samples 0, viewport 1177, 1068, ToD Sunset, phase Wave -> Wave
+none  gpu 4.98 ms  vs none: mean +0.000  median +0.000  se 0.000  (n 43)
+new   gpu 5.36 ms  vs none: mean +0.386  median +0.020  se 0.251  (n 43)
+old   gpu 5.44 ms  vs none: mean +0.462  median +0.460  se 0.255  (n 43)
+new - old: mean -0.076  median -0.394  se 0.328
+(enemies at ~2 min: SiegeCrawler 1, Tank 1, Buggy 2, Infantry 4, Helicopter 2; started ~13 s into the wave)
+
+[final gpu-bound static boss, 120 sheets] 08:35:49 metric dt: 16 complete cycles, block 10+60 frames, 100 s, zero samples 0, viewport 1177, 1068, ToD Sunset, phase Wave -> Wave
+none  dt 29.96 ms  vs none: mean +0.000  median +0.000  se 0.000  (n 16)
+new   dt 29.76 ms  vs none: mean -0.193  median +0.087  se 0.687  (n 16)
+old   dt 29.93 ms  vs none: mean -0.021  median +0.113  se 0.391  (n 16)
+new - old: mean -0.172  median -0.070  se 0.612
+(noisier than bench 4 twenty minutes earlier: frame 29.96 vs 28.28 ms at the same load)
+
+[final busy wave 9, session 3, 08:40-08:43] INVALID, not used: Studio dropped to 10-14 fps (unfocused throttle,
+Stats.RenderGPUFrameTime = 0 on most frames) and a Blender job (look7, ~975 % CPU, load 12) started meanwhile.
+Re-run on a quiet machine in a later session.
+
+Session 4 (same conditions as final_wave9_result.txt: quiet machine, Studio focused, 0 voided cycles), boss run 2:
+[final boss wave 10 Sunset (run 2), seed 7, +3 sorties at 34 s, MG bot, integrity held] 09:05:21 metric gpu: 52 valid cycles (0 voided), block 10+60 frames, 182 s, viewport 1177, 1068, ToD Sunset, phase Wave -> Wave
+block mean:
+  none  5.73 ms  vs none: mean +0.000  median +0.000  se 0.000  (n 52)
+  new   5.89 ms  vs none: mean +0.164  median +0.202  se 0.106  (n 52)
+  old   5.92 ms  vs none: mean +0.187  median +0.208  se 0.098  (n 52)
+  new - old: mean -0.023  median -0.048  se 0.111
+block median of frames:
+  none  4.96 ms  vs none: mean +0.000  median +0.000  se 0.000  (n 52)
+  new   5.11 ms  vs none: mean +0.149  median +0.131  se 0.141  (n 52)
+  old   5.13 ms  vs none: mean +0.168  median +0.178  se 0.130  (n 52)
+  new - old: mean -0.019  median -0.088  se 0.147
+enemies at the end: SiegeCrawler 1, Tank 1, Buggy 2, Infantry 4, Helicopter 3
+
+Pooled boss wave (runs 1+2, inverse-variance weighted block means): new +0.20 se 0.10, old +0.22 se 0.09, new - old -0.03 se 0.10.

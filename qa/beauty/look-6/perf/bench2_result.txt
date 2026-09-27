@@ -1,0 +1,22 @@
+LOOK-6 bench 2 (same session and static scene as bench 1: beauty shot 6 boss, Sunset). Each layer stacked x4 so its
+cost stands out of the block noise (script: bench2_stacked.client.luau). "frame-median blocks" = the same pairing on
+per-block medians of the per-frame values (robust to the 10-11 ms spikes).
+
+L6 bench 08:00:26  10 rounds x 8 variants, settle 0.8 + measure 1.7 s, 202 s total, viewport 1177, 1068, ToD Sunset
+none           GPU 5.20 (block sd 0.42)  CPU 3.08  paired vs none: mean +0.00 median +0.00 se 0.00 range +0.00..+0.00 | frame-median blocks: mean +0.00 se 0.00
+grain24x4      GPU 5.71 (block sd 0.59)  CPU 3.06  paired vs none: mean +0.51 median +0.49 se 0.20 range -0.63..+1.94 | frame-median blocks: mean +0.69 se 0.29
+grainStaticx4  GPU 6.28 (block sd 0.49)  CPU 3.06  paired vs none: mean +1.08 median +1.01 se 0.18 range +0.23..+1.96 | frame-median blocks: mean +1.44 se 0.25
+framex4        GPU 5.98 (block sd 0.51)  CPU 3.04  paired vs none: mean +0.79 median +0.65 se 0.17 range -0.06..+1.67 | frame-median blocks: mean +1.00 se 0.25
+vigFullx4      GPU 6.00 (block sd 0.46)  CPU 3.04  paired vs none: mean +0.80 median +0.75 se 0.19 range -0.04..+1.85 | frame-median blocks: mean +1.11 se 0.30
+cornersRotx4   GPU 5.82 (block sd 0.57)  CPU 3.06  paired vs none: mean +0.62 median +0.63 se 0.18 range -0.14..+1.67 | frame-median blocks: mean +0.76 se 0.27
+cornersFlatx4  GPU 5.82 (block sd 0.52)  CPU 3.07  paired vs none: mean +0.63 median +0.60 se 0.23 range -0.61..+1.66 | frame-median blocks: mean +0.83 se 0.42
+halfGrainx4    GPU 5.38 (block sd 0.40)  CPU 3.08  paired vs none: mean +0.18 median +0.29 se 0.20 range -0.74..+1.10 | frame-median blocks: mean +0.26 se 0.33
+raw block means (ms):
+none: 4.99 4.93 5.72 4.83 4.95 4.94 5.21 5.48 6.07 4.84
+grain24x4: 5.48 5.43 6.34 5.54 5.48 5.26 5.58 4.85 6.34 6.78
+grainStaticx4: 6.46 6.67 6.83 5.34 6.37 5.69 5.91 6.39 6.30 6.80
+framex4: 5.27 6.31 5.66 5.51 5.58 5.86 6.89 6.09 6.59 6.07
+vigFullx4: 6.84 5.52 5.67 5.23 6.34 6.20 6.12 5.93 6.22 5.95
+cornersRotx4: 5.46 5.70 5.88 6.49 5.56 6.14 5.15 5.34 6.99 5.49
+cornersFlatx4: 5.37 6.32 5.39 6.48 5.87 5.37 5.57 6.76 5.47 5.62
+halfGrainx4: 4.70 5.29 5.03 5.05 6.05 5.38 5.78 5.45 5.33 5.74

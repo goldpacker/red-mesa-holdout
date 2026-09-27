@@ -1,0 +1,26 @@
+LOOK-6 bench 1 (static scene: beauty shot 6 boss, Sunset, HUD up, frozen enemies), build a674fe0 (unchanged PostFxFilm),
+Studio in front, viewport 1177x1068, QualityLevel 15, quiet machine (load 1.4-2.1, Blender slots free). Real FilmFx off
+(FilmFxOff) during the run; every variant is an emulated ScreenGui (script: bench_variants.client.luau).
+RenderGPUFrameTime sampled every frame (per-frame values range 3-11 ms even in the static scene), block = mean of 1.7 s after 0.8 s settle.
+
+L6 bench 07:55:20  10 rounds x 9 variants, settle 0.8 + measure 1.7 s, 227 s total, viewport 1177, 1068, ToD Sunset
+none         GPU 5.18 (block sd 0.46)  CPU 3.02  paired vs none: mean +0.00 median +0.00 se 0.00 range +0.00..+0.00
+cur          GPU 5.60 (block sd 0.80)  CPU 2.99  paired vs none: mean +0.42 median +0.51 se 0.24 range -0.68..+1.63
+grain24      GPU 5.69 (block sd 0.79)  CPU 3.01  paired vs none: mean +0.52 median +0.20 se 0.34 range -0.78..+2.47
+grainStatic  GPU 5.56 (block sd 0.47)  CPU 2.99  paired vs none: mean +0.38 median +0.24 se 0.24 range -0.87..+1.32
+grain256     GPU 5.56 (block sd 0.54)  CPU 2.99  paired vs none: mean +0.38 median +0.59 se 0.21 range -0.76..+1.31
+cornersRot   GPU 5.34 (block sd 0.25)  CPU 3.00  paired vs none: mean +0.16 median +0.27 se 0.17 range -0.66..+0.98
+cornersFlat  GPU 5.09 (block sd 0.38)  CPU 2.98  paired vs none: mean -0.09 median -0.26 se 0.23 range -0.86..+1.23
+vigFull      GPU 5.57 (block sd 0.61)  CPU 3.01  paired vs none: mean +0.39 median +0.10 se 0.30 range -0.72..+2.61
+frame        GPU 5.29 (block sd 0.47)  CPU 2.97  paired vs none: mean +0.12 median +0.13 se 0.19 range -1.11..+0.98
+raw block means (ms):
+none: 4.48 4.67 5.79 5.02 5.37 5.14 4.93 4.95 5.69 5.76
+cur: 5.48 5.68 7.42 4.44 5.06 5.96 5.62 5.20 6.03 5.08
+grain24: 6.68 7.14 6.18 5.83 4.75 5.13 5.62 4.96 5.68 4.98
+grainStatic: 5.73 4.99 4.92 6.18 5.53 5.20 6.25 5.80 5.79 5.24
+grain256: 5.19 5.03 5.03 5.64 5.25 5.96 6.24 5.51 5.17 6.59
+cornersRot: 5.46 5.09 5.39 5.40 5.41 5.90 5.29 5.13 5.03 5.34
+cornersFlat: 5.71 5.35 5.07 4.87 5.00 4.30 5.15 5.40 5.14 4.90
+vigFull: 7.09 5.64 5.07 5.62 5.45 4.96 5.05 5.91 5.39 5.49
+frame: 5.31 4.78 4.69 5.23 6.35 5.14 5.39 5.09 5.28 5.69
+Verdict: the emulated current layer reads +0.42 (se 0.24) here; single layers are within ~1-2 se of each other, so bench 2 stacks x4 copies.

@@ -1,0 +1,16 @@
+Session 4 (08:56-), build 30695a6 + AD-4's uncommitted boss/wave retune in the synced tree; quiet machine (Blender slots free,
+load 2.3-4.7 falling), Studio focused (60 fps checked before the run), QualityLevel 15, viewport 1177x1068.
+Script: bench_final.client.luau (metric gpu = Stats.RenderGPUFrameTime, the 60 fps protocol), started ~13 s into the wave.
+
+[final busy wave 9 Sunset, seed 7, +3 sorties at 34 s, MG bot, integrity held] 09:01:26 metric gpu: 52 valid cycles (0 voided), block 10+60 frames, 182 s, viewport 1177, 1068, ToD Sunset, phase Wave -> Wave
+block mean:
+  none  5.96 ms  vs none: mean +0.000  median +0.000  se 0.000  (n 52)
+  new   5.96 ms  vs none: mean -0.006  median -0.192  se 0.113  (n 52)
+  old   6.13 ms  vs none: mean +0.169  median +0.308  se 0.112  (n 52)
+  new - old: mean -0.175  median +0.022  se 0.119
+block median of frames:
+  none  5.18 ms  vs none: mean +0.000  median +0.000  se 0.000  (n 52)
+  new   5.24 ms  vs none: mean +0.059  median -0.010  se 0.154  (n 52)
+  old   5.45 ms  vs none: mean +0.263  median +0.281  se 0.156  (n 52)
+  new - old: mean -0.203  median +0.034  se 0.143
+enemies at the end: Helicopter 3, Tank 4, Buggy 6 (plus airborne loads during the run)
