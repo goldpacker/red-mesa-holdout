@@ -128,7 +128,7 @@ Ground forces don't appear out of nowhere at the far end of the basin. **Infantr
 - **Drop zone:** loads land scattered across the whole basin width, on open basin floor **300–800 studs from the outpost** (never on cliffs, buttes or the mesa slope). Where the next group lands varies from wave to wave and from run to run.
 - **Invincible in the air:** paratroopers and dropping vehicles can't be damaged until they touch down. Shots at them show a clear "no effect" response (tracers pass through or spark off; no hit marker, no score), and they can't be locked by AA missiles.
 - **Landing:** the canopy collapses and drapes on the ground, dust kicks up, and the soldier or vehicle joins the nearest approach lane and advances toward the mesa as before. Vehicles unhook from their platform and drive off.
-- **Readability:** the player sees transports crossing the horizon and chutes blossoming before anything can attack. The HUD announces incoming drops and marks them on the radar. At dusk and night the chutes and loads carry small lights so the drop stays visible.
+- **Readability:** the player sees transports crossing the horizon and chutes blossoming before anything can attack. The HUD announces incoming drops and marks them on the radar.
 - **Unchanged:** helicopters and jets fly in as before. The Siege Crawler grinds in from the far end of the road as the boss entrance; its infantry escorts arrive by air.
 
 ### 6.2 Boss — The Siege Crawler (wave 10)
@@ -163,14 +163,13 @@ One polished battlefield in a desert canyon basin.
 
 ### 7.1 Time of Day Progression
 
-Lighting progresses with the waves as a free escalation of mood:
+Lighting progresses with the waves as a free escalation of mood. The game is played entirely in daylight; there is no dusk or night (user decision, 2026-09-26, to keep the busiest waves inside the performance budget):
 
-- **Waves 1–4:** bright afternoon.
-- **Waves 5–7:** golden sunset.
-- **Wave 8:** dusk.
-- **Waves 9–10:** night, lit by tracers, fires, explosions, flares, and searchlights.
+- **Waves 1–3:** bright afternoon.
+- **Waves 4–6:** late afternoon, warmer light and longer shadows.
+- **Waves 7–10:** golden sunset. The climax and the boss fight play out in raking golden light.
 
-Transitions happen during intermissions (or smoothly during them), never in a way that makes enemies hard to see. Night must remain readable — enemies need lights, glows, or silhouettes against lit sky/fires.
+Transitions happen during intermissions (or smoothly during them), never in a way that makes enemies hard to see.
 
 ---
 
@@ -186,12 +185,12 @@ Each wave should open quietly with the first transports crossing the horizon and
 | 2 | Afternoon | Infantry + buggies on the flanks | Traversing the arc; fast targets |
 | 3 | Afternoon | First tanks + infantry. First supply crate. | Rockets; basic prioritization |
 | 4 | Late afternoon | First helicopters + infantry | AA lock-on; off-screen warnings |
-| 5 | Sunset | Mixed ground assault on all lanes | Juggling three ground threats |
-| 6 | Sunset | First jets + helicopters + infantry | "Look up now" reactions |
+| 5 | Late afternoon | Mixed ground assault on all lanes | Juggling three ground threats |
+| 6 | Late afternoon | First jets + helicopters + infantry | "Look up now" reactions |
 | 7 | Sunset | Armored push: tanks with buggy escorts, plus jets | Rocket scarcity |
-| 8 | Dusk | Air assault: helicopters on both flanks, jets, infantry rush | Missile scarcity; machine-gun fallback |
-| 9 | Night | Full combined arms from every direction | Everything at once |
-| 10 | Night | Siege Crawler boss + escorts | Climax |
+| 8 | Sunset | Air assault: helicopters on both flanks, jets, infantry rush | Missile scarcity; machine-gun fallback |
+| 9 | Sunset | Full combined arms from every direction | Everything at once |
+| 10 | Sunset | Siege Crawler boss + escorts | Climax |
 
 Exact compositions, counts, drop timing, drop points, and routes are at the developer's discretion, guided by this table. Waves are retuned after the airdrop change so difficulty stays as intended.
 
@@ -313,7 +312,7 @@ Required elements (placement is a suggestion):
 - **Lighting:** Roblox Future lighting with shadows, atmosphere, a proper sky, bloom, sun rays, and per-time-of-day color grading. Lighting is tuned per scene, not left at defaults.
 - **Effects:** particle-based and grounded — layered fireballs, sparks, dust kicks, thick smoke columns, heat shimmer where cheap, bright tracers, muzzle flashes, debris, and decals for scorch marks. Punchy enough for arcade satisfaction without cartoon shapes. Screen shake used with restraint and scaled to proximity/intensity.
 - **Environment — cinematic realism:** the models are good enough; further visual effort goes into the overall environment. Reference: the desert maps of modern military shooters (Battlefield, Call of Duty): crisp detail, strong contrast, a lived-in battlefield, and clean, readable combat spaces. Priorities, in order:
-  1. **Atmosphere and light:** haze with real depth layered through the basin, sun shafts through dust, heat shimmer, dust hanging in searchlight beams, a dramatic sky at every time of day, and a restrained film treatment (subtle grain and lens response).
+  1. **Atmosphere and light:** haze with real depth layered through the basin, sun shafts through dust, heat shimmer, a dramatic sky at every time of day, and a restrained film treatment (subtle grain and lens response).
   2. **Ground realism:** no bare, repeating sand anywhere the camera looks. Dense, varied ground cover (scrub, rocks, pebbles), tyre tracks, old craters, eroded wash banks and road edges, and signs of an ongoing conflict and past habitation (burnt-out vehicle hulks, barriers and wire, power poles, a ruined roadside compound), kept off the lanes.
   3. **Weather and life:** wind-blown sand streaming over the ground, dust devils, smoke drifting from old wrecks, birds, and occasional dust storms rolling through on some waves.
   Weather, haze and dressing never hide an enemy at its engagement range or cover the HUD, and the performance budget stays at 60 fps on a mid-range PC at graphics level 8 with about 250 MB of texture memory.
@@ -440,7 +439,7 @@ From a fresh game session, the player can:
 6. Switch weapons when threats require it — rockets destroy tanks, AA missiles lock onto and destroy aircraft.
 7. Take damage with clear directional feedback, and see enemies clearly destroyed.
 8. Collect at least one supply crate.
-9. Complete successive waves with working intermissions (tally, repair, resupply, preview), and see time of day progress to night.
+9. Complete successive waves with working intermissions (tally, repair, resupply, preview), and see time of day progress to sunset.
 10. Experience increasing combined-arms pressure from multiple directions.
 11. Destroy the Siege Crawler's weak points and core in wave 10.
 12. Reach an unmistakable victory state, and start a fresh run with Play Again.

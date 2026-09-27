@@ -11,6 +11,13 @@ User feedback (2026-09-26), now in `GAME_SPEC.md` §6.1, §7, §8, §13–15:
    maps. Priorities: atmosphere and light, ground realism, weather and life.
    The performance budget stays the same.
 
+**Decision update (2026-09-26, 23:10): daylight only.** Night and dusk are
+removed to keep the busiest waves inside the GPU budget. Waves 1–3 run in
+afternoon, 4–6 in late afternoon, 7–10 in sunset (spec §7.1). Night-only
+work in this plan is dropped: load lights, searchlight dust, night
+readability tuning, and the Dusk/Night skies. The searchlights and flares
+are retired.
+
 User decisions from the interview:
 - Everything that drives or walks is dropped; the Siege Crawler still
   drives in.
@@ -44,7 +51,7 @@ disagree):
 2. **Approach.** The transport enters from beyond the basin edge at 250–350
    studs above the floor. It flies a straight or gently curved path across
    the basin and exits without ever passing over the mesa. Engine drone,
-   navigation lights at dusk and night, and a radar blip announce it; the
+   and a radar blip announce it; the
    HUD shows "INCOMING AIRDROP" with a direction.
 3. **Release.** Over the drop point the ramp opens and the load leaves in a
    stick along the flight line: troopers about 0.5 s apart, vehicles on
@@ -99,7 +106,6 @@ disagree):
     opens, enemy gunmetal with red markings and the emblem.
   - A personnel parachute: deploy, open and collapsed states.
   - A cargo-chute cluster and a drop platform with straps.
-  - A night marker light on each load.
 - **Motion:**
   - Canopy deploy snap and sway, and trooper legs dangling.
   - Vehicles swing gently under their chutes.
@@ -134,8 +140,7 @@ particles) over new maps.
 ### Atmosphere and light (Look)
 - Depth-layered haze: thicker low dust in the basin, clean upper air, and
   distance fall-off that separates the foreground, the basin and the walls.
-- Sun shafts through dust at low sun (sunset, late afternoon) and dust motes
-  in the searchlight beams at night.
+- Sun shafts through dust at low sun (sunset, late afternoon).
 - A crisp modern-shooter grade: stronger local contrast, clean whites, no
   mud, with a per-time-of-day refresh of the light keys in
   `docs/ART_BIBLE.md`.
@@ -203,7 +208,7 @@ before/after images). The contract is `docs/FACELIFT_TEAM.md`, whose
 - The beauty cameras show no bare repeating sand, visible depth in the air,
   and weather that reads as alive.
 - The readability check passes at every time of day and during storms.
-- 60 fps and ~250 MB hold in the busiest night waves.
+- 60 fps and the texture budget hold in the busiest waves (8–10, at sunset).
 
 ## 5. Risks
 - **Hand-off pops** at touchdown: design the client visual and the server
