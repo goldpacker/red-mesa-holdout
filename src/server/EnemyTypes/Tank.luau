@@ -8,6 +8,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Config = require(ReplicatedStorage.Shared.Config)
 local EnemyConfig = require(ReplicatedStorage.Shared.EnemyConfig)
+local AirdropLanding = require(script.Parent.Parent.AirdropLanding)
 local Types = require(script.Parent.Parent.Types)
 local Dress = require(script.Parent.Common.Dress)
 local Driver = require(script.Parent.Common.Driver)
@@ -60,7 +61,7 @@ local function blocked(self: {}, pos: Vector2, heading: Vector2): boolean
 	return false
 end
 
-function Tank.spawn(ctx: Types.Context, laneName: string, rng: Random): Types.Enemy
+function Tank.spawn(ctx: Types.Context, laneName: string, rng: Random, opts: { landAt: Vector3? }?): Types.Enemy
 	local lane = Kit.groundLane(laneName, "Road")
 	local model, root = build()
 	local rootOffset = Rig.rootOffset(root)
@@ -73,6 +74,10 @@ function Tank.spawn(ctx: Types.Context, laneName: string, rng: Random): Types.En
 	end
 	local lateral = (if count % 2 == 0 then -1 else 1) * rng:NextNumber(2, CFG.LATERAL_JITTER)
 	local driver = Driver.new(lane, lateral, Vector2.new(rng:NextNumber(-4, 4), rng:NextNumber(-8, 8)))
+	if opts and opts.landAt then
+		-- Airdrop landing (AD-1): drive from the touchdown point onto the road.
+		AirdropLanding.placeDriver(driver, opts.landAt)
+	end
 	local health = CFG.HEALTH
 
 	local enemy: Types.Enemy = {

@@ -5,6 +5,12 @@
 -- the lock ~1.2 s) for helicopters and jets, and shoots supply crates when
 -- nothing urgent is on screen. On defeat it presses Retry Wave (counted in
 -- player attribute QA_Retries). Stop: player:SetAttribute("AutoPlay", false).
+-- Airdrops (AD-1): loads in the air are client-only visuals under
+-- Workspace.AirdropFx (attribute Airborne), never in Workspace.Enemies, so
+-- the bot never fires at them; it only picks enemies that have landed.
+-- It also audits arrivals: QA_Drops counts landed Infantry/Buggy/Tank
+-- (attribute DropLoadId), QA_GroundNoDrop those that appeared without one,
+-- QA_DropOutOfBand landings outside 300-800 studs (horizontal).
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -21,6 +27,34 @@ local ROCKET_SPEED = 340 -- WeaponConfig rocket speed
 --   QA_Burst (true = machine gun in ~1 s bursts), QA_NoCrates (true).
 plr:SetAttribute("AutoPlay", true)
 plr:SetAttribute("QA_Retries", plr:GetAttribute("QA_Retries") or 0)
+for _, name in { "QA_Drops", "QA_GroundNoDrop", "QA_DropOutOfBand" } do
+	plr:SetAttribute(name, plr:GetAttribute(name) or 0)
+end
+
+local GROUND_KINDS = { Infantry = true, Buggy = true, Tank = true }
+local function bump(name: string)
+	plr:SetAttribute(name, (plr:GetAttribute(name) or 0) + 1)
+end
+local auditConn = workspace.Enemies.ChildAdded:Connect(function(model)
+	task.defer(function()
+		local kind = model:GetAttribute("Kind")
+		if not GROUND_KINDS[kind] or not model:IsA("Model") then
+			return
+		end
+		if model:GetAttribute("DropLoadId") == nil then
+			bump("QA_GroundNoDrop")
+			return
+		end
+		bump("QA_Drops")
+		local root = model.PrimaryPart
+		if root then
+			local d = Vector2.new(root.Position.X - PIVOT.X, root.Position.Z - PIVOT.Z).Magnitude
+			if d < 298 or d > 802 then
+				bump("QA_DropOutOfBand")
+			end
+		end
+	end)
+end)
 
 local lastPos: { [Instance]: { pos: Vector3, t: number, vel: Vector3 } } = {}
 local lockTarget, lockSince = nil, 0
@@ -83,7 +117,7 @@ local function pick()
 	local best, bestScore, bestWeapon, bestPoint = nil, -math.huge, "MG", nil
 	for _, model in workspace.Enemies:GetChildren() do
 		local root = model:IsA("Model") and model.PrimaryPart
-		if not root or model:GetAttribute("State") == "Dead" then
+		if not root or model:GetAttribute("State") == "Dead" or model:GetAttribute("Airborne") then
 			continue
 		end
 		local kind = model:GetAttribute("Kind")
@@ -196,6 +230,7 @@ task.spawn(function()
 		end
 		task.wait(0.05)
 	end
+	auditConn:Disconnect()
 	plr:SetAttribute("DebugFire", false)
 end)
 return "full autoplay started"

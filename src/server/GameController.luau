@@ -263,6 +263,8 @@ local function installDebugHooks()
 	end
 	-- QA-tools commands (LOS/ground checks, beauty-shot staging): server/QaDebug.
 	local QaDebug = require(script.Parent.QaDebug)
+	-- Airdrop commands (airdrop, dropZoneCheck, airdropStats, airdropSeed).
+	local AirdropDebug = require(script.Parent.AirdropDebug)
 	QaDebug.init({
 		context = GameController.context,
 		clearBattlefield = clearBattlefield,
@@ -311,6 +313,8 @@ local function installDebugHooks()
 			GameController.context.dropCrate(arg)
 		elseif QaDebug.has(cmd) then
 			return QaDebug.run(cmd, arg)
+		elseif AirdropDebug.has(cmd) then
+			return AirdropDebug.run(cmd, arg)
 		end
 		return true
 	end

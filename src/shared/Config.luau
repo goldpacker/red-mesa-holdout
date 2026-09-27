@@ -126,8 +126,16 @@ Config.Lanes = {
 	},
 }
 
--- Wave definitions (GAME_SPEC §8). Each group spawns `count` enemies of
--- `kind` on `lane` starting at `at` seconds, one every `spacing` seconds.
+-- Wave definitions (GAME_SPEC §8). Each group brings `count` enemies of
+-- `kind` for `lane`, `at` seconds into the wave:
+--   * Infantry, Buggy and Tank arrive by airdrop (server/Airdrop,
+--     shared/AirdropConfig): `at` is when the group's transport enters the
+--     basin; its loads land about 10-20 s later, 300-800 studs out, near
+--     `lane`. A group larger than one transport's capacity (8 infantry,
+--     2 buggies, 1 tank) flies as a formation, each extra transport
+--     trailing by max(`spacing`, 2.5) s.
+--   * Helicopter, Jet and SiegeCrawler spawn at `at`, one every `spacing`
+--     seconds, as before.
 -- `time` selects the lighting preset (TimeOfDay.luau); `crates` lists the
 -- seconds at which a supply crate drops. Kinds missing at runtime are
 -- skipped with a warning, so waves never hang on unfinished content.

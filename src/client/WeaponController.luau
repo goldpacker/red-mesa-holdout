@@ -54,6 +54,11 @@ effectParams.FilterType = Enum.RaycastFilterType.Exclude
 
 local listeners: { [string]: { (any) -> () } } = {}
 
+-- Airdrop "no effect" hook (AD-1, set by client/Airdrop): given a round's
+-- origin, direction and travel, returns where it meets an airborne load or
+-- transport (after showing the deflect there), else nil.
+WeaponController.airborneHit = nil :: ((origin: Vector3, dir: Vector3, maxDist: number) -> Vector3?)?
+
 local function emit(kind: string, payload: any)
 	for _, fn in listeners[kind] or {} do
 		task.spawn(fn, payload)
@@ -161,10 +166,16 @@ local function fireMachineGun()
 	local result = Workspace:Raycast(origin, dir * MG.RANGE, effectParams)
 	local hitPos = if result then result.Position else origin + dir * MG.RANGE
 	local hitEnemy = result ~= nil and result.Instance:FindFirstAncestor("Enemies") ~= nil
+	-- AD-1: a load in the air (or its transport) in front shows "no effect".
+	local airborneHit = WeaponController.airborneHit
+	local deflected = if airborneHit then airborneHit(origin, dir, (hitPos - origin).Magnitude) else nil
+	if deflected then
+		hitPos = deflected
+	end
 
 	Effects.muzzleFlash(muzzle, dir)
 	Effects.tracer(muzzle, hitPos)
-	if result then
+	if result and not deflected then
 		Effects.impact(hitPos, hitEnemy)
 	end
 	AimController.kick(0.5)

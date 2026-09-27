@@ -9,7 +9,12 @@ local Types = require(script.Parent.Types)
 
 local Enemies = {}
 
-local SPAWNERS: { [string]: (Types.Context, string, Random) -> Types.Enemy } = {}
+-- Landing entry (AD-1): `landAt` starts a ground enemy at an airdrop
+-- touchdown point instead of its lane start; `loadId` tags the model
+-- (attribute DropLoadId) so clients hand off from the descent visual.
+export type SpawnOptions = { landAt: Vector3?, loadId: number? }
+
+local SPAWNERS: { [string]: (Types.Context, string, Random, SpawnOptions?) -> Types.Enemy } = {}
 for _, module in script.Parent.EnemyTypes:GetChildren() do
 	if module:IsA("ModuleScript") then
 		local ok, def = pcall(require, module)
@@ -33,15 +38,18 @@ function Enemies.has(kind: string): boolean
 	return SPAWNERS[kind] ~= nil
 end
 
-function Enemies.spawn(ctx: Types.Context, kind: string, lane: string): Types.Enemy
+function Enemies.spawn(ctx: Types.Context, kind: string, lane: string, opts: SpawnOptions?): Types.Enemy
 	local spawner = SPAWNERS[kind]
 	assert(spawner, "no spawner for " .. kind)
-	local enemy = spawner(ctx, lane, rng)
+	local enemy = spawner(ctx, lane, rng, opts)
 	nextId += 1
 	enemy.id = nextId
 	enemy.model:SetAttribute("EnemyId", enemy.id)
 	enemy.model:SetAttribute("Kind", kind)
 	enemy.model:SetAttribute("IsAir", enemy.isAir)
+	if opts and opts.loadId then
+		enemy.model:SetAttribute("DropLoadId", opts.loadId)
+	end
 	enemy.model.Parent = folder()
 	alive[enemy.id] = enemy
 	return enemy

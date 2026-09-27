@@ -15,6 +15,7 @@ local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local Config = require(ReplicatedStorage.Shared.Config)
+local AirdropLanding = require(script.Parent.Parent.AirdropLanding)
 local Types = require(script.Parent.Parent.Types)
 local Kit = require(script.Parent.Common.Kit)
 
@@ -336,14 +337,23 @@ local function horizontalDistance(a: Vector3, b: Vector3): number
 	return Vector2.new(a.X - b.X, a.Z - b.Z).Magnitude
 end
 
-function Infantry.spawn(ctx: Types.Context, laneName: string, rng: Random): Types.Enemy
+function Infantry.spawn(ctx: Types.Context, laneName: string, rng: Random, opts: { landAt: Vector3? }?): Types.Enemy
 	local lane = Config.Lanes[laneName] or Config.Lanes.Road
 
 	local lateral = rng:NextNumber(-14, 14)
 	local start = lane[1] + Vector2.new(rng:NextNumber(-10, 10), rng:NextNumber(-20, 20))
+	local toward = lane[2] - lane[1]
+	local firstWaypoint = 2
+	-- Airdrop landing (AD-1): start at the touchdown point, facing and
+	-- walking to the lane's next waypoint closer to the mesa.
+	local landAt = opts and opts.landAt
+	if landAt then
+		start = Vector2.new(landAt.X, landAt.Z)
+		firstWaypoint = AirdropLanding.joinIndex(lane, start)
+		toward = AirdropLanding.facing(lane, start)
+	end
 	local model, root, HIP_HEIGHT = buildModel()
 	local y = groundY(start.X, start.Y) + HIP_HEIGHT
-	local toward = lane[2] - lane[1]
 	root.CFrame = CFrame.lookAt(Vector3.new(start.X, y, start.Y), Vector3.new(start.X + toward.X, y, start.Y + toward.Y))
 
 	local enemy: Types.Enemy = {
@@ -359,7 +369,7 @@ function Infantry.spawn(ctx: Types.Context, laneName: string, rng: Random): Type
 	}
 
 	local speed = CFG.SPEED * rng:NextNumber(0.85, 1.15)
-	local waypoint = 2
+	local waypoint = firstWaypoint
 	local position = Vector3.new(start.X, y, start.Y)
 	local rifleTimer = CFG.RIFLE_INTERVAL * rng:NextNumber(0.5, 1.5)
 	local grenadeTimer = rng:NextNumber(0.5, 2)

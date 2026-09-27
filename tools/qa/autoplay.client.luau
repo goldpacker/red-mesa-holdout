@@ -11,7 +11,8 @@ task.spawn(function()
 	while plr:GetAttribute("AutoPlay") do
 		local best, bd
 		for _, m in ipairs(workspace.Enemies:GetChildren()) do
-			if m.PrimaryPart and m:GetAttribute("State") ~= "Dead" and m:FindFirstChild("Torso") then
+			-- Airdropped loads in the air are never in Enemies; skip Airborne anyway.
+			if m.PrimaryPart and m:GetAttribute("State") ~= "Dead" and not m:GetAttribute("Airborne") and m:FindFirstChild("Torso") then
 				local d = (m.PrimaryPart.Position - pivot).Magnitude
 				if not bd or d < bd then
 					best, bd = m, d

@@ -235,3 +235,41 @@ counts and enemies on screen. Scenes and baseline numbers:
 | `found N captures since …` | a capture failed or an extra one was taken; re-file with a later `--since` or one at a time |
 | Code changes don't show | Rojo syncs to Edit only: stop and restart Play |
 | `RedMesaDebug` missing | not a Studio playtest, or the server errored at start: check `get_console_output` |
+
+---
+
+## 8. Airdrop checks (AD-1)
+
+Server datamodel, during a playtest (`src/server/AirdropDebug.luau`,
+registered by `GameController.installDebugHooks`, Studio only):
+```lua
+local dbg = game.ServerStorage.RedMesaDebug
+-- Fly a sortie now in the running wave (it counts toward the wave):
+local ok, report = dbg:Invoke("airdrop", { kind = "Infantry", count = 8, lane = "Road" })
+-- kind Infantry | Buggy | Tank, any ground lane; count defaults to one transport's capacity.
+-- Drop-zone sampler audit (runs any time after the world is built):
+local report, data = dbg:Invoke("dropZoneCheck", { samples = 600, seed = 1 })
+-- Counters since the last reset (sorties, loads announced/landed per kind,
+-- cancelled, fallbacks, landing distance min/max, max plan ms, seed):
+local stats = dbg:Invoke("airdropStats")       -- { reset = true } clears them
+dbg:Invoke("airdropSeed", 1234)                 -- pin the run seed; nil = fresh per run
+```
+- `dropZoneCheck` plans sorties with the gameplay planner
+  (`server/AirdropPlan`) over every ground kind/lane pairing, keeping ~4
+  sorties' landings pending together as in a busy wave, then re-checks each
+  landing point with denser, independent sampling: **band** (300–800
+  studs), **ground** (open floor material and height, landing height =
+  terrain), **footprint/slope** (12 + 6 samples, ≤ 22°), **spacing**
+  (against the sortie and pending loads), **reach** (every 3 studs to the
+  lane's join waypoint, which must be closer to the mesa), plus each
+  flight line (**path**: clearance ≥ 280 from the outpost, altitude
+  250–350, entry and exit outside the basin, release on the path, drift
+  ≤ 9 studs/s). Pass = `0 violations`.
+- Client side, loads in the air are visuals under `Workspace.AirdropFx`
+  (models tagged/attributed `Airborne`). That folder's attributes
+  `Handoffs`, `HandoffMaxDelay` (s after `landT` the enemy appeared) and
+  `HandoffMaxOffset` (studs between `landPos` and the enemy root) measure
+  the hand-off.
+- `tools/qa/autoplay_full.client.luau` audits arrivals in player
+  attributes `QA_Drops`, `QA_GroundNoDrop` (a ground enemy without
+  `DropLoadId`: must stay 0) and `QA_DropOutOfBand` (must stay 0).

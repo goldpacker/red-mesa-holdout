@@ -128,5 +128,7 @@ end)
 
 -- LOOK-3: enemy root smoothing and body motion (rendering only).
 require(script.EnemyMotion).start()
+-- AD-1: transports, parachute descents and the airborne "no effect".
+require(script.Airdrop).start()
 
 print("[RedMesa] client ready")

@@ -8,6 +8,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Config = require(ReplicatedStorage.Shared.Config)
 local EnemyConfig = require(ReplicatedStorage.Shared.EnemyConfig)
+local AirdropLanding = require(script.Parent.Parent.AirdropLanding)
 local Types = require(script.Parent.Parent.Types)
 local Dress = require(script.Parent.Common.Dress)
 local Driver = require(script.Parent.Common.Driver)
@@ -59,7 +60,7 @@ local function pointAt(yawDeg: number, radius: number): Vector2
 	return Vector2.new(PIVOT.X - math.sin(y) * radius, PIVOT.Z - math.cos(y) * radius)
 end
 
-function Buggy.spawn(ctx: Types.Context, laneName: string, rng: Random): Types.Enemy
+function Buggy.spawn(ctx: Types.Context, laneName: string, rng: Random, opts: { landAt: Vector3? }?): Types.Enemy
 	local fallback = if string.find(laneName, "Right") then "WashRight" elseif string.find(laneName, "Left") then "WashLeft" else Kit.pick({ "WashLeft", "WashRight" }, rng)
 	local lane = Kit.groundLane(laneName, fallback)
 	local model = build()
@@ -68,6 +69,10 @@ function Buggy.spawn(ctx: Types.Context, laneName: string, rng: Random): Types.E
 	local gunLocal, muzzleLocal = Kit.moverFrames(model, "Gun", "Muzzle")
 
 	local driver = Driver.new(lane, rng:NextNumber(-8, 8), Vector2.new(rng:NextNumber(-8, 8), rng:NextNumber(-12, 12)))
+	if opts and opts.landAt then
+		-- Airdrop landing (AD-1): drive from the touchdown point into the wash.
+		AirdropLanding.placeDriver(driver, opts.landAt)
+	end
 	local enemy: Types.Enemy = {
 		id = 0,
 		kind = "Buggy",

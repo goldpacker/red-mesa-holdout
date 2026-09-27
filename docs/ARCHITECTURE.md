@@ -40,8 +40,11 @@ lanes and **waves** (lead). Weapon and enemy tuning go in
 ## Key contracts
 
 ### Enemies (server)
-- Each file in `src/server/EnemyTypes/` returns `{ kind = "Tank", spawn = function(ctx, lane, rng) -> Enemy }`.
+- Each file in `src/server/EnemyTypes/` returns `{ kind = "Tank", spawn = function(ctx, lane, rng, opts?) -> Enemy }`.
   `Enemies.luau` auto-registers it; wave configs refer to it by `kind`.
+  `opts.landAt` (Infantry, Buggy, Tank): start at that airdrop touchdown
+  point, facing and heading for the lane's next waypoint closer to the
+  mesa (`server/AirdropLanding.luau`); behaviour after that is unchanged.
 - `Enemy` fields: see `src/server/Types.luau` (`resist`, `isThreatening`,
   `onDamage`, `isAir`, `update`, `die`, …). Models get attributes
   `EnemyId`, `Kind`, `IsAir`, `Threat` automatically. Set a `State`
@@ -75,6 +78,19 @@ Reserved for new work: `JetWarning {id, eta}`, `BossUpdate {weakPoints, core}`,
 `BossCharge {duration}`, `CrateSpawned`, `CratePickup {contents, amount}`,
 `AmmoUpdate` (weapons may instead use player attributes).
 Weapons: `Projectile {id, kind, origin, dir, speed, t0, owner, token, targetId}`, `ProjectileEnd {id, kind, position, exploded, air, enemy}`, `Ricochet {position}` (to the shooter only).
+Airdrop (AD-1, `server/Airdrop.luau`; times are `Workspace:GetServerTimeNow()`):
+`AirdropSortie {id, kind, lane, from, to, speed, t0, loads = {{loadId, kind, lane, releaseT, openT, landT, openPos, landPos, face}}}`:
+one transport flying the straight line `from` → `to` (Vector3, constant
+altitude) at `speed` studs/s, at `from` at `t0`. Each load leaves the ramp
+at `releaseT`, opens its canopy at `openPos` at `openT` and touches down
+exactly at `landPos` (ground height) at `landT`, facing the flat direction
+`face`; the server then spawns the enemy there with model attribute
+`DropLoadId = loadId` (shared/AirdropPath has the timeline maths).
+`AirdropClear {reason, cancelled}`: pending loads were dropped (`reason` =
+the new phase when it leaves `Wave` — `Intermission`, `Defeat`,
+`WaveIntro` — or `Timeout`, or `Dismissed` when the boss dies); clients
+remove descents still in the air, and also transports unless the reason is
+`Intermission` or `Dismissed`.
 Add new kinds to this list when you introduce them.
 
 ### Game state (`ReplicatedStorage.GameState` attributes)
@@ -101,7 +117,9 @@ attributes (e.g. `Rockets`, `Missiles`) set by the server.
   ~40 s after Play for terrain to finish meshing.
 - Debug hooks (Studio only): player attributes `DebugYaw`, `DebugPitch`,
   `DebugFire`, `DebugAiming`; `ServerStorage.RedMesaDebug:Invoke(cmd, arg)`
-  with `state`, `setIntegrity`, `killAll`, `startWave`.
+  with `state`, `setIntegrity`, `killAll`, `startWave`; airdrop QA:
+  `airdrop`, `dropZoneCheck`, `airdropStats`, `airdropSeed`
+  (`tools/qa/BEAUTY.md` §8).
   `tools/qa/autoplay.client.luau` auto-aims and fires at the nearest enemy.
 - Temporary test waves: don't edit `Config.Waves`; instead use
   `RedMesaDebug:Invoke("startWave", n)` or spawn directly from a Server
