@@ -271,7 +271,7 @@ side).
   `hidden_preview=True`) unless a camera view lists them in `"show"`.
 - **Wreck maps** (`tools/assets/build.sh WreckMaps`, `models/wreck_maps.py`,
   Blender's numpy, no bake): each vehicle's baked colour/metal/normal maps
-  become a 512² burnt colour map `<Name>_<group>_wreck.png` (char, blistered
+  become a 256² (crawler 512²) burnt colour map `<Name>_<group>_wreck.png` (char, blistered
   paint remnants with ash rims, rust on chips/convex edges/blotches, dust
   turned to ash, markings burnt to oxide) plus `wreck.json` (the hash of the
   colour map it came from). `publish.py upload <Name>` uploads it only while
@@ -343,6 +343,57 @@ python3 tools/assets/publish.py meshes <harvest.json>
 Rebuilding `TrimAirdrop` changes nothing in the assets' UVs as long as the
 strip order/heights stay (they map into `trim.json` at build time: rebuild
 them after changing it).
+
+### Game-resolution maps and never-drawn maps (RECLAIM-HS)
+
+Texture reclaim from QA-B's list (`docs/PERF_BUDGET.md` §5.5). All opt-in;
+every other asset builds and publishes as before.
+
+- **`GAME_PX` / `Asset.game_px`** (`rmh/game_maps.py`): a cap on the maps
+  *uploaded* to Roblox. A model file declares a module-level `GAME_PX = 512`
+  and sets `a.game_px = GAME_PX` in `build()`. The bake, the `.blend`, the
+  previews and `<Name>_<group>_<ch>.png` stay at the full `tex_size`, so
+  key art, wreck maps and later bakes keep full detail. The build then
+  writes `<Name>_<group>_<ch>_512.png` for every larger map and records
+  `game_px` and `upload_textures` in the manifest; `publish.py upload`
+  sends those copies in place of the full maps (maps already ≤ the cap,
+  e.g. `metal_px=512` metalness, go as they are). The copies are a box
+  average, i.e. the next level of a standard mip chain: colour in linear
+  light, normal/roughness/metalness as stored. The Wreck looks keep their
+  own colour map (made from the full-size colour map, so `wreck.json` stays
+  fresh) and pick up the 512² normal/roughness in `publish.py rbxmx`.
+  Used by Tank, Buggy, Helicopter, Jet and SiegeCrawler (not by the shared
+  `TrimEnemy` sheet). Why it is invisible in play: at each vehicle's
+  nearest gunsight range the 512² maps still give ≥ 1.1 texels per screen
+  pixel (crawler 1.1 at 330 studs, jet 1.2 at ~220, heli 2.1, buggy 2.2,
+  tank 3.6), so the GPU was already sampling mip ≥ 1 of the 1024² maps.
+- **Re-export without a rebuild:** `tools/assets/build.sh GameMaps`
+  (`models/game_maps.py`, a few seconds, no bake, no lock) or
+  `BUILD_ARGS="--only Tank" tools/assets/build.sh GameMaps`. It reads each
+  model's `GAME_PX`, writes the copies and the manifest keys. Then
+  `publish.py upload <Name>` + `publish.py rbxmx <Name>`; geometry and mesh
+  ids don't change, so no harvest. **To opt out**, delete `GAME_PX` (and the
+  `a.game_px` line), remove `game_px`/`upload_textures` from the manifest
+  (or rebuild) and upload again: the full maps go back up.
+- **Meta `untextured`** (`publish.py`, `rbxmx.py`): an asset whose maps are
+  never drawn (the rigid `Infantry` parts are invisible hit volumes under
+  the skinned soldier since CHAR-2; the `InfantrySpike` test bar is never
+  shipped). `a.meta["untextured"] = [r, g, b]` (0..1) or `True`:
+  `publish.py upload` uploads no maps and drops their ids; the rbxmx
+  carries no SurfaceAppearance and gives the parts that flat colour (the
+  rigid infantry fall back to the uniform charcoal if the skinned templates
+  ever fail). The maps are still baked locally for previews.
+- **Dead maps removed:** the SupplyCrate `chute` group is declared
+  `metal=False` (its metalness map was all zero; metalness 0 either way),
+  and the stale pre-HS-3 `Tank_gear_*` and `Buggy_wheels_*` PNGs (no
+  manifest group, never uploaded) were deleted from `assets/exported/`.
+
+```sh
+tools/assets/build.sh GameMaps
+set -a; . ./.env.local; set +a
+python3 tools/assets/publish.py upload Tank Buggy Helicopter Jet SiegeCrawler
+python3 tools/assets/publish.py rbxmx Tank Buggy Helicopter Jet SiegeCrawler
+```
 
 ### Axis handling (verified in Studio)
 Roblox's glTF importer turns an asset 180° about up. `export_glb` rotates

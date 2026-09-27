@@ -9,8 +9,11 @@ TracerBeam     512x128 Beam texture: U (x) runs along the beam and tiles;
                Beam's Color tints it (ours amber, enemy red).
 ShockwaveRing  1024x1024 top-down ring: sharp outer front at 80% radius,
                soft trailing inner falloff, streaky breakup. White (tinted).
-ScorchMark     1024x1024 top-down burn decal, colour baked (charred centre,
-               brown burnt edge, radial splatter).
+ScorchMark     512x512 top-down burn decal, colour baked (charred centre,
+               brown burnt edge, radial splatter). Drawn at 1024 and box-
+               downsampled (RECLAIM-HS, QA-B item 2: decals are uncompressed
+               RGBA8, and a <= 20-stud scorch seen from >= 60 studs never
+               needs more).
 """
 import numpy as np
 
@@ -83,4 +86,4 @@ def _scorch():
     rgb = edge_col * (1 - heat) + burnt * heat
     rgb = rgb * (1 - heat ** 2) + char * heat ** 2
     rgb = rgb * (0.78 + 0.34 * patches[..., None]) * (0.9 + 0.2 * grain[..., None])
-    return _rgba(np.clip(rgb, 0.0, 1.0), alpha)
+    return image.downsample(_rgba(np.clip(rgb, 0.0, 1.0), alpha), 2)  # 512² (RECLAIM-HS)

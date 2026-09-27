@@ -1,0 +1,114 @@
+{
+ "afternoon_buggy-230": {
+  "crop": [
+   520,
+   476,
+   668,
+   604
+  ],
+  "detail_before": 18.14,
+  "detail_after": 18.2,
+  "shift": [
+   0,
+   0
+  ],
+  "mean_abs_diff": 9.14,
+  "px_over_15": 13.4,
+  "unshifted_mean_abs_diff": 9.14,
+  "unshifted_px_over_15": 13.4,
+  "noise_mean_abs_diff": 0.0,
+  "noise_px_over_15": 0.0
+ },
+ "afternoon_tank-390": {
+  "crop": [
+   531,
+   487,
+   662,
+   594
+  ],
+  "detail_before": 17.85,
+  "detail_after": 17.89,
+  "shift": [
+   0,
+   0
+  ],
+  "mean_abs_diff": 3.08,
+  "px_over_15": 0.4,
+  "unshifted_mean_abs_diff": 3.08,
+  "unshifted_px_over_15": 0.4
+ },
+ "afternoon_helicopter-300": {
+  "crop": [
+   366,
+   463,
+   817,
+   604
+  ],
+  "detail_before": 11.45,
+  "detail_after": 11.36,
+  "shift": [
+   0,
+   0
+  ],
+  "mean_abs_diff": 6.38,
+  "px_over_15": 6.78,
+  "unshifted_mean_abs_diff": 6.38,
+  "unshifted_px_over_15": 6.78
+ },
+ "afternoon_jet-220": {
+  "crop": [
+   413,
+   287,
+   800,
+   765
+  ],
+  "detail_before": 5.85,
+  "detail_after": 5.86,
+  "shift": [
+   0,
+   0
+  ],
+  "mean_abs_diff": 10.21,
+  "px_over_15": 23.83,
+  "unshifted_mean_abs_diff": 10.21,
+  "unshifted_px_over_15": 23.83
+ },
+ "afternoon_crawler-330": {
+  "crop": [
+   342,
+   349,
+   896,
+   783
+  ],
+  "detail_before": 7.87,
+  "detail_after": 7.84,
+  "shift": [
+   0,
+   0
+  ],
+  "mean_abs_diff": 3.1,
+  "px_over_15": 1.82,
+  "unshifted_mean_abs_diff": 3.1,
+  "unshifted_px_over_15": 1.82,
+  "noise_mean_abs_diff": 0.0,
+  "noise_px_over_15": 0.0
+ },
+ "sunset_crawler-330": {
+  "crop": [
+   342,
+   349,
+   896,
+   783
+  ],
+  "detail_before": 7.56,
+  "detail_after": 7.56,
+  "shift": [
+   0,
+   0
+  ],
+  "mean_abs_diff": 3.18,
+  "px_over_15": 1.4,
+  "unshifted_mean_abs_diff": 3.18,
+  "unshifted_px_over_15": 1.4
+ }
+}

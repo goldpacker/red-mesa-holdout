@@ -3,7 +3,7 @@
     <Properties>
       <string name="Name">Infantry</string>
       <OptionalCoordinateFrame name="WorldPivotData"><CFrame><X>0</X><Y>3.45</Y><Z>-0</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CFrame></OptionalCoordinateFrame>
-      <Ref name="PrimaryPart">RBX00000010</Ref>
+      <Ref name="PrimaryPart">RBX00000009</Ref>
     </Properties>
     <Item class="MeshPart" referent="RBX00000002">
       <Properties>
@@ -20,19 +20,10 @@
         <token name="CollisionFidelity">2</token>
         <float name="Transparency">0</float>
         <token name="Material">1312</token>
-        <Color3uint8 name="Color3uint8">4294967295</Color3uint8>
+        <Color3uint8 name="Color3uint8">4281875008</Color3uint8>
       </Properties>
-      <Item class="SurfaceAppearance" referent="RBX00000003">
-        <Properties>
-          <string name="Name">SurfaceAppearance</string>
-          <Content name="ColorMap"><url>rbxassetid://134939120069664</url></Content>
-          <Content name="NormalMap"><url>rbxassetid://77528582608279</url></Content>
-          <Content name="RoughnessMap"><url>rbxassetid://127206998440979</url></Content>
-          <Content name="MetalnessMap"><url>rbxassetid://103818437308657</url></Content>
-        </Properties>
-      </Item>
     </Item>
-    <Item class="MeshPart" referent="RBX00000004">
+    <Item class="MeshPart" referent="RBX00000003">
       <Properties>
         <string name="Name">RightLeg</string>
         <Content name="MeshId"><url>rbxassetid://114682669598244</url></Content>
@@ -47,19 +38,10 @@
         <token name="CollisionFidelity">2</token>
         <float name="Transparency">0</float>
         <token name="Material">1312</token>
-        <Color3uint8 name="Color3uint8">4294967295</Color3uint8>
+        <Color3uint8 name="Color3uint8">4281875008</Color3uint8>
       </Properties>
-      <Item class="SurfaceAppearance" referent="RBX00000005">
-        <Properties>
-          <string name="Name">SurfaceAppearance</string>
-          <Content name="ColorMap"><url>rbxassetid://134939120069664</url></Content>
-          <Content name="NormalMap"><url>rbxassetid://77528582608279</url></Content>
-          <Content name="RoughnessMap"><url>rbxassetid://127206998440979</url></Content>
-          <Content name="MetalnessMap"><url>rbxassetid://103818437308657</url></Content>
-        </Properties>
-      </Item>
     </Item>
-    <Item class="MeshPart" referent="RBX00000006">
+    <Item class="MeshPart" referent="RBX00000004">
       <Properties>
         <string name="Name">Torso</string>
         <Content name="MeshId"><url>rbxassetid://91566119262274</url></Content>
@@ -74,19 +56,10 @@
         <token name="CollisionFidelity">2</token>
         <float name="Transparency">0</float>
         <token name="Material">1312</token>
-        <Color3uint8 name="Color3uint8">4294967295</Color3uint8>
+        <Color3uint8 name="Color3uint8">4281875008</Color3uint8>
       </Properties>
-      <Item class="SurfaceAppearance" referent="RBX00000007">
-        <Properties>
-          <string name="Name">SurfaceAppearance</string>
-          <Content name="ColorMap"><url>rbxassetid://134939120069664</url></Content>
-          <Content name="NormalMap"><url>rbxassetid://77528582608279</url></Content>
-          <Content name="RoughnessMap"><url>rbxassetid://127206998440979</url></Content>
-          <Content name="MetalnessMap"><url>rbxassetid://103818437308657</url></Content>
-        </Properties>
-      </Item>
     </Item>
-    <Item class="MeshPart" referent="RBX00000008">
+    <Item class="MeshPart" referent="RBX00000005">
       <Properties>
         <string name="Name">Head</string>
         <Content name="MeshId"><url>rbxassetid://122872826152210</url></Content>
@@ -101,19 +74,10 @@
         <token name="CollisionFidelity">2</token>
         <float name="Transparency">0</float>
         <token name="Material">1312</token>
-        <Color3uint8 name="Color3uint8">4294967295</Color3uint8>
+        <Color3uint8 name="Color3uint8">4281875008</Color3uint8>
       </Properties>
-      <Item class="SurfaceAppearance" referent="RBX00000009">
-        <Properties>
-          <string name="Name">SurfaceAppearance</string>
-          <Content name="ColorMap"><url>rbxassetid://134939120069664</url></Content>
-          <Content name="NormalMap"><url>rbxassetid://77528582608279</url></Content>
-          <Content name="RoughnessMap"><url>rbxassetid://127206998440979</url></Content>
-          <Content name="MetalnessMap"><url>rbxassetid://103818437308657</url></Content>
-        </Properties>
-      </Item>
     </Item>
-    <Item class="MeshPart" referent="RBX0000000A">
+    <Item class="MeshPart" referent="RBX00000006">
       <Properties>
         <string name="Name">LeftArm</string>
         <Content name="MeshId"><url>rbxassetid://133804716950747</url></Content>
@@ -128,19 +92,10 @@
         <token name="CollisionFidelity">2</token>
         <float name="Transparency">0</float>
         <token name="Material">1312</token>
-        <Color3uint8 name="Color3uint8">4294967295</Color3uint8>
+        <Color3uint8 name="Color3uint8">4281875008</Color3uint8>
       </Properties>
-      <Item class="SurfaceAppearance" referent="RBX0000000B">
-        <Properties>
-          <string name="Name">SurfaceAppearance</string>
-          <Content name="ColorMap"><url>rbxassetid://134939120069664</url></Content>
-          <Content name="NormalMap"><url>rbxassetid://77528582608279</url></Content>
-          <Content name="RoughnessMap"><url>rbxassetid://127206998440979</url></Content>
-          <Content name="MetalnessMap"><url>rbxassetid://103818437308657</url></Content>
-        </Properties>
-      </Item>
     </Item>
-    <Item class="MeshPart" referent="RBX0000000C">
+    <Item class="MeshPart" referent="RBX00000007">
       <Properties>
         <string name="Name">RightArm</string>
         <Content name="MeshId"><url>rbxassetid://91533672403311</url></Content>
@@ -155,19 +110,10 @@
         <token name="CollisionFidelity">2</token>
         <float name="Transparency">0</float>
         <token name="Material">1312</token>
-        <Color3uint8 name="Color3uint8">4294967295</Color3uint8>
+        <Color3uint8 name="Color3uint8">4281875008</Color3uint8>
       </Properties>
-      <Item class="SurfaceAppearance" referent="RBX0000000D">
-        <Properties>
-          <string name="Name">SurfaceAppearance</string>
-          <Content name="ColorMap"><url>rbxassetid://134939120069664</url></Content>
-          <Content name="NormalMap"><url>rbxassetid://77528582608279</url></Content>
-          <Content name="RoughnessMap"><url>rbxassetid://127206998440979</url></Content>
-          <Content name="MetalnessMap"><url>rbxassetid://103818437308657</url></Content>
-        </Properties>
-      </Item>
     </Item>
-    <Item class="MeshPart" referent="RBX0000000E">
+    <Item class="MeshPart" referent="RBX00000008">
       <Properties>
         <string name="Name">Rifle</string>
         <Content name="MeshId"><url>rbxassetid://94914863944829</url></Content>
@@ -182,25 +128,16 @@
         <token name="CollisionFidelity">2</token>
         <float name="Transparency">0</float>
         <token name="Material">1088</token>
-        <Color3uint8 name="Color3uint8">4294967295</Color3uint8>
+        <Color3uint8 name="Color3uint8">4281875008</Color3uint8>
       </Properties>
-      <Item class="SurfaceAppearance" referent="RBX0000000F">
-        <Properties>
-          <string name="Name">SurfaceAppearance</string>
-          <Content name="ColorMap"><url>rbxassetid://134939120069664</url></Content>
-          <Content name="NormalMap"><url>rbxassetid://77528582608279</url></Content>
-          <Content name="RoughnessMap"><url>rbxassetid://127206998440979</url></Content>
-          <Content name="MetalnessMap"><url>rbxassetid://103818437308657</url></Content>
-        </Properties>
-      </Item>
-      <Item class="Attachment" referent="RBX00000011">
+      <Item class="Attachment" referent="RBX0000000A">
         <Properties>
           <string name="Name">RifleMuzzle</string>
           <CoordinateFrame name="CFrame"><X>0</X><Y>-1.553</Y><Z>-0.1573</Z><R00>1</R00><R01>0</R01><R02>-0</R02><R10>0</R10><R11>0</R11><R12>1</R12><R20>0</R20><R21>-1</R21><R22>0</R22></CoordinateFrame>
         </Properties>
       </Item>
     </Item>
-    <Item class="Part" referent="RBX00000010">
+    <Item class="Part" referent="RBX00000009">
       <Properties>
         <string name="Name">Root</string>
         <Vector3 name="size"><X>2</X><Y>2</Y><Z>1</Z></Vector3>

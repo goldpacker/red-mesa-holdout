@@ -69,7 +69,7 @@ local IDS: { [string]: string } = {
 	DustDrift = "rbxassetid://97064059582185",
 	TracerBeam = "rbxassetid://72994897813399",
 	ShockwaveRing = "rbxassetid://96437980176600",
-	ScorchMark = "rbxassetid://135513625298189",
+	ScorchMark = "rbxassetid://122005659601121",
 }
 -- END GENERATED IDS
 
@@ -400,7 +400,7 @@ local ENTRIES: { [string]: Entry } = {
 		frames = 1,
 		tinted = false,
 		anchor = CENTRE,
-		size = SHEET,
+		size = Vector2.new(512, 512),
 		notes = "Top-down burn decal (charred centre, burnt edge, radial splatter), colour baked. Put it on the top face of a thin non-colliding transparent part on the ground (Decal), ~10-14 studs for a rocket hit; fade it out over ~20 s.",
 		suggest = {},
 	},

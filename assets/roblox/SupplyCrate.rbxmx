@@ -67,7 +67,7 @@
             <Content name="ColorMap"><url>rbxassetid://140040736398734</url></Content>
             <Content name="NormalMap"><url>rbxassetid://105249963074815</url></Content>
             <Content name="RoughnessMap"><url>rbxassetid://73594152234826</url></Content>
-            <Content name="MetalnessMap"><url>rbxassetid://108836269797768</url></Content>
+            <Content name="MetalnessMap"><null></null></Content>
           </Properties>
         </Item>
       </Item>
@@ -94,7 +94,7 @@
             <Content name="ColorMap"><url>rbxassetid://140040736398734</url></Content>
             <Content name="NormalMap"><url>rbxassetid://105249963074815</url></Content>
             <Content name="RoughnessMap"><url>rbxassetid://73594152234826</url></Content>
-            <Content name="MetalnessMap"><url>rbxassetid://108836269797768</url></Content>
+            <Content name="MetalnessMap"><null></null></Content>
           </Properties>
         </Item>
       </Item>

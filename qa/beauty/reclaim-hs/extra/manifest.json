@@ -1,0 +1,29 @@
+{
+ "scorch_old-left_new-right": {
+  "captured": "2026-09-27T00:14:03",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "9fbc847"
+ },
+ "sunset_crawler-330-wreck": {
+  "captured": "2026-09-27T00:15:32",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "9fbc847"
+ },
+ "afternoon_tank-wreck": {
+  "captured": "2026-09-27T00:17:03",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "9fbc847"
+ }
+}

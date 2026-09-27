@@ -1,0 +1,56 @@
+{
+ "afternoon_buggy-230": {
+  "captured": "2026-09-27T00:07:58",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "9fbc847"
+ },
+ "afternoon_crawler-330": {
+  "captured": "2026-09-27T00:09:20",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "9fbc847"
+ },
+ "afternoon_helicopter-300": {
+  "captured": "2026-09-27T00:08:29",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "9fbc847"
+ },
+ "afternoon_jet-220": {
+  "captured": "2026-09-27T00:08:48",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "9fbc847"
+ },
+ "afternoon_tank-390": {
+  "captured": "2026-09-27T00:08:14",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "9fbc847"
+ },
+ "sunset_crawler-330": {
+  "captured": "2026-09-27T00:09:53",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "9fbc847"
+ }
+}

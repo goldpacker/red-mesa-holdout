@@ -29,7 +29,7 @@ from rmh.asset import Asset, rb_box
 
 # RECLAIM-HS (QA-B item 5): the uploaded maps are capped at 512² (rmh/game_maps.py);
 # the bake, .blend, previews and exported full-size PNGs stay 1024². At its nearest
-# play range (250 studs, gunsight zoom) the 512² maps still give >= 1.4 texels per screen
+# play range (~220 studs slant on its run, gunsight zoom) the 512² maps still give >= 1.2 texels per screen
 # pixel, so the GPU was already sampling mip >= 1 of the 1024² maps: no visible change.
 GAME_PX = 512
 

@@ -1,0 +1,20 @@
+{
+ "afternoon_buggy-230": {
+  "captured": "2026-09-27T00:11:51",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "9fbc847"
+ },
+ "afternoon_crawler-330": {
+  "captured": "2026-09-27T00:14:46",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "9fbc847"
+ }
+}

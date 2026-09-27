@@ -121,6 +121,7 @@ Reading it:
 | 2026-09-26 | same | **Wave 9 night**, ~50 s in, integrity held, MG bot | r1–r2: 485,994 / 498,680 · all 3: 486,448 (474,669–498,680) | r1–r2: 400 / 392 · r3: 449 | **r1–r2 (123467e): 2.94 / 5.96** (GPU 5.57, 6.35) · r3 (LOOK-5 WIP): 3.01 / 6.78 · all 3, mixed builds: 2.96 / 6.23 | r1–r2: 254.7 / 254.4 · all 3: 254.1 (253.1–254.7) | Buggy 2, Helicopter 1, Jet 1, Tank 1 in all three; shadows 248.7k tris / 134 DC (all 3). Clean build at the 6 ms limit (mean 5.96), r2 over it on its own (6.35); r3 with LOOK-5 WIP 6.78. |
 | 2026-09-26 | same | **Wave 10 boss**, ~45 s in, integrity held, MG bot | r1–r2: 487,007 / 474,767 · all 3: 477,425 (470,500–487,007) | r1–r2: 368 / 357 · r3: 431 | **r1–r2 (123467e): 2.89 / 5.30** (GPU 4.77, 5.82) · r3 (LOOK-5 WIP): 2.85 / 6.77 · all 3, mixed builds: 2.88 / 5.79 | r1–r2: 263.8 / 255.4 · all 3: 258.9 (255.4–263.8) | Siege Crawler + helicopter + 5–9 infantry. |
 | 2026-09-26 | QA-B s1 aecd5a1 + then-WIP (AD-1, ENV-3F, LOOK-3B), s4 4aa152d + LOOK-5 WIP | **Everything drawn once** (every enemy kind live and wrecked, crate, all presets visited, 430–480-view close-up tour) | — | — | — | 301.9 (s1), 298.0 (s4); peak 308.5 | Upper bound of what a long run makes resident in this Studio process; game-owned share per the model 157.8 MB (§5.4). |
+| 2026-09-27 | RECLAIM-HS (ddb8212 + rbxmx/Flipbooks switch) | Texture model (`texture_budget.py report`, every asset drawn once) + gunsight captures at each vehicle's nearest range (afternoon; crawler also sunset), two fresh plays: 1024² build vs 512² build | — | — | — | model: HS 55.8 → 37.8, VFX 24.0 → 20.0 (**−22.0 MB**) | QA-B items 4, 5, 2 and the HS/CHAR part of 14 (§5.5): Siege Crawler −8.0, Tank/Buggy/Helicopter/Jet −10.0, `ScorchMark` −4.0; never-drawn maps no longer uploaded (0 resident). Captures `qa/beauty/reclaim-hs/`: fine-detail energy (mean \|Laplacian\|) on each vehicle crop before → after: buggy 18.14 → 18.20, tank 17.85 → 17.89, helicopter 11.45 → 11.36, jet 5.85 → 5.86, crawler 7.87 → 7.84 (afternoon) and 7.56 → 7.56 (sunset); the remaining pixel differences are idle motion, rotor phase, clouds and ENV-4's ground dressing between the two plays. Wreck swaps (burnt colour + 512² normal/roughness) and kit LOD checked in play; console clean. |
 
 ## 5. Authoritative measurement and texture model (QA-B, 2026-09-26)
 
@@ -258,6 +259,22 @@ Ranked cuts with savings, visual risk and owner are in the QA-B report
 is reachable with no visible change at gameplay distances: sky `Dn` face to
 64² (5.3), ScorchMark decal to 512² (4.0), cliff kit to 512² (8.0), Siege
 Crawler to 512² (8.0), Tank/Buggy/Helicopter/Jet to 512² (10.0) = 35.3 MB.
+
+**Applied (RECLAIM-HS, 2026-09-27):** items 2, 4, 5 and the HS/CHAR part of 14, measured with the model
+(`tools/qa/py tools/qa/texture_budget.py report`, before/after tables in the RECLAIM-HS report):
+
+| QA-B item | Cut | Before → after (model MB) | Saved |
+|---|---|---|---|
+| 4 | Siege Crawler 4 sets colour/normal/roughness 1024² → 512² (metal already 512², wreck 512² kept) | 11.3 → 3.3 | **8.0** |
+| 5 | Tank (2 sets), Buggy, Helicopter, Jet colour/normal/roughness 1024² → 512² (`TrimEnemy` kept) | 5.4 + 3 × 2.7 = 13.5 → 1.4 + 3 × 0.7 = 3.5 | **10.0** |
+| 2 | `ScorchMark` decal 1024² → 512² RGBA8 | 5.3 → 1.3 | **4.0** |
+| 14 | Rigid `Infantry` and `InfantrySpike` maps no longer uploaded or referenced; SupplyCrate chute all-zero metalness dropped; stale `Tank_gear_*`/`Buggy_wheels_*` files deleted | never drawn / packed with roughness | 0 resident |
+| | **Total** | HS 55.8 → 37.8, VFX 24.0 → 20.0 | **22.0** |
+
+How: the uploaded maps are 512² box-averaged copies (`GAME_PX`, `docs/ASSET_PIPELINE.md` → "Game-resolution
+maps"); the Blender bakes, previews and exported 1024² PNGs are unchanged. At each vehicle's nearest gunsight
+range the 512² maps still give ≥ 1.1 texels per screen pixel, so the GPU was already sampling mip ≥ 1 of the
+1024² maps. Gunsight before/after captures at those ranges: `qa/beauty/reclaim-hs/`.
 
 ### 5.6 Recommendation
 
