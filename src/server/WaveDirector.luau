@@ -4,21 +4,24 @@
 -- safety timeout so a wave can never hang.
 --
 -- Infantry, buggies and tanks arrive by airdrop (server/Airdrop, GAME_SPEC
--- §6.1): a group's `at` is when its transport(s) enter the basin; its loads
--- land 10-20 s later and join the wave there. Helicopters, jets and the
--- Siege Crawler spawn at `at + i * spacing` as before. The Siege Crawler's
--- escorts (ctx.spawn) are air-dropped too. Loads still in the air count as
--- remaining, so a wave can't end while a drop is pending.
+-- §6.1): a group's `at` is its first touchdown (+/- a small jitter). The
+-- group is planned PLAN_LEAD s earlier (or at wave start), its transport
+-- timed to meet `at`. Helicopters, jets and the Siege Crawler spawn at
+-- `at + i * spacing` as before. The Siege Crawler's escorts (ctx.spawn)
+-- are air-dropped too. Loads still in the air count as remaining, so a
+-- wave can't end while a drop is pending.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local AirdropConfig = require(ReplicatedStorage.Shared.AirdropConfig)
 local Config = require(ReplicatedStorage.Shared.Config)
 local Airdrop = require(script.Parent.Airdrop)
 local Enemies = require(script.Parent.Enemies)
 local Types = require(script.Parent.Types)
 
--- `count` enemies (a whole airdropped group, or one direct spawn).
-type SpawnEvent = { at: number, kind: string, lane: string, count: number, spacing: number, drop: boolean }
+-- `count` enemies (a whole airdropped group, or one direct spawn), handled
+-- at `due` (a drop group is planned ahead of its touchdown `at`).
+type SpawnEvent = { due: number, at: number, kind: string, lane: string, count: number, spacing: number, drop: boolean }
 
 export type Director = {
 	waveNumber: number,
@@ -41,14 +44,19 @@ local function buildSchedule(wave: any): { SpawnEvent }
 	local events: { SpawnEvent } = {}
 	for _, group in wave.groups do
 		if Airdrop.isDropped(group.kind) then
-			table.insert(events, { at = group.at, kind = group.kind, lane = group.lane, count = group.count, spacing = group.spacing, drop = true })
+			local due = math.max(0, group.at - AirdropConfig.PLAN_LEAD)
+			table.insert(events, { due = due, at = group.at, kind = group.kind, lane = group.lane, count = group.count, spacing = group.spacing, drop = true })
 		else
 			for i = 0, group.count - 1 do
-				table.insert(events, { at = group.at + i * group.spacing, kind = group.kind, lane = group.lane, count = 1, spacing = 0, drop = false })
+				local at = group.at + i * group.spacing
+				table.insert(events, { due = at, at = at, kind = group.kind, lane = group.lane, count = 1, spacing = 0, drop = false })
 			end
 		end
 	end
 	table.sort(events, function(a, b)
+		if a.due ~= b.due then
+			return a.due < b.due
+		end
 		return a.at < b.at
 	end)
 	return events
@@ -107,7 +115,7 @@ function WaveDirector.announce(self: any, event: SpawnEvent)
 			warn("[RedMesa] no enemy type " .. event.kind .. "; airdrop skipped")
 			return
 		end
-		local ok, err = pcall(self.drops.group, self.drops, event.kind, event.lane, event.count, event.spacing)
+		local ok, err = pcall(self.drops.group, self.drops, event.kind, event.lane, event.count, event.spacing, event.at)
 		if not ok then
 			warn("[RedMesa] airdrop failed: " .. tostring(err))
 		end
@@ -126,17 +134,8 @@ function WaveDirector.update(self: any, dt: number)
 		return
 	end
 	self.elapsed += dt
-	while #self.pending > 0 and self.pending[1].at <= self.elapsed do
-		self:announce(table.remove(self.pending, 1) :: SpawnEvent)
-	end
-	self.drops:update()
-	while #self.crateTimes > 0 and self.crateTimes[1] <= self.elapsed do
-		table.remove(self.crateTimes, 1)
-		self.ctx.dropCrate(self.crateBias)
-	end
-	Enemies.update(dt)
-
-	-- The boss fell: its escorts still in the air break off with it.
+	-- The boss fell: its escorts still in the air break off with it (before
+	-- any of them can land this frame).
 	for i = #self.bosses, 1, -1 do
 		if self.bosses[i].dead then
 			table.remove(self.bosses, i)
@@ -145,6 +144,23 @@ function WaveDirector.update(self: any, dt: number)
 			end
 		end
 	end
+	-- At most one airdrop group is planned per frame (spreads the raycasts).
+	local plannedDrop = false
+	while #self.pending > 0 and self.pending[1].due <= self.elapsed do
+		if self.pending[1].drop then
+			if plannedDrop then
+				break
+			end
+			plannedDrop = true
+		end
+		self:announce(table.remove(self.pending, 1) :: SpawnEvent)
+	end
+	self.drops:update()
+	while #self.crateTimes > 0 and self.crateTimes[1] <= self.elapsed do
+		table.remove(self.crateTimes, 1)
+		self.ctx.dropCrate(self.crateBias)
+	end
+	Enemies.update(dt)
 
 	if #self.pending == 0 and self.drops:pendingCount() == 0 and Enemies.count() == 0 then
 		self.finished = true

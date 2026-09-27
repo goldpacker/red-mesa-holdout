@@ -7,6 +7,13 @@
 -- load's landT spawns the real enemy through
 -- Enemies.spawn(ctx, kind, lane, { landAt, loadId }).
 --
+-- Timing: a wave group's first touchdown is aimed at its `at` (wave
+-- seconds, +/- TOUCHDOWN_JITTER); the director plans it up to PLAN_LEAD s
+-- ahead, so a sortie can be announced before its transport enters (t0 in
+-- the future). Escort requests and debug sorties enter now.
+-- Seeds: a new run (Start, Restart, Play Again) rolls a fresh run seed;
+-- Retry Wave replays the same drops for that wave.
+--
 -- Loads in the air do not exist on the server, so nothing can damage,
 -- splash or lock them; clients draw them from the sortie timeline. Pending
 -- loads count toward the wave's remaining enemies. The server does no
@@ -32,8 +39,21 @@ local Airdrop = {}
 local KINDS = AirdropConfig.KINDS
 local T = AirdropConfig.Transport
 
+-- Timing record of one wave group (QA: intended vs measured touchdown).
+type GroupRecord = {
+	wave: number,
+	kind: string,
+	lane: string,
+	at: number?, -- wave seconds asked for (nil = entered now)
+	target: number?, -- wave seconds aimed at (at + jitter)
+	planned: number, -- wave seconds of the planned first touchdown
+	landed: number?, -- wave seconds the first load actually landed
+	late: number,
+}
+
 type Load = {
 	loadId: number,
+	group: GroupRecord?,
 	kind: string,
 	lane: string,
 	planned: boolean,
@@ -53,7 +73,7 @@ type Batch = { kind: string, lane: string, loads: { Load }, flushAt: number }
 export type Drops = {
 	wave: number,
 	closed: boolean,
-	group: (self: Drops, kind: string, lane: string, count: number, spacing: number?) -> (),
+	group: (self: Drops, kind: string, lane: string, count: number, spacing: number?, landAt: number?) -> (),
 	request: (self: Drops, kind: string, lane: string) -> Types.Enemy?,
 	update: (self: Drops) -> (),
 	pendingCount: (self: Drops) -> number,
@@ -73,6 +93,9 @@ local function freshStats()
 		minLand = math.huge,
 		maxLand = 0,
 		maxPlanMs = 0,
+		late = 0,
+		maxLate = 0,
+		groups = {} :: { GroupRecord },
 		lastSortie = nil :: any,
 	}
 end
@@ -139,13 +162,19 @@ end
 local Drops = {}
 Drops.__index = Drops
 
+-- True from a new run (Start, Restart, Play Again) until its first wave's
+-- drops are seeded; Retry Wave leaves it false, so the retried wave replays.
+local newRunPending = true
+
 function Airdrop.new(ctx: Types.Context, waveNumber: number): Drops
-	if waveNumber == 1 or runSeed == nil then
+	if newRunPending or runSeed == nil then
 		runSeed = fixedSeed or seedSource:NextInteger(1, 2 ^ 30)
+		newRunPending = false
 	end
 	local self = setmetatable({
 		ctx = ctx,
 		wave = waveNumber,
+		startT = now(),
 		rng = Random.new((runSeed :: number) + waveNumber * 7919),
 		queue = {} :: { Load },
 		batches = {} :: { [string]: Batch },
@@ -156,10 +185,11 @@ function Airdrop.new(ctx: Types.Context, waveNumber: number): Drops
 	return (self :: any) :: Drops
 end
 
-local function newLoad(kind: string, lane: string): Load
+local function newLoad(kind: string, lane: string, group: GroupRecord?): Load
 	nextLoadId += 1
 	return {
 		loadId = nextLoadId,
+		group = group,
 		kind = kind,
 		lane = lane,
 		planned = false,
@@ -241,9 +271,10 @@ function Drops.announce(self: any, plan: AirdropPlan.Plan, loads: { Load })
 	self.ctx.emit("AirdropSortie", sortie)
 end
 
--- Plans and announces transports for `loads` (split by capacity; extra
--- transports fly in formation behind the first, `trail` s apart).
-function Drops.launch(self: any, kind: string, lane: string, loads: { Load }, t0: number, trail: number)
+-- Plans and announces transports for `loads` (split by capacity). The
+-- first transport follows `timing`; extra ones fly in formation behind it,
+-- entering `trail` s apart. Returns the first plan.
+function Drops.launch(self: any, kind: string, lane: string, loads: { Load }, timing: AirdropPlan.Timing, trail: number): AirdropPlan.Plan?
 	local capacity = KINDS[kind].capacity
 	local leader: AirdropPlan.Plan? = nil
 	local slot = 0
@@ -252,29 +283,52 @@ function Drops.launch(self: any, kind: string, lane: string, loads: { Load }, t0
 		local n = math.min(capacity, #loads - i + 1)
 		local chunk = table.move(loads, i, i + n - 1, 1, {})
 		local follow: AirdropPlan.Follow? = nil
+		local slotTiming = timing
 		if leader then
 			follow = { heading = leader.heading, altitude = leader.altitude, centre = leader.centre, slot = slot }
+			slotTiming = { t0 = leader.t0 + slot * trail }
 		end
 		local clock = os.clock()
-		local plan = AirdropPlan.sortie(self.rng, kind, lane, n, t0 + slot * trail, self:taken(), follow)
+		local plan = AirdropPlan.sortie(self.rng, kind, lane, n, slotTiming, self:taken(), follow)
 		Airdrop.stats.maxPlanMs = math.max(Airdrop.stats.maxPlanMs, (os.clock() - clock) * 1000)
 		leader = leader or plan
 		self:announce(plan, chunk)
 		slot += 1
 		i += n
 	end
+	return leader
 end
 
--- A wave group: `count` loads of `kind` for `lane`, transports entering now.
-function Drops.group(self: any, kind: string, lane: string, count: number, spacing: number?)
+-- A wave group: `count` loads of `kind` for `lane`. With `landAt` (wave
+-- seconds) the first touchdown is aimed there (+/- TOUCHDOWN_JITTER);
+-- without it the transports enter now.
+function Drops.group(self: any, kind: string, lane: string, count: number, spacing: number?, landAt: number?)
 	if self.closed or count <= 0 then
 		return
 	end
+	lane = AirdropPlan.resolveLane(kind, lane)
+	local record: GroupRecord = { wave = self.wave, kind = kind, lane = lane, at = landAt, target = nil, planned = 0, landed = nil, late = 0 }
 	local loads = {}
 	for _ = 1, count do
-		table.insert(loads, newLoad(kind, lane))
+		table.insert(loads, newLoad(kind, lane, record))
 	end
-	self:launch(kind, lane, loads, now(), math.max(spacing or 0, T.FORMATION_TRAIL))
+	local timing: AirdropPlan.Timing = { t0 = now() }
+	if landAt then
+		local jitter = AirdropConfig.TOUCHDOWN_JITTER
+		record.target = landAt + self.rng:NextNumber(-jitter, jitter)
+		timing = { land = self.startT + (record.target :: number), earliest = now() }
+	end
+	local plan = self:launch(kind, lane, loads, timing, math.max(spacing or 0, T.FORMATION_TRAIL))
+	if plan then
+		local stats = Airdrop.stats
+		record.planned = plan.firstLand - self.startT
+		record.late = plan.late
+		if plan.late > 0.05 then
+			stats.late += 1
+			stats.maxLate = math.max(stats.maxLate, plan.late)
+		end
+		table.insert(stats.groups, record)
+	end
 end
 
 function Drops.flush(self: any, key: string)
@@ -284,7 +338,28 @@ function Drops.flush(self: any, key: string)
 	end
 	self.batches[key] = nil
 	self.batched -= #batch.loads
-	self:launch(batch.kind, batch.lane, batch.loads, now(), T.FORMATION_TRAIL)
+	local ok, err = pcall(self.launch, self, batch.kind, batch.lane, batch.loads, { t0 = now() }, T.FORMATION_TRAIL)
+	if not ok then
+		-- Unplanned loads never land: drop them so the wave can still end.
+		for _, load in batch.loads do
+			load.cancelled = true
+		end
+		self:dequeue(batch.loads)
+		warn("[RedMesa] escort airdrop failed: " .. tostring(err))
+	end
+end
+
+-- Removes `loads` from the landing queue (after a failed launch).
+function Drops.dequeue(self: any, loads: { Load })
+	local drop = {}
+	for _, load in loads do
+		drop[load] = true
+	end
+	for i = #self.queue, 1, -1 do
+		if drop[self.queue[i]] then
+			table.remove(self.queue, i)
+		end
+	end
 end
 
 -- ctx.spawn for an airdropped kind (Siege Crawler escorts): requests on
@@ -294,6 +369,7 @@ function Drops.request(self: any, kind: string, lane: string): Types.Enemy?
 	if self.closed then
 		return nil
 	end
+	lane = AirdropPlan.resolveLane(kind, lane)
 	local key = kind .. "|" .. lane
 	local batch = self.batches[key]
 	if not batch then
@@ -314,6 +390,10 @@ function Drops.land(self: any, load: Load)
 	local stats = Airdrop.stats
 	if ok then
 		load.enemy = enemy
+		local record = load.group
+		if record and not record.landed then
+			record.landed = now() - self.startT
+		end
 		stats.landed[load.kind] = (stats.landed[load.kind] or 0) + 1
 		local d = Vector2.new(load.landPos.X, load.landPos.Z).Magnitude
 		stats.minLand = math.min(stats.minLand, d)
@@ -372,10 +452,24 @@ function Drops.cancel(self: any, reason: string)
 	self.ctx.emit("AirdropClear", { reason = reason, cancelled = n })
 end
 
--- Whenever the phase leaves Wave (wave clear, defeat, restart, retry, play
--- again, debug staging), pending drops are dropped.
+-- Whenever the phase leaves Wave (wave clear, defeat, debug staging),
+-- pending drops are dropped; Retry/Restart/Play Again always follow a
+-- Defeat or Victory, so they start clean.
 do
+	local remotes = ReplicatedStorage:WaitForChild("Remotes")
 	local state = ReplicatedStorage:WaitForChild("GameState")
+	-- Mirrors GameController's guards: which request starts a new run.
+	-- WaveIntro covers GameController's handler having run first.
+	for name, phases in { StartGame = { Title = true, WaveIntro = true }, Restart = { Defeat = true, Victory = true, WaveIntro = true } } do
+		local remote = remotes:WaitForChild(name, 2)
+		if remote and remote:IsA("RemoteEvent") then
+			remote.OnServerEvent:Connect(function()
+				if phases[state:GetAttribute("Phase")] then
+					newRunPending = true
+				end
+			end)
+		end
+	end
 	local lastPhase = state:GetAttribute("Phase")
 	state:GetAttributeChangedSignal("Phase"):Connect(function()
 		local phase = state:GetAttribute("Phase")

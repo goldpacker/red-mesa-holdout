@@ -1,0 +1,38 @@
+AD-1 fix round 1: dropZoneCheck (touchdown-timed planner, rock-kit + terrain-boulder exclusion, stricter audit
+against real geometry). Server datamodel, Studio playtest 2026-09-26, run >20 s after Play (see note).
+Command: for seed = 1..5: ServerStorage.RedMesaDebug:Invoke("dropZoneCheck", { samples = 600, seed = seed })
+
+(0.45s) dropZoneCheck: 602 landing points from 153 sorties (35 formation followers), seed 1, 83 rocks: 0 violations
+  landing distance 301-800 studs; air time 10.8-19.8 s; 43 nudged beyond drift; 0 fallback sorties; max plan 5.1 ms
+  touchdown-timed groups: 59, late 0, max on-time error 0.0000 s
+  info: 16/602 landings out of the turret's sight at hip height (they walk into view); blocked by GroundDressing 7, RockKit 1, Terrain 8
+  sight: (30,2,-581): Workspace.Terrain at (26,12,-517)
+  sight: (97,2,-619): Workspace.Battlefield.RockKit.Rock_Boulder_A.Root at (94,7,-600)
+  sight: (366,1,-376): Workspace.Terrain at (349,8,-358)
+(0.41s) dropZoneCheck: 602 landing points from 153 sorties (35 formation followers), seed 2, 83 rocks: 0 violations
+  landing distance 326-799 studs; air time 11.2-20.0 s; 29 nudged beyond drift; 0 fallback sorties; max plan 3.6 ms
+  touchdown-timed groups: 59, late 0, max on-time error 0.0000 s
+  info: 14/602 landings out of the turret's sight at hip height (they walk into view); blocked by GroundDressing 9, RockKit 1, Terrain 4
+(0.43s) dropZoneCheck: 602 landing points from 153 sorties (35 formation followers), seed 3, 83 rocks: 0 violations
+  landing distance 310-800 studs; air time 11.6-19.9 s; 48 nudged beyond drift; 0 fallback sorties; max plan 6.3 ms
+  touchdown-timed groups: 59, late 0, max on-time error 0.0000 s
+  info: 13/602 landings out of the turret's sight at hip height (they walk into view); blocked by GroundDressing 8, RockKit 3, Terrain 2
+(0.42s) dropZoneCheck: 602 landing points from 153 sorties (35 formation followers), seed 4, 83 rocks: 0 violations
+  landing distance 312-800 studs; air time 10.7-20.0 s; 42 nudged beyond drift; 0 fallback sorties; max plan 4.6 ms
+  touchdown-timed groups: 59, late 0, max on-time error 0.0000 s
+  info: 11/602 landings out of the turret's sight at hip height (they walk into view); blocked by GroundDressing 2, RockKit 4, Terrain 5
+(0.41s) dropZoneCheck: 602 landing points from 153 sorties (35 formation followers), seed 5, 83 rocks: 0 violations
+  landing distance 317-800 studs; air time 10.7-19.8 s; 38 nudged beyond drift; 0 fallback sorties; max plan 4.6 ms
+  touchdown-timed groups: 59, late 0, max on-time error 0.0000 s
+  info: 10/602 landings out of the turret's sight at hip height (they walk into view); blocked by GroundDressing 3, RockKit 3, Terrain 4
+TOTAL: 0 violations over 3010 samples; 0 late timed groups (295 timed)
+
+History this round (same session):
+- first audit with the stricter rules, before the planner changes: 53 violations / 3010 (reach steps near wash
+  banks and terrain boulders missed by 3-stud sampling, footprint rock/sandstone between ring samples, 1 slope);
+- planner sampling by distance (rings every 2 studs, reach every 1.5): 11 violations (boulder-edge aliasing);
+- terrain boulders as exclusion circles + open-floor material on the walk + planner margins (slope -2 deg,
+  reach x0.85): 0 violations (above).
+Note: rays run in the first ~10 s after Play hit the mesa mesh's bounding box (precise collision loads
+asynchronously): the sight info then reads ~60% hidden "by Landscape". Run the check >= 20 s after Play.
+83 rocks = 34 rock-kit models in the band + 49 terrain boulder clusters.

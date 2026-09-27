@@ -244,7 +244,8 @@ Server datamodel, during a playtest (`src/server/AirdropDebug.luau`,
 registered by `GameController.installDebugHooks`, Studio only):
 ```lua
 local dbg = game.ServerStorage.RedMesaDebug
--- Fly a sortie now in the running wave (it counts toward the wave):
+-- Fly a sortie in the running wave (it counts toward the wave); enters now,
+-- or with `at` (wave seconds) its first touchdown is aimed there:
 local ok, report = dbg:Invoke("airdrop", { kind = "Infantry", count = 8, lane = "Road" })
 -- kind Infantry | Buggy | Tank, any ground lane; count defaults to one transport's capacity.
 -- Drop-zone sampler audit (runs any time after the world is built):
@@ -255,16 +256,23 @@ local stats = dbg:Invoke("airdropStats")       -- { reset = true } clears them
 dbg:Invoke("airdropSeed", 1234)                 -- pin the run seed; nil = fresh per run
 ```
 - `dropZoneCheck` plans sorties with the gameplay planner
-  (`server/AirdropPlan`) over every ground kind/lane pairing, keeping ~4
-  sorties' landings pending together as in a busy wave, then re-checks each
-  landing point with denser, independent sampling: **band** (300–800
-  studs), **ground** (open floor material and height, landing height =
-  terrain), **footprint/slope** (12 + 6 samples, ≤ 22°), **spacing**
-  (against the sortie and pending loads), **reach** (every 3 studs to the
-  lane's join waypoint, which must be closer to the mesa), plus each
-  flight line (**path**: clearance ≥ 280 from the outpost, altitude
-  250–350, entry and exit outside the basin, release on the path, drift
-  ≤ 9 studs/s). Pass = `0 violations`.
+  (`server/AirdropPlan`) over every ground kind/lane pairing — half of them
+  touchdown-timed (lead 30–45 s, as the wave table uses), half entering
+  now, including formations (groups over one transport) — keeping ~4
+  groups' landings pending together as in a busy wave, then re-checks each
+  landing point more densely than the planner and at other angles:
+  **band** (300–800 studs), **ground** (open floor material and height,
+  landing height = terrain), **footprint/slope** (margin ring 24, rim 20,
+  half-rim 10 samples, ≤ 22°), **solid** (rays against the real geometry —
+  terrain, landscape meshes, rock kit — the first surface under every
+  footprint sample must be the terrain), **spacing**, **reach** (every
+  1.5 studs to the lane's join waypoint, which must be closer to the mesa:
+  on the floor, no steeper than the planner's limit, nothing solid in the
+  way), each flight line (**path**: clearance ≥ 280, altitude 250–350,
+  entry and exit outside the basin, release on the path, drift ≤ 9
+  studs/s) and **timing** (a timed group's first touchdown = its target).
+  Pass = `0 violations`. It also prints, as information, how many landings
+  are out of the turret's sight at hip height.
 - Client side, loads in the air are visuals under `Workspace.AirdropFx`
   (models tagged/attributed `Airborne`). That folder's attributes
   `Handoffs`, `HandoffMaxDelay` (s after `landT` the enemy appeared) and

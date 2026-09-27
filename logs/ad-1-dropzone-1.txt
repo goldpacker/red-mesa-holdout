@@ -1,0 +1,16 @@
+AD-1 round 0 dropZoneCheck (commit 9eb09e9 code), Server datamodel, Studio playtest 2026-09-26.
+First run (before densifying the planner's footprint/reach sampling):
+dropZoneCheck: 602 landing points from 161 sorties (seed 1): 10 violations [footprint 3, reach 3, slope 4]
+Final (as committed in 9eb09e9):
+(0.11s) dropZoneCheck: 602 landing points from 161 sorties (seed 1): 0 violations
+  landing distance 303-799 studs; air time 11.1-20.3 s; 9 nudged beyond drift; 0 fallback sorties; max plan 1.7 ms
+(0.10s) dropZoneCheck: 600 landing points from 171 sorties (seed 2): 0 violations
+  landing distance 320-799 studs; air time 11.0-20.0 s; 8 nudged beyond drift; 0 fallback sorties; max plan 1.9 ms
+(0.11s) dropZoneCheck: 601 landing points from 185 sorties (seed 3): 0 violations
+  landing distance 327-799 studs; air time 11.0-20.2 s; 9 nudged beyond drift; 0 fallback sorties; max plan 2.3 ms
+(0.11s) dropZoneCheck: 606 landing points from 181 sorties (seed 4): 0 violations
+  landing distance 318-798 studs; air time 11.1-20.3 s; 6 nudged beyond drift; 0 fallback sorties; max plan 3.1 ms
+(0.10s) dropZoneCheck: 603 landing points from 173 sorties (seed 5): 0 violations
+  landing distance 321-782 studs; air time 10.8-19.9 s; 2 nudged beyond drift; 0 fallback sorties; max plan 1.8 ms
+TOTAL: 0 violations over 3012 samples
+Note (review Minor 3): this version re-applied the planner's own rules only (no rock kit, no real geometry). See ad-1-dropzone-2.txt for the fix-round check.

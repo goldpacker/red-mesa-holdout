@@ -1,0 +1,67 @@
+AD-1 fix round 1 bot run: touchdown-timed wave table (`at` = first touchdown, +/- 1.5 s jitter).
+Studio playtest 2026-09-26, fresh play session. StartGame from Title (fresh run seed) -> waves 1-3,
+then RedMesaDebug startWave 9 -> waves 9, 10 (boss). Bot: autoplay_full (perfect aim). Watcher:
+tools/qa/autoplay_watch.server.luau (TIMING lines = intended `at`, jittered target, planned and measured
+first touchdown in wave seconds; BOSS DOWN probe). Console output (get_console_output), verbatim:
+
+[RedMesa] world built in 0.11s
+[RedMesa] server ready
+[RedMesa] client ready
+[AD-QA] phase WaveIntro wave 1 t=80242
+[AD-QA] phase Wave wave 1 t=80245
+[AD-QA] TIMING wave 1 Infantry/Road at 29.0 target 28.91 planned 28.91 landed 28.92 (landed-target +0.01) late 0.00
+[AD-QA] TIMING wave 1 Infantry/Road at 42.0 target 41.55 planned 41.55 landed 41.57 (landed-target +0.01) late 0.00
+[AD-QA] TIMING wave 1 Infantry/ScrubLeft at 52.0 target 51.70 planned 51.70 landed 51.70 (landed-target +0.00) late 0.00
+[AD-QA] TIMING wave 1 Infantry/ScrubRight at 58.0 target 59.08 planned 59.08 landed 59.10 (landed-target +0.02) late 0.00
+[AD-QA] TIMING wave 1 Infantry/Road at 68.0 target 66.72 planned 66.72 landed 66.73 (landed-target +0.02) late 0.00
+[AD-QA] wave 1 Intermission: landed 21 direct 0 outOfBand 0 stuck 0 land 351-783 | integrity 100 score 1850 | drops announced 21 landed 21 cancelled 0 pending 0 fallbacks 0 nudged 1 late 0 (max 0.00s) land 351-783 maxPlan 5.6ms
+[AD-QA] phase WaveIntro wave 2 t=80326
+[AD-QA] phase Wave wave 2 t=80329
+[AD-QA] TIMING wave 2 Infantry/Road at 29.0 target 29.82 planned 29.82 landed 29.83 (landed-target +0.01) late 0.00
+[AD-QA] TIMING wave 2 Buggy/WashLeft at 38.0 target 38.23 planned 38.23 landed 38.24 (landed-target +0.01) late 0.00
+[AD-QA] TIMING wave 2 Infantry/ScrubLeft at 46.0 target 45.08 planned 45.08 landed 45.10 (landed-target +0.02) late 0.00
+[AD-QA] TIMING wave 2 Buggy/WashRight at 54.0 target 54.64 planned 54.64 landed 54.65 (landed-target +0.01) late 0.00
+[AD-QA] TIMING wave 2 Infantry/ScrubRight at 62.0 target 62.59 planned 62.59 landed 62.60 (landed-target +0.01) late 0.00
+[AD-QA] TIMING wave 2 Buggy/WashLeft at 74.0 target 74.34 planned 74.34 landed 74.35 (landed-target +0.01) late 0.00
+[AD-QA] TIMING wave 2 Buggy/WashRight at 78.0 target 77.27 planned 77.27 landed 77.28 (landed-target +0.01) late 0.00
+[AD-QA] TIMING wave 2 Infantry/Road at 80.0 target 80.31 planned 80.31 landed 80.32 (landed-target +0.01) late 0.00
+[AD-QA] wave 2 Intermission: landed 25 direct 0 outOfBand 0 stuck 0 land 410-727 | integrity 100 score 4040 | drops announced 46 landed 46 cancelled 0 pending 0 fallbacks 0 nudged 2 late 0 (max 0.00s) land 351-783 maxPlan 8.5ms
+[AD-QA] phase WaveIntro wave 3 t=80425
+[AD-QA] phase Wave wave 3 t=80428
+[AD-QA] TIMING wave 3 Infantry/Road at 29.0 target 30.19 planned 30.19 landed 30.20 (landed-target +0.01) late 0.00
+[AD-QA] TIMING wave 3 Tank/Road at 36.0 target 35.79 planned 35.79 landed 35.80 (landed-target +0.01) late 0.00
+[AD-QA] TIMING wave 3 Infantry/ScrubLeft at 48.0 target 47.92 planned 47.92 landed 47.93 (landed-target +0.01) late 0.00
+[AD-QA] TIMING wave 3 Infantry/ScrubRight at 54.0 target 54.66 planned 54.66 landed 54.67 (landed-target +0.00) late 0.00
+[AD-QA] TIMING wave 3 Tank/Road at 68.0 target 67.61 planned 67.61 landed 67.62 (landed-target +0.01) late 0.00
+[AD-QA] TIMING wave 3 Infantry/Road at 78.0 target 76.57 planned 76.57 landed 76.58 (landed-target +0.01) late 0.00
+[AD-QA] wave 3 Intermission: landed 21 direct 0 outOfBand 0 stuck 0 land 398-720 | integrity 100 score 6170 | drops announced 67 landed 67 cancelled 0 pending 0 fallbacks 0 nudged 3 late 0 (max 0.00s) land 351-783 maxPlan 8.5ms
+[AD-QA] phase WaveIntro wave 9 t=80511
+[AD-QA] phase Wave wave 9 t=80514
+[AD-QA] TIMING wave 9 Infantry/Road at 29.0 target 27.81 planned 27.81 landed 27.82 (landed-target +0.01) late 0.00
+[AD-QA] TIMING wave 9 Buggy/WashLeft at 34.0 target 34.26 planned 34.26 landed 34.27 (landed-target +0.00) late 0.00
+[AD-QA] TIMING wave 9 Buggy/WashRight at 37.0 target 36.51 planned 36.51 landed 36.52 (landed-target +0.00) late 0.00
+[AD-QA] TIMING wave 9 Tank/Road at 40.0 target 40.60 planned 40.60 landed 40.62 (landed-target +0.02) late 0.00
+[AD-QA] TIMING wave 9 Infantry/ScrubLeft at 54.0 target 54.15 planned 54.15 landed 54.17 (landed-target +0.02) late 0.00
+[AD-QA] TIMING wave 9 Infantry/ScrubRight at 58.0 target 56.68 planned 56.68 landed 56.68 (landed-target +0.01) late 0.00
+[AD-QA] TIMING wave 9 Tank/Road at 74.0 target 74.44 planned 74.44 landed 74.45 (landed-target +0.01) late 0.00
+[AD-QA] TIMING wave 9 Buggy/WashLeft at 86.0 target 86.50 planned 86.50 landed 86.52 (landed-target +0.01) late 0.00
+[AD-QA] TIMING wave 9 Buggy/WashRight at 90.0 target 88.80 planned 88.80 landed 88.81 (landed-target +0.02) late 0.00
+[AD-QA] TIMING wave 9 Tank/Road at 108.0 target 108.36 planned 108.36 landed 108.37 (landed-target +0.01) late 0.00
+[AD-QA] TIMING wave 9 Buggy/WashLeft at 112.0 target 111.78 planned 111.78 landed 111.80 (landed-target +0.01) late 0.00
+[AD-QA] TIMING wave 9 Infantry/Road at 114.0 target 113.76 planned 113.76 landed 113.78 (landed-target +0.02) late 0.00
+[AD-QA] wave 9 Intermission: landed 30 direct 0 outOfBand 0 stuck 0 land 341-798 | integrity 100 score 9620 | drops announced 97 landed 97 cancelled 0 pending 0 fallbacks 0 nudged 5 late 0 (max 0.00s) land 341-798 maxPlan 10.2ms
+[AD-QA] phase WaveIntro wave 10 t=80648
+[AD-QA] phase Wave wave 10 t=80651
+[AD-QA] BOSS DOWN: 5 loads pending at that moment (cancelled so far 0)
+[AD-QA] TIMING wave 10 Infantry/ScrubLeft at 38.0 target 39.37 planned 39.37 landed 39.38 (landed-target +0.02) late 0.00
+[AD-QA] TIMING wave 10 Infantry/ScrubRight at 42.0 target 41.30 planned 41.30 landed 41.32 (landed-target +0.01) late 0.00
+[AD-QA] wave 10 Intermission: landed 22 direct 0 outOfBand 0 stuck 0 land 446-749 | integrity 100 score 20070 | drops announced 123 landed 119 cancelled 5 pending 0 fallbacks 0 nudged 5 late 0 (max 0.00s) land 341-798 maxPlan 10.2ms
+[AD-QA] 0.5 s later: pending 0, cancelled 5
+[AD-QA] wave 10 Victory: landed 0 direct 0 outOfBand 0 stuck 0 land inf-0 | integrity 100 score 20070 | drops announced 123 landed 119 cancelled 5 pending 0 fallbacks 0 nudged 5 late 0 (max 0.00s) land 341-798 maxPlan 10.2ms
+
+No "[AD-QA] LANDED AFTER BOSS DOWN" line: none of the 5 pending escorts landed after the boss died.
+Client after Victory: phase Victory score 20070 | AirdropFx children 0 handoffs 119 maxDelay 0.133 maxOffset 5.37
+  | QA_Drops 119, QA_GroundNoDrop 0, QA_DropOutOfBand 0, QA_Retries 0.
+Summary: 31 touchdown-timed groups, measured first touchdown - target = +0.00..+0.02 s (one server frame),
+|target - at| <= 1.5 s (jitter), 0 late. Wave lengths (Wave -> Intermission): W1 69 s, W2 84 s, W3 ~80 s,
+W9 122 s; round 0 (entry-timed, logs/ad-1-botrun-1.txt): 76, 82, 78, 122 s.

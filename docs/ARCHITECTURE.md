@@ -81,16 +81,21 @@ Weapons: `Projectile {id, kind, origin, dir, speed, t0, owner, token, targetId}`
 Airdrop (AD-1, `server/Airdrop.luau`; times are `Workspace:GetServerTimeNow()`):
 `AirdropSortie {id, kind, lane, from, to, speed, t0, loads = {{loadId, kind, lane, releaseT, openT, landT, openPos, landPos, face}}}`:
 one transport flying the straight line `from` → `to` (Vector3, constant
-altitude) at `speed` studs/s, at `from` at `t0`. Each load leaves the ramp
+altitude) at `speed` studs/s, at `from` at `t0`. Wave groups are planned up
+to `AirdropConfig.PLAN_LEAD` s ahead of their first touchdown (the wave
+table's `at`), so `t0` may be in the future: the transport appears (and
+"incoming" cues should fire) at `t0`, not on receipt. Each load leaves the ramp
 at `releaseT`, opens its canopy at `openPos` at `openT` and touches down
 exactly at `landPos` (ground height) at `landT`, facing the flat direction
 `face`; the server then spawns the enemy there with model attribute
 `DropLoadId = loadId` (shared/AirdropPath has the timeline maths).
-`AirdropClear {reason, cancelled}`: pending loads were dropped (`reason` =
-the new phase when it leaves `Wave` — `Intermission`, `Defeat`,
-`WaveIntro` — or `Timeout`, or `Dismissed` when the boss dies); clients
-remove descents still in the air, and also transports unless the reason is
-`Intermission` or `Dismissed`.
+`AirdropClear {reason, cancelled}`: pending loads were dropped. `reason`
+is the new phase when it leaves `Wave` (`Intermission` on wave clear,
+`Defeat`; `WaveIntro` only from the debug `startWave` mid-wave — Retry,
+Restart and Play Again always come after a `Defeat`/`Victory`), or
+`Timeout`, or `Dismissed` when the boss dies. Clients remove descents still
+in the air, and also transports unless the reason is `Intermission` or
+`Dismissed`; they also clear everything on Title/WaveIntro/Defeat/Victory.
 Add new kinds to this list when you introduce them.
 
 ### Game state (`ReplicatedStorage.GameState` attributes)

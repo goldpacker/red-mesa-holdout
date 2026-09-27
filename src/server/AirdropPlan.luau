@@ -12,6 +12,14 @@
 -- leaving beyond the canyon walls, in either direction. Loads leave in a
 -- stick along the line; each one's landing point is its canopy-open point
 -- plus a random drift, checked and nudged by AirdropZone.
+--
+-- Timing: either the transport enters at a given time (`{ t0 = ... }`,
+-- escorts and debug sorties), or the first touchdown is aimed at a given
+-- time (`{ land = ..., earliest = ... }`, wave groups): the planner builds
+-- the path, measures entry -> first touchdown and sets the entry time
+-- from it. When the time left is short it caps the altitude (shorter
+-- descent) and tries the other entry side before giving up; a target that
+-- no path can meet lands as early as possible (`late` > 0).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -49,7 +57,16 @@ export type Plan = {
 	loads: { PlannedLoad },
 	attempts: number,
 	fallback: boolean,
+	-- Server time of the first touchdown, the time asked for (nil when the
+	-- entry time was given) and how many seconds after it the plan lands.
+	firstLand: number,
+	target: number?,
+	late: number,
 }
+
+-- `t0`: enter at this server time. `land` (+ `earliest`): aim the first
+-- touchdown at this server time, entering no earlier than `earliest`.
+export type Timing = { t0: number?, land: number?, earliest: number? }
 
 -- Formation: a follower flies its leader's line, offset sideways.
 export type Follow = { heading: Vector2, altitude: number, centre: Vector2, slot: number }
@@ -59,7 +76,6 @@ local T = AirdropConfig.Transport
 local GROUND = AirdropConfig.Ground
 local BAND = AirdropConfig.BAND
 local PIVOT = Vector2.new(Config.TURRET_PIVOT.X, Config.TURRET_PIVOT.Z)
-local DEFAULT_LANE = { Infantry = "Road", Buggy = "WashLeft", Tank = "Road" }
 
 local function perp(v: Vector2): Vector2
 	return Vector2.new(-v.Y, v.X)
@@ -68,6 +84,18 @@ end
 local function rotate(v: Vector2, a: number): Vector2
 	local c, s = math.cos(a), math.sin(a)
 	return Vector2.new(v.X * c - v.Y * s, v.X * s + v.Y * c)
+end
+
+-- The lane a kind uses for `laneName`, resolved the way the enemy types
+-- fall back (Buggy: by Left/Right, else WashLeft; others: Road).
+function AirdropPlan.resolveLane(kind: string, laneName: string): string
+	if Config.Lanes[laneName] then
+		return laneName
+	end
+	if kind == "Buggy" then
+		return if string.find(laneName, "Right") then "WashRight" else "WashLeft"
+	end
+	return "Road"
 end
 
 -- Horizontal closest approach of the line through `c` along `h` to the outpost.
@@ -106,13 +134,26 @@ local function pickHeading(rng: Random, centre: Vector2): Vector2
 	return rotate(tangent, a) * sign
 end
 
+-- Along-line offset (from the stick centre) of the first release.
+local function firstRelease(kind: string, count: number): number
+	local def = KINDS[kind]
+	return (1 - (count + 1) / 2) * T.SPEED * def.stick - def.CARRY
+end
+
+-- Highest altitude from which the first load still touches down within
+-- `budget` s of entering (assuming the lowest floor, the longest descent).
+local function altitudeCap(kind: string, approach: number, budget: number): number
+	local def = KINDS[kind]
+	return (budget - approach - def.FREE_FALL) * def.DESCENT + def.FREE_FALL_DROP + GROUND.FLOOR_Y[1]
+end
+
 -- Last resort for one load: the point on its lane at the same distance
 -- from the outpost (lanes are open, flat floor), settled if possible.
-local function fallbackSpot(kind: string, lane: { Vector2 }, near: Vector2, placed: { AirdropZone.Taken }): Vector2
+local function fallbackSpot(kind: string, lane: { Vector2 }, near: Vector2, placed: { AirdropZone.Taken }, deadline: number): Vector2
 	local def = KINDS[kind]
 	local d = math.clamp(AirdropLanding.distance(near), BAND[1] + 10, BAND[2] - 10)
 	local onLane, dir = AirdropZone.lanePoint(lane, d)
-	local settled = AirdropZone.settle(onLane, kind, lane, placed, def.nudge * 2)
+	local settled = AirdropZone.settle(onLane, kind, lane, placed, def.nudge * 2, deadline + 0.01)
 	if settled then
 		return settled
 	end
@@ -126,18 +167,19 @@ local function fallbackSpot(kind: string, lane: { Vector2 }, near: Vector2, plac
 	return onLane
 end
 
+-- Builds a plan with times relative to entry (t0 = 0), or nil.
 local function build(
 	rng: Random,
 	kind: string,
 	laneName: string,
 	lane: { Vector2 },
 	count: number,
-	t0: number,
 	taken: { AirdropZone.Taken },
 	centre: Vector2,
 	heading: Vector2,
 	altitude: number,
-	fallback: boolean
+	fallback: boolean,
+	deadline: number
 ): Plan?
 	if AirdropPlan.lineClearance(centre, heading) < T.MIN_CLEARANCE then
 		return nil
@@ -148,6 +190,7 @@ local function build(
 	local placed: { AirdropZone.Taken } = table.clone(taken)
 	local loads: { PlannedLoad } = {}
 	local gap = speed * def.stick
+	local firstLand = math.huge
 	for i = 1, count do
 		local along = (i - (count + 1) / 2) * gap
 		local open2 = centre + heading * along
@@ -156,28 +199,29 @@ local function build(
 		local nominal = open2 + Vector2.new(math.cos(a), math.sin(a)) * r
 		local land2: Vector2
 		if fallback then
-			land2 = fallbackSpot(kind, lane, nominal, placed)
+			land2 = fallbackSpot(kind, lane, nominal, placed, deadline)
 		else
-			local settled = AirdropZone.settle(nominal, kind, lane, placed, def.nudge)
+			local settled = AirdropZone.settle(nominal, kind, lane, placed, def.nudge, deadline)
 			if not settled then
 				return nil
 			end
 			land2 = settled
 		end
 		table.insert(placed, { p = land2, spacing = def.spacing })
-		local releaseAlong = along - def.CARRY
-		local releaseT = t0 + (releaseAlong - sMin) / speed
+		local releaseT = (along - def.CARRY - sMin) / speed
 		local openT = releaseT + def.FREE_FALL
 		local openY = altitude - def.FREE_FALL_DROP
 		local groundY = AirdropZone.ground(land2.X, land2.Y) or 0
 		local face = AirdropLanding.facing(lane, land2)
+		local landT = openT + (openY - groundY) / def.DESCENT
+		firstLand = math.min(firstLand, landT)
 		table.insert(loads, {
 			index = i,
 			kind = kind,
 			lane = laneName,
 			releaseT = releaseT,
 			openT = openT,
-			landT = openT + (openY - groundY) / def.DESCENT,
+			landT = landT,
 			openPos = Vector3.new(open2.X, openY, open2.Y),
 			landPos = Vector3.new(land2.X, groundY, land2.Y),
 			face = Vector3.new(face.X, 0, face.Y),
@@ -192,56 +236,109 @@ local function build(
 		from = Vector3.new(from.X, altitude, from.Y),
 		to = Vector3.new(to.X, altitude, to.Y),
 		speed = speed,
-		t0 = t0,
+		t0 = 0,
 		altitude = altitude,
 		heading = heading,
 		centre = centre,
 		loads = loads,
 		attempts = 0,
 		fallback = fallback,
+		firstLand = firstLand,
+		target = nil,
+		late = 0,
 	}
 end
 
--- Plans a transport carrying `count` loads of `kind` for `laneName`,
--- entering at server time `t0`. `taken` holds landing points still pending
--- (kept clear). Always returns a plan; `fallback` is set when no attempt
--- passed every check and loads were put on their lane instead.
-function AirdropPlan.sortie(rng: Random, kind: string, laneName: string, count: number, t0: number, taken: { AirdropZone.Taken }, follow: Follow?): Plan
+-- Moves a relative plan to entry time t0.
+local function place(plan: Plan, t0: number, target: number?, attempts: number): Plan
+	plan.t0 = t0
+	for _, l in plan.loads do
+		l.releaseT += t0
+		l.openT += t0
+		l.landT += t0
+	end
+	plan.firstLand += t0
+	plan.target = target
+	plan.late = if target then math.max(0, plan.firstLand - target) else 0
+	plan.attempts = attempts
+	return plan
+end
+
+-- Plans a transport carrying `count` loads of `kind` for `laneName` (see
+-- Timing). `taken` holds landing points still pending (kept clear).
+-- Always returns a plan; `fallback` is set when no attempt passed every
+-- check (within the time budget) and loads were put on their lane instead.
+function AirdropPlan.sortie(rng: Random, kind: string, laneName: string, count: number, timing: Timing, taken: { AirdropZone.Taken }, follow: Follow?): Plan
 	local def = KINDS[kind]
 	assert(def, "not an airdropped kind: " .. kind)
-	local lane = Config.Lanes[laneName] or Config.Lanes[DEFAULT_LANE[kind] or "Road"]
+	local deadline = os.clock() + GROUND.PLAN_BUDGET_MS / 1000
+	local lane = Config.Lanes[AirdropPlan.resolveLane(kind, laneName)]
+	local target = timing.land
+	local earliest = timing.earliest or timing.t0 or 0
 	local attempts = 0
+
 	if follow then
 		attempts += 1
 		local side = if follow.slot % 2 == 1 then 1 else -1
 		local offset = perp(follow.heading) * side * math.ceil(follow.slot / 2) * T.FORMATION_OFFSET
-		local plan = build(rng, kind, laneName, lane, count, t0, taken, follow.centre + offset, follow.heading, follow.altitude + T.FORMATION_CLIMB * follow.slot, false)
+		local altitude = follow.altitude + T.FORMATION_CLIMB * follow.slot
+		if altitude > T.ALTITUDE[2] then
+			altitude = follow.altitude - T.FORMATION_CLIMB * follow.slot
+		end
+		altitude = math.clamp(altitude, T.ALTITUDE[1], T.ALTITUDE[2])
+		local plan = build(rng, kind, laneName, lane, count, taken, follow.centre + offset, follow.heading, altitude, false, deadline)
 		if plan then
-			plan.attempts = attempts
-			return plan
+			return place(plan, earliest, nil, attempts)
 		end
 	end
+
+	local best: Plan? = nil
+	local bestLate = math.huge
 	for _ = 1, GROUND.ATTEMPTS do
-		attempts += 1
+		if os.clock() > deadline then
+			break
+		end
 		local d = rng:NextNumber(def.centre[1], def.centre[2])
 		local onLane, dir = AirdropZone.lanePoint(lane, d)
 		local centre = onLane + perp(dir) * rng:NextNumber(-def.scatter, def.scatter)
 		local heading = pickHeading(rng, centre)
-		local altitude = rng:NextNumber(T.ALTITUDE[1], T.ALTITUDE[2])
-		local plan = build(rng, kind, laneName, lane, count, t0, taken, centre, heading, altitude, false)
-		if plan then
-			plan.attempts = attempts
-			return plan
+		-- The drawn entry side first, then the other one.
+		for flip = 0, 1 do
+			attempts += 1
+			local h = if flip == 0 then heading else -heading
+			local altMax = T.ALTITUDE[2]
+			if target then
+				local sMin = clip(centre, h)
+				local approach = (firstRelease(kind, count) - sMin) / T.SPEED
+				altMax = math.min(altMax, altitudeCap(kind, approach, target - earliest))
+			end
+			local altitude = if altMax >= T.ALTITUDE[1] then rng:NextNumber(T.ALTITUDE[1], altMax) else T.ALTITUDE[1]
+			local plan = build(rng, kind, laneName, lane, count, taken, centre, h, altitude, false, deadline)
+			if plan then
+				if not target then
+					return place(plan, earliest, nil, attempts)
+				end
+				local t0 = target - plan.firstLand
+				if t0 >= earliest - 1e-6 then
+					return place(plan, t0, target, attempts)
+				end
+				if earliest - t0 < bestLate then
+					best, bestLate = plan, earliest - t0
+				end
+			end
 		end
 	end
+	if best then
+		return place(best, earliest, target, attempts)
+	end
+
 	attempts += 1
 	local centre = AirdropZone.lanePoint(lane, (def.centre[1] + def.centre[2]) / 2)
 	local r = centre - PIVOT
 	local heading = perp(r.Unit) * (if rng:NextNumber() < 0.5 then -1 else 1)
-	local altitude = (T.ALTITUDE[1] + T.ALTITUDE[2]) / 2
-	local plan = build(rng, kind, laneName, lane, count, t0, taken, centre, heading, altitude, true) :: Plan
-	plan.attempts = attempts
-	return plan
+	local plan = build(rng, kind, laneName, lane, count, taken, centre, heading, T.ALTITUDE[1], true, deadline) :: Plan
+	local t0 = if target then math.max(earliest, target - plan.firstLand) else earliest
+	return place(plan, t0, target, attempts)
 end
 
 return AirdropPlan

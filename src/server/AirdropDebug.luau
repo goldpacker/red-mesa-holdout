@@ -1,11 +1,15 @@
 --!strict
 -- Studio-only airdrop QA commands behind ServerStorage.RedMesaDebug
 -- (GameController.installDebugHooks). See tools/qa/BEAUTY.md §8.
---   airdrop        { kind = "Infantry", count = 8, lane = "Road" }: fly a
---                  sortie now in the running wave (counts toward it)
+--   airdrop        { kind = "Infantry", count = 8, lane = "Road", at = s? }:
+--                  fly a sortie in the running wave (counts toward it);
+--                  with `at` (wave seconds) the first touchdown is aimed there
 --   dropZoneCheck  { samples = 600, seed = 1 }: plans many sorties with the
---                  gameplay planner and re-checks every landing point and
---                  flight line with stricter, independent sampling
+--                  gameplay planner (touchdown-timed and enter-now, single
+--                  transports and formations) and re-checks every landing
+--                  point, walk to the lane and flight line independently:
+--                  denser rule sampling plus rays against the real geometry
+--                  (terrain, landscape meshes, rock kit)
 --   airdropStats   counters since the last reset ({ reset = true } clears)
 --   airdropSeed    n pins the run seed (nil = fresh seed each run)
 
@@ -31,6 +35,9 @@ local BASIN_X = 1000
 local BASIN_Z = { -1500, 400 }
 -- Sideways drift under canopy faster than this reads as a pop.
 local MAX_DRIFT_SPEED = 9
+-- A visible surface this far above the terrain is an obstacle (strips and
+-- decals lie ~0.3 above it; pebbles and scrub are non-colliding clutter).
+local SURFACE_TOLERANCE = 0.1
 
 local OPEN: { [Enum.Material]: boolean } = {}
 for _, name in GROUND.MATERIALS do
@@ -41,8 +48,20 @@ local terrainParams = RaycastParams.new()
 terrainParams.FilterType = Enum.RaycastFilterType.Include
 terrainParams.FilterDescendantsInstances = { Workspace.Terrain }
 
+-- Real solid geometry: terrain, landscape meshes and the rock kit.
+local solidParams = RaycastParams.new()
+solidParams.FilterType = Enum.RaycastFilterType.Include
+
+-- Everything visible (for turret line of sight), minus enemies and effects.
+local sightParams = RaycastParams.new()
+sightParams.FilterType = Enum.RaycastFilterType.Include
+
 local function probe(x: number, z: number): RaycastResult?
 	return Workspace:Raycast(Vector3.new(x, 500, z), Vector3.new(0, -620, 0), terrainParams)
+end
+
+local function solid(x: number, z: number): RaycastResult?
+	return Workspace:Raycast(Vector3.new(x, 500, z), Vector3.new(0, -620, 0), solidParams)
 end
 
 local function fmt(p: Vector3 | Vector2): string
@@ -50,6 +69,54 @@ local function fmt(p: Vector3 | Vector2): string
 		return string.format("(%d,%d,%d)", p.X, p.Y, p.Z)
 	end
 	return string.format("(%d,%d)", (p :: Vector2).X, (p :: Vector2).Y)
+end
+
+-- Runs `fn` with the landscape, rock kit and other visible world parts
+-- queryable (restored after), and the ray filters pointed at them.
+local function withGeometry<R>(fn: () -> R): R
+	local battlefield = Workspace:FindFirstChild("Battlefield")
+	local solidRoots: { Instance } = { Workspace.Terrain }
+	local sightRoots: { Instance } = { Workspace.Terrain }
+	local toggled: { BasePart } = {}
+	if battlefield then
+		for _, name in { "Landscape", "RockKit" } do
+			local f = battlefield:FindFirstChild(name)
+			if f then
+				table.insert(solidRoots, f)
+			end
+		end
+		local emplacement = battlefield:FindFirstChild("Emplacement")
+		for _, child in battlefield:GetChildren() do
+			if child ~= emplacement then
+				table.insert(sightRoots, child)
+			end
+		end
+		for _, d in battlefield:GetDescendants() do
+			if d:IsA("BasePart") and not d.CanQuery and d.Transparency < 0.9 then
+				d.CanQuery = true
+				table.insert(toggled, d)
+			end
+		end
+	end
+	solidParams.FilterDescendantsInstances = solidRoots
+	sightParams.FilterDescendantsInstances = sightRoots
+	local ok, result = pcall(fn)
+	for _, p in toggled do
+		p.CanQuery = false
+	end
+	if not ok then
+		error(result, 0)
+	end
+	return result
+end
+
+-- The first solid surface under (x, z) must be terrain, at terrain height.
+local function solidReason(q: Vector2, terrainY: number): string?
+	local hit = solid(q.X, q.Y)
+	if hit and hit.Instance ~= Workspace.Terrain and hit.Position.Y > terrainY + SURFACE_TOLERANCE then
+		return (hit.Instance :: Instance):GetFullName()
+	end
+	return nil
 end
 
 -- Independent, denser re-check of one landing point. Returns reasons.
@@ -74,19 +141,32 @@ local function recheck(kind: string, laneName: string, p: Vector2, landY: number
 	if math.abs(hit.Position.Y - landY) > 0.05 then
 		table.insert(reasons, string.format("landY %.2f vs ground %.2f", landY, hit.Position.Y))
 	end
-	-- Slope: 12 samples on the footprint rim and 6 at half radius.
-	local tanMax = math.tan(math.rad(GROUND.MAX_SLOPE)) + 0.03
-	for _, ring in { { def.footprint, 12 }, { def.footprint * 0.5, 6 } } do
-		local r, n = ring[1], ring[2]
+	-- Footprint: denser than the planner and at other angles. Margin ring
+	-- (open floor, and nothing solid above the terrain), rim and half-rim
+	-- slope rings, and the centre.
+	local tanMax = math.tan(math.rad(GROUND.MAX_SLOPE))
+	-- 1.5x the planner's ring density, at offset angles.
+	local rings = { { def.footprint * 1.25, false }, { def.footprint, true }, { def.footprint * 0.5, true }, { 0, false } }
+	for _, ring in rings do
+		local r, slope = ring[1], ring[2]
+		local n = if r > 0 then math.max(18, math.ceil(2 * math.pi * r / GROUND.RING_SPACING * 1.5)) else 1
+		local bad: string? = nil
 		for k = 0, n - 1 do
 			local a = k / n * math.pi * 2 + 0.13
 			local q = p + Vector2.new(math.cos(a), math.sin(a)) * r
 			local h = probe(q.X, q.Y)
-			if not h or not OPEN[h.Material] then
-				table.insert(reasons, "footprint " .. (if h then h.Material.Name else "none"))
-				break
-			elseif math.abs(h.Position.Y - hit.Position.Y) / r > tanMax then
-				table.insert(reasons, string.format("slope %.0f deg", math.deg(math.atan(math.abs(h.Position.Y - hit.Position.Y) / r))))
+			if not h or not OPEN[h.Material] or h.Position.Y < GROUND.FLOOR_Y[1] or h.Position.Y > GROUND.FLOOR_Y[2] then
+				bad = "footprint " .. (if h then h.Material.Name else "none")
+			elseif slope and math.abs(h.Position.Y - hit.Position.Y) / r > tanMax then
+				bad = string.format("slope %.0f deg", math.deg(math.atan(math.abs(h.Position.Y - hit.Position.Y) / r)))
+			else
+				local blocker = solidReason(q, h.Position.Y)
+				if blocker then
+					bad = "solid " .. blocker
+				end
+			end
+			if bad then
+				table.insert(reasons, bad)
 				break
 			end
 		end
@@ -98,31 +178,68 @@ local function recheck(kind: string, laneName: string, p: Vector2, landY: number
 			break
 		end
 	end
-	-- Reach: every 3 studs to the join waypoint, which must be ahead.
+	-- Reach: twice as dense as the planner (and offset from its samples),
+	-- to the join waypoint (ahead of the landing): on the floor, no rise
+	-- over any planner-length window above the planner's limit, nothing
+	-- solid in the way.
 	local lane = Config.Lanes[laneName]
-	local join = AirdropLanding.joinIndex(lane, p)
-	local goal = lane[join]
+	local goal = lane[AirdropLanding.joinIndex(lane, p)]
 	if AirdropLanding.distance(goal) >= d then
 		table.insert(reasons, "reach: join waypoint not ahead")
 	end
 	local delta = goal - p
-	local n = math.max(1, math.ceil(delta.Magnitude / 3))
-	local lastY = hit.Position.Y
-	local maxPerStud = GROUND.REACH_MAX_STEP / GROUND.REACH_STEP
+	local n = math.max(2, math.ceil(delta.Magnitude / (GROUND.REACH_STEP / 2)))
+	local stepLen = delta.Magnitude / n
+	local ys = { hit.Position.Y }
 	for k = 1, n do
 		local q = p + delta * (k / n)
 		local h = probe(q.X, q.Y)
-		if not h or h.Position.Y > GROUND.FLOOR_Y[2] or h.Position.Y < GROUND.FLOOR_Y[1] then
-			table.insert(reasons, "reach: off the floor at " .. fmt(q))
+		if not h or h.Position.Y > GROUND.FLOOR_Y[2] or h.Position.Y < GROUND.FLOOR_Y[1] or not OPEN[h.Material] then
+			table.insert(reasons, "reach: off the floor (" .. (if h then h.Material.Name else "none") .. ") at " .. fmt(q))
 			break
 		end
-		if math.abs(h.Position.Y - lastY) / (delta.Magnitude / n) > maxPerStud * 1.5 then
-			table.insert(reasons, string.format("reach: step %.1f at %s", math.abs(h.Position.Y - lastY), fmt(q)))
+		ys[k + 1] = h.Position.Y
+		-- Rise over the planner's step length (two of these samples).
+		local back = ys[math.max(1, k - 1)]
+		local window = stepLen * math.min(2, k)
+		if math.abs(h.Position.Y - back) > GROUND.REACH_MAX_STEP * window / GROUND.REACH_STEP + 1e-3 then
+			table.insert(reasons, string.format("reach: rise %.2f over %.2f at %s", math.abs(h.Position.Y - back), window, fmt(q)))
 			break
 		end
-		lastY = h.Position.Y
+		local blocker = solidReason(q, h.Position.Y)
+		if blocker then
+			table.insert(reasons, "reach: solid " .. blocker .. " at " .. fmt(q))
+			break
+		end
 	end
 	return reasons
+end
+
+local sightExamples: { string } = {}
+
+-- Turret sight line to a landed soldier's hip (information only: a load
+-- may land in dead ground and walk into view). Returns nil when visible,
+-- else what blocks it (the Battlefield child, or "Terrain").
+local function blockedBy(landPos: Vector3): string?
+	local target = landPos + Vector3.new(0, 3, 0)
+	local origin = PIVOT + (target - PIVOT).Unit * Config.MUZZLE_OFFSET
+	local delta = target - origin
+	local hit = Workspace:Raycast(origin, delta - delta.Unit * 0.25, sightParams)
+	if not hit then
+		return nil
+	end
+	local inst: Instance = hit.Instance
+	if #sightExamples < 3 then
+		table.insert(sightExamples, string.format("%s: %s at %s", fmt(landPos), inst:GetFullName(), fmt(hit.Position)))
+	end
+	if inst == Workspace.Terrain then
+		return "Terrain"
+	end
+	local battlefield = Workspace:FindFirstChild("Battlefield")
+	while inst.Parent and inst.Parent ~= battlefield do
+		inst = inst.Parent
+	end
+	return inst.Name
 end
 
 local function outsideBasin(p: Vector3): boolean
@@ -137,7 +254,7 @@ local function checkPath(plan: AirdropPlan.Plan): { string }
 	if clearance < T.MIN_CLEARANCE then
 		table.insert(reasons, string.format("clearance %.0f", clearance))
 	end
-	if plan.altitude < T.ALTITUDE[1] or plan.altitude > T.ALTITUDE[2] then
+	if plan.altitude < T.ALTITUDE[1] - 1e-6 or plan.altitude > T.ALTITUDE[2] + 1e-6 then
 		table.insert(reasons, string.format("altitude %.0f", plan.altitude))
 	end
 	if not outsideBasin(plan.from) then
@@ -147,7 +264,9 @@ local function checkPath(plan: AirdropPlan.Plan): { string }
 		table.insert(reasons, "exit inside basin " .. fmt(plan.to))
 	end
 	local endT = AirdropPath.endTime(s)
+	local first = math.huge
 	for _, l in plan.loads do
+		first = math.min(first, l.landT)
 		if l.releaseT < plan.t0 or l.releaseT > endT then
 			table.insert(reasons, "release off the path")
 		end
@@ -159,19 +278,24 @@ local function checkPath(plan: AirdropPlan.Plan): { string }
 			table.insert(reasons, string.format("drift %.1f studs/s", drift))
 		end
 	end
+	if math.abs(first - plan.firstLand) > 1e-6 then
+		table.insert(reasons, "firstLand mismatch")
+	end
 	return reasons
 end
 
+-- kind, lane, count (> capacity = a formation).
 local COMBOS = {
-	{ "Infantry", "Road" },
-	{ "Infantry", "ScrubLeft" },
-	{ "Infantry", "ScrubRight" },
-	{ "Buggy", "WashLeft" },
-	{ "Infantry", "Road" },
-	{ "Buggy", "WashRight" },
-	{ "Tank", "Road" },
-	{ "Infantry", "WashLeft" },
-	{ "Infantry", "WashRight" },
+	{ "Infantry", "Road", 8 },
+	{ "Infantry", "ScrubLeft", 6 },
+	{ "Infantry", "ScrubRight", 5 },
+	{ "Buggy", "WashLeft", 2 },
+	{ "Infantry", "Road", 12 },
+	{ "Buggy", "WashRight", 3 },
+	{ "Tank", "Road", 1 },
+	{ "Infantry", "WashLeft", 4 },
+	{ "Tank", "Road", 2 },
+	{ "Infantry", "WashRight", 8 },
 }
 
 local function dropZoneCheck(arg: any): (string, any)
@@ -180,74 +304,110 @@ local function dropZoneCheck(arg: any): (string, any)
 	local rng = Random.new(seed)
 	local counts: { [string]: number } = {}
 	local examples: { string } = {}
-	local samples, sorties, fallbacks, nudged = 0, 0, 0, 0
+	local samples, sorties, formations, fallbacks, nudged, hidden = 0, 0, 0, 0, 0, 0
+	local timed, late, maxTimingError = 0, 0, 0
 	local minD, maxD, maxPlanMs, maxAir, minAir = math.huge, 0, 0, 0, math.huge
 	local taken: { AirdropZone.Taken } = {}
+	local blockers: { [string]: number } = {}
 	local function violation(category: string, text: string)
 		counts[category] = (counts[category] or 0) + 1
 		if #examples < 12 then
 			table.insert(examples, text)
 		end
 	end
-	local i = 0
-	while samples < target do
-		i += 1
-		local combo = COMBOS[(i - 1) % #COMBOS + 1]
-		local kind, laneName = combo[1], combo[2]
-		-- A busy wave: up to ~4 sorties' landings stay pending together.
-		if i % 4 == 1 then
-			table.clear(taken)
-		end
-		local count = rng:NextInteger(1, KINDS[kind].capacity)
-		local clock = os.clock()
-		local plan = AirdropPlan.sortie(rng, kind, laneName, count, 0, taken)
-		maxPlanMs = math.max(maxPlanMs, (os.clock() - clock) * 1000)
-		sorties += 1
-		if plan.fallback then
-			fallbacks += 1
-		end
-		for _, reason in checkPath(plan) do
-			violation("path", string.format("sortie %d %s/%s: %s", sorties, kind, laneName, reason))
-		end
-		local mine: { AirdropZone.Taken } = {}
-		for _, l in plan.loads do
-			local p = Vector2.new(l.landPos.X, l.landPos.Z)
-			local others = table.clone(taken)
-			for _, m in mine do
-				table.insert(others, m)
+	local rocks = #AirdropZone.rocks()
+	withGeometry(function()
+		local i = 0
+		while samples < target do
+			i += 1
+			local combo = COMBOS[(i - 1) % #COMBOS + 1]
+			local kind, laneName, total = combo[1], combo[2], combo[3]
+			-- A busy wave: up to ~4 groups' landings stay pending together.
+			if i % 4 == 1 then
+				table.clear(taken)
 			end
-			for _, reason in recheck(kind, laneName, p, l.landPos.Y, others) do
-				local category = string.match(reason, "^(%a+)") or reason
-				violation(category, string.format("%s/%s %s: %s", kind, laneName, fmt(p), reason))
+			-- Every other group is touchdown-timed with a lead the table's
+			-- values give (30-45 s); the rest enter now.
+			local timing: AirdropPlan.Timing = { t0 = 0 }
+			local aim: number? = nil
+			if i % 2 == 0 then
+				aim = rng:NextNumber(30, AirdropConfig.PLAN_LEAD)
+				timing = { land = aim, earliest = 0 }
 			end
-			table.insert(mine, { p = p, spacing = KINDS[kind].spacing })
-			local d = AirdropLanding.distance(p)
-			minD, maxD = math.min(minD, d), math.max(maxD, d)
-			minAir, maxAir = math.min(minAir, l.landT - l.releaseT), math.max(maxAir, l.landT - l.releaseT)
-			if l.nudged > KINDS[kind].drift + 0.5 then
-				nudged += 1
+			local capacity = KINDS[kind].capacity
+			local leader: AirdropPlan.Plan? = nil
+			local slot, left = 0, total
+			while left > 0 do
+				local n = math.min(capacity, left)
+				local follow: AirdropPlan.Follow? = nil
+				local slotTiming = timing
+				if leader then
+					follow = { heading = leader.heading, altitude = leader.altitude, centre = leader.centre, slot = slot }
+					slotTiming = { t0 = leader.t0 + slot * T.FORMATION_TRAIL }
+					formations += 1
+				end
+				local clock = os.clock()
+				local plan = AirdropPlan.sortie(rng, kind, laneName, n, slotTiming, taken, follow)
+				maxPlanMs = math.max(maxPlanMs, (os.clock() - clock) * 1000)
+				sorties += 1
+				if plan.fallback then
+					fallbacks += 1
+				end
+				if not leader and aim then
+					timed += 1
+					if plan.late > 0.05 then
+						late += 1
+						violation("timing", string.format("sortie %d %s/%s: lands %.2f s late for a %.1f s lead", sorties, kind, laneName, plan.late, aim))
+					else
+						maxTimingError = math.max(maxTimingError, math.abs(plan.firstLand - aim))
+					end
+				end
+				leader = leader or plan
+				for _, reason in checkPath(plan) do
+					violation("path", string.format("sortie %d %s/%s: %s", sorties, kind, laneName, reason))
+				end
+				for _, l in plan.loads do
+					local p = Vector2.new(l.landPos.X, l.landPos.Z)
+					for _, reason in recheck(kind, laneName, p, l.landPos.Y, taken) do
+						local category = string.match(reason, "^(%a+)") or reason
+						violation(category, string.format("%s/%s %s: %s", kind, laneName, fmt(p), reason))
+					end
+					local blocker = blockedBy(l.landPos)
+					if blocker then
+						hidden += 1
+						blockers[blocker] = (blockers[blocker] or 0) + 1
+					end
+					table.insert(taken, { p = p, spacing = KINDS[kind].spacing })
+					local d = AirdropLanding.distance(p)
+					minD, maxD = math.min(minD, d), math.max(maxD, d)
+					minAir, maxAir = math.min(minAir, l.landT - l.releaseT), math.max(maxAir, l.landT - l.releaseT)
+					if l.nudged > KINDS[kind].drift + 0.5 then
+						nudged += 1
+					end
+					samples += 1
+				end
+				slot += 1
+				left -= n
 			end
-			samples += 1
 		end
-		for _, m in mine do
-			table.insert(taken, m)
-		end
-	end
-	local total = 0
+	end)
+	local totalViolations = 0
 	local parts = {}
 	for category, n in counts do
-		total += n
+		totalViolations += n
 		table.insert(parts, category .. " " .. n)
 	end
 	table.sort(parts)
 	local lines = {
 		string.format(
-			"dropZoneCheck: %d landing points from %d sorties (seed %d): %d violations%s",
+			"dropZoneCheck: %d landing points from %d sorties (%d formation followers), seed %d, %d rocks: %d violations%s",
 			samples,
 			sorties,
+			formations,
 			seed,
-			total,
-			if total > 0 then " [" .. table.concat(parts, ", ") .. "]" else ""
+			rocks,
+			totalViolations,
+			if totalViolations > 0 then " [" .. table.concat(parts, ", ") .. "]" else ""
 		),
 		string.format(
 			"  landing distance %.0f-%.0f studs; air time %.1f-%.1f s; %d nudged beyond drift; %d fallback sorties; max plan %.1f ms",
@@ -259,11 +419,24 @@ local function dropZoneCheck(arg: any): (string, any)
 			fallbacks,
 			maxPlanMs
 		),
+		string.format("  touchdown-timed groups: %d, late %d, max on-time error %.4f s", timed, late, maxTimingError),
+		string.format("  info: %d/%d landings out of the turret's sight at hip height (they walk into view)%s", hidden, samples, (function()
+			local parts = {}
+			for name, n in blockers do
+				table.insert(parts, name .. " " .. n)
+			end
+			table.sort(parts)
+			return if #parts > 0 then "; blocked by " .. table.concat(parts, ", ") else ""
+		end)()),
 	}
 	for _, e in examples do
 		table.insert(lines, "  " .. e)
 	end
-	return table.concat(lines, "\n"), { violations = total, counts = counts, samples = samples, sorties = sorties, fallbacks = fallbacks }
+	for _, e in sightExamples do
+		table.insert(lines, "  sight: " .. e)
+	end
+	table.clear(sightExamples)
+	return table.concat(lines, "\n"), { violations = totalViolations, counts = counts, samples = samples, sorties = sorties, fallbacks = fallbacks, late = late, hidden = hidden }
 end
 
 local function trigger(arg: any): (boolean, string)
@@ -277,7 +450,8 @@ local function trigger(arg: any): (boolean, string)
 	end
 	local lane = if type(arg) == "table" and arg.lane then arg.lane else "Road"
 	local count = if type(arg) == "table" and arg.count then arg.count else KINDS[kind].capacity
-	drops:group(kind, lane, count, 0)
+	local at = if type(arg) == "table" then arg.at else nil
+	drops:group(kind, lane, count, 0, at)
 	local last = Airdrop.stats.lastSortie
 	local lines = { string.format("sortie %d: %d x %s on %s", last.id, count, kind, lane) }
 	local now = Workspace:GetServerTimeNow()

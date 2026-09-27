@@ -7,7 +7,9 @@
 --     (DropLoadId) and its landing distance;
 --   * STUCK: a ground enemy still walking/driving that has not moved 2
 --     studs in 15 s;
---   * a summary per wave (landed, direct spawns, out of band, stuck).
+--   * a summary per wave (landed, direct spawns, out of band, stuck);
+--   * TIMING: each airdropped group's `at`, the jittered target, the planned
+--     and the measured first touchdown (wave seconds) and any lateness.
 -- Stop: game.ServerStorage:SetAttribute("AdWatch", false).
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerStorage = game:GetService("ServerStorage")
@@ -27,6 +29,27 @@ local function flat(p: Vector3): number
 	return Vector2.new(p.X - PIVOT.X, p.Z - PIVOT.Z).Magnitude
 end
 
+local printedGroups = 0
+local function timing()
+	local s = dbg:Invoke("airdropStats")
+	for i = printedGroups + 1, #s.groups do
+		local g = s.groups[i]
+		print(string.format(
+			"[AD-QA] TIMING wave %d %s/%s at %s target %s planned %.2f landed %s (landed-target %s) late %.2f",
+			g.wave,
+			g.kind,
+			g.lane,
+			if g.at then string.format("%.1f", g.at) else "-",
+			if g.target then string.format("%.2f", g.target) else "-",
+			g.planned,
+			if g.landed then string.format("%.2f", g.landed) else "-",
+			if g.landed and g.target then string.format("%+.2f", g.landed - g.target) else "-",
+			g.late
+		))
+	end
+	printedGroups = #s.groups
+end
+
 local function stats(): string
 	local s = dbg:Invoke("airdropStats")
 	local announced, landed = 0, 0
@@ -36,12 +59,29 @@ local function stats(): string
 	for _, n in s.landed do
 		landed += n
 	end
-	return string.format("drops announced %d landed %d cancelled %d pending %d fallbacks %d nudged %d land %.0f-%.0f maxPlan %.1fms", announced, landed, s.cancelled, s.pending, s.fallbacks, s.nudged, s.minLand, s.maxLand, s.maxPlanMs)
+	return string.format("drops announced %d landed %d cancelled %d pending %d fallbacks %d nudged %d late %d (max %.2fs) land %.0f-%.0f maxPlan %.1fms", announced, landed, s.cancelled, s.pending, s.fallbacks, s.nudged, s.late, s.maxLate, s.minLand, s.maxLand, s.maxPlanMs)
 end
+
+-- Boss death: airborne escorts must be dropped, never land afterwards.
+local bossDownAt: number? = nil
+local wrecksConn = Workspace.Wrecks.ChildAdded:Connect(function(model)
+	if model:GetAttribute("Kind") == "SiegeCrawler" and not bossDownAt then
+		bossDownAt = os.clock()
+		local s = dbg:Invoke("airdropStats")
+		print(string.format("[AD-QA] BOSS DOWN: %d loads pending at that moment (cancelled so far %d)", s.pending, s.cancelled))
+		task.delay(0.5, function()
+			local after = dbg:Invoke("airdropStats")
+			print(string.format("[AD-QA] 0.5 s later: pending %d, cancelled %d", after.pending, after.cancelled))
+		end)
+	end
+end)
 
 local addedConn = Workspace.Enemies.ChildAdded:Connect(function(model)
 	if not model:IsA("Model") or not GROUND[model:GetAttribute("Kind")] then
 		return
+	end
+	if bossDownAt and model:GetAttribute("DropLoadId") ~= nil then
+		print(string.format("[AD-QA] LANDED AFTER BOSS DOWN (+%.2f s)", os.clock() - bossDownAt))
 	end
 	local root = model.PrimaryPart or model:FindFirstChild("Root")
 	if not (root and root:IsA("BasePart")) then
@@ -65,6 +105,7 @@ end)
 local phaseConn = state:GetAttributeChangedSignal("Phase"):Connect(function()
 	local phase = state:GetAttribute("Phase")
 	if phase == "Intermission" or phase == "Defeat" or phase == "Victory" then
+		timing()
 		print(string.format(
 			"[AD-QA] wave %d %s: landed %d direct %d outOfBand %d stuck %d land %.0f-%.0f | integrity %.0f score %d | %s",
 			state:GetAttribute("Wave"),
@@ -106,5 +147,6 @@ task.spawn(function()
 	end
 	addedConn:Disconnect()
 	phaseConn:Disconnect()
+	wrecksConn:Disconnect()
 end)
 return "airdrop watch started"

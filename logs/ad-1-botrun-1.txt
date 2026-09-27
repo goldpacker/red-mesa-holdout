@@ -1,0 +1,46 @@
+AD-1 round 0 bot run (commit 9eb09e9 code; `at` = transport entry)
+Studio playtest 2026-09-26, fresh play session, StartGame from Title, fresh run seed.
+Bot: tools/qa/autoplay_full.client.luau (perfect aim). Watcher: tools/qa/autoplay_watch.server.luau.
+Console output (get_console_output), verbatim:
+
+[RedMesa] world built in 0.11s
+[RedMesa] server ready
+[RedMesa] client ready
+[AD-QA] phase WaveIntro wave 1 t=76230
+[AD-QA] phase Wave wave 1 t=76233
+[AD-QA] wave 1 Intermission: landed 21 direct 0 outOfBand 0 stuck 0 land 329-763 | integrity 100 score 1830 | drops announced 21 landed 21 cancelled 0 pending 0 fallbacks 0 nudged 0 land 330-763 maxPlan 1.7ms
+[AD-QA] phase WaveIntro wave 2 t=76321
+[AD-QA] phase Wave wave 2 t=76324
+[AD-QA] wave 2 Intermission: landed 25 direct 0 outOfBand 0 stuck 0 land 325-535 | integrity 100 score 3960 | drops announced 46 landed 46 cancelled 0 pending 0 fallbacks 0 nudged 0 land 326-763 maxPlan 1.7ms
+[AD-QA] phase WaveIntro wave 3 t=76418
+[AD-QA] phase Wave wave 3 t=76421
+[AD-QA] wave 3 Intermission: landed 21 direct 0 outOfBand 0 stuck 0 land 607-769 | integrity 100 score 6120 | drops announced 67 landed 67 cancelled 0 pending 0 fallbacks 0 nudged 0 land 326-769 maxPlan 1.7ms
+[AD-QA] phase WaveIntro wave 4 t=76511
+[AD-QA] phase Wave wave 4 t=76514
+[AD-QA] wave 4 Intermission: landed 19 direct 0 outOfBand 0 stuck 0 land 351-592 | integrity 100 score 8270 | drops announced 86 landed 86 cancelled 0 pending 0 fallbacks 0 nudged 0 land 326-769 maxPlan 2.1ms
+[AD-QA] phase WaveIntro wave 5 t=76621
+[AD-QA] phase Wave wave 5 t=76624
+[AD-QA] wave 5 Intermission: landed 32 direct 0 outOfBand 0 stuck 0 land 343-724 | integrity 100 score 10900 | drops announced 118 landed 118 cancelled 0 pending 0 fallbacks 0 nudged 0 land 326-769 maxPlan 2.1ms
+[AD-QA] phase WaveIntro wave 6 t=76730
+[AD-QA] phase Wave wave 6 t=76733
+[AD-QA] wave 6 Intermission: landed 17 direct 0 outOfBand 0 stuck 0 land 370-782 | integrity 100 score 13610 | drops announced 135 landed 135 cancelled 0 pending 0 fallbacks 0 nudged 0 land 326-782 maxPlan 2.1ms
+[AD-QA] phase WaveIntro wave 7 t=76833
+[AD-QA] phase Wave wave 7 t=76836
+[AD-QA] wave 7 Intermission: landed 25 direct 0 outOfBand 0 stuck 0 land 360-765 | integrity 100 score 16670 | drops announced 160 landed 160 cancelled 0 pending 0 fallbacks 0 nudged 1 land 326-782 maxPlan 2.1ms
+[AD-QA] phase WaveIntro wave 8 t=76952
+[AD-QA] phase Wave wave 8 t=76955
+[AD-QA] wave 8 Intermission: landed 24 direct 0 outOfBand 0 stuck 0 land 319-740 | integrity 100 score 19670 | drops announced 184 landed 184 cancelled 0 pending 0 fallbacks 0 nudged 1 land 319-782 maxPlan 2.1ms
+[AD-QA] phase WaveIntro wave 9 t=77070
+[AD-QA] phase Wave wave 9 t=77073
+[AD-QA] wave 9 Intermission: landed 30 direct 0 outOfBand 0 stuck 0 land 448-798 | integrity 100 score 23280 | drops announced 214 landed 214 cancelled 0 pending 0 fallbacks 0 nudged 3 land 319-798 maxPlan 2.1ms
+[AD-QA] phase WaveIntro wave 10 t=77207
+[AD-QA] phase Wave wave 10 t=77210
+[AD-QA] wave 10 Intermission: landed 30 direct 0 outOfBand 0 stuck 0 land 365-748 | integrity 100 score 34190 | drops announced 248 landed 244 cancelled 4 pending 0 fallbacks 0 nudged 3 land 319-798 maxPlan 2.1ms
+[AD-QA] wave 10 Victory: landed 0 direct 0 outOfBand 0 stuck 0 land inf-0 | integrity 100 score 34190 | drops announced 248 landed 244 cancelled 4 pending 0 fallbacks 0 nudged 3 land 319-798 maxPlan 2.1ms
+[AD-QA] phase WaveIntro wave 1 t=77462
+[AD-QA] phase Wave wave 1 t=77465
+
+Client (after Victory, then Play Again):
+AirdropFx at Victory 0; after Play Again: phase WaveIntro wave 1 integrity 100 score 0 remaining 0 fx 0 | handoffs 244 maxDelay 0.074 maxOffset 2.31
+Bot audit attributes: QA_Drops 244, QA_GroundNoDrop 0, QA_DropOutOfBand 0, QA_Retries 0.
+Result: Victory, score 34190, 0 retries, run time ~20 min (server clock 76230 -> 77458 s).

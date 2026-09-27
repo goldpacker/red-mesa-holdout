@@ -90,7 +90,8 @@ AirdropConfig.Transport = {
 	BOX_X = 1150,
 	BOX_Z = { -1700, 550 },
 	-- Groups larger than one load fly in formation: each extra transport
-	-- trails by max(group spacing, FORMATION_TRAIL) s, offset sideways.
+	-- trails by max(group spacing, FORMATION_TRAIL) s, offset sideways and
+	-- stepped in altitude (kept inside ALTITUDE).
 	FORMATION_TRAIL = 2.5,
 	FORMATION_OFFSET = 70,
 	FORMATION_CLIMB = 18,
@@ -108,10 +109,21 @@ AirdropConfig.Ground = {
 	MAX_SLOPE = 22,
 	-- Lane reachability: samples every REACH_STEP studs from the landing
 	-- point to its join waypoint must stay on the floor and never rise or
-	-- drop more than REACH_MAX_STEP between samples (~37 deg: no cliff or
-	-- boulder in the way; a wash bank is ~33 deg).
-	REACH_STEP = 3,
-	REACH_MAX_STEP = 2.25,
+	-- drop more than REACH_MAX_STEP between samples (45 deg: no boulder or
+	-- cliff in the way; wash banks are ~33 deg, locally up to ~43).
+	REACH_STEP = 1.5,
+	REACH_MAX_STEP = 1.5,
+	-- Footprint rings are sampled about this often (studs of arc).
+	RING_SPACING = 2,
+	-- The planner keeps this much inside the limits dropZoneCheck audits
+	-- (slope in degrees; reach step as a fraction), so sample aliasing on
+	-- curved ground can't push a planned point over them.
+	SLOPE_MARGIN = 2,
+	REACH_MARGIN = 0.85,
+	-- Terrain boulder clusters (TerrainBuilder.boulders: centre, size) are
+	-- kept out as circles of BOULDER_EXTENT x size (their balls reach
+	-- ~2.44 x size from the centre at ground level).
+	BOULDER_EXTENT = 2.5,
 	-- The join waypoint is the first lane waypoint at least this much
 	-- closer to the outpost than the landing point.
 	JOIN_AHEAD = 40,
@@ -119,7 +131,23 @@ AirdropConfig.Ground = {
 	-- Planning attempts per transport before the fallback (loads placed on
 	-- their lane at the same distance).
 	ATTEMPTS = 10,
+	-- Rock (the scattered rock kit, Battlefield.RockKit, and the terrain
+	-- boulders): landing footprints and the walk/drive to the lane keep this
+	-- clear of each rock's bounding circle.
+	ROCK_CLEARANCE = 1.5,
+	-- Planner time budget per transport (ms); past it, the lane fallback.
+	PLAN_BUDGET_MS = 15,
 }
+
+-- Wave-table timing: an airdropped group's `at` is its first touchdown
+-- (wave seconds). The director plans the group PLAN_LEAD s ahead (or at
+-- wave start), aims the first touchdown at `at` +/- TOUCHDOWN_JITTER, and
+-- works the transport's entry time backward from the chosen path, so the
+-- entry side, heading and altitude vary without shifting the timing. An
+-- `at` shorter than the flight needs (about 22-40 s from entry) lands as
+-- early as possible instead (counted as late in the stats).
+AirdropConfig.PLAN_LEAD = 45
+AirdropConfig.TOUCHDOWN_JITTER = 1.5
 
 -- Siege Crawler escorts (ctx.spawn) requested within this many seconds on
 -- the same lane share one transport.
