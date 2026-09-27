@@ -2,20 +2,22 @@
 
     tools/env/py.sh tools/env/ground/strip_textures.py
 
-One 1024² colour (RGBA, alpha = coverage) + 512² normal set. U tiles along
+One 1024x512 colour (RGBA, alpha = coverage) + 512x256 normal set. U tiles along
 the strip every PERIOD studs; V is split into bands across it:
 
-  rows   0-255  road shoulder, right side (t = +9..+25 studs)
-  rows 256-511  road shoulder, left side  (t = -9..-25 studs)
+  rows   0-127  road shoulder, right side (t = +9..+25 studs)
+  rows 128-255  road shoulder, left side  (t = -9..-25 studs)
                  The inner part samples the terrain `RedMesaRoad` maps at
                  the same t the road core mesh shows them (same ruts), so
                  the alpha ramp over the core has no seam; then a loose-gravel
                  berm and sand with scattered pebbles fading onto the floor.
-  rows 512-959  wash bank (both sides): q = -0.3..1.6, q = 0 at the bank
+  rows 256-479  wash bank (both sides): q = -0.3..1.6, q = 0 at the bank
                  toe, q = 1 at the lip. Pebble bed fading in over the wash
                  bed, damp toe, sandy bank with rills, an eroded crust lip
                  with its undercut shadow, sand spilling onto the floor.
-  rows 960-1023 unused (transparent).
+  rows 480-511  unused (transparent).
+The atlas is 1024 wide x 512 high (8 px/stud across the shoulders, 10.7 on
+the banks, 10.7 along): texture memory is the tightest budget.
 
 UV conventions shared with strips.py (Blender UVs, v up = image up), for a
 strip point with unit along-vector T_s, across-vector T_t (T_s x T_t = up):
@@ -50,10 +52,14 @@ W = int(PERIOD * PX)   # 1920 working columns
 ROAD_TILE = 32.0
 ROAD_U0 = 0.465        # core: ruts at t = -11, -4.6, +4.4, +11
 SHOULDER = (9.0, 25.0)             # |t| range of the shoulder bands
-SHOULDER_ROWS = {1: (0, 256), -1: (256, 512)}
+SHOULDER_ROWS = {1: (0, 128), -1: (128, 256)}
+H = 512                            # atlas height (width N)
 BANK_Q = (-0.3, 1.6)
 BANK_NOMINAL = 11.0                # studs toe -> lip used for the working scale
-BANK_ROWS = (512, 960)
+BANK_ROWS = (256, 480)
+# Where the strips use opaque (Overlay) pieces the alpha is forced to 1:
+SHOULDER_OPAQUE = (13.5, 17.5)     # |t|
+BANK_OPAQUE = (0.05, 1.05)         # q
 
 
 def tile(name, kind):
@@ -266,9 +272,9 @@ def main():
     wash_c = prefilter(tile("Wash", "color"), 1024 / 24)
     wash_n = prefilter(tile("Wash", "normal"), 1024 / 24)
 
-    colour = np.zeros((N, N, 4), dtype=np.float32)
+    colour = np.zeros((H, N, 4), dtype=np.float32)
     colour[..., :3] = T.hex_rgb("#C9824F")
-    normal = np.zeros((N, N, 3), dtype=np.float32)
+    normal = np.zeros((H, N, 3), dtype=np.float32)
     normal[..., 2] = 1.0
     bands = [
         ("shoulder+", SHOULDER_ROWS[1], road_shoulder(1, road_c, road_n, sand_c, sand_n)),
@@ -280,23 +286,43 @@ def main():
         nn = to_atlas(n, r1 - r0)
         normal[r0:r1] = nn / np.linalg.norm(nn, axis=-1, keepdims=True)
         print(f"{name}: rows {r0}-{r1}, alpha mean {colour[r0:r1, :, 3].mean():.2f}")
-    # Roblox replaces the colour of fully transparent texels with white on
-    # upload, which then bleeds into the edges through filtering and mips
-    # (measured: white fringes). Keep every texel at least 2/255 opaque.
+    # Opaque zones (drawn by Overlay pieces, which blend toward the part
+    # colour where alpha < 1): exactly opaque.
+    for sigma in (1, -1):
+        r0, r1 = SHOULDER_ROWS[sigma]
+        a = SHOULDER[0] + (np.arange(r1 - r0) + 0.5) / (r1 - r0) * (SHOULDER[1] - SHOULDER[0])
+        rows = np.flatnonzero((a >= SHOULDER_OPAQUE[0] - 0.3) & (a <= SHOULDER_OPAQUE[1] + 0.3)) + r0
+        colour[rows, :, 3] = 1.0
+    r0, r1 = BANK_ROWS
+    q = BANK_Q[0] + (np.arange(r1 - r0) + 0.5) / (r1 - r0) * (BANK_Q[1] - BANK_Q[0])
+    rows = np.flatnonzero((q >= BANK_OPAQUE[0] - 0.02) & (q <= BANK_OPAQUE[1] + 0.02)) + r0
+    colour[rows, :, 3] = 1.0
+    # Guard: no texel fully transparent (the white fringes we first saw came
+    # from OIIO un-premultiplying on save, fixed in texlib.save).
     colour[..., 3] = np.maximum(colour[..., 3], ALPHA_FLOOR)
     T.save(os.path.join(OUT, "GroundStrips_color.png"), colour)
-    T.save(os.path.join(OUT, "GroundStrips_normal.png"), T.encode_normal(T.downsample(normal, 512)))
-    yy, xx = np.mgrid[0:N, 0:N]
+    half = normal.reshape(H // 2, 2, N // 2, 2, 3).mean(axis=(1, 3))
+    T.save(os.path.join(OUT, "GroundStrips_normal.png"), T.encode_normal(half))
+    yy, xx = np.mgrid[0:H, 0:N]
     check = np.where(((yy // 32 + xx // 32) % 2)[..., None] == 0, 0.25, 0.4).astype(np.float32)
     prev = colour[..., :3] * colour[..., 3:] + check * (1 - colour[..., 3:])
     os.makedirs(os.path.join(ROOT, "assets", "previews", "ground"), exist_ok=True)
     T.save(os.path.join(ROOT, "assets", "previews", "ground", "GroundStrips_atlas.png"), prev)
+    # Road core maps: the terrain RedMesaRoad tile at 512² (16 px/stud). Its
+    # own 1024² ids can't be shared with a SurfaceAppearance (the terrain
+    # holds its own copy: measured), so a half-size copy costs a quarter.
+    for kind in ("color", "normal"):
+        img = tile("Road", kind)
+        half_img = img.reshape(512, 2, 512, 2, 3).mean(axis=(1, 3))
+        if kind == "normal":
+            half_img = T.encode_normal(T.decode_normal(half_img))
+        T.save(os.path.join(OUT, f"GroundRoad_{kind}.png"), half_img)
     manifest = {
-        "size": N, "period_studs": PERIOD, "road_tile": ROAD_TILE, "road_u0": ROAD_U0,
+        "size": N, "height": H, "period_studs": PERIOD, "road_tile": ROAD_TILE, "road_u0": ROAD_U0,
         "bands": {
-            "shoulder+": {"rows": SHOULDER_ROWS[1], "abs_t": SHOULDER},
+            "shoulder+": {"rows": SHOULDER_ROWS[1], "abs_t": SHOULDER, "opaque": SHOULDER_OPAQUE},
             "shoulder-": {"rows": SHOULDER_ROWS[-1], "abs_t": SHOULDER},
-            "bank": {"rows": BANK_ROWS, "q": BANK_Q},
+            "bank": {"rows": BANK_ROWS, "q": BANK_Q, "opaque": BANK_OPAQUE},
         },
         "mean_color": T.mean_srgb(colour[..., :3]),
     }

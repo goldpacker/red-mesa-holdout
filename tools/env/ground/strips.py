@@ -6,8 +6,8 @@
 Mesh ribbons that lie on the live terrain (probe.py heightfield) along the
 road and both washes, hiding the voxel-stepped paint edges:
 
-  Road    core  t = -14..14   opaque, the terrain `RedMesaRoad` maps with the
-                              ruts following the road (U across, V along)
+  Road    core  t = -14..14   opaque, the terrain `RedMesaRoad` tile (at 512²)
+                              with the ruts following the road (U across, V along)
           edge  |t| = 13.5..17.5 opaque gravel berm (strip atlas)
           edgeA |t| = 9..13.5 and 17.5..25, alpha ramps over the core and
                               onto the floor sand (strip atlas, Transparency)
@@ -15,6 +15,9 @@ road and both washes, hiding the voxel-stepped paint edges:
           bankA q = -0.3..0.05 pebble bed fading in over the wash bed, and
                 q = 1.05..1.6 sand spill fading out over the lip
           (q = 0 at the bank toe, q = 1 at the measured lip, per cross-section)
+
+Beyond ~110-200 studs from the turret the wash pieces also clear the coarse
+(LOD) terrain mesh, which fills the troughs in at a distance (see LOD_K).
 
 Opaque and alpha pieces are separate MeshParts because transparent
 SurfaceAppearances don't receive shadows (measured in Studio). Alpha pieces
@@ -50,9 +53,13 @@ PERIOD = ATLAS["period_studs"]
 ROAD_TILE = ATLAS["road_tile"]
 ROAD_U0 = ATLAS["road_u0"]
 BANDS = ATLAS["bands"]
+ATLAS_H = float(ATLAS.get("height", ATLAS["size"]))
 
 STEP = 2.0            # studs between cross-sections
-CHUNK = 100.0         # studs of path per chunk
+CHUNK = 150.0         # studs of path per chunk
+ROW_TOL = 0.05        # studs: drop cross-sections a straight interpolation reproduces this well
+WASH_ROW_TOL = 0.12   # banks follow bumpier terrain; settle() then lifts any dip
+MAX_SKIP = 8          # ... up to 8 in a row (16 studs)
 BASE = 0.12           # studs above the terrain
 SLOPE_LIFT = 0.35     # extra lift per unit terrain slope (render vs physics on slopes)
 ALPHA_LIFT = 0.08     # alpha pieces over what they cover
@@ -71,6 +78,19 @@ WASH_TOE = 6.5         # studs from the centre where the bank band's q = 0 (max)
 FLOOR_Y = 2.0          # live basin floor height
 LIP_Y = 1.6            # the lip is where the bank reaches this height (floor 2.0)
 MIN_DEPTH = 1.2        # trough deeper than this at the centre -> full strip
+# Terrain LOD (ENV-3F): beyond ~250-300 studs from the camera Roblox meshes
+# the terrain from coarser voxels, which fills the concave wash troughs in
+# (the bed and the bank toe rise, the lip sinks), so a strip lying 0.2 over
+# the fine surface is poked through and the voxel paint edge shows (measured
+# from the title camera: WashLeft/Right at 300-530 studs). Wash strips are
+# lifted to clear a 16-stud box-filtered surface (the coarse mesh's shape)
+# plus a margin, blended in with distance from the turret so the near banks
+# (seen at full detail) still hug the ground. Flat floor and convex lips get
+# no extra lift. Empirically a uniform +0.6 still let flecks through at
+# 400-500 studs and +1.0 cleared them; this lift is >= that where it's needed.
+LOD_K = 16.0           # studs: box filter / grid of the emulated coarse mesh
+LOD_MARGIN = 0.3       # studs over it
+LOD_NEAR, LOD_FAR = 110.0, 200.0   # plan distance from the turret: no lift -> full lift
 
 
 class Field:
@@ -101,6 +121,37 @@ class Field:
     def land_over(self, px, pz):
         land = self._bil(np.where(np.isfinite(self.land), self.land, -1e3), px, pz)
         return land - self.height(px, pz)
+
+    def lod(self, px, pz):
+        """Height of the coarse (LOD) terrain mesh, emulated: the heightfield
+        box-filtered over LOD_K studs, sampled on a LOD_K-aligned grid and
+        interpolated bilinearly."""
+        if not hasattr(self, "_lod"):
+            k, n = LOD_K, int(LOD_K / 2.0)
+            gx = np.arange(np.ceil(self.xs[0] / k) * k, self.xs[-1], k)
+            gz = np.arange(np.ceil(self.zs[0] / k) * k, self.zs[-1], k)
+            G = np.empty((len(gz), len(gx)))
+            for j, z in enumerate(gz):
+                iz = int(round((z - self.zs[0]) / 2.0))
+                for i, x in enumerate(gx):
+                    ix = int(round((x - self.xs[0]) / 2.0))
+                    G[j, i] = self.y[max(0, iz - n // 2):iz + n // 2 + 1, max(0, ix - n // 2):ix + n // 2 + 1].mean()
+            self._lod = (gx, gz, G)
+        gx, gz, G = self._lod
+        fx = np.clip((np.asarray(px) - gx[0]) / LOD_K, 0, len(gx) - 1.001)
+        fz = np.clip((np.asarray(pz) - gz[0]) / LOD_K, 0, len(gz) - 1.001)
+        ix, iz = np.floor(fx).astype(int), np.floor(fz).astype(int)
+        tx, tz = fx - ix, fz - iz
+        return ((G[iz, ix] * (1 - tx) + G[iz, ix + 1] * tx) * (1 - tz)
+                + (G[iz + 1, ix] * (1 - tx) + G[iz + 1, ix + 1] * tx) * tz)
+
+    def lod_lift(self, px, pz, y):
+        """y raised to clear the coarse terrain mesh, blended in with distance
+        from the turret (see LOD_K)."""
+        d = np.hypot(px, pz)
+        w = np.clip((d - LOD_NEAR) / (LOD_FAR - LOD_NEAR), 0, 1)
+        w = w * w * (3 - 2 * w)
+        return y + w * np.maximum(0.0, self.lod(px, pz) + LOD_MARGIN - y)
 
 
 def smooth(a, k):
@@ -234,7 +285,7 @@ def road():
             a = np.abs(np.asarray(tt))
             u = np.broadcast_to(-sigma * ss[:, None] / PERIOD, (len(ss), len(tt)))
             row = r0 + 0.5 + (a - a0) / (a1 - a0) * (r1 - r0 - 1)
-            v = np.broadcast_to(row[None, :] / 1024.0, (len(ss), len(tt)))
+            v = np.broadcast_to(row[None, :] / ATLAS_H, (len(ss), len(tt)))
             return np.stack([u, v], axis=-1)
         return fn
 
@@ -244,7 +295,7 @@ def road():
         grids["edge"].append(finish(piece(c, perp, s, edge, y_edge, uv_band(sigma), k), f, 0.1))
         for ring in (ROAD_EDGE_IN, ROAD_EDGE_OUT):
             grids["edgeA"].append(finish(piece(c, perp, s, np.array(ring) * sigma, y_alpha, uv_band(sigma), k), f, 0.14))
-    return "Road", c, s, tan, grids
+    return "Road", c, s, tan, grids, f
 
 
 # ------------------------------------------------------------------ washes
@@ -278,7 +329,7 @@ def wash(name):
         lip = np.where(np.isfinite(lip), lip, 0.0)
         # median then mean, so single notches don't kink the band
         med = np.array([np.median(lip[max(0, i - 3):i + 4]) for i in range(len(lip))])
-        lips[sigma] = smooth(med, 3)
+        lips[sigma] = smooth(med, 5)
     # width scale: the strip closes where the trough ends
     k = np.clip((depth - 0.3) / (MIN_DEPTH - 0.3), 0, 1)
     k = smooth(k * k * (3 - 2 * k), 2)
@@ -298,29 +349,55 @@ def wash(name):
             t = (toe[:, None] + qs[None, :] * (lip - toe)[:, None]) * sigma
             t = np.where(np.abs(t) < 1.5, 1.5 * sigma, t)
             xz = c[:, None, :] + (t * k[:, None])[..., None] * perp[:, None, :]
-            y = f.ground(xz[..., 0], xz[..., 1]) + lift
+            y = f.lod_lift(xz[..., 0], xz[..., 1], f.ground(xz[..., 0], xz[..., 1]) + lift)
             P = np.stack([xz[..., 0], y, xz[..., 1]], axis=-1)
             u = np.broadcast_to(-sigma * s[:, None] / PERIOD, t.shape)
             row = r0 + 0.5 + (qs - q0) / (q1 - q0) * (r1 - r0 - 1)
-            v = np.broadcast_to(row[None, :] / 1024.0, t.shape)
+            v = np.broadcast_to(row[None, :] / ATLAS_H, t.shape)
             return finish(Grid(P, np.stack([u, v], axis=-1)), f, 0.06 + lift)
 
         grids["bank"].append(make(BANK_Q, 0.0))
         grids["bankA"].append(make(BANK_IN, ALPHA_LIFT))
         grids["bankA"].append(make(BANK_OUT, ALPHA_LIFT))
     short = {"WashLeft": "WashL", "WashRight": "WashR"}[name]
-    return short, c, s, tan, grids
+    return short, c, s, tan, grids, f
 
 
 # ------------------------------------------------------------------ build
 KINDS = {
-    # kind: (texture group, alpha mode, material)
-    "core": ("road", "Opaque", "Ground"),
-    "edge": ("strips", "Opaque", "Ground"),
-    "edgeA": ("strips", "Transparency", "Ground"),
-    "bank": ("strips", "Opaque", "Sand"),
-    "bankA": ("strips", "Transparency", "Sand"),
+    # kind: (texture group, alpha mode, material, part colour, terrain clearance)
+    # Opaque pieces use Overlay (the alpha is exactly 1 where they sample, and
+    # Overlay shares the colour map's base copy; AlphaMode.Opaque would cost
+    # another copy of the map in texture memory - measured +0.67 MB).
+    "core": ("road", "Overlay", "Ground", (1, 1, 1), 0.06),
+    "edge": ("strips", "Overlay", "Ground", (0.65, 0.46, 0.31), 0.10),
+    "edgeA": ("strips", "Transparency", "Ground", (1, 1, 1), 0.14),
+    "bank": ("strips", "Overlay", "Sand", (0.75, 0.59, 0.45), 0.06),
+    "bankA": ("strips", "Transparency", "Sand", (1, 1, 1), 0.14),
 }
+
+
+def keep_rows(grids, s, tol=ROW_TOL):
+    """Cross-sections to keep: greedy, as long as every vertex of every
+    piece between two kept rows lies within `tol` (height) and 3 * `tol`
+    (plan) of the straight interpolation between them (flat straight road
+    -> long quads)."""
+    allP = np.concatenate([g.P for gl in grids.values() for g in gl], axis=1)
+    n = len(s)
+    keep = [0]
+    i = 0
+    while i < n - 1:
+        j = min(i + MAX_SKIP, n - 1)
+        while j > i + 1:
+            t = (s[i + 1:j] - s[i]) / (s[j] - s[i])
+            interp = allP[i][None] + (allP[j] - allP[i])[None] * t[:, None, None]
+            d = allP[i + 1:j] - interp
+            if np.abs(d[..., 1]).max() < tol and np.hypot(d[..., 0], d[..., 2]).max() < 3 * tol:
+                break
+            j -= 1
+        keep.append(j)
+        i = j
+    return np.array(keep)
 
 
 def chunk_frame(c, i0, i1):
@@ -336,7 +413,15 @@ def build():
     OUT.mkdir(parents=True, exist_ok=True)
     parts, gparts = [], []
     stats = {}
-    for name, c, s, tan, grids in [road(), wash("WashLeft"), wash("WashRight")]:
+    for name, c, s, tan, grids, field in [road(), wash("WashLeft"), wash("WashRight")]:
+        rows = keep_rows(grids, s, ROW_TOL if name == "Road" else WASH_ROW_TOL)
+        full = len(c)
+        c, s = c[rows], s[rows]
+        for kind, glist in grids.items():
+            for g in glist:
+                g.P, g.UV = g.P[rows], g.UV[rows]
+                g.settle(field, KINDS[kind][4]).under_mesa(field)
+        print(f"{name}: kept {len(rows)} of {full} cross-sections")
         n = len(c)
         nchunks = max(1, int(round(s[-1] - s[0]) / CHUNK))
         bounds = np.linspace(0, n - 1, nchunks + 1).round().astype(int)
@@ -379,26 +464,30 @@ def build():
                 pname = f"{name}_C{ci:02d}_{kind}"
                 gparts.append({"name": pname, "v": local, "f": f, "uv": uv,
                                "n": glb.vertex_normals(local, f)})
-                tex, alpha, material = KINDS[kind]
+                tex, alpha, material, colour, _ = KINDS[kind]
                 parts.append({
                     "name": pname, "path": "", "center": [round(float(x), 4) for x in centre],
                     "size": [round(float(x), 4) for x in hi - lo],
                     "rotation": [[round(float(R[i][j]), 6) for j in range(3)] for i in range(3)],
                     "tex": tex, "tris": int(len(f)), "query": False, "collide": False, "shadow": False,
-                    "material": material, "alpha": alpha,
+                    "material": material, "alpha": alpha, "color": list(colour),
                 })
                 stats[kind] = stats.get(kind, 0) + len(f)
         print(f"{name}: {nchunks} chunks, {s[-1] - s[0]:.0f} studs")
     glb.write(str(OUT / f"{NAME}.glb"), gparts)
-    textures = {"strips": {"color": f"{NAME}_strips_color.png", "normal": f"{NAME}_strips_normal.png"}}
+    textures = {
+        "strips": {"color": f"{NAME}_strips_color.png", "normal": f"{NAME}_strips_normal.png"},
+        "road": {"color": f"{NAME}_road_color.png", "normal": f"{NAME}_road_normal.png"},
+    }
     shutil.copyfile(TEX / "GroundStrips_color.png", OUT / textures["strips"]["color"])
     shutil.copyfile(TEX / "GroundStrips_normal.png", OUT / textures["strips"]["normal"])
+    shutil.copyfile(TEX / "GroundRoad_color.png", OUT / textures["road"]["color"])
+    shutil.copyfile(TEX / "GroundRoad_normal.png", OUT / textures["road"]["normal"])
     manifest = {
         "name": NAME, "primary": None, "pivots": {"": [0.0, 0.0, 0.0]}, "parts": parts,
         "attachments": [], "markers": [], "textures": textures,
-        # the road core reuses the terrain RedMesaRoad maps (assets/textures/terrain/roblox_ids.json)
-        "terrain_textures": {"road": "Road"},
-        "texel_density": {"strips": round(1024 / PERIOD, 1), "road": round(1024 / ROAD_TILE, 1)},
+        # the road core shows the terrain RedMesaRoad tile at 512² (strip_textures.py)
+        "texel_density": {"strips": round(1024 / PERIOD, 1), "road": round(512 / ROAD_TILE, 1)},
         "previews": [], "triangles": sum(p["tris"] for p in parts),
         "meta": {"kit": "ground_strips", "no_primary": True},
     }

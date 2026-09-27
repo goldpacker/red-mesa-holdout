@@ -121,14 +121,14 @@
    "name": "Grass",
    "path": "",
    "center": [
-    -0.0084,
-    0.593,
-    0.0255
+    -0.0085,
+    0.5966,
+    0.0251
    ],
    "size": [
-    2.7654,
-    1.4861,
-    2.2818
+    2.7655,
+    1.4933,
+    2.2825
    ],
    "tex": "dressing",
    "tris": 48,
@@ -139,9 +139,9 @@
    "alpha": "Transparency",
    "double_sided": true,
    "pivot_offset": [
-    0.0084,
-    -0.593,
-    -0.0255
+    0.0085,
+    -0.5966,
+    -0.0251
    ]
   },
   {
@@ -163,7 +163,7 @@
    "collide": false,
    "shadow": true,
    "material": "Wood",
-   "alpha": "Opaque",
+   "alpha": "Overlay",
    "double_sided": false,
    "pivot_offset": [
     0.138,
@@ -190,7 +190,7 @@
    "collide": false,
    "shadow": true,
    "material": "Wood",
-   "alpha": "Opaque",
+   "alpha": "Overlay",
    "double_sided": false,
    "pivot_offset": [
     0.2174,
@@ -202,54 +202,54 @@
    "name": "Pebbles_A",
    "path": "",
    "center": [
-    0.1305,
-    0.0697,
-    0.2908
+    0.2939,
+    0.0883,
+    -0.3747
    ],
    "size": [
-    4.8307,
-    0.3638,
-    4.5174
+    4.6229,
+    0.4185,
+    4.2626
    ],
    "tex": "dressing",
-   "tris": 320,
+   "tris": 128,
    "query": false,
    "collide": false,
    "shadow": false,
    "material": "Rock",
-   "alpha": "Opaque",
+   "alpha": "Overlay",
    "double_sided": false,
    "pivot_offset": [
-    -0.1305,
-    -0.0697,
-    -0.2908
+    -0.2939,
+    -0.0883,
+    0.3747
    ]
   },
   {
    "name": "Pebbles_B",
    "path": "",
    "center": [
-    -0.1104,
-    0.0682,
-    -0.1291
+    -0.0073,
+    0.0948,
+    -0.2719
    ],
    "size": [
-    7.455,
-    0.3962,
-    6.6996
+    6.6517,
+    0.4875,
+    6.3211
    ],
    "tex": "dressing",
-   "tris": 440,
+   "tris": 176,
    "query": false,
    "collide": false,
    "shadow": false,
    "material": "Rock",
-   "alpha": "Opaque",
+   "alpha": "Overlay",
    "double_sided": false,
    "pivot_offset": [
-    0.1104,
-    -0.0682,
-    0.1291
+    0.0073,
+    -0.0948,
+    0.2719
    ]
   },
   {
@@ -271,7 +271,7 @@
    "collide": false,
    "shadow": true,
    "material": "Rock",
-   "alpha": "Opaque",
+   "alpha": "Overlay",
    "double_sided": false,
    "pivot_offset": [
     -0.3353,
@@ -298,7 +298,7 @@
    "collide": false,
    "shadow": true,
    "material": "Rock",
-   "alpha": "Opaque",
+   "alpha": "Overlay",
    "double_sided": false,
    "pivot_offset": [
     -0.4295,
@@ -400,7 +400,7 @@
   "dressing": 64.0
  },
  "previews": [],
- "triangles": 2154,
+ "triangles": 1698,
  "meta": {
   "kit": "ground_dressing",
   "no_primary": true

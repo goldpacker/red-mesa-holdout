@@ -9,6 +9,10 @@ HttpService.HttpEnabled on for its own call):
 
   python3 tools/env/ground/sink.py <out_dir> [serve_dir]   # port 34999, blocks
 """
+import http.server
+import os
+import sys
+
 OUT = sys.argv[1]
 SERVE = sys.argv[2] if len(sys.argv) > 2 else os.path.dirname(os.path.abspath(__file__))
 class H(http.server.BaseHTTPRequestHandler):

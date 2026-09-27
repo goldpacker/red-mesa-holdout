@@ -1,0 +1,31 @@
+# ENV-3F (finish road/wash strips + ground dressing), Studio playtest (Server), 2026-09-26 ~20:08
+# Build: GroundStrips model 101169100642499 (42 parts; wash pieces lifted over the coarse terrain LOD),
+# GroundDressing model 77410053337740 (14 meshes, 1214 placed). Checks run ~45 s after Play.
+# Rojo sync confirmed in Edit first (WashR_C03_bankA MeshId rbxassetid://110117212831683 = roblox_ids.json;
+# GroundDressing source has the Sway hook).
+Dressing: 1256 parts under Battlefield.GroundDressing: CanCollide 0, CanQuery 0, CanTouch 0; tallest piece Creosote 5.42 studs
+(Infantry is 7.2); foliage folders carry Sway (Scrub_A/B 0.05, Creosote 0.035, Saltbush 0.04, Grass 0.1).
+LOS check from turret muzzle 0, 72, 0 (hip = ground+3.0; 1317 non-query visible parts included): ALL PASS
+Road       end (0,-92) ground 2.0  PASS  feet+ hip+ head+  | along lane: 42/42 samples visible
+ScrubLeft  end (-50,-85) ground 2.0  PASS  feet+ hip+ head+  | along lane: 40/40 samples visible
+ScrubRight end (50,-85) ground 2.0  PASS  feet+ hip+ head+  | along lane: 40/40 samples visible
+WashLeft   end (-90,-40) ground -3.3  PASS  feet+ hip+ head+  | along lane: 45/45 samples visible
+WashRight  end (90,-40) ground -3.3  PASS  feet+ hip+ head+  | along lane: 45/45 samples visible
+
+Ground check: terrain height enemies snap to, every 20 studs along each lane
+Road       42 samples  terrain y min 2.0 max 2.0 mean 2.0  digest 18060  max surface-above-terrain 0.3 at (1,-460) Workspace.Battlefield.GroundDressing.Strips.Road_C03_edgeA
+ScrubLeft  40 samples  terrain y min 2.0 max 2.0 mean 2.0  digest 16400  max surface-above-terrain 0.0
+ScrubRight 40 samples  terrain y min 2.0 max 2.0 mean 2.0  digest 16400  max surface-above-terrain 0.0
+WashLeft   45 samples  terrain y min -3.4 max -3.1 mean -3.3  digest -34191  max surface-above-terrain 1.5 at (-380,-300) Workspace.Battlefield.GroundDressing.Strips.WashL_C03_bankA
+WashRight  45 samples  terrain y min -3.4 max -3.2 mean -3.3  digest -34501  max surface-above-terrain 1.6 at (380,-300) Workspace.Battlefield.GroundDressing.Strips.WashR_C03_bankA
+Digests identical to P0 (tools/qa/baselines/p0-los-ground.txt), ENV-2 and ENV-3's first build.
+The wash "surface-above-terrain" (0.0 -> 0.5/0.7 in the inherited tree, 1.5/1.6 now) is the collision/bounding volume of a
+bank chunk whose trough-spanning part groundCheck's ray meets, not the rendered surface: offline, the rendered strips cover
+no wash-lane sample at all (the lanes run between the banks) and the road's rendered surface is at most 0.12 over the
+terrain at the lane samples (tools/env/ground strips geometry vs the probe heightfield). Enemies snap to the terrain
+(Kit.groundY is terrain-only; the strips are CanQuery false), so gameplay heights are unchanged (digests).
+
+# Enemies (wave 5 via startWave 5, integrity held, 75 s + 80 s; AD-1's working tree was live in Studio)
+Infantry: root above terrain 3.9..3.9 (358 samples)    Tank: 3.4..3.4    Buggy: 3.3..4.7   (same as ENV-3's first build)
+closest 92; reached r<105 at the lane ends: (0,-100) x8, (-50,-90) x4, (-50,-80) x1, (50,-90) x3, (50,-80) x2
+Console: [RedMesa] world built / server ready / client ready only.

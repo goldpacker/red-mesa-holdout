@@ -21,7 +21,15 @@
 -- Everything is anchored, non-colliding, CanQuery/CanTouch false, parented
 -- under Battlefield.GroundDressing (not Battlefield.Landscape, so effects
 -- land on the terrain under the strips, not on their boxes). Missing assets
--- leave the plain terrain (and WorldBuilder's old scrub).
+-- leave the plain terrain (and WorldBuilder's old scrub). Nothing here
+-- blocks movement, raycasts or the airdrop landing sampler (terrain only).
+--
+-- Wind hook (Update 2, not built yet): the foliage folders under
+-- GroundDressing.Dressing (Scrub_A/B, Creosote, Saltbush, Grass) carry a
+-- `Sway` attribute, the tilt amplitude in radians. Every piece's pivot is
+-- its ground point, so a client module can read src/shared/Wind.luau and
+-- tilt the pieces near the camera about their pivot (CFrame, client-side)
+-- without touching anything else.
 
 local AssetService = game:GetService("AssetService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -45,19 +53,25 @@ local BUTTES = {
 	{ Vector2.new(620, -1060), 90 },
 }
 local FLOOR_MATERIALS = { [Enum.Material.Sand] = true, [Enum.Material.Mud] = true }
+-- Dressing casts shadows only this close to the turret (studs).
+local SHADOW_RANGE = 480
 -- Strip parts thicker than this (studs) get precise collision (see buildStrips).
 local PRECISE_ABOVE = 0.6
 local SCRUB_LANES = { "ScrubLeft", "ScrubRight" }
 
 -- name: count, clearance from any lane (studs), scale range, min spacing,
--- clustered (scrub grows in loose groups), flat decal (needs level ground).
-type Kind = { name: string, count: number, clear: number, scale: { number }, spacing: number, cluster: boolean?, flat: boolean? }
+-- clustered (scrub grows in loose groups), flat decal (needs level ground),
+-- sway (wind hook, see the header).
+-- Heights: nothing is taller than 3/4 of a soldier (Infantry is 7.2 studs;
+-- the creosote at scale 1.0 is 5.4), so an airdropped soldier crossing the
+-- basin floor always shows head and shoulders over the scrub.
+type Kind = { name: string, count: number, clear: number, scale: { number }, spacing: number, cluster: boolean?, flat: boolean?, sway: number? }
 local SCATTER: { Kind } = {
-	{ name = "Scrub_A", count = 240, clear = 26, scale = { 0.7, 1.25 }, spacing = 7, cluster = true },
-	{ name = "Scrub_B", count = 150, clear = 26, scale = { 0.7, 1.2 }, spacing = 7, cluster = true },
-	{ name = "Creosote", count = 80, clear = 32, scale = { 0.75, 1.2 }, spacing = 10, cluster = true },
-	{ name = "Saltbush", count = 70, clear = 30, scale = { 0.7, 1.15 }, spacing = 10, cluster = true },
-	{ name = "Grass", count = 260, clear = 22, scale = { 0.75, 1.3 }, spacing = 4, cluster = true },
+	{ name = "Scrub_A", count = 240, clear = 26, scale = { 0.7, 1.25 }, spacing = 7, cluster = true, sway = 0.05 },
+	{ name = "Scrub_B", count = 150, clear = 26, scale = { 0.7, 1.2 }, spacing = 7, cluster = true, sway = 0.05 },
+	{ name = "Creosote", count = 80, clear = 32, scale = { 0.75, 1.0 }, spacing = 10, cluster = true, sway = 0.035 },
+	{ name = "Saltbush", count = 70, clear = 30, scale = { 0.7, 1.15 }, spacing = 10, cluster = true, sway = 0.04 },
+	{ name = "Grass", count = 260, clear = 22, scale = { 0.75, 1.3 }, spacing = 4, cluster = true, sway = 0.1 },
 	{ name = "Branch_A", count = 45, clear = 22, scale = { 0.8, 1.3 }, spacing = 8 },
 	{ name = "Branch_B", count = 45, clear = 22, scale = { 0.8, 1.3 }, spacing = 8 },
 	{ name = "Pebbles_A", count = 110, clear = 18, scale = { 0.8, 1.4 }, spacing = 6 },
@@ -180,6 +194,9 @@ end
 local function place(template: BasePart, folder: Instance, at: Vector3, normal: Vector3, yaw: number, scale: number, tilt: boolean)
 	local part = template:Clone()
 	prepare(part)
+	-- Shadows where they read (the combat range); beyond it a bush is a few
+	-- pixels and its shadow only costs shadow-pass triangles.
+	part.CastShadow = template.CastShadow and (Vector2.new(at.X, at.Z) - TURRET).Magnitude < SHADOW_RANGE
 	part.Size = template.Size * scale
 	part.PivotOffset = CFrame.new(template.PivotOffset.Position * scale)
 	local up = if tilt then normal else Vector3.yAxis
@@ -204,6 +221,9 @@ local function scatter(kit: Instance, folder: Instance, rng: Random): number
 		if template and template:IsA("BasePart") then
 			local sub = Instance.new("Folder")
 			sub.Name = kind.name
+			if kind.sway then
+				sub:SetAttribute("Sway", kind.sway)
+			end
 			local count, tries = 0, 0
 			while count < kind.count and tries < kind.count * 30 do
 				tries += 1

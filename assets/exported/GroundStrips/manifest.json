@@ -13,12 +13,12 @@
    "name": "Road_C00_core",
    "path": "",
    "center": [
-    -57.4742,
+    -38.5276,
     2.12,
-    -931.4535
+    -897.3498
    ],
    "size": [
-    108.0369,
+    186.0635,
     0.0,
     28.0
    ],
@@ -40,23 +40,28 @@
     ]
    ],
    "tex": "road",
-   "tris": 864,
+   "tris": 256,
    "query": false,
    "collide": false,
    "shadow": false,
    "material": "Ground",
-   "alpha": "Opaque"
+   "alpha": "Overlay",
+   "color": [
+    1,
+    1,
+    1
+   ]
   },
   {
    "name": "Road_C00_edge",
    "path": "",
    "center": [
-    -57.4742,
+    -38.5276,
     2.2,
-    -931.4535
+    -897.3498
    ],
    "size": [
-    108.0369,
+    186.0635,
     0.0,
     35.0
    ],
@@ -78,23 +83,28 @@
     ]
    ],
    "tex": "strips",
-   "tris": 432,
+   "tris": 128,
    "query": false,
    "collide": false,
    "shadow": false,
    "material": "Ground",
-   "alpha": "Opaque"
+   "alpha": "Overlay",
+   "color": [
+    0.65,
+    0.46,
+    0.31
+   ]
   },
   {
    "name": "Road_C00_edgeA",
    "path": "",
    "center": [
-    -57.4742,
+    -38.5276,
     2.28,
-    -931.4535
+    -897.3498
    ],
    "size": [
-    108.0369,
+    186.0635,
     0.0,
     50.0
    ],
@@ -116,31 +126,36 @@
     ]
    ],
    "tex": "strips",
-   "tris": 1296,
+   "tris": 384,
    "query": false,
    "collide": false,
    "shadow": false,
    "material": "Ground",
-   "alpha": "Transparency"
+   "alpha": "Transparency",
+   "color": [
+    1,
+    1,
+    1
+   ]
   },
   {
    "name": "Road_C01_core",
    "path": "",
    "center": [
-    -4.521,
+    35.6494,
     2.12,
-    -836.1379
+    -752.762
    ],
    "size": [
-    110.0376,
+    143.7798,
     0.0,
-    28.0
+    45.532
    ],
    "rotation": [
     [
-     0.485643,
+     0.294668,
      0.0,
-     -0.874157
+     -0.9556
     ],
     [
      0.0,
@@ -148,37 +163,42 @@
      0.0
     ],
     [
-     0.874157,
+     0.9556,
      0.0,
-     0.485643
+     0.294668
     ]
    ],
    "tex": "road",
-   "tris": 880,
+   "tris": 256,
    "query": false,
    "collide": false,
    "shadow": false,
    "material": "Ground",
-   "alpha": "Opaque"
+   "alpha": "Overlay",
+   "color": [
+    1,
+    1,
+    1
+   ]
   },
   {
    "name": "Road_C01_edge",
    "path": "",
    "center": [
-    -4.521,
+    35.9344,
     2.2,
-    -836.1379
+    -751.9627
    ],
    "size": [
-    110.0376,
+    146.9207,
     0.0,
-    35.0
+    52.4548
    ],
    "rotation": [
     [
-     0.485643,
+     0.294668,
      0.0,
-     -0.874157
+     -0.9556
     ],
     [
      0.0,
@@ -186,37 +206,42 @@
      0.0
     ],
     [
-     0.874157,
+     0.9556,
      0.0,
-     0.485643
+     0.294668
     ]
    ],
    "tex": "strips",
-   "tris": 440,
+   "tris": 128,
    "query": false,
    "collide": false,
    "shadow": false,
    "material": "Ground",
-   "alpha": "Opaque"
+   "alpha": "Overlay",
+   "color": [
+    0.65,
+    0.46,
+    0.31
+   ]
   },
   {
    "name": "Road_C01_edgeA",
    "path": "",
    "center": [
-    -4.521,
+    36.5451,
     2.28,
-    -836.1379
+    -750.25
    ],
    "size": [
-    110.0376,
+    153.6513,
     0.0,
-    50.0
+    67.2893
    ],
    "rotation": [
     [
-     0.485643,
+     0.294668,
      0.0,
-     -0.874157
+     -0.9556
     ],
     [
      0.0,
@@ -224,37 +249,42 @@
      0.0
     ],
     [
-     0.874157,
+     0.9556,
      0.0,
-     0.485643
+     0.294668
     ]
    ],
    "tex": "strips",
-   "tris": 1320,
+   "tris": 384,
    "query": false,
    "collide": false,
    "shadow": false,
    "material": "Ground",
-   "alpha": "Transparency"
+   "alpha": "Transparency",
+   "color": [
+    1,
+    1,
+    1
+   ]
   },
   {
    "name": "Road_C02_core",
    "path": "",
    "center": [
-    41.9496,
+    5.3538,
     2.12,
-    -737.8752
+    -608.2963
    ],
    "size": [
-    114.4621,
+    184.4763,
     0.0,
-    43.4682
+    36.3967
    ],
    "rotation": [
     [
-     0.218625,
+     -0.394682,
      0.0,
-     -0.975809
+     -0.918818
     ],
     [
      0.0,
@@ -262,37 +292,42 @@
      0.0
     ],
     [
-     0.975809,
+     0.918818,
      0.0,
-     0.218625
+     -0.394682
     ]
    ],
    "tex": "road",
-   "tris": 864,
+   "tris": 256,
    "query": false,
    "collide": false,
    "shadow": false,
    "material": "Ground",
-   "alpha": "Opaque"
+   "alpha": "Overlay",
+   "color": [
+    1,
+    1,
+    1
+   ]
   },
   {
    "name": "Road_C02_edge",
    "path": "",
    "center": [
-    42.1528,
+    5.0241,
     2.2,
-    -737.2945
+    -607.5357
    ],
    "size": [
-    117.6637,
+    186.5395,
     0.0,
-    50.3251
+    43.3904
    ],
    "rotation": [
     [
-     0.218625,
+     -0.394682,
      0.0,
-     -0.975809
+     -0.918818
     ],
     [
      0.0,
@@ -300,37 +335,42 @@
      0.0
     ],
     [
-     0.975809,
+     0.918818,
      0.0,
-     0.218625
+     -0.394682
     ]
    ],
    "tex": "strips",
-   "tris": 432,
+   "tris": 128,
    "query": false,
    "collide": false,
    "shadow": false,
    "material": "Ground",
-   "alpha": "Opaque"
+   "alpha": "Overlay",
+   "color": [
+    0.65,
+    0.46,
+    0.31
+   ]
   },
   {
    "name": "Road_C02_edgeA",
    "path": "",
    "center": [
-    42.5882,
+    4.3177,
     2.28,
-    -736.0503
+    -605.9059
    ],
    "size": [
-    124.5241,
+    190.9606,
     0.0,
-    65.0186
+    58.3769
    ],
    "rotation": [
     [
-     0.218625,
+     -0.394682,
      0.0,
-     -0.975809
+     -0.918818
     ],
     [
      0.0,
@@ -338,37 +378,42 @@
      0.0
     ],
     [
-     0.975809,
+     0.918818,
      0.0,
-     0.218625
+     -0.394682
     ]
    ],
    "tex": "strips",
-   "tris": 1296,
+   "tris": 384,
    "query": false,
    "collide": false,
    "shadow": false,
    "material": "Ground",
-   "alpha": "Transparency"
+   "alpha": "Transparency",
+   "color": [
+    1,
+    1,
+    1
+   ]
   },
   {
    "name": "Road_C03_core",
    "path": "",
    "center": [
-    19.8178,
+    7.295,
     2.12,
-    -639.6356
+    -443.934
    ],
    "size": [
-    110.0376,
+    186.3441,
     0.0,
-    28.0
+    31.1637
    ],
    "rotation": [
     [
-     -0.447214,
+     0.342946,
      0.0,
-     -0.894427
+     -0.939355
     ],
     [
      0.0,
@@ -376,37 +421,42 @@
      0.0
     ],
     [
-     0.894427,
+     0.939355,
      0.0,
-     -0.447214
+     0.342946
     ]
    ],
    "tex": "road",
-   "tris": 880,
+   "tris": 272,
    "query": false,
    "collide": false,
    "shadow": false,
    "material": "Ground",
-   "alpha": "Opaque"
+   "alpha": "Overlay",
+   "color": [
+    1,
+    1,
+    1
+   ]
   },
   {
    "name": "Road_C03_edge",
    "path": "",
    "center": [
-    19.8178,
+    7.3445,
     2.2,
-    -639.6356
+    -443.7991
    ],
    "size": [
-    110.0376,
+    187.9898,
     0.0,
-    35.0
+    38.1633
    ],
    "rotation": [
     [
-     -0.447214,
+     0.342946,
      0.0,
-     -0.894427
+     -0.939355
     ],
     [
      0.0,
@@ -414,37 +464,42 @@
      0.0
     ],
     [
-     0.894427,
+     0.939355,
      0.0,
-     -0.447214
+     0.342946
     ]
    ],
    "tex": "strips",
-   "tris": 440,
+   "tris": 136,
    "query": false,
    "collide": false,
    "shadow": false,
    "material": "Ground",
-   "alpha": "Opaque"
+   "alpha": "Overlay",
+   "color": [
+    0.65,
+    0.46,
+    0.31
+   ]
   },
   {
    "name": "Road_C03_edgeA",
    "path": "",
    "center": [
-    19.8178,
+    7.4503,
     2.28,
-    -639.6356
+    -443.5101
    ],
    "size": [
-    110.0376,
+    191.5163,
     0.0,
-    50.0
+    53.1624
    ],
    "rotation": [
     [
-     -0.447214,
+     0.342946,
      0.0,
-     -0.894427
+     -0.939355
     ],
     [
      0.0,
@@ -452,37 +507,42 @@
      0.0
     ],
     [
-     0.894427,
+     0.939355,
      0.0,
-     -0.447214
+     0.342946
     ]
    ],
    "tex": "strips",
-   "tris": 1320,
+   "tris": 408,
    "query": false,
    "collide": false,
    "shadow": false,
    "material": "Ground",
-   "alpha": "Transparency"
+   "alpha": "Transparency",
+   "color": [
+    1,
+    1,
+    1
+   ]
   },
   {
    "name": "Road_C04_core",
    "path": "",
    "center": [
-    -16.7302,
+    19.5849,
     2.12,
-    -540.2048
+    -273.5606
    ],
    "size": [
-    112.7374,
+    184.0257,
     0.0,
-    44.133
+    30.9325
    ],
    "rotation": [
     [
-     -0.053752,
+     -0.210115,
      0.0,
-     -0.998554
+     -0.977677
     ],
     [
      0.0,
@@ -490,37 +550,42 @@
      0.0
     ],
     [
-     0.998554,
+     0.977677,
      0.0,
-     -0.053752
+     -0.210115
     ]
    ],
    "tex": "road",
-   "tris": 864,
+   "tris": 256,
    "query": false,
    "collide": false,
    "shadow": false,
    "material": "Ground",
-   "alpha": "Opaque"
+   "alpha": "Overlay",
+   "color": [
+    1,
+    1,
+    1
+   ]
   },
   {
    "name": "Road_C04_edge",
    "path": "",
    "center": [
-    -16.8761,
+    19.6256,
     2.2,
-    -540.189
+    -273.7499
    ],
    "size": [
-    115.5742,
+    185.586,
     0.0,
-    50.843
+    37.9324
    ],
    "rotation": [
     [
-     -0.053752,
+     -0.210115,
      0.0,
-     -0.998554
+     -0.977677
     ],
     [
      0.0,
@@ -528,37 +593,42 @@
      0.0
     ],
     [
-     0.998554,
+     0.977677,
      0.0,
-     -0.053752
+     -0.210115
     ]
    ],
    "tex": "strips",
-   "tris": 432,
+   "tris": 128,
    "query": false,
    "collide": false,
    "shadow": false,
    "material": "Ground",
-   "alpha": "Opaque"
+   "alpha": "Overlay",
+   "color": [
+    0.65,
+    0.46,
+    0.31
+   ]
   },
   {
    "name": "Road_C04_edgeA",
    "path": "",
    "center": [
-    -17.1888,
+    19.7129,
     2.28,
-    -540.155
+    -274.1557
    ],
    "size": [
-    121.653,
+    188.9296,
     0.0,
-    65.2214
+    52.9322
    ],
    "rotation": [
     [
-     -0.053752,
+     -0.210115,
      0.0,
-     -0.998554
+     -0.977677
     ],
     [
      0.0,
@@ -566,37 +636,42 @@
      0.0
     ],
     [
-     0.998554,
+     0.977677,
      0.0,
-     -0.053752
+     -0.210115
     ]
    ],
    "tex": "strips",
-   "tris": 1296,
+   "tris": 384,
    "query": false,
    "collide": false,
    "shadow": false,
    "material": "Ground",
-   "alpha": "Transparency"
+   "alpha": "Transparency",
+   "color": [
+    1,
+    1,
+    1
+   ]
   },
   {
    "name": "Road_C05_core",
    "path": "",
    "center": [
-    9.7041,
-    2.12,
-    -437.9038
+    0.0016,
+    2.7269,
+    -126.3192
    ],
    "size": [
-    110.0376,
-    0.0,
-    28.0
+    120.6465,
+    1.2139,
+    28.0557
    ],
    "rotation": [
     [
-     0.362446,
+     -0.000488,
      0.0,
-     -0.932005
+     -1.0
     ],
     [
      0.0,
@@ -604,37 +679,42 @@
      0.0
     ],
     [
-     0.932005,
+     1.0,
      0.0,
-     0.362446
+     -0.000488
     ]
    ],
    "tex": "road",
-   "tris": 880,
+   "tris": 256,
    "query": false,
    "collide": false,
    "shadow": false,
    "material": "Ground",
-   "alpha": "Opaque"
+   "alpha": "Overlay",
+   "color": [
+    1,
+    1,
+    1
+   ]
   },
   {
    "name": "Road_C05_edge",
    "path": "",
    "center": [
-    9.7041,
-    2.2,
-    -437.9038
+    0.0016,
+    2.7495,
+    -126.3933
    ],
    "size": [
-    110.0376,
-    0.0,
-    35.0
+    120.7981,
+    1.0989,
+    35.0557
    ],
    "rotation": [
     [
-     0.362446,
+     -0.000488,
      0.0,
-     -0.932005
+     -1.0
     ],
     [
      0.0,
@@ -642,301 +722,40 @@
      0.0
     ],
     [
-     0.932005,
+     1.0,
      0.0,
-     0.362446
+     -0.000488
     ]
    ],
    "tex": "strips",
-   "tris": 440,
+   "tris": 128,
    "query": false,
    "collide": false,
    "shadow": false,
    "material": "Ground",
-   "alpha": "Opaque"
+   "alpha": "Overlay",
+   "color": [
+    0.65,
+    0.46,
+    0.31
+   ]
   },
   {
    "name": "Road_C05_edgeA",
    "path": "",
    "center": [
-    9.7041,
-    2.28,
-    -437.9038
+    0.0017,
+    2.8429,
+    -126.552
    ],
    "size": [
-    110.0376,
-    0.0,
-    50.0
+    121.123,
+    1.1258,
+    50.0557
    ],
    "rotation": [
     [
-     0.362446,
-     0.0,
-     -0.932005
-    ],
-    [
-     0.0,
-     1.0,
-     0.0
-    ],
-    [
-     0.932005,
-     0.0,
-     0.362446
-    ]
-   ],
-   "tex": "strips",
-   "tris": 1320,
-   "query": false,
-   "collide": false,
-   "shadow": false,
-   "material": "Ground",
-   "alpha": "Transparency"
-  },
-  {
-   "name": "Road_C06_core",
-   "path": "",
-   "center": [
-    31.0172,
-    2.12,
-    -335.6733
-   ],
-   "size": [
-    113.5163,
-    0.0,
-    38.2269
-   ],
-   "rotation": [
-    [
-     -0.076776,
-     0.0,
-     -0.997048
-    ],
-    [
-     0.0,
-     1.0,
-     0.0
-    ],
-    [
-     0.997048,
-     0.0,
-     -0.076776
-    ]
-   ],
-   "tex": "road",
-   "tris": 864,
-   "query": false,
-   "collide": false,
-   "shadow": false,
-   "material": "Ground",
-   "alpha": "Opaque"
-  },
-  {
-   "name": "Road_C06_edge",
-   "path": "",
-   "center": [
-    31.0754,
-    2.2,
-    -336.159
-   ],
-   "size": [
-    115.5693,
-    0.0,
-    45.1854
-   ],
-   "rotation": [
-    [
-     -0.076776,
-     0.0,
-     -0.997048
-    ],
-    [
-     0.0,
-     1.0,
-     0.0
-    ],
-    [
-     0.997048,
-     0.0,
-     -0.076776
-    ]
-   ],
-   "tex": "strips",
-   "tris": 432,
-   "query": false,
-   "collide": false,
-   "shadow": false,
-   "material": "Ground",
-   "alpha": "Opaque"
-  },
-  {
-   "name": "Road_C06_edgeA",
-   "path": "",
-   "center": [
-    31.2002,
-    2.28,
-    -337.1999
-   ],
-   "size": [
-    119.9685,
-    0.0,
-    60.0963
-   ],
-   "rotation": [
-    [
-     -0.076776,
-     0.0,
-     -0.997048
-    ],
-    [
-     0.0,
-     1.0,
-     0.0
-    ],
-    [
-     0.997048,
-     0.0,
-     -0.076776
-    ]
-   ],
-   "tex": "strips",
-   "tris": 1296,
-   "query": false,
-   "collide": false,
-   "shadow": false,
-   "material": "Ground",
-   "alpha": "Transparency"
-  },
-  {
-   "name": "Road_C07_core",
-   "path": "",
-   "center": [
-    9.1064,
-    2.12,
-    -227.0066
-   ],
-   "size": [
-    112.949,
-    0.0,
-    30.941
-   ],
-   "rotation": [
-    [
-     -0.196484,
-     0.0,
-     -0.980507
-    ],
-    [
-     0.0,
-     1.0,
-     0.0
-    ],
-    [
-     0.980507,
-     0.0,
-     -0.196484
-    ]
-   ],
-   "tex": "road",
-   "tris": 880,
-   "query": false,
-   "collide": false,
-   "shadow": false,
-   "material": "Ground",
-   "alpha": "Opaque"
-  },
-  {
-   "name": "Road_C07_edge",
-   "path": "",
-   "center": [
-    9.0494,
-    2.2,
-    -226.7268
-   ],
-   "size": [
-    113.7533,
-    0.0,
-    37.939
-   ],
-   "rotation": [
-    [
-     -0.196484,
-     0.0,
-     -0.980507
-    ],
-    [
-     0.0,
-     1.0,
-     0.0
-    ],
-    [
-     0.980507,
-     0.0,
-     -0.196484
-    ]
-   ],
-   "tex": "strips",
-   "tris": 440,
-   "query": false,
-   "collide": false,
-   "shadow": false,
-   "material": "Ground",
-   "alpha": "Opaque"
-  },
-  {
-   "name": "Road_C07_edgeA",
-   "path": "",
-   "center": [
-    8.9272,
-    2.28,
-    -226.1272
-   ],
-   "size": [
-    115.4768,
-    0.0,
-    52.9346
-   ],
-   "rotation": [
-    [
-     -0.196484,
-     0.0,
-     -0.980507
-    ],
-    [
-     0.0,
-     1.0,
-     0.0
-    ],
-    [
-     0.980507,
-     0.0,
-     -0.196484
-    ]
-   ],
-   "tex": "strips",
-   "tris": 1320,
-   "query": false,
-   "collide": false,
-   "shadow": false,
-   "material": "Ground",
-   "alpha": "Transparency"
-  },
-  {
-   "name": "Road_C08_core",
-   "path": "",
-   "center": [
-    0.0,
-    2.5723,
-    -120.0212
-   ],
-   "size": [
-    108.0369,
-    0.9046,
-    28.0
-   ],
-   "rotation": [
-    [
-     0.0,
+     -0.000488,
      0.0,
      -1.0
     ],
@@ -948,105 +767,34 @@
     [
      1.0,
      0.0,
-     0.0
-    ]
-   ],
-   "tex": "road",
-   "tris": 864,
-   "query": false,
-   "collide": false,
-   "shadow": false,
-   "material": "Ground",
-   "alpha": "Opaque"
-  },
-  {
-   "name": "Road_C08_edge",
-   "path": "",
-   "center": [
-    0.0,
-    2.5817,
-    -120.0212
-   ],
-   "size": [
-    108.0369,
-    0.7634,
-    35.0
-   ],
-   "rotation": [
-    [
-     0.0,
-     0.0,
-     -1.0
-    ],
-    [
-     0.0,
-     1.0,
-     0.0
-    ],
-    [
-     1.0,
-     0.0,
-     0.0
+     -0.000488
     ]
    ],
    "tex": "strips",
-   "tris": 432,
+   "tris": 384,
    "query": false,
    "collide": false,
    "shadow": false,
    "material": "Ground",
-   "alpha": "Opaque"
-  },
-  {
-   "name": "Road_C08_edgeA",
-   "path": "",
-   "center": [
-    0.0,
-    2.6432,
-    -120.0212
-   ],
-   "size": [
-    108.0369,
-    0.7264,
-    50.0
-   ],
-   "rotation": [
-    [
-     0.0,
-     0.0,
-     -1.0
-    ],
-    [
-     0.0,
-     1.0,
-     0.0
-    ],
-    [
-     1.0,
-     0.0,
-     0.0
-    ]
-   ],
-   "tex": "strips",
-   "tris": 1296,
-   "query": false,
-   "collide": false,
-   "shadow": false,
-   "material": "Ground",
-   "alpha": "Transparency"
+   "alpha": "Transparency",
+   "color": [
+    1,
+    1,
+    1
+   ]
   },
   {
    "name": "WashL_C00_bank",
    "path": "",
    "center": [
-    -609.5334,
-    -0.399,
-    -738.396
+    -596.4871,
+    -0.0128,
+    -712.4939
    ],
    "size": [
-    100.007,
-    5.0698,
-    46.75
+    174.0121,
+    4.7103,
+    46.075
    ],
    "rotation": [
     [
@@ -1066,25 +814,30 @@
     ]
    ],
    "tex": "strips",
-   "tris": 1584,
+   "tris": 2416,
    "query": false,
    "collide": false,
    "shadow": false,
    "material": "Sand",
-   "alpha": "Opaque"
+   "alpha": "Overlay",
+   "color": [
+    0.75,
+    0.59,
+    0.45
+   ]
   },
   {
    "name": "WashL_C00_bankA",
    "path": "",
    "center": [
-    -609.6739,
-    -0.4616,
-    -738.3257
+    -596.5877,
+    -0.1665,
+    -712.4436
    ],
    "size": [
-    100.007,
-    5.4563,
-    64.4286
+    174.0121,
+    5.0178,
+    63.4
    ],
    "rotation": [
     [
@@ -1104,31 +857,36 @@
     ]
    ],
    "tex": "strips",
-   "tris": 1188,
+   "tris": 1812,
    "query": false,
    "collide": false,
    "shadow": false,
    "material": "Sand",
-   "alpha": "Transparency"
+   "alpha": "Transparency",
+   "color": [
+    1,
+    1,
+    1
+   ]
   },
   {
    "name": "WashL_C01_bank",
    "path": "",
    "center": [
-    -562.2373,
-    -0.364,
-    -644.6423
+    -520.1101,
+    -0.1115,
+    -561.4993
    ],
    "size": [
-    110.0077,
-    5.0504,
-    46.45
+    164.7643,
+    4.5512,
+    46.5631
    ],
    "rotation": [
     [
-     0.447214,
+     0.454149,
      0.0,
-     -0.894427
+     -0.890926
     ],
     [
      0.0,
@@ -1136,37 +894,42 @@
      0.0
     ],
     [
-     0.894427,
+     0.890926,
      0.0,
-     0.447214
+     0.454149
     ]
    ],
    "tex": "strips",
-   "tris": 1760,
+   "tris": 2432,
    "query": false,
    "collide": false,
    "shadow": false,
    "material": "Sand",
-   "alpha": "Opaque"
+   "alpha": "Overlay",
+   "color": [
+    0.75,
+    0.59,
+    0.45
+   ]
   },
   {
    "name": "WashL_C01_bankA",
    "path": "",
    "center": [
-    -562.2021,
-    -0.4639,
-    -644.6598
+    -519.8531,
+    0.2217,
+    -561.5457
    ],
    "size": [
-    110.0077,
-    5.4608,
-    63.9714
+    165.0464,
+    5.7443,
+    64.0625
    ],
    "rotation": [
     [
-     0.447214,
+     0.454149,
      0.0,
-     -0.894427
+     -0.890926
     ],
     [
      0.0,
@@ -1174,37 +937,42 @@
      0.0
     ],
     [
-     0.894427,
+     0.890926,
      0.0,
-     0.447214
+     0.454149
     ]
    ],
    "tex": "strips",
-   "tris": 1320,
+   "tris": 1824,
    "query": false,
    "collide": false,
    "shadow": false,
    "material": "Sand",
-   "alpha": "Transparency"
+   "alpha": "Transparency",
+   "color": [
+    1,
+    1,
+    1
+   ]
   },
   {
    "name": "WashL_C02_bank",
    "path": "",
    "center": [
-    -512.9738,
-    -0.3789,
-    -547.1613
+    -444.9076,
+    -0.0826,
+    -419.3959
    ],
    "size": [
-    108.7548,
-    5.1005,
-    47.1302
+    158.011,
+    4.4023,
+    46.5045
    ],
    "rotation": [
     [
-     0.454204,
+     0.478852,
      0.0,
-     -0.890898
+     -0.877896
     ],
     [
      0.0,
@@ -1212,37 +980,42 @@
      0.0
     ],
     [
-     0.890898,
+     0.877896,
      0.0,
-     0.454204
+     0.478852
     ]
    ],
    "tex": "strips",
-   "tris": 1728,
+   "tris": 2432,
    "query": false,
    "collide": false,
    "shadow": false,
    "material": "Sand",
-   "alpha": "Opaque"
+   "alpha": "Overlay",
+   "color": [
+    0.75,
+    0.59,
+    0.45
+   ]
   },
   {
    "name": "WashL_C02_bankA",
    "path": "",
    "center": [
-    -512.7791,
-    -0.4136,
-    -547.1686
+    -444.8198,
+    -0.1593,
+    -419.4437
    ],
    "size": [
-    109.0309,
-    5.5542,
-    64.9261
+    158.011,
+    5.0377,
+    64.0545
    ],
    "rotation": [
     [
-     0.454204,
+     0.478852,
      0.0,
-     -0.890898
+     -0.877896
     ],
     [
      0.0,
@@ -1250,37 +1023,42 @@
      0.0
     ],
     [
-     0.890898,
+     0.877896,
      0.0,
-     0.454204
+     0.478852
     ]
    ],
    "tex": "strips",
-   "tris": 1296,
+   "tris": 1824,
    "query": false,
    "collide": false,
    "shadow": false,
    "material": "Sand",
-   "alpha": "Transparency"
+   "alpha": "Transparency",
+   "color": [
+    1,
+    1,
+    1
+   ]
   },
   {
    "name": "WashL_C03_bank",
    "path": "",
    "center": [
-    -462.3001,
-    -0.4014,
-    -452.0582
+    -362.5353,
+    -0.0892,
+    -286.4834
    ],
    "size": [
-    108.0075,
-    5.0245,
-    46.375
+    162.4905,
+    4.4785,
+    53.1999
    ],
    "rotation": [
     [
-     0.478852,
+     0.613542,
      0.0,
-     -0.877896
+     -0.789662
     ],
     [
      0.0,
@@ -1288,37 +1066,42 @@
      0.0
     ],
     [
-     0.877896,
+     0.789662,
      0.0,
-     0.478852
+     0.613542
     ]
    ],
    "tex": "strips",
-   "tris": 1728,
+   "tris": 2464,
    "query": false,
    "collide": false,
    "shadow": false,
    "material": "Sand",
-   "alpha": "Opaque"
+   "alpha": "Overlay",
+   "color": [
+    0.75,
+    0.59,
+    0.45
+   ]
   },
   {
    "name": "WashL_C03_bankA",
    "path": "",
    "center": [
-    -462.0414,
-    -0.4427,
-    -452.1993
+    -362.4337,
+    -0.1329,
+    -287.011
    ],
    "size": [
-    108.0075,
-    5.4592,
-    63.8571
+    164.5666,
+    4.9725,
+    69.6713
    ],
    "rotation": [
     [
-     0.478852,
+     0.613542,
      0.0,
-     -0.877896
+     -0.789662
     ],
     [
      0.0,
@@ -1326,37 +1109,42 @@
      0.0
     ],
     [
-     0.877896,
+     0.789662,
      0.0,
-     0.478852
+     0.613542
     ]
    ],
    "tex": "strips",
-   "tris": 1296,
+   "tris": 1848,
    "query": false,
    "collide": false,
    "shadow": false,
    "material": "Sand",
-   "alpha": "Transparency"
+   "alpha": "Transparency",
+   "color": [
+    1,
+    1,
+    1
+   ]
   },
   {
    "name": "WashL_C04_bank",
    "path": "",
    "center": [
-    -410.8588,
-    -0.4221,
-    -355.9479
+    -256.7055,
+    -0.0303,
+    -170.8822
    ],
    "size": [
-    110.0077,
-    4.9857,
-    46.3
+    157.2302,
+    4.4078,
+    51.3535
    ],
    "rotation": [
     [
-     0.478852,
+     0.72538,
      0.0,
-     -0.877896
+     -0.688349
     ],
     [
      0.0,
@@ -1364,37 +1152,42 @@
      0.0
     ],
     [
-     0.877896,
+     0.688349,
      0.0,
-     0.478852
+     0.72538
     ]
    ],
    "tex": "strips",
-   "tris": 1760,
+   "tris": 2432,
    "query": false,
    "collide": false,
    "shadow": false,
    "material": "Sand",
-   "alpha": "Opaque"
+   "alpha": "Overlay",
+   "color": [
+    0.75,
+    0.59,
+    0.45
+   ]
   },
   {
    "name": "WashL_C04_bankA",
    "path": "",
    "center": [
-    -410.9967,
-    -0.4307,
-    -355.8726
+    -256.389,
+    -0.1425,
+    -170.9012
    ],
    "size": [
-    110.0077,
-    5.4916,
-    63.7429
+    158.5817,
+    4.9348,
+    68.2082
    ],
    "rotation": [
     [
-     0.478852,
+     0.72538,
      0.0,
-     -0.877896
+     -0.688349
     ],
     [
      0.0,
@@ -1402,37 +1195,42 @@
      0.0
     ],
     [
-     0.877896,
+     0.688349,
      0.0,
-     0.478852
+     0.72538
     ]
    ],
    "tex": "strips",
-   "tris": 1320,
+   "tris": 1824,
    "query": false,
    "collide": false,
    "shadow": false,
    "material": "Sand",
-   "alpha": "Transparency"
+   "alpha": "Transparency",
+   "color": [
+    1,
+    1,
+    1
+   ]
   },
   {
    "name": "WashL_C05_bank",
    "path": "",
    "center": [
-    -350.4097,
-    -0.4255,
-    -268.6708
+    -131.3149,
+    1.0901,
+    -69.9129
    ],
    "size": [
-    112.9679,
-    5.1051,
-    48.1488
+    170.0119,
+    7.8133,
+    46.1705
    ],
    "rotation": [
     [
-     0.667166,
+     0.806405,
      0.0,
-     -0.744909
+     -0.591364
     ],
     [
      0.0,
@@ -1440,221 +1238,36 @@
      0.0
     ],
     [
-     0.744909,
+     0.591364,
      0.0,
-     0.667166
+     0.806405
     ]
    ],
    "tex": "strips",
-   "tris": 1728,
+   "tris": 2432,
    "query": false,
    "collide": false,
    "shadow": false,
    "material": "Sand",
-   "alpha": "Opaque"
+   "alpha": "Overlay",
+   "color": [
+    0.75,
+    0.59,
+    0.45
+   ]
   },
   {
    "name": "WashL_C05_bankA",
    "path": "",
    "center": [
-    -351.0445,
-    -0.452,
-    -269.1456
+    -131.411,
+    2.7801,
+    -69.7818
    ],
    "size": [
-    114.8321,
-    5.4568,
-    65.9828
-   ],
-   "rotation": [
-    [
-     0.667166,
-     0.0,
-     -0.744909
-    ],
-    [
-     0.0,
-     1.0,
-     0.0
-    ],
-    [
-     0.744909,
-     0.0,
-     0.667166
-    ]
-   ],
-   "tex": "strips",
-   "tris": 1296,
-   "query": false,
-   "collide": false,
-   "shadow": false,
-   "material": "Sand",
-   "alpha": "Transparency"
-  },
-  {
-   "name": "WashL_C06_bank",
-   "path": "",
-   "center": [
-    -273.9847,
-    -0.3609,
-    -187.1851
-   ],
-   "size": [
-    111.4652,
-    5.0538,
-    46.3989
-   ],
-   "rotation": [
-    [
-     0.684966,
-     0.0,
-     -0.728575
-    ],
-    [
-     0.0,
-     1.0,
-     0.0
-    ],
-    [
-     0.728575,
-     0.0,
-     0.684966
-    ]
-   ],
-   "tex": "strips",
-   "tris": 1728,
-   "query": false,
-   "collide": false,
-   "shadow": false,
-   "material": "Sand",
-   "alpha": "Opaque"
-  },
-  {
-   "name": "WashL_C06_bankA",
-   "path": "",
-   "center": [
-    -273.3628,
-    -0.4312,
-    -186.925
-   ],
-   "size": [
-    112.7509,
-    5.5059,
-    63.9202
-   ],
-   "rotation": [
-    [
-     0.684966,
-     0.0,
-     -0.728575
-    ],
-    [
-     0.0,
-     1.0,
-     0.0
-    ],
-    [
-     0.728575,
-     0.0,
-     0.684966
-    ]
-   ],
-   "tex": "strips",
-   "tris": 1296,
-   "query": false,
-   "collide": false,
-   "shadow": false,
-   "material": "Sand",
-   "alpha": "Transparency"
-  },
-  {
-   "name": "WashL_C07_bank",
-   "path": "",
-   "center": [
-    -194.4393,
-    -0.3957,
-    -116.2739
-   ],
-   "size": [
-    110.6456,
-    5.006,
-    46.072
-   ],
-   "rotation": [
-    [
-     0.806293,
-     0.0,
-     -0.591516
-    ],
-    [
-     0.0,
-     1.0,
-     0.0
-    ],
-    [
-     0.591516,
-     0.0,
-     0.806293
-    ]
-   ],
-   "tex": "strips",
-   "tris": 1760,
-   "query": false,
-   "collide": false,
-   "shadow": false,
-   "material": "Sand",
-   "alpha": "Opaque"
-  },
-  {
-   "name": "WashL_C07_bankA",
-   "path": "",
-   "center": [
-    -194.6144,
-    -0.45,
-    -116.2319
-   ],
-   "size": [
-    110.8816,
-    5.5171,
-    63.397
-   ],
-   "rotation": [
-    [
-     0.806293,
-     0.0,
-     -0.591516
-    ],
-    [
-     0.0,
-     1.0,
-     0.0
-    ],
-    [
-     0.591516,
-     0.0,
-     0.806293
-    ]
-   ],
-   "tex": "strips",
-   "tris": 1320,
-   "query": false,
-   "collide": false,
-   "shadow": false,
-   "material": "Sand",
-   "alpha": "Transparency"
-  },
-  {
-   "name": "WashL_C08_bank",
-   "path": "",
-   "center": [
-    -106.5747,
-    -0.285,
-    -51.2247
-   ],
-   "size": [
-    108.0075,
-    5.1701,
-    45.4
+    170.0119,
+    11.916,
+    63.5455
    ],
    "rotation": [
     [
@@ -1674,63 +1287,30 @@
     ]
    ],
    "tex": "strips",
-   "tris": 1728,
+   "tris": 1824,
    "query": false,
    "collide": false,
    "shadow": false,
    "material": "Sand",
-   "alpha": "Opaque"
-  },
-  {
-   "name": "WashL_C08_bankA",
-   "path": "",
-   "center": [
-    -106.807,
-    -0.4246,
-    -50.9079
-   ],
-   "size": [
-    108.0075,
-    5.5488,
-    62.3714
-   ],
-   "rotation": [
-    [
-     0.806405,
-     0.0,
-     -0.591364
-    ],
-    [
-     0.0,
-     1.0,
-     0.0
-    ],
-    [
-     0.591364,
-     0.0,
-     0.806405
-    ]
-   ],
-   "tex": "strips",
-   "tris": 1296,
-   "query": false,
-   "collide": false,
-   "shadow": false,
-   "material": "Sand",
-   "alpha": "Transparency"
+   "alpha": "Transparency",
+   "color": [
+    1,
+    1,
+    1
+   ]
   },
   {
    "name": "WashR_C00_bank",
    "path": "",
    "center": [
-    609.0526,
-    -0.3305,
-    -737.5182
+    598.3604,
+    -0.0785,
+    -717.1478
    ],
    "size": [
-    98.0068,
-    4.9096,
-    43.975
+    164.0114,
+    4.6981,
+    45.0727
    ],
    "rotation": [
     [
@@ -1750,25 +1330,30 @@
     ]
    ],
    "tex": "strips",
-   "tris": 1552,
+   "tris": 1648,
    "query": false,
    "collide": false,
    "shadow": false,
    "material": "Sand",
-   "alpha": "Opaque"
+   "alpha": "Overlay",
+   "color": [
+    0.75,
+    0.59,
+    0.45
+   ]
   },
   {
    "name": "WashR_C00_bankA",
    "path": "",
    "center": [
-    609.1756,
-    -0.4504,
-    -737.4568
+    598.271,
+    -0.1636,
+    -717.1925
    ],
    "size": [
-    98.0068,
-    5.4192,
-    60.2
+    164.0114,
+    4.8768,
+    61.8727
    ],
    "rotation": [
     [
@@ -1788,31 +1373,36 @@
     ]
    ],
    "tex": "strips",
-   "tris": 1164,
+   "tris": 1236,
    "query": false,
    "collide": false,
    "shadow": false,
    "material": "Sand",
-   "alpha": "Transparency"
+   "alpha": "Transparency",
+   "color": [
+    1,
+    1,
+    1
+   ]
   },
   {
    "name": "WashR_C01_bank",
    "path": "",
    "center": [
-    562.036,
-    -0.4385,
-    -644.7429
+    523.6035,
+    -0.1385,
+    -568.6736
    ],
    "size": [
-    110.0077,
-    5.0401,
-    45.85
+    168.7369,
+    4.4255,
+    45.1519
    ],
    "rotation": [
     [
-     -0.447214,
+     -0.452848,
      0.0,
-     -0.894427
+     -0.891588
     ],
     [
      0.0,
@@ -1820,37 +1410,42 @@
      0.0
     ],
     [
-     0.894427,
+     0.891588,
      0.0,
-     -0.447214
+     -0.452848
     ]
    ],
    "tex": "strips",
-   "tris": 1760,
+   "tris": 1632,
    "query": false,
    "collide": false,
    "shadow": false,
    "material": "Sand",
-   "alpha": "Opaque"
+   "alpha": "Overlay",
+   "color": [
+    0.75,
+    0.59,
+    0.45
+   ]
   },
   {
    "name": "WashR_C01_bankA",
    "path": "",
    "center": [
-    561.8955,
-    -0.472,
-    -644.8132
+    523.3995,
+    -0.1906,
+    -568.686
    ],
    "size": [
-    110.0077,
-    5.4335,
-    63.0571
+    169.0033,
+    4.9116,
+    62.0266
    ],
    "rotation": [
     [
-     -0.447214,
+     -0.452848,
      0.0,
-     -0.894427
+     -0.891588
     ],
     [
      0.0,
@@ -1858,37 +1453,42 @@
      0.0
     ],
     [
-     0.894427,
+     0.891588,
      0.0,
-     -0.447214
+     -0.452848
     ]
    ],
    "tex": "strips",
-   "tris": 1320,
+   "tris": 1224,
    "query": false,
    "collide": false,
    "shadow": false,
    "material": "Sand",
-   "alpha": "Transparency"
+   "alpha": "Transparency",
+   "color": [
+    1,
+    1,
+    1
+   ]
   },
   {
    "name": "WashR_C02_bank",
    "path": "",
    "center": [
-    512.8489,
-    -0.4271,
-    -547.2456
+    448.556,
+    -0.0864,
+    -424.2408
    ],
    "size": [
-    108.7288,
-    5.0687,
-    45.0492
+    158.011,
+    4.413,
+    45.2159
    ],
    "rotation": [
     [
-     -0.454204,
+     -0.478852,
      0.0,
-     -0.890898
+     -0.877896
     ],
     [
      0.0,
@@ -1896,37 +1496,42 @@
      0.0
     ],
     [
-     0.890898,
+     0.877896,
      0.0,
-     -0.454204
+     -0.478852
     ]
    ],
    "tex": "strips",
-   "tris": 1728,
+   "tris": 1664,
    "query": false,
    "collide": false,
    "shadow": false,
    "material": "Sand",
-   "alpha": "Opaque"
+   "alpha": "Overlay",
+   "color": [
+    0.75,
+    0.59,
+    0.45
+   ]
   },
   {
    "name": "WashR_C02_bankA",
    "path": "",
    "center": [
-    512.501,
-    -0.4783,
-    -547.3416
+    448.8742,
+    1.5747,
+    -424.0672
    ],
    "size": [
-    108.9911,
-    5.3993,
-    61.7059
+    158.011,
+    8.4761,
+    62.0909
    ],
    "rotation": [
     [
-     -0.454204,
+     -0.478852,
      0.0,
-     -0.890898
+     -0.877896
     ],
     [
      0.0,
@@ -1934,37 +1539,42 @@
      0.0
     ],
     [
-     0.890898,
+     0.877896,
      0.0,
-     -0.454204
+     -0.478852
     ]
    ],
    "tex": "strips",
-   "tris": 1296,
+   "tris": 1248,
    "query": false,
    "collide": false,
    "shadow": false,
    "material": "Sand",
-   "alpha": "Transparency"
+   "alpha": "Transparency",
+   "color": [
+    1,
+    1,
+    1
+   ]
   },
   {
    "name": "WashR_C03_bank",
    "path": "",
    "center": [
-    463.5182,
-    -0.4341,
-    -451.3938
+    367.5812,
+    -0.1023,
+    -292.2821
    ],
    "size": [
-    108.0075,
-    5.1079,
-    44.95
+    158.2436,
+    4.3811,
+    53.5999
    ],
    "rotation": [
     [
-     -0.478852,
+     -0.603859,
      0.0,
-     -0.877896
+     -0.797091
     ],
     [
      0.0,
@@ -1972,37 +1582,42 @@
      0.0
     ],
     [
-     0.877896,
+     0.797091,
      0.0,
-     -0.478852
+     -0.603859
     ]
    ],
    "tex": "strips",
-   "tris": 1728,
+   "tris": 1664,
    "query": false,
    "collide": false,
    "shadow": false,
    "material": "Sand",
-   "alpha": "Opaque"
+   "alpha": "Overlay",
+   "color": [
+    0.75,
+    0.59,
+    0.45
+   ]
   },
   {
    "name": "WashR_C03_bankA",
    "path": "",
    "center": [
-    463.8976,
-    -0.4801,
-    -451.1869
+    367.5181,
+    0.0269,
+    -292.6182
    ],
    "size": [
-    108.0075,
-    5.4627,
-    61.6857
+    160.2035,
+    5.3566,
+    70.1034
    ],
    "rotation": [
     [
-     -0.478852,
+     -0.603859,
      0.0,
-     -0.877896
+     -0.797091
     ],
     [
      0.0,
@@ -2010,37 +1625,42 @@
      0.0
     ],
     [
-     0.877896,
+     0.797091,
      0.0,
-     -0.478852
+     -0.603859
     ]
    ],
    "tex": "strips",
-   "tris": 1296,
+   "tris": 1248,
    "query": false,
    "collide": false,
    "shadow": false,
    "material": "Sand",
-   "alpha": "Transparency"
+   "alpha": "Transparency",
+   "color": [
+    1,
+    1,
+    1
+   ]
   },
   {
    "name": "WashR_C04_bank",
    "path": "",
    "center": [
-    410.7271,
-    -0.3603,
-    -356.0197
+    263.9776,
+    -0.1459,
+    -178.5361
    ],
    "size": [
-    110.0077,
-    4.9537,
-    44.95
+    155.5385,
+    4.5395,
+    48.8825
    ],
    "rotation": [
     [
-     -0.478852,
+     -0.715679,
      0.0,
-     -0.877896
+     -0.69843
     ],
     [
      0.0,
@@ -2048,37 +1668,42 @@
      0.0
     ],
     [
-     0.877896,
+     0.69843,
      0.0,
-     -0.478852
+     -0.715679
     ]
    ],
    "tex": "strips",
-   "tris": 1760,
+   "tris": 1632,
    "query": false,
    "collide": false,
    "shadow": false,
    "material": "Sand",
-   "alpha": "Opaque"
+   "alpha": "Overlay",
+   "color": [
+    0.75,
+    0.59,
+    0.45
+   ]
   },
   {
    "name": "WashR_C04_bankA",
    "path": "",
    "center": [
-    410.7961,
-    1.7658,
-    -355.9821
+    263.4799,
+    -0.1735,
+    -178.4865
    ],
    "size": [
-    110.0077,
-    9.9148,
-    61.6857
+    157.0037,
+    4.9027,
+    65.3396
    ],
    "rotation": [
     [
-     -0.478852,
+     -0.715679,
      0.0,
-     -0.877896
+     -0.69843
     ],
     [
      0.0,
@@ -2086,37 +1711,42 @@
      0.0
     ],
     [
-     0.877896,
+     0.69843,
      0.0,
-     -0.478852
+     -0.715679
     ]
    ],
    "tex": "strips",
-   "tris": 1320,
+   "tris": 1224,
    "query": false,
    "collide": false,
    "shadow": false,
    "material": "Sand",
-   "alpha": "Transparency"
+   "alpha": "Transparency",
+   "color": [
+    1,
+    1,
+    1
+   ]
   },
   {
    "name": "WashR_C05_bank",
    "path": "",
    "center": [
-    350.1388,
-    -0.439,
-    -269.0664
+    135.942,
+    0.2462,
+    -73.75
    ],
    "size": [
-    113.1866,
-    5.0421,
-    46.971
+    182.0127,
+    6.0802,
+    46.9818
    ],
    "rotation": [
     [
-     -0.667166,
+     -0.806405,
      0.0,
-     -0.744909
+     -0.591364
     ],
     [
      0.0,
@@ -2124,221 +1754,36 @@
      0.0
     ],
     [
-     0.744909,
+     0.591364,
      0.0,
-     -0.667166
+     -0.806405
     ]
    ],
    "tex": "strips",
-   "tris": 1728,
+   "tris": 1664,
    "query": false,
    "collide": false,
    "shadow": false,
    "material": "Sand",
-   "alpha": "Opaque"
+   "alpha": "Overlay",
+   "color": [
+    0.75,
+    0.59,
+    0.45
+   ]
   },
   {
    "name": "WashR_C05_bankA",
    "path": "",
    "center": [
-    350.4538,
-    -0.473,
-    -269.9078
+    135.9272,
+    0.2636,
+    -73.7701
    ],
    "size": [
-    115.1653,
-    5.4054,
-    63.8354
-   ],
-   "rotation": [
-    [
-     -0.667166,
-     0.0,
-     -0.744909
-    ],
-    [
-     0.0,
-     1.0,
-     0.0
-    ],
-    [
-     0.744909,
-     0.0,
-     -0.667166
-    ]
-   ],
-   "tex": "strips",
-   "tris": 1296,
-   "query": false,
-   "collide": false,
-   "shadow": false,
-   "material": "Sand",
-   "alpha": "Transparency"
-  },
-  {
-   "name": "WashR_C06_bank",
-   "path": "",
-   "center": [
-    274.1147,
-    -0.4278,
-    -187.2368
-   ],
-   "size": [
-    111.2103,
-    5.0994,
-    47.1417
-   ],
-   "rotation": [
-    [
-     -0.684966,
-     0.0,
-     -0.728575
-    ],
-    [
-     0.0,
-     1.0,
-     0.0
-    ],
-    [
-     0.728575,
-     0.0,
-     -0.684966
-    ]
-   ],
-   "tex": "strips",
-   "tris": 1728,
-   "query": false,
-   "collide": false,
-   "shadow": false,
-   "material": "Sand",
-   "alpha": "Opaque"
-  },
-  {
-   "name": "WashR_C06_bankA",
-   "path": "",
-   "center": [
-    273.5525,
-    -0.4833,
-    -187.0116
-   ],
-   "size": [
-    112.3625,
-    5.4131,
-    65.1737
-   ],
-   "rotation": [
-    [
-     -0.684966,
-     0.0,
-     -0.728575
-    ],
-    [
-     0.0,
-     1.0,
-     0.0
-    ],
-    [
-     0.728575,
-     0.0,
-     -0.684966
-    ]
-   ],
-   "tex": "strips",
-   "tris": 1296,
-   "query": false,
-   "collide": false,
-   "shadow": false,
-   "material": "Sand",
-   "alpha": "Transparency"
-  },
-  {
-   "name": "WashR_C07_bank",
-   "path": "",
-   "center": [
-    194.2015,
-    -0.3948,
-    -116.5582
-   ],
-   "size": [
-    110.598,
-    5.0237,
-    46.2337
-   ],
-   "rotation": [
-    [
-     -0.806293,
-     0.0,
-     -0.591516
-    ],
-    [
-     0.0,
-     1.0,
-     0.0
-    ],
-    [
-     0.591516,
-     0.0,
-     -0.806293
-    ]
-   ],
-   "tex": "strips",
-   "tris": 1760,
-   "query": false,
-   "collide": false,
-   "shadow": false,
-   "material": "Sand",
-   "alpha": "Opaque"
-  },
-  {
-   "name": "WashR_C07_bankA",
-   "path": "",
-   "center": [
-    194.2505,
-    -0.4877,
-    -116.6673
-   ],
-   "size": [
-    110.8092,
-    5.4155,
-    63.6373
-   ],
-   "rotation": [
-    [
-     -0.806293,
-     0.0,
-     -0.591516
-    ],
-    [
-     0.0,
-     1.0,
-     0.0
-    ],
-    [
-     0.591516,
-     0.0,
-     -0.806293
-    ]
-   ],
-   "tex": "strips",
-   "tris": 1320,
-   "query": false,
-   "collide": false,
-   "shadow": false,
-   "material": "Sand",
-   "alpha": "Transparency"
-  },
-  {
-   "name": "WashR_C08_bank",
-   "path": "",
-   "center": [
-    106.1311,
-    -0.3219,
-    -51.8295
-   ],
-   "size": [
-    108.0075,
-    5.2438,
-    47.5
+    182.0127,
+    6.8159,
+    64.7818
    ],
    "rotation": [
     [
@@ -2358,50 +1803,17 @@
     ]
    ],
    "tex": "strips",
-   "tris": 1728,
+   "tris": 1248,
    "query": false,
    "collide": false,
    "shadow": false,
    "material": "Sand",
-   "alpha": "Opaque"
-  },
-  {
-   "name": "WashR_C08_bankA",
-   "path": "",
-   "center": [
-    106.1311,
-    -0.4471,
-    -51.8295
-   ],
-   "size": [
-    108.0075,
-    5.4942,
-    65.5714
-   ],
-   "rotation": [
-    [
-     -0.806405,
-     0.0,
-     -0.591364
-    ],
-    [
-     0.0,
-     1.0,
-     0.0
-    ],
-    [
-     0.591364,
-     0.0,
-     -0.806405
-    ]
-   ],
-   "tex": "strips",
-   "tris": 1296,
-   "query": false,
-   "collide": false,
-   "shadow": false,
-   "material": "Sand",
-   "alpha": "Transparency"
+   "alpha": "Transparency",
+   "color": [
+    1,
+    1,
+    1
+   ]
   }
  ],
  "attachments": [],
@@ -2410,17 +1822,18 @@
   "strips": {
    "color": "GroundStrips_strips_color.png",
    "normal": "GroundStrips_strips_normal.png"
+  },
+  "road": {
+   "color": "GroundStrips_road_color.png",
+   "normal": "GroundStrips_road_normal.png"
   }
- },
- "terrain_textures": {
-  "road": "Road"
  },
  "texel_density": {
   "strips": 10.7,
-  "road": 32.0
+  "road": 16.0
  },
  "previews": [],
- "triangles": 77728,
+ "triangles": 47552,
  "meta": {
   "kit": "ground_strips",
   "no_primary": true

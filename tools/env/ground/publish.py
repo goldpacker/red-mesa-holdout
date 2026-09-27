@@ -93,7 +93,7 @@ def write_rbxmx(name: str) -> None:
             R.prop("token", "RenderFidelity", FIDELITY[name]),
             R.prop("float", "Transparency", 0),
             R.prop("token", "Material", MATERIAL[p["material"]]),
-            R.color3((1, 1, 1)),
+            R.color3(p.get("color", (1, 1, 1))),
         ]
         if p.get("pivot_offset") is not None:
             node.props.append(R.cframe_xml("CoordinateFrame", "PivotOffset", p["pivot_offset"]))

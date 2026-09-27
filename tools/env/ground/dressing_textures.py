@@ -2,8 +2,9 @@
 
     tools/env/py.sh tools/env/ground/dressing_textures.py
 
-One 1024² colour (RGBA, alpha = coverage) + 512² normal set used by every
-dressing mesh (dressing.py). Regions, in image pixels (x, y, w, h):
+One 512² colour (RGBA, alpha = coverage) + 256² normal set used by every
+dressing mesh (dressing.py), painted at 1024² and shrunk. Regions, in the
+1024² painting's pixels (x, y, w, h; halved in dressing.json):
 
   cards (alpha cards, side view, base at the bottom edge):
     scrub_a   (  0,   0, 256, 256)  grey-green brittlebush / sage scrub
@@ -374,6 +375,24 @@ def rock(w, h):
     return c.astype(np.float32), np.ones((h, w), np.float32), n.astype(np.float32)
 
 
+def shrink(rgba):
+    """2x box downsample; colour weighted by alpha so clear texels don't bleed."""
+    h, w = rgba.shape[:2]
+    blk = rgba.reshape(h // 2, 2, w // 2, 2, 4)
+    a = blk[..., 3]
+    asum = a.sum(axis=(1, 3))
+    wc = (blk[..., :3] * a[..., None]).sum(axis=(1, 3))
+    plain = blk[..., :3].mean(axis=(1, 3))
+    col = np.where(asum[..., None] > 1e-4, wc / np.maximum(asum, 1e-9)[..., None], plain)
+    return np.concatenate([col, (asum / 4)[..., None]], axis=-1).astype(np.float32)
+
+
+def shrink_normal(n, factor=4):
+    h, w = n.shape[:2]
+    m = n.reshape(h // factor, factor, w // factor, factor, 3).mean(axis=(1, 3))
+    return m / np.linalg.norm(m, axis=-1, keepdims=True)
+
+
 def main():
     os.makedirs(OUT, exist_ok=True)
     colour = np.zeros((N, N, 4), dtype=np.float32)
@@ -399,20 +418,25 @@ def main():
         colour[y:y + h, x:x + w, 3] = a
         normal[y:y + h, x:x + w] = n
         print(f"{name:9s} ({x},{y},{w},{h}) alpha mean {a.mean():.2f}")
-    # Roblox replaces the colour of fully transparent texels with white on
-    # upload, which then bleeds into the edges through filtering and mips
-    # (measured: white fringes). Keep every texel at least 2/255 opaque.
-    colour[..., 3] = np.maximum(colour[..., 3], ALPHA_FLOOR)
-    T.save(os.path.join(OUT, "GroundDressing_color.png"), colour)
-    T.save(os.path.join(OUT, "GroundDressing_normal.png"), T.encode_normal(T.downsample(normal, 512)))
-    yy, xx = np.mgrid[0:N, 0:N]
-    check = np.where(((yy // 32 + xx // 32) % 2)[..., None] == 0, 0.25, 0.4).astype(np.float32)
-    prev = colour[..., :3] * colour[..., 3:] + check * (1 - colour[..., 3:])
+    # Painted at 1024², shipped at 512²: a transparent-mode colour map is
+    # held uncompressed in Roblox (measured: this atlas at 1024² cost ~7 MB of
+    # GraphicsTexture), and 512² still gives the cards 32 px/stud.
+    small, nsmall = shrink(colour), shrink_normal(normal)
+    # Guard: no texel fully transparent (the white fringes we first saw came
+    # from OIIO un-premultiplying on save, fixed in texlib.save).
+    small[..., 3] = np.maximum(small[..., 3], ALPHA_FLOOR)
+    T.save(os.path.join(OUT, "GroundDressing_color.png"), small)
+    T.save(os.path.join(OUT, "GroundDressing_normal.png"), T.encode_normal(nsmall))
+    M = small.shape[0]
+    yy, xx = np.mgrid[0:M, 0:M]
+    check = np.where(((yy // 16 + xx // 16) % 2)[..., None] == 0, 0.25, 0.4).astype(np.float32)
+    prev = small[..., :3] * small[..., 3:] + check * (1 - small[..., 3:])
     os.makedirs(os.path.join(ROOT, "assets", "previews", "ground"), exist_ok=True)
     T.save(os.path.join(ROOT, "assets", "previews", "ground", "GroundDressing_atlas.png"), prev)
+    half = {k: [v // 2 for v in r] for k, r in REGIONS.items()}
     with open(os.path.join(OUT, "dressing.json"), "w") as fh:
-        json.dump({"size": N, "regions": REGIONS, "tracks_studs": TRACK_STUDS, "crater_studs": CRATER_STUDS,
-                   "bark_studs": BARK_STUDS, "rock_px_per_stud": ROCK_PX_PER_STUD}, fh, indent=1)
+        json.dump({"size": M, "regions": half, "tracks_studs": TRACK_STUDS, "crater_studs": CRATER_STUDS,
+                   "bark_studs": BARK_STUDS, "rock_px_per_stud": ROCK_PX_PER_STUD / 2}, fh, indent=1)
     print("wrote", OUT)
 
 

@@ -247,8 +247,15 @@ def ico(subdiv=1):
     return np.array(v), np.array(f)
 
 
+def octa():
+    v = np.array([(1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1), (0, 0, -1)], float)
+    f = np.array([(0, 2, 4), (4, 2, 1), (1, 2, 5), (5, 2, 0), (4, 3, 0), (1, 3, 4), (5, 3, 1), (0, 3, 5)])
+    return v, f
+
+
 def stone(m, rng, centre, size, flat=0.6, subdiv=1, bury=0.35):
-    v, f = ico(subdiv)
+    """subdiv -1: an 8-face pebble; 0/1: icosphere levels."""
+    v, f = octa() if subdiv < 0 else ico(subdiv)
     noise_dirs = rng.normal(size=(5, 3))
     bump = sum(rng.uniform(0.05, 0.16) * np.maximum(0, v @ (d / np.linalg.norm(d))) ** 3 for d in noise_dirs)
     v = v * (1 + bump[:, None] - 0.12 * rng.random((len(v), 1)))
@@ -294,7 +301,7 @@ def pebbles(seed, count, radius):
     for _ in range(count):
         r = radius * math.sqrt(rng.random())
         a = rng.uniform(0, 2 * math.pi)
-        stone(m, rng, (r * math.cos(a), 0, r * math.sin(a)), rng.uniform(0.12, 0.38), flat=0.55, subdiv=0, bury=0.3)
+        stone(m, rng, (r * math.cos(a), 0, r * math.sin(a)), rng.uniform(0.14, 0.4), flat=0.55, subdiv=-1, bury=0.3)
     return m
 
 
@@ -384,12 +391,12 @@ PIECES = {
     "Creosote": (lambda: bush("creosote", 5, 4.6, 5.2, top=(3.6, 3.2), shadow=5.6, seed=3, lean=0.08), "Transparency", "Grass", True),
     "Saltbush": (lambda: bush("saltbush", 3, 6.0, 3.0, top=(4.2, 1.5), shadow=6.6, seed=4), "Transparency", "Grass", True),
     "Grass": (lambda: bush("grass", 3, 2.6, 1.7, seed=5, lean=0.18), "Transparency", "Grass", False),
-    "Branch_A": (lambda: branch(21), "Opaque", "Wood", True),
-    "Branch_B": (lambda: branch(22), "Opaque", "Wood", True),
-    "Pebbles_A": (lambda: pebbles(31, 16, 2.6), "Opaque", "Rock", False),
-    "Pebbles_B": (lambda: pebbles(32, 22, 3.6), "Opaque", "Rock", False),
-    "Rocks_A": (lambda: rocks(41, 6), "Opaque", "Rock", True),
-    "Rocks_B": (lambda: rocks(42, 8), "Opaque", "Rock", True),
+    "Branch_A": (lambda: branch(21), "Overlay", "Wood", True),
+    "Branch_B": (lambda: branch(22), "Overlay", "Wood", True),
+    "Pebbles_A": (lambda: pebbles(31, 16, 2.6), "Overlay", "Rock", False),
+    "Pebbles_B": (lambda: pebbles(32, 22, 3.6), "Overlay", "Rock", False),
+    "Rocks_A": (lambda: rocks(41, 6), "Overlay", "Rock", True),
+    "Rocks_B": (lambda: rocks(42, 8), "Overlay", "Rock", True),
     "Tracks_A": (lambda: track(51, 66.0, 1 / 90.0), "Transparency", "Sand", False),
     "Tracks_B": (lambda: track(52, 84.0, -1 / 140.0), "Transparency", "Sand", False),
     "Crater": (lambda: crater(61), "Transparency", "Sand", False),
@@ -402,7 +409,7 @@ def build():
     for name, (make, alpha, material, shadow) in PIECES.items():
         v, uv, f = make().arrays()
         mirrored = glb.check_uv_orientation(v, uv, f)
-        if mirrored > 0.0 and alpha == "Opaque" and not name.startswith(("Pebbles", "Rocks")):
+        if mirrored > 0.0 and alpha == "Overlay" and not name.startswith(("Pebbles", "Rocks")):
             print(f"WARNING {name}: {mirrored:.0%} of triangles have mirrored UVs")
         lo, hi = v.min(axis=0), v.max(axis=0)
         centre = (lo + hi) / 2
