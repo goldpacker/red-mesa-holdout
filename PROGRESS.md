@@ -42,6 +42,14 @@ Contracts: `docs/ARCHITECTURE.md`, `docs/ASSET_CONTRACTS.md`.
 - **Final end-to-end playthrough succeeded** (see DONE.md).
 
 ## Current work
+**Update 2 — airdrop arrivals + cinematic environment** (started 2026-09-26
+evening, user feedback; spec §6.1/§13, plan `docs/AIRDROP_ENVIRONMENT_PLAN.md`,
+contract `docs/FACELIFT_TEAM.md` "Update 2", ledger
+`.superpowers/sdd/AIRDROP_ENVIRONMENT_PLAN/`). First wave running: AD-1
+airdrop core, HS-6 transport/parachute art, ENV-3F ground edges + dressing,
+LOOK-3B motion sweep, QA-B budget measurement. The paused face-lift items
+below are resumed inside this plan.
+
 **Visual face-lift** (`docs/FACELIFT_PLAN.md`), built 2026-09-26 by a lead
 plus QA-tools, Environment (ENV), Hard-surface (HS), Character (CHAR), VFX
 and Look agents under `docs/FACELIFT_TEAM.md`. User decisions: CC0 inputs
