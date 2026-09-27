@@ -318,16 +318,19 @@ local function describe(model: Model?): string
 end
 
 -- One warning per WARN_EVERY at most; the next one says how many were held.
+-- The message is built before the slot is taken, so a failure while naming
+-- the model can't silence the warning that follows it.
 local function report(model: Model?, err: any, action: string)
 	local now = os.clock()
 	if now - lastWarn < WARN_EVERY then
 		unreported += 1
 		return
 	end
-	lastWarn = now
 	local held = if unreported > 0 then string.format(" (+%d more since the last warning)", unreported) else ""
+	local message = string.format("[RedMesa] enemy motion watch failed for %s: %s; %s%s", describe(model), tostring(err), action, held)
+	lastWarn = now
 	unreported = 0
-	warn(string.format("[RedMesa] enemy motion watch failed for %s: %s; %s%s", describe(model), tostring(err), action, held))
+	warn(message)
 end
 
 local function judge(e: Entry, apply: Apply)
@@ -399,8 +402,8 @@ function Watch.drain(apply: Apply): number
 	if ok then
 		return judged
 	end
-	report(nil, judged, "re-queueing every watched model")
 	recover()
+	pcall(report, nil, judged, "re-queueing every watched model")
 	return 0
 end
 

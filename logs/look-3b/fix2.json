@@ -1,0 +1,14 @@
+{"build": "LOOK-3B fix 2: report() builds its message before taking the rate-limit slot; Watch.drain's catch branch recovers first, then reports under pcall; unit test section 13 drives the real drain-raises path",
+ "session": "Studio 23:27-23:36, lock owner look3 (broke look's lock as stale at 902 s via tools/studio-lock.sh). Ran inside the Play session left running by that lock (BeautyShot 2, Sunset, camera idle for 45 s, no captures written since 22:44), without stopping it: Client datamodel only, private module clone, synthetic unparented models",
+ "unit_test": "qa/beauty/look-3b/watch_test.client.luau: ALL PASS (42 checks; 6 new in section 13)",
+ "section13": [
+  "PASS drain that raises past the per-model pcall is caught [0]",
+  "PASS every watched model re-queued and judged once on the next frame [5 of 5]",
+  "PASS the model queued behind the failure isn't stranded",
+  "PASS the failing model is no longer watched (3 further drains judge 0)",
+  "PASS one warning for the recovery [[RedMesa] enemy motion watch failed for the queue: AssistantCommand:200: fake model: no GetAttribute; re-queueing every watched model (+3 more since the last warning)]",
+  "PASS no per-frame storm afterwards (10 drains judge 0; still 1 warning)"],
+ "mutation_check": "same scenario against a clone with report() patched back to the pre-fix order (lastWarn taken before describe): drain caught (0), next frame judged 1, model behind smoothable, recovery warnings = 0 -> 'one warning for the recovery' FAILS; i.e. the new check detects the silent-recovery bug fixed here",
+ "burst": "60 x 150 parts judged once each over 47 frames, worst drain 1.074 ms",
+ "console": "world built / server ready / client ready + the two tagged test warnings (synthetic Tank#777, 'the queue')"
+}

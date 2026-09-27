@@ -45,6 +45,7 @@ local function drain(): number
 	task.wait() -- deferred signals fire
 	return W.drain(apply)
 end
+local WARN_WAIT = 5.2 -- s: EnemyMotionWatch's WARN_EVERY plus a margin
 
 -- 1. A plain enemy: anchored Root (PrimaryPart), welded hull, turret sub-model.
 local m = Instance.new("Model")
@@ -200,14 +201,80 @@ check("a one-off failure recovers on the re-scan", verdict[flaky] and verdict[fl
 W.recover()
 local rejudged = drain()
 local watchedNow = W.counts()
-check("recovery re-queues every watched model", rejudged == watchedNow and verdict[a].root == ar and verdict[c].root == cr, string.format("%d of %d", rejudged, watchedNow))
-logConn:Disconnect()
+check("recover() re-queues every watched model", rejudged == watchedNow and verdict[a].root == ar and verdict[c].root == cr, string.format("%d of %d", rejudged, watchedNow))
 for _, x in { a, bad, c, flaky } do
 	W.remove(x)
 	x:Destroy()
 end
 
--- 13. Burst: 60 models of 150 parts arrive at once; the drain budget
+-- 13. The drain itself raises (LOOK-3B fix 2). A fake model whose every
+-- field access errors fails its judgement, and then fails again inside
+-- fail() -> report() -> describe(), so the error escapes the per-model
+-- pcall and reaches Watch.drain's own pcall: the real path, no seam.
+-- Expected: the drain returns normally, every watched model is re-queued
+-- (the one queued behind the fake isn't stranded), the next frame judges
+-- each exactly once, one warning, then nothing: no per-frame storm.
+task.wait(WARN_WAIT) -- let the rate limiter's window from section 12 pass
+local settled: { Model } = {}
+for i = 1, 3 do
+	local x = enemy("Infantry", 710 + i)
+	W.add(x)
+	settled[i] = x
+end
+drain()
+local fake = setmetatable({}, {
+	__index = function(_, key)
+		error("fake model: no " .. tostring(key))
+	end,
+})
+local behind, behindRoot = enemy("Tank", 719)
+local before: { [Model]: number } = {}
+for _, x in settled do
+	before[x] = verdict[x].n
+end
+local warnedBefore = #warnings
+W.add(fake)
+W.add(behind)
+task.wait()
+local okDrain, firstDrain = pcall(W.drain, apply)
+check("drain that raises past the per-model pcall is caught", okDrain and firstDrain == 0, tostring(firstDrain))
+local watched = W.counts()
+local rejudgedAll = drain()
+local once = true
+for _, x in settled do
+	if verdict[x].n ~= before[x] + 1 then
+		once = false
+	end
+end
+check("every watched model re-queued and judged once on the next frame", rejudgedAll == watched and once, string.format("%d of %d", rejudgedAll, watched))
+check("the model queued behind the failure isn't stranded", verdict[behind] and verdict[behind].root == behindRoot and verdict[behind].n == 1)
+check("the failing model is no longer watched", (function()
+	for _ = 1, 3 do
+		if drain() ~= 0 then
+			return false
+		end
+	end
+	return true
+end)())
+task.wait(0.1)
+local newWarnings = #warnings - warnedBefore
+check("one warning for the recovery", newWarnings == 1 and string.find(warnings[#warnings], "re-queueing every watched model", 1, true) ~= nil, warnings[#warnings])
+local quiet = true
+for _ = 1, 10 do
+	if drain() ~= 0 then
+		quiet = false
+	end
+end
+task.wait(0.1)
+check("no per-frame storm afterwards", quiet and #warnings - warnedBefore == 1, #warnings - warnedBefore)
+logConn:Disconnect()
+W.remove(fake :: any)
+for _, x in { behind, table.unpack(settled) } do
+	W.remove(x)
+	x:Destroy()
+end
+
+-- 14. Burst: 60 models of 150 parts arrive at once; the drain budget
 -- spreads the scans over frames and every model is judged exactly once.
 local burst = {}
 for i = 1, 60 do
