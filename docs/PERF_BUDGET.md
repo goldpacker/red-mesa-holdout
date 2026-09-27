@@ -116,10 +116,10 @@ Reading it:
 | 2026-09-26 | HS-5 (2ddd780 + 249b31e; working tree 17:40) | Wave 9 night preset, live wave (integrity held), MG autoplay, all vehicles killed once at 22 s then extra spawns; turret camera; Buggy 4, Helicopter 4, Tank 4 + 4 burning wrecks; probe 8 s | 475,929 | 323 | 2.74 / 6.05 | 253.2 | HS-5 Siege Crawler 18.9k → 32.4k tris (wave 10 only; its 12.8k of kit is culled beyond 800 zoom-corrected studs), wreck looks, vehicle kit LOD. **Kit LOD** (`client/VehicleLod`, `*Kit` parts hidden beyond 400 zoom-corrected studs × vehicle length/26, max 2): live-wave A/B (three alternating 3 s blocks, Workspace `VehicleLodOff`): −4.2k / −7.5k / −9.5k scene tris, frame times unchanged (GPU 4.1–4.7 ms both ways); staged: tank at 433 studs −5.0k (420.6k → 415.6k), crawler at 851 studs −12.8k (394.9k → 382.0k); crop diffs 0.73 and 0.83/255 mean (`qa/beauty/hs-5/lod/`). Engine LOD: every vehicle MeshPart is RenderFidelity Automatic. **Textures:** the crawler itself is 12 × 1024² + 4 × 512² metal + 4 × 512² wreck maps vs 16 × 1024² + 4 × 512² before (wave 10). Unused `Wreck` folders cost 0.00 MB (22 removed client-side in-session). Wreck maps in use (256², crawler 512²) are **not free**: +0.67 MB for the jet + shared trim wreck (two 256² maps, in-session kill A/B), +6.0 MB for a full staged kill of tank/buggy/helicopter/jet vs +1.2 MB for the same kill with tint-only wrecks (≈ +4.8 MB for 6 maps, includes cache effects). The Tank/Buggy metalness maps at 512² (offset) gave no measurable change at 400+ studs (mip streaming). Net: ≈ +2–5 MB when every wave-9 type is burning in view; zero-memory fallback = delete an asset's `wreck.json` and re-publish (Kit.char then tints the live SurfaceAppearance). fps 60.0 / 1 %-low 56.5. Frame `qa/beauty/hs-5/perf/night_wave9-busy_turret.jpg`. |
 | 2026-09-26 | ENV-3F (GroundStrips 101169100642499, GroundDressing 77410053337740; working tree 20:25) | Night preset, beauty shot-2 stage (wave director stopped: 5 infantry, buggy, tank, helicopter; no drift between spins), turret camera; one play started with the ENV-3 assets stashed in Edit (WorldBuilder's ball scrub, pre-ENV-3 state), then staged adds in-session, each measured after two all-round camera passes (15 views: turret fwd/left/right/back, title, flank, night, basin, wash/road close-ups) | 411.8k → 496.8k (+85k: dressing solids ~30k, strips ~40k, foliage ~15k) | 277 → 358 (+81) | strips+dressing hidden vs shown, 3 alternations: 2.80 / 4.12 · 2.85 / 5.22 · 2.73 / 4.30 vs 2.90 / 4.83 · 2.97 / 5.94 · 2.99 / 5.70 (≈ +0.2 CPU, ≈ +0.9 ± 0.7 GPU) | base 268.1 (two spins, identical) → +strips 271.1 (**+3.0**) → +dressing 272.3 (**+1.2**) = **ENV-3 net +4.2 MB** | ENV-3/3F road and wash edge strips + ground dressing, inside the +8 MB allowance. Maps: strips 1024×512 RGBA + 512×256 normal, road core 512² + 512², dressing 512² RGBA + 256² normal (the first ENV-3 build had 1024² atlases and reused the terrain road maps, which a SurfaceAppearance can't share). Opaque strip/dressing pieces use AlphaMode Overlay so they share the colour map's single copy. Dressing shadows only within 480 studs of the turret (219 casters). Team total in this scene 268–272 MB, already over 250 before ENV-3 (QA-B's reclaim). GPU in this staged night view stays ≤ 6 ms, but the per-frame numbers swing ±1 ms between identical blocks (other agents' jobs on the machine), so QA-B should confirm the ≈ +0.9 ms in the busy wave-9 scene; cheap cuts if needed: pebble patches 220 → 110 (−~15k tris), shadow range 480 → 300, far-density floor 0.35 → 0.2. |
 | 2026-09-26 | HS-6 (Transport 112250308353331, Parachute 94889432475297, ParachuteCargo 77191490075511, DropPlatform 98735928267935, TrimAirdrop maps; working tree 21:45) | Beauty shot-2 stage, turret camera pitched +14° (DebugPitch), a static airdrop tableau staged with execute_luau (not committed): 1 transport (ramp and cargo door open, blur discs at 0.7), 5 troopers under personnel chutes (1 deploying), Tank and Buggy on platforms under 4 and 2 cargo chutes, 2 collapsed chutes on the ground; probe 6 s per block | 467,371 (night, all on) vs 383,069 (tableau removed client-side) | 364 vs 300 | 2.82 / 2.86 and 2.93 / 2.97 on vs 2.78 / 2.80 off | afternoon 217.37 → **217.37** → **218.04**; night 254.0 (all three blocks) | HS-6 airdrop assets. **Texture A/B (afternoon, same session, 12 samples each, every step in view):** base stage 217.37 MB → + transport, two bare platforms (rigging and slings removed), Tank and Buggy **217.37 (+0.00: the transport and platform add no texture, TrimEnemy + Glass only)** → + all chutes, rigging, slings and troopers **218.04 (+0.67 MB = the new `TrimAirdrop` 512² colour/normal/roughness set, no metalness)**. **Triangles:** the tableau adds +84.3k scene tris and +64 draw calls, of which HS-6 assets ≈ 35k (transport 7.7k + discs 0.7k, personnel chute 1.6k each, cargo chute 1.8k each, rigged platform 2.2–2.4k, collapsed 1.7/1.9k); the rest is the Tank (16k), Buggy (8.7k) and 5 skinned soldiers. Frame times unchanged within block noise (fps 60.0 / 1 %-low 54–57). A first probe read 15 fps with GPU 0.00 (Studio unfocused), discarded. Frames `qa/beauty/hs-6/afternoon_turret-drop.jpg`, `night_turret-drop.jpg`. |
-| 2026-09-26 | QA-B r1–r2 123467e, r3 4aa152d + LOOK-5 work in progress | **Title**, 3 fresh plays (mean, range) | 448,470 (448,198–448,757) | 367 (344–412) | 2.95 / 5.71 (CPU 2.90–3.05, GPU 5.01–6.38) | 224.2 (210.4–232.4) | QA-B authoritative set, §5.2. r3's +67 draw calls and +1.0 ms GPU come with LOOK-5's work in progress (106 more beams at the title). |
-| 2026-09-26 | same | **Wave 1 afternoon**, ~25 s in, MG bot | 466,060 (457,525–471,635) | 416 (384–473) | 3.05 / 5.53 (CPU 2.91–3.16, GPU 5.19–6.05) | 232.7 (215.1–246.6) | 1–4 infantry on screen (airdrops land from ~15 s). |
-| 2026-09-26 | same | **Wave 9 night**, ~50 s in, integrity held, MG bot | 486,448 (474,669–498,680) | 414 (392–449) | 2.96 / 6.23 (CPU 2.93–3.01, GPU 5.57–6.78) | 254.1 (253.1–254.7) | Buggy 2, Helicopter 1, Jet 1, Tank 1 in all three; shadows 248.7k tris / 134 DC. GPU over the 6 ms limit in r2 (6.35) and r3 (6.78, LOOK-5 WIP). |
-| 2026-09-26 | same | **Wave 10 boss**, ~45 s in, integrity held, MG bot | 477,425 (470,500–487,007) | 385 (357–431) | 2.88 / 5.79 (CPU 2.85–2.92, GPU 4.77–6.77) | 258.9 (255.4–263.8) | Siege Crawler + helicopter + 5–9 infantry. |
+| 2026-09-26 | QA-B r1–r2 123467e (clean); r3 4aa152d + LOOK-5 work in progress | **Title**, 3 fresh plays | r1–r2: 448,198 / 448,757 · all 3: 448,470 (448,198–448,757) | r1–r2: 344 / 345 · r3: 412 | **r1–r2 (123467e): 2.98 / 5.38** (GPU 5.01, 5.75) · r3 (LOOK-5 WIP): 2.90 / 6.38 · all 3, mixed builds: 2.95 / 5.71 | r1–r2: 232.4 / 229.9 · all 3: 224.2 (210.4–232.4) | QA-B authoritative set, §5.2. r3's +67 draw calls and +1.0 ms GPU come with LOOK-5's work in progress (106 more beams at the title). |
+| 2026-09-26 | same | **Wave 1 afternoon**, ~25 s in, MG bot | r1–r2: 469,019 / 457,525 · all 3: 466,060 (457,525–471,635) | r1–r2: 391 / 384 · r3: 473 | **r1–r2 (123467e): 3.04 / 5.27** (GPU 5.19, 5.34) · r3 (LOOK-5 WIP): 3.09 / 6.05 · all 3, mixed builds: 3.05 / 5.53 | r1–r2: 236.3 / 246.6 · all 3: 232.7 (215.1–246.6) | 1–4 infantry on screen (airdrops land from ~15 s). |
+| 2026-09-26 | same | **Wave 9 night**, ~50 s in, integrity held, MG bot | r1–r2: 485,994 / 498,680 · all 3: 486,448 (474,669–498,680) | r1–r2: 400 / 392 · r3: 449 | **r1–r2 (123467e): 2.94 / 5.96** (GPU 5.57, 6.35) · r3 (LOOK-5 WIP): 3.01 / 6.78 · all 3, mixed builds: 2.96 / 6.23 | r1–r2: 254.7 / 254.4 · all 3: 254.1 (253.1–254.7) | Buggy 2, Helicopter 1, Jet 1, Tank 1 in all three; shadows 248.7k tris / 134 DC (all 3). Clean build at the 6 ms limit (mean 5.96), r2 over it on its own (6.35); r3 with LOOK-5 WIP 6.78. |
+| 2026-09-26 | same | **Wave 10 boss**, ~45 s in, integrity held, MG bot | r1–r2: 487,007 / 474,767 · all 3: 477,425 (470,500–487,007) | r1–r2: 368 / 357 · r3: 431 | **r1–r2 (123467e): 2.89 / 5.30** (GPU 4.77, 5.82) · r3 (LOOK-5 WIP): 2.85 / 6.77 · all 3, mixed builds: 2.88 / 5.79 | r1–r2: 263.8 / 255.4 · all 3: 258.9 (255.4–263.8) | Siege Crawler + helicopter + 5–9 infantry. |
 | 2026-09-26 | QA-B s1 aecd5a1 + then-WIP (AD-1, ENV-3F, LOOK-3B), s4 4aa152d + LOOK-5 WIP | **Everything drawn once** (every enemy kind live and wrecked, crate, all presets visited, 430–480-view close-up tour) | — | — | — | 301.9 (s1), 298.0 (s4); peak 308.5 | Upper bound of what a long run makes resident in this Studio process; game-owned share per the model 157.8 MB (§5.4). |
 
 ## 5. Authoritative measurement and texture model (QA-B, 2026-09-26)
@@ -145,15 +145,32 @@ raw probe output and every experiment: `qa/beauty/perf/qa-b/`.
   cameras, a close-up of every model and every textured mesh, one gunsight
   aim).
 
-### 5.2 Results (mean, range over 3 plays)
+### 5.2 Results by build (r1–r2 same build; r3 a later build)
 
-| Scene | Render CPU / GPU ms | Scene tris | Scene DC | Shadow tris / DC | GraphicsTexture MB | GraphicsParticles / Terrain / MeshParts / Parts MB | fps / 1 %-low |
+r1 and r2 ran at `123467e` with a clean `src`/`assets/roblox`; r3 ran at
+`4aa152d` with LOOK-5's uncommitted work synced (`PostFx*`, `NightFx`). The
+**same-build figure is r1–r2**; the "all 3" rows mix builds and are not a
+same-build spread.
+
+| Scene | Build (plays) | Render CPU ms | Render GPU ms | Scene tris | Scene DC | Shadow tris / DC | GraphicsTexture MB |
 |---|---|---|---|---|---|---|---|
-| Title | 2.95 (2.90–3.05) / 5.71 (5.01–6.38) | 448,470 (448,198–448,757) | 367 (344–412) | 55,984 / 45 | 224.2 (210.4–232.4) | 79.9 / 77.7 / 11.8 / 9.8 | 60.0 / 55.9 |
-| Wave 1 afternoon | 3.05 (2.91–3.16) / 5.53 (5.19–6.05) | 466,060 (457,525–471,635) | 416 (384–473) | 143,352 / 80 | 232.7 (215.1–246.6) | 80.4 / 77.2 / 13.2 / 10.1 | 60.0 / 55.9 |
-| Wave 9 night | 2.96 (2.93–3.01) / 6.23 (5.57–6.78) | 486,448 (474,669–498,680) | 414 (392–449) | 248,728 / 134 | 254.1 (253.1–254.7) | 80.6 / 77.2 / 13.2 / 10.4 | 60.0 / 55.5 |
-| Wave 10 boss | 2.88 (2.85–2.92) / 5.79 (4.77–6.77) | 477,425 (470,500–487,007) | 385 (357–431) | 237,567 / 130 | 258.9 (255.4–263.8) | 80.7 / 77.2 / 13.2 / 10.4 | 60.0 / 55.3 |
-| Everything drawn once | — | — | — | — | 298.0–301.9 (peak 308.5 during the tour) | — | — |
+| Title | **123467e clean (r1, r2)** | 2.90, 3.05 → **2.98** | 5.01, 5.75 → **5.38** | 448,198, 448,757 | 344, 345 | 58,380 / 47, 55,139 / 44 | 232.4, 229.9 |
+| | 4aa152d + LOOK-5 WIP (r3) | 2.90 | 6.38 | 448,454 | 412 | 54,432 / 44 | 210.4 |
+| | all 3, mixed builds | 2.95 (2.90–3.05) | 5.71 (5.01–6.38) | 448,470 (448,198–448,757) | 367 (344–412) | 55,984 / 45 | 224.2 (210.4–232.4) |
+| Wave 1 afternoon | **123467e clean (r1, r2)** | 2.91, 3.16 → **3.04** | 5.19, 5.34 → **5.27** | 469,019, 457,525 | 391, 384 | 137,287 / 75, 143,538 / 81 | 236.3, 246.6 |
+| | 4aa152d + LOOK-5 WIP (r3) | 3.09 | 6.05 | 471,635 | 473 | 149,231 / 84 | 215.1 |
+| | all 3, mixed builds | 3.05 (2.91–3.16) | 5.53 (5.19–6.05) | 466,060 (457,525–471,635) | 416 (384–473) | 143,352 / 80 | 232.7 (215.1–246.6) |
+| Wave 9 night | **123467e clean (r1, r2)** | 2.94, 2.93 → **2.94** | 5.57, 6.35 → **5.96** | 485,994, 498,680 | 400, 392 | 247,052 / 134, 237,125 / 125 | 254.7, 254.4 |
+| | 4aa152d + LOOK-5 WIP (r3) | 3.01 | 6.78 | 474,669 | 449 | 262,007 / 144 | 253.1 |
+| | all 3, mixed builds | 2.96 (2.93–3.01) | 6.23 (5.57–6.78) | 486,448 (474,669–498,680) | 414 (392–449) | 248,728 / 134 | 254.1 (253.1–254.7) |
+| Wave 10 boss | **123467e clean (r1, r2)** | 2.86, 2.92 → **2.89** | 4.77, 5.82 → **5.30** | 487,007, 474,767 | 368, 357 | 222,843 / 122, 239,915 / 129 | 263.8, 255.4 |
+| | 4aa152d + LOOK-5 WIP (r3) | 2.85 | 6.77 | 470,500 | 431 | 249,943 / 138 | 257.4 |
+| | all 3, mixed builds | 2.88 (2.85–2.92) | 5.79 (4.77–6.77) | 477,425 (470,500–487,007) | 385 (357–431) | 237,567 / 130 | 258.9 (255.4–263.8) |
+| Everything drawn once | 123467e-era s1, 4aa152d + WIP s4 | — | — | — | — | — | 301.9 (s1), 298.0 (s4); peak 308.5 during the tour |
+
+Every probe: fps 60.0, 1 %-low 53.5–57.1; GraphicsParticles 78.6–83.0,
+GraphicsTerrain 77.2–77.7, GraphicsMeshParts 11.8–13.2, GraphicsParts
+9.6–10.6 MB.
 
 Same-build spread (r1, r2): GPU within ±0.5 ms, GraphicsTexture ±1–5 MB
 per scene. r3 (LOOK-5 WIP): +0.8 to +1.5 ms GPU and +53 to +86 draw calls
@@ -162,10 +179,11 @@ lower, which is history, not the build (the next fresh play of the same
 build read 235.5).
 
 Reading it:
-- **Frame time:** CPU ~3 ms everywhere. GPU sits at 5–6.8 ms, and the busy
-  night wave (6.23 mean) is over the 6 ms working limit; r3 suggests
-  LOOK-5's post layers cost ~+1 ms, so LOOK-5 needs its own A/B before it
-  lands.
+- **Frame time:** CPU ~3 ms everywhere. On the clean build (r1–r2) the busy
+  night wave reads GPU **5.96 ms mean (5.57, 6.35)**: at the 6 ms working
+  limit, with r2 over it on its own. With LOOK-5's work in progress (r3) it
+  reads 6.78, ~+0.8–1.5 ms in every scene, so LOOK-5 needs its own A/B
+  before it lands. (The 3-play 6.23 mixes the two builds.)
 - **Triangles** 450–500k on screen, shadows 55k (title) to 250k (night
   waves); draw calls 345–475; all inside budget.
 - **Texture memory:** 224 → 259 MB from title to boss in play, ~300 MB once
