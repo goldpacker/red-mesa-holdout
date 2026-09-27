@@ -14,6 +14,9 @@ Studio), so beam textures are authored along/across and written transposed:
   vignette.png          256² black radial vignette for the gunsight overlay
                         (and, much fainter, LOOK-5's full-screen film vignette).
   vignette_corner.png   128² film-vignette corner (LOOK-5), rotated per corner.
+                        Unused since LOOK-6 (film_corner.png); kept for A/B.
+  film_corner.png       256² film corner (LOOK-6): the corner vignette and the
+                        film grain baked into one image, rotated per corner.
   film_grain.png        128² film grain tile, black/white grains with the
                         strength in alpha (LOOK-5, client/PostFxFilm).
   lens_flare.png        256x128 sun glare atlas: glow, ring, hex, disc, streak
@@ -179,6 +182,60 @@ def film_grain() -> np.ndarray:
     return out
 
 
+# LOOK-6 film corner: the corner piece is FILM_CORNER_SIZE x screen height
+# (client/PostFxFilm CORNER_SIZE); the vignette keeps LOOK-5's profile in
+# screen terms (it reached zero at 0.42 x height), so the smaller piece loses
+# only its faint tail. Baked at the strongest preset/storm vignette and the
+# presets' grain-to-vignette ratio; PostFxFilm scales the whole piece.
+FILM_CORNER_SIZE = 0.34
+FILM_CORNER_VIGNETTE = 0.3  # vignette opacity the texture holds (Sunset storm 0.22 x 1.3 = 0.286)
+FILM_CORNER_GRAIN = 0.084   # grain opacity at that strength (grain/vignette ~0.28, Sunset storm 0.06 x 1.4)
+FILM_CORNER_FULL = 0.75     # vignette the texture shows at ImageTransparency 0 (client/PostFxFilm)
+
+
+def film_grain_field(n: int, seed: int) -> np.ndarray:
+    """The film grain's signed field (LOOK-5 statistics): fine grain plus a
+    little clumping, unit std, periodic."""
+    grain = periodic_noise(n, n, seed, sigma_u=0.55, sigma_v=0.55)
+    clumps = periodic_noise(n, n, seed + 1, sigma_u=1.6, sigma_v=1.6)
+    g = 0.8 * grain + 0.35 * clumps
+    return g / (g.std() + 1e-9)
+
+
+def film_corner() -> np.ndarray:
+    """One screen corner of the film layer (LOOK-6): the corner vignette and
+    the film grain baked into ONE image, so the corner is a single layer.
+    LOOK-5 drew a full-screen grain and four vignette corners on top of it
+    (~1.6 screens of translucent fill); with this texture in the corners and
+    the tiled grain only in the cross between them, every pixel is covered
+    once. Darkest in the top-left texel, vignette zero at the tile's far
+    edges; grain everywhere (same statistics as film_grain.png, 256 texels
+    across the piece). Composited as grain over vignette, straight alpha:
+    PostFxFilm's ImageTransparency scales both together (first-order exact at
+    these opacities)."""
+    n = 256
+    ys, xs = np.mgrid[0:n, 0:n]
+    d = np.sqrt(((xs + 0.5) / n) ** 2 + ((ys + 0.5) / n) ** 2)  # piece units
+    d_look5 = d * (FILM_CORNER_SIZE / 0.42)                    # LOOK-5 piece units
+    vig = (1.0 - smoothstep(0.0, 1.0, d_look5)) ** 1.6 * smoothstep(1.0, 0.88, d)
+    av = FILM_CORNER_VIGNETTE * vig
+    g = film_grain_field(n, 61)
+    ag = FILM_CORNER_GRAIN * np.clip(np.abs(g) / 2.6, 0.0, 1.0)
+    light = (g > 0).astype(float)
+    dark = np.array([0.05, 0.045, 0.035])
+    alpha = 1.0 - (1.0 - ag) * (1.0 - av)
+    out = np.empty((n, n, 4))
+    for ch in range(3):
+        colour = light * ag + dark[ch] * av * (1.0 - ag)
+        out[..., ch] = np.where(alpha > 1e-6, colour / np.maximum(alpha, 1e-6), light)
+    # Scaled up for 8-bit headroom: at ImageTransparency 0 the piece is the
+    # corner at vignette FILM_CORNER_FULL (linear in the vignette), so
+    # PostFxFilm sets ImageTransparency = 1 - vignette / FILM_CORNER_FULL.
+    out[..., 3] = alpha * (FILM_CORNER_FULL / FILM_CORNER_VIGNETTE)
+    assert out[..., 3].max() <= 1.0, out[..., 3].max()
+    return out
+
+
 def lens_flare() -> np.ndarray:
     """Sun glare atlas (LOOK-5), white, tinted by ImageColor3 in
     client/PostFxFilm. Cells (x, y, w, h in pixels):
@@ -231,6 +288,7 @@ TEXTURES = {
     "vignette": vignette,
     "film_grain": film_grain,
     "vignette_corner": vignette_corner,
+    "film_corner": film_corner,
     "lens_flare": lens_flare,
 }
 

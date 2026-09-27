@@ -4,6 +4,7 @@
 -- (assets/ui/look/*.png, made by tools/ui/look_textures.py).
 
 return {
+	film_corner = "rbxassetid://139192640116558",
 	film_grain = "rbxassetid://80382475593624",
 	heat_haze = "rbxassetid://107428255439724",
 	lens_flare = "rbxassetid://90257633472049",
