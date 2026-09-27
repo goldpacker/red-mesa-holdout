@@ -34,7 +34,6 @@
   "main": {
    "color": "Cliff_Wall_B_main_color.png",
    "rough": "Cliff_Wall_B_main_rough.png",
-   "metal": "Cliff_Wall_B_main_metal.png",
    "normal": "Cliff_Wall_B_main_normal.png"
   }
  },

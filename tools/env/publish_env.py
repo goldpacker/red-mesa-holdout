@@ -234,7 +234,9 @@ def write_sky_luau(out_dir: Path) -> Path:
     presets = json.loads(SKY_PRESETS.read_text())
     lines = [SKY_HEADER]
     for name, p in presets.items():
-        if p.get("test"):
+        # "retired": no longer in the game (daylight only since 2026-09-26),
+        # so its six faces are never referenced and never load.
+        if p.get("test") or p.get("retired"):
             continue
         source = p.get("faces_from", name)
         if not all(f"{source}/{f}" in ids for f in FACES):

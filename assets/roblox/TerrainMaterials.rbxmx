@@ -10,7 +10,7 @@
 				<token name="BaseMaterial">820</token>
 				<Content name="ColorMap"><url>rbxassetid://75213096048325</url></Content>
 				<Content name="NormalMap"><url>rbxassetid://99180174443080</url></Content>
-				<Content name="RoughnessMap"><url>rbxassetid://108237769059409</url></Content>
+				<Content name="RoughnessMap"><url>rbxassetid://75878625143130</url></Content>
 				<float name="StudsPerTile">64</float>
 				<token name="MaterialPattern">0</token>
 			</Properties>
@@ -21,7 +21,7 @@
 				<token name="BaseMaterial">1360</token>
 				<Content name="ColorMap"><url>rbxassetid://122864309630126</url></Content>
 				<Content name="NormalMap"><url>rbxassetid://96137438480275</url></Content>
-				<Content name="RoughnessMap"><url>rbxassetid://129948010833957</url></Content>
+				<Content name="RoughnessMap"><url>rbxassetid://82005228478676</url></Content>
 				<float name="StudsPerTile">32</float>
 				<token name="MaterialPattern">0</token>
 			</Properties>
@@ -32,7 +32,7 @@
 				<token name="BaseMaterial">896</token>
 				<Content name="ColorMap"><url>rbxassetid://106032740100386</url></Content>
 				<Content name="NormalMap"><url>rbxassetid://125104640311001</url></Content>
-				<Content name="RoughnessMap"><url>rbxassetid://80851884704801</url></Content>
+				<Content name="RoughnessMap"><url>rbxassetid://118416911841576</url></Content>
 				<float name="StudsPerTile">30</float>
 				<token name="MaterialPattern">1</token>
 			</Properties>
@@ -43,7 +43,7 @@
 				<token name="BaseMaterial">1296</token>
 				<Content name="ColorMap"><url>rbxassetid://98914136538755</url></Content>
 				<Content name="NormalMap"><url>rbxassetid://85264097041082</url></Content>
-				<Content name="RoughnessMap"><url>rbxassetid://88141586609881</url></Content>
+				<Content name="RoughnessMap"><url>rbxassetid://71665349974874</url></Content>
 				<float name="StudsPerTile">48</float>
 				<token name="MaterialPattern">1</token>
 			</Properties>
@@ -54,7 +54,7 @@
 				<token name="BaseMaterial">1344</token>
 				<Content name="ColorMap"><url>rbxassetid://71781553653788</url></Content>
 				<Content name="NormalMap"><url>rbxassetid://135745167273613</url></Content>
-				<Content name="RoughnessMap"><url>rbxassetid://105732286908089</url></Content>
+				<Content name="RoughnessMap"><url>rbxassetid://129234944321949</url></Content>
 				<float name="StudsPerTile">40</float>
 				<token name="MaterialPattern">1</token>
 			</Properties>
@@ -65,7 +65,7 @@
 				<token name="BaseMaterial">912</token>
 				<Content name="ColorMap"><url>rbxassetid://127142534643991</url></Content>
 				<Content name="NormalMap"><url>rbxassetid://122622116438004</url></Content>
-				<Content name="RoughnessMap"><url>rbxassetid://128742842696338</url></Content>
+				<Content name="RoughnessMap"><url>rbxassetid://79882791879430</url></Content>
 				<float name="StudsPerTile">64</float>
 				<token name="MaterialPattern">0</token>
 			</Properties>
@@ -76,7 +76,7 @@
 				<token name="BaseMaterial">800</token>
 				<Content name="ColorMap"><url>rbxassetid://127471351837566</url></Content>
 				<Content name="NormalMap"><url>rbxassetid://107663157237451</url></Content>
-				<Content name="RoughnessMap"><url>rbxassetid://117844769693039</url></Content>
+				<Content name="RoughnessMap"><url>rbxassetid://100561636087523</url></Content>
 				<float name="StudsPerTile">36</float>
 				<token name="MaterialPattern">0</token>
 			</Properties>
@@ -87,7 +87,7 @@
 				<token name="BaseMaterial">1392</token>
 				<Content name="ColorMap"><url>rbxassetid://102624116579591</url></Content>
 				<Content name="NormalMap"><url>rbxassetid://105018096150951</url></Content>
-				<Content name="RoughnessMap"><url>rbxassetid://85028240888461</url></Content>
+				<Content name="RoughnessMap"><url>rbxassetid://129714622731019</url></Content>
 				<float name="StudsPerTile">24</float>
 				<token name="MaterialPattern">1</token>
 			</Properties>

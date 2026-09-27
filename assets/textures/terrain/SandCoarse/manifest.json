@@ -5,6 +5,7 @@
   "studs_per_tile": 40,
   "pattern": "Organic",
   "size": 1024,
+  "rough_size": 256,
   "files": {
     "color": "SandCoarse_color.png",
     "normal": "SandCoarse_normal.png",

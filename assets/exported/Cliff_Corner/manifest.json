@@ -34,7 +34,6 @@
   "main": {
    "color": "Cliff_Corner_main_color.png",
    "rough": "Cliff_Corner_main_rough.png",
-   "metal": "Cliff_Corner_main_metal.png",
    "normal": "Cliff_Corner_main_normal.png"
   }
  },

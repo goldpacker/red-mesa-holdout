@@ -9,7 +9,8 @@ A Cycles world shader (tools/env/sky.osl) layers Blender's physical Sky
 Texture (sun disc off: Roblox draws the sun and moon) with haze, a cloud
 deck, cirrus, and at night stars and a Milky Way band. Each preset is
 rendered with six 90° cameras into
-assets/textures/sky/<Preset>/<Preset>_<Face>.png (1024²) plus an
+assets/textures/sky/<Preset>/<Preset>_<Face>.png (1024²; the never-seen Dn
+face at FACE_DN², QA-B reclaim #1, see tools/env/reclaim.py) plus an
 equirectangular preview in assets/previews/sky/<Preset>.png.
 
 Sun/moon directions come from Roblox (Lighting:GetSunDirection() at the
@@ -34,6 +35,7 @@ ROOT = os.path.abspath(os.path.join(HERE, "..", ".."))
 OUT = os.path.join(ROOT, "assets", "textures", "sky")
 PREVIEW = os.path.join(ROOT, "assets", "previews", "sky")
 FACE = 1024
+FACE_DN = 64  # below the horizon: never on screen, only its mean feeds ambient
 
 # Roblox skybox face -> (camera forward, camera up) in Roblox world space.
 # Measured in Studio with the --test sky (labelled directions): Roblox shows
@@ -267,7 +269,8 @@ def render_preset(name: str, p: dict, preview_only: bool, samples: int):
     os.makedirs(d, exist_ok=True)
     for face, (fwd, up) in FACES.items():
         face_camera(sc, fwd, up)
-        render_to(sc, os.path.join(d, f"{name}_{face}.png"), FACE, FACE)
+        size = FACE_DN if face == "Dn" else FACE
+        render_to(sc, os.path.join(d, f"{name}_{face}.png"), size, size)
 
 
 def main():
@@ -276,7 +279,7 @@ def main():
     names = [a for a in argv if not a.startswith("--")]
     if "--test" in argv:
         names = ["Test"]
-    names = names or [k for k in PRESETS if not PRESETS[k].get("test")]
+    names = names or [k for k in PRESETS if not PRESETS[k].get("test") and not PRESETS[k].get("retired")]
     samples = 32
     for name in names:
         print(f"[sky] rendering {name}")

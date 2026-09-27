@@ -34,7 +34,6 @@
   "main": {
    "color": "Cliff_Butte_main_color.png",
    "rough": "Cliff_Butte_main_rough.png",
-   "metal": "Cliff_Butte_main_metal.png",
    "normal": "Cliff_Butte_main_normal.png"
   }
  },

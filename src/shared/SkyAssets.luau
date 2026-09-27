@@ -26,7 +26,7 @@ local PRESETS: { [string]: Preset } = {
 	Afternoon = {
 		faces = {
 			SkyboxBk = "rbxassetid://139794518698661",
-			SkyboxDn = "rbxassetid://133690018060590",
+			SkyboxDn = "rbxassetid://94447516481265",
 			SkyboxFt = "rbxassetid://90288158792392",
 			SkyboxLf = "rbxassetid://85997870803623",
 			SkyboxRt = "rbxassetid://98615299758590",
@@ -50,7 +50,7 @@ local PRESETS: { [string]: Preset } = {
 	LateAfternoon = {
 		faces = {
 			SkyboxBk = "rbxassetid://92105138397128",
-			SkyboxDn = "rbxassetid://139156437090172",
+			SkyboxDn = "rbxassetid://133186820709769",
 			SkyboxFt = "rbxassetid://70468522928126",
 			SkyboxLf = "rbxassetid://71655485321354",
 			SkyboxRt = "rbxassetid://92747500355158",
@@ -74,7 +74,7 @@ local PRESETS: { [string]: Preset } = {
 	Sunset = {
 		faces = {
 			SkyboxBk = "rbxassetid://112841514772254",
-			SkyboxDn = "rbxassetid://115140789780475",
+			SkyboxDn = "rbxassetid://101517211885788",
 			SkyboxFt = "rbxassetid://122718924848530",
 			SkyboxLf = "rbxassetid://101930103224187",
 			SkyboxRt = "rbxassetid://133961553424310",
@@ -94,54 +94,6 @@ local PRESETS: { [string]: Preset } = {
 		},
 		clockTime = 17.25,
 		authoredSun = Vector3.new(-0.9745, 0.1938, 0.1132),
-	},
-	Dusk = {
-		faces = {
-			SkyboxBk = "rbxassetid://85535291159111",
-			SkyboxDn = "rbxassetid://99275239869662",
-			SkyboxFt = "rbxassetid://73551870672537",
-			SkyboxLf = "rbxassetid://126092028753929",
-			SkyboxRt = "rbxassetid://111780489233824",
-			SkyboxUp = "rbxassetid://129026609550600",
-		},
-		sky = {
-			CelestialBodiesShown = true,
-			SunAngularSize = 14,
-			MoonAngularSize = 10,
-			StarCount = 0,
-		},
-		clouds = {
-			Enabled = true,
-			Cover = 0.2,
-			Density = 0.2,
-			Color = Color3.fromRGB(180, 140, 160),
-		},
-		clockTime = 17.7,
-		authoredSun = Vector3.new(-0.991, 0.078, 0.113),
-	},
-	Night = {
-		faces = {
-			SkyboxBk = "rbxassetid://80528693145027",
-			SkyboxDn = "rbxassetid://137029846965178",
-			SkyboxFt = "rbxassetid://97174712243099",
-			SkyboxLf = "rbxassetid://101429890100827",
-			SkyboxRt = "rbxassetid://82416406427355",
-			SkyboxUp = "rbxassetid://105806034285628",
-		},
-		sky = {
-			CelestialBodiesShown = true,
-			SunAngularSize = 11,
-			MoonAngularSize = 11,
-			StarCount = 3000,
-		},
-		clouds = {
-			Enabled = true,
-			Cover = 0.18,
-			Density = 0.15,
-			Color = Color3.fromRGB(60, 70, 100),
-		},
-		clockTime = 12,
-		authoredSun = Vector3.new(0.1039, -0.9881, 0.1132),
 	},
 }
 

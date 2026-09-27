@@ -1,0 +1,146 @@
+{
+ "00-control-void-below-world_afternoon": {
+  "captured": "2026-09-26T23:42:13",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "7fd29e7"
+ },
+ "01-turret_p-45_y0_afternoon": {
+  "captured": "2026-09-26T23:42:23",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "7fd29e7"
+ },
+ "02-turret_p-45_y90_afternoon": {
+  "captured": "2026-09-26T23:42:34",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "7fd29e7"
+ },
+ "03-turret_p-45_y-90_afternoon": {
+  "captured": "2026-09-26T23:42:43",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "7fd29e7"
+ },
+ "04-turret_p-45_y135_afternoon": {
+  "captured": "2026-09-26T23:42:51",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "7fd29e7"
+ },
+ "05-turret_p-45_y-135_afternoon": {
+  "captured": "2026-09-26T23:42:59",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "7fd29e7"
+ },
+ "06-gunsight_p-45_y0_afternoon": {
+  "captured": "2026-09-26T23:43:08",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "7fd29e7"
+ },
+ "07-gunsight_p-45_y90_afternoon": {
+  "captured": "2026-09-26T23:43:18",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "7fd29e7"
+ },
+ "08-gunsight_p-45_y-90_afternoon": {
+  "captured": "2026-09-26T23:43:29",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "7fd29e7"
+ },
+ "09-gunsight_p-45_y135_afternoon": {
+  "captured": "2026-09-26T23:43:38",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "7fd29e7"
+ },
+ "10-title_afternoon": {
+  "captured": "2026-09-26T23:43:58",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "7fd29e7"
+ },
+ "11-flank-cam_afternoon": {
+  "captured": "2026-09-26T23:44:16",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "7fd29e7"
+ },
+ "12-basin-cam-shot5_afternoon": {
+  "captured": "2026-09-26T23:44:33",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "7fd29e7"
+ },
+ "13-turret_p-45_y45_sunset": {
+  "captured": "2026-09-26T23:44:52",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "7fd29e7"
+ },
+ "14-turret_p-45_y-45_lateafternoon": {
+  "captured": "2026-09-26T23:45:10",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "7fd29e7"
+ },
+ "15-defeat-pullback_afternoon": {
+  "captured": "2026-09-26T23:45:37",
+  "source_size": [
+   1190,
+   1080
+  ],
+  "normalised": "exact",
+  "git_head": "7fd29e7"
+ }
+}

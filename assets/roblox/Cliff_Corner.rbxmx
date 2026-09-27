@@ -26,10 +26,10 @@
       <Item class="SurfaceAppearance" referent="RBX00000003">
         <Properties>
           <string name="Name">SurfaceAppearance</string>
-          <Content name="ColorMap"><url>rbxassetid://83974357239337</url></Content>
-          <Content name="NormalMap"><url>rbxassetid://123761878726665</url></Content>
-          <Content name="RoughnessMap"><url>rbxassetid://133531375835449</url></Content>
-          <Content name="MetalnessMap"><url>rbxassetid://134129965203178</url></Content>
+          <Content name="ColorMap"><url>rbxassetid://136435709396224</url></Content>
+          <Content name="NormalMap"><url>rbxassetid://122744294817339</url></Content>
+          <Content name="RoughnessMap"><url>rbxassetid://128130922275550</url></Content>
+          <Content name="MetalnessMap"><null></null></Content>
         </Properties>
       </Item>
     </Item>

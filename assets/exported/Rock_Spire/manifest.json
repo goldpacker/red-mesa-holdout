@@ -34,7 +34,6 @@
   "main": {
    "color": "Rock_Spire_main_color.png",
    "rough": "Rock_Spire_main_rough.png",
-   "metal": "Rock_Spire_main_metal.png",
    "normal": "Rock_Spire_main_normal.png"
   }
  },

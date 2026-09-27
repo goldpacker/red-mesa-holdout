@@ -2,7 +2,6 @@
  "hashes": {
   "glb": "5a1c0a0afae0cba1",
   "main/color": "08153bd40af769d2",
-  "main/metal": "feb68cc501704235",
   "main/normal": "dcab65dd2fa3afd0",
   "main/rough": "604303d5639eebef"
  },
@@ -13,7 +12,6 @@
  "textures": {
   "main": {
    "color": "rbxassetid://97305193752074",
-   "metal": "rbxassetid://126862708429532",
    "normal": "rbxassetid://138850004654368",
    "rough": "rbxassetid://103100670357482"
   }

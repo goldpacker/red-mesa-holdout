@@ -29,7 +29,7 @@
           <Content name="ColorMap"><url>rbxassetid://121328020286148</url></Content>
           <Content name="NormalMap"><url>rbxassetid://90002726781853</url></Content>
           <Content name="RoughnessMap"><url>rbxassetid://93317904727402</url></Content>
-          <Content name="MetalnessMap"><url>rbxassetid://106732646925227</url></Content>
+          <Content name="MetalnessMap"><null></null></Content>
         </Properties>
       </Item>
     </Item>

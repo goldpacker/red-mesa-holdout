@@ -6,9 +6,16 @@ with the pivot at its base centre (ground contact); pieces sink ~0.4 studs
 below the pivot so they sit into terrain. Cliff faces look along +Y in
 Blender (Roblox -Z, i.e. the model's front); their backs are rough too.
 Colours follow the terrain palette (Sandstone 160,66,40 / Rock 112,56,40).
+
+Texture budget (QA-B reclaim, ENV-4): no metalness maps (all zero on rock),
+and the cliff pieces bake at 1024² for detail but ship at 512² (they are
+never nearer than ~290 studs): build_piece() calls tools/env/reclaim.py's
+shrink_asset() after the build.
 """
 import math
+import os
 import random
+import sys
 
 import bmesh
 from mathutils import Vector, noise
@@ -127,15 +134,31 @@ def rubble(a):
         p.add(bm, "rock", at=(r * math.cos(th), r * math.sin(th), 0.0), rot=(rng.uniform(-8, 8), rng.uniform(-8, 8), rng.uniform(0, 360)))
 
 
+SHIP = 512  # shipped map size for pieces baked larger (QA-B reclaim #3)
+
+
+def _ship(name, tex):
+    """Shrinks a cliff piece's maps to SHIP² (tools/env/reclaim.py)."""
+    if tex <= SHIP:
+        return
+    env = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "env")
+    if env not in sys.path:
+        sys.path.insert(0, env)
+    import reclaim  # noqa: E402  (tools/env, needs numpy + OpenImageIO: Blender's Python has both)
+    reclaim.shrink_asset(name, SHIP)
+
+
 def build_piece(name, **kw):
     a = Asset(name, pivot=(0, 0, 0), tex_size=512)
     a.meta["kit"] = "rock"
+    tex = 512
     if name == "Rock_Rubble":
+        a.texture_group("main", tex, metal=False)
         a.material("rock", kind="rock", colors=PALETTE, strata=0.7, dust=0.6)
         rubble(a)
     else:
         size, step, seed, skw, tex, strata = PIECES[name]
-        a.tex_size["main"] = tex
+        a.texture_group("main", tex, metal=False)
         a.material("rock", kind="rock", colors=PALETTE, strata=strata, crack_scale=0.35 if size[2] > 20 else 0.8, dust=0.55, dust_height=min(3.0, size[2] * 0.2))
         bm = sculpt(grid_box(*size, step), size, seed, **skw)
         p = a.part("Root", material="Sandstone", smooth_angle=65, collide=True)
@@ -145,7 +168,9 @@ def build_piece(name, **kw):
             cap = (8.0, 7.0, 2.8)
             cbm = sculpt(grid_box(*cap, 0.5), cap, 55, roundness=0.5, ledge=1.0, ledge_amp=0.2, noise_amp=0.12, big_amp=0.15)
             p.add(cbm, "rock", at=(0.3, -0.2, top - 1.0), rot=(4, -3, 20))
-    return a.finish(views=[("", (1.0, 1.5, 0.55))], **kw)
+    out = a.finish(views=[("", (1.0, 1.5, 0.55))], **kw)
+    _ship(name, tex)
+    return out
 
 
 def build(**kw):

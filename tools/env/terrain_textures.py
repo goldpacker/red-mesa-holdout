@@ -5,9 +5,10 @@
 
 Inputs: Poly Haven CC0 maps in assets/source/cc0/<id>/ (fetch them with
 `python3 tools/env/cc0.py fetch`). Outputs: seamless 1024² PNGs in
-assets/textures/terrain/<Name>/ plus manifest.json. Each recipe re-tints the
-source to the art-bible palette and adds its own procedural layer (pebbles,
-tyre ruts, sand drift, strata bands). Deterministic: fixed seeds.
+assets/textures/terrain/<Name>/ plus manifest.json; roughness ships at
+ROUGH_N² (a box-downsample: the maps are near-constant, QA-B reclaim #13).
+Each recipe re-tints the source to the art-bible palette and adds its own
+procedural layer (pebbles, tyre ruts, sand drift, strata bands). Deterministic: fixed seeds.
 """
 import json
 import os
@@ -22,6 +23,7 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 CC0 = os.path.join(ROOT, "assets", "source", "cc0")
 OUT = os.path.join(ROOT, "assets", "textures", "terrain")
 N = 1024
+ROUGH_N = 256  # QA-B reclaim #13: roughness sd is 5-12/255, 256² loses nothing
 
 # Palette (docs/FACELIFT_PLAN.md §2): rust-red cliffs #9E4A2E, ochre sand
 # #C9824F, bleached washes #D9B98C. Values are albedo means.
@@ -283,10 +285,10 @@ def build(name: str) -> dict:
     files = {"color": f"{name}_color.png", "normal": f"{name}_normal.png", "roughness": f"{name}_rough.png"}
     T.save(os.path.join(d, files["color"]), col)
     T.save(os.path.join(d, files["normal"]), T.encode_normal(nor))
-    T.save(os.path.join(d, files["roughness"]), np.clip(rough, 0, 1))
+    T.save(os.path.join(d, files["roughness"]), T.downsample(np.clip(rough, 0, 1)[..., None], ROUGH_N))
     info = {
         "name": name, "variant": f"RedMesa{name}", "base_material": base,
-        "studs_per_tile": spt, "pattern": pattern, "size": N, "files": files,
+        "studs_per_tile": spt, "pattern": pattern, "size": N, "rough_size": ROUGH_N, "files": files,
         "mean_color": T.mean_srgb(col), "roughness_mean": round(float(np.mean(rough)), 3),
         "seam_ratio": {k: round(T.seam_ratio(v), 2) for k, v in (("color", col), ("normal", nor), ("roughness", rough))},
         "cc0_sources": sources,

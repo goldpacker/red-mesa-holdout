@@ -32,7 +32,7 @@ local VARIANTS: { Variant } = {
 		pattern = Enum.MaterialPattern.Regular,
 		colorMap = "rbxassetid://75213096048325",
 		normalMap = "rbxassetid://99180174443080",
-		roughnessMap = "rbxassetid://108237769059409",
+		roughnessMap = "rbxassetid://75878625143130",
 		surface = "Rock",
 	},
 	{
@@ -42,7 +42,7 @@ local VARIANTS: { Variant } = {
 		pattern = Enum.MaterialPattern.Regular,
 		colorMap = "rbxassetid://122864309630126",
 		normalMap = "rbxassetid://96137438480275",
-		roughnessMap = "rbxassetid://129948010833957",
+		roughnessMap = "rbxassetid://82005228478676",
 		surface = "Ground",
 	},
 	{
@@ -52,7 +52,7 @@ local VARIANTS: { Variant } = {
 		pattern = Enum.MaterialPattern.Organic,
 		colorMap = "rbxassetid://106032740100386",
 		normalMap = "rbxassetid://125104640311001",
-		roughnessMap = "rbxassetid://80851884704801",
+		roughnessMap = "rbxassetid://118416911841576",
 		surface = "Rock",
 	},
 	{
@@ -62,7 +62,7 @@ local VARIANTS: { Variant } = {
 		pattern = Enum.MaterialPattern.Organic,
 		colorMap = "rbxassetid://98914136538755",
 		normalMap = "rbxassetid://85264097041082",
-		roughnessMap = "rbxassetid://88141586609881",
+		roughnessMap = "rbxassetid://71665349974874",
 		surface = "Sand",
 	},
 	{
@@ -72,7 +72,7 @@ local VARIANTS: { Variant } = {
 		pattern = Enum.MaterialPattern.Organic,
 		colorMap = "rbxassetid://71781553653788",
 		normalMap = "rbxassetid://135745167273613",
-		roughnessMap = "rbxassetid://105732286908089",
+		roughnessMap = "rbxassetid://129234944321949",
 		surface = "Sand",
 	},
 	{
@@ -82,7 +82,7 @@ local VARIANTS: { Variant } = {
 		pattern = Enum.MaterialPattern.Regular,
 		colorMap = "rbxassetid://127142534643991",
 		normalMap = "rbxassetid://122622116438004",
-		roughnessMap = "rbxassetid://128742842696338",
+		roughnessMap = "rbxassetid://79882791879430",
 		surface = "Rock",
 	},
 	{
@@ -92,7 +92,7 @@ local VARIANTS: { Variant } = {
 		pattern = Enum.MaterialPattern.Regular,
 		colorMap = "rbxassetid://127471351837566",
 		normalMap = "rbxassetid://107663157237451",
-		roughnessMap = "rbxassetid://117844769693039",
+		roughnessMap = "rbxassetid://100561636087523",
 		surface = "Rock",
 	},
 	{
@@ -102,7 +102,7 @@ local VARIANTS: { Variant } = {
 		pattern = Enum.MaterialPattern.Organic,
 		colorMap = "rbxassetid://102624116579591",
 		normalMap = "rbxassetid://105018096150951",
-		roughnessMap = "rbxassetid://85028240888461",
+		roughnessMap = "rbxassetid://129714622731019",
 		surface = "Sand",
 	},
 }

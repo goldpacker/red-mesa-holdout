@@ -5,6 +5,7 @@
   "studs_per_tile": 32,
   "pattern": "Regular",
   "size": 1024,
+  "rough_size": 256,
   "files": {
     "color": "Road_color.png",
     "normal": "Road_normal.png",

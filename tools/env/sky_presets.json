@@ -280,6 +280,7 @@
     "latitude": 30
   },
   "Dusk": {
+    "retired": "2026-09-26: daylight only (GAME_SPEC §7.1); kept for reference, not published to SkyAssets",
     "clock": 17.7,
     "sun": [
       -0.991,
@@ -370,6 +371,7 @@
     "latitude": 30
   },
   "Night": {
+    "retired": "2026-09-26: daylight only (GAME_SPEC §7.1); kept for reference, not published to SkyAssets",
     "clock": 12,
     "sun": [
       0.1039,
