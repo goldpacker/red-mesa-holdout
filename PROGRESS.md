@@ -57,20 +57,35 @@ earlier "never publish / never push" rules:
   after the user's real-client playtest and the maturity questionnaire.
 Listing art and text are in `assets/listing/`.
 
-**Release status (2026-09-27, 10:33):**
+**Release status (2026-09-27, evening):**
 - **GitHub:** https://github.com/goldpacker/red-mesa-holdout. Public, both
   branches, default `opus-5.5-run-01`.
-- **Roblox:** published **private** as a new experience "Red Mesa Holdout"
-  (Place 81446709679456, Universe 10768349365). Name, description and
-  Computer-only devices are set from Studio. Team Create and Data Sharing
-  are off.
-- **Left for the user on Creator Hub** (Studio no longer edits these):
-  - icon (`assets/listing/icon.png`);
-  - thumbnails (`assets/listing/thumb_1..4_*.png`);
-  - **server size 1** (single-player game);
-  - the maturity questionnaire;
-  - a real-client playtest;
-  - then Public.
+- **Roblox: PUBLIC** as "Red Mesa Holdout" (Place 81446709679456, Universe
+  10768349365); latest build published from Studio at 19:41 (playtest
+  round 1). Set on the Creator Hub:
+  - description (afternoon-only wording, matching `assets/listing/DESCRIPTION.txt`);
+  - genre Shooter / PvE Shooter, locked until 2026-10-23;
+  - icon `icon.png`;
+  - thumbnails hero → airdrop → combat → boss (uploaded as JPG q90; the
+    Creator Hub silently ignores the ~2 MB PNGs);
+  - max visitors 1;
+  - Audience Public.
+- **Maturity questionnaire:** submitted with honest answers:
+  - human and vehicle violence, realistic setting, realistic reactions
+    (soldiers fall when shot), realistic modern-war setting, no blood;
+  - Roblox built-in chat counts as "users interact";
+  - no fear, sex, gambling, language, substances, crude humour or
+    purchases.
+  - **Roblox rating: Restricted** ("Violence (Repeated/Strong)"), so only
+    ID-verified 18+ players can join.
+  - IARC (pending): ESRB Teen, PEGI 12, USK 16 (war themes), Russia 18+.
+  - The user chose to submit as-is (2026-09-27). A lower rating would
+    need a real content change, e.g. killed infantry vanishing instead of
+    falling (Roblox's own definition of an "unrealistic reaction"), then
+    re-rating from the Content ratings page.
+- **Open:** listing art still shows sunset light, but every wave now plays
+  in the afternoon. Re-shoot the thumbnails in Afternoon light if Roblox
+  moderation or players flag it.
 
 ## Known bugs / gaps
 - **No lag compensation on server hitscan** (found 2026-09-26 by the Look

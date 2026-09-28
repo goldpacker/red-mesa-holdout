@@ -4,8 +4,8 @@ You command a three-weapon gun emplacement on a red-rock mesa. An enemy army is 
 
 • Machine gun (watch the heat), rockets for armour, AA missiles for aircraft
 • Enemies airdrop anywhere across the basin, so you never know where the next stick lands
-• 10 escalating waves, from bright afternoon to a golden sunset finale
-• Dust storms, supply crate drops, combo scoring and Retry Wave checkpoints
+• 10 escalating waves under the desert sun, with helicopters, jet strikes and dust storms
+• Supply crate drops, combo scoring and Retry Wave checkpoints
 • Boss fight: shoot off the Crawler's turrets and cannon, then destroy its core
 
 Controls: mouse to aim · left click to fire · hold right click for the gunsight · 1 / 2 / 3 or the wheel to switch weapons
