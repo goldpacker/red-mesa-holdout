@@ -15,6 +15,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
+local FrameProfile = require(script.Parent.FrameProfile)
 
 local WeaponConfig = require(ReplicatedStorage.Shared.WeaponConfig)
 local Flipbooks = require(ReplicatedStorage.Shared.Flipbooks)
@@ -390,7 +391,7 @@ function WeaponFx.clear()
 end
 
 function WeaponFx.start()
-	RunService:BindToRenderStep("RedMesaWeaponFx", Enum.RenderPriority.Camera.Value + 3, step)
+	RunService:BindToRenderStep("RedMesaWeaponFx", Enum.RenderPriority.Camera.Value + 3, FrameProfile.wrap("WeaponFx", step))
 	GameState.onEvent("Projectile", onProjectile)
 	GameState.onEvent("ProjectileEnd", onProjectileEnd)
 	GameState.onEvent("Ricochet", onRicochet)

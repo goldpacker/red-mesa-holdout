@@ -9,6 +9,7 @@
 
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
+local FrameProfile = require(script.Parent.FrameProfile)
 
 local NightFx = {}
 
@@ -53,7 +54,7 @@ local function launchFlare(color: Color3)
 
 	local born = os.clock()
 	local connection: RBXScriptConnection
-	connection = RunService.RenderStepped:Connect(function(dt)
+	connection = RunService.RenderStepped:Connect(FrameProfile.wrap("NightFx", function(dt)
 		local age = os.clock() - born
 		if age > FLARE_LIFETIME or not flare.Parent then
 			connection:Disconnect()
@@ -65,7 +66,7 @@ local function launchFlare(color: Color3)
 		-- Flicker, then burn out over the last few seconds.
 		local fade = math.clamp((FLARE_LIFETIME - age) / 3, 0, 1)
 		light.Brightness = (2.6 + math.noise(age * 8) * 0.8) * fade
-	end)
+	end))
 end
 
 -- Victory celebration: a volley of coloured flares over the basin.

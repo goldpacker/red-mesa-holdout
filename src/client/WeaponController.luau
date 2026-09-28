@@ -13,6 +13,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
+local FrameProfile = require(script.Parent.FrameProfile)
 
 local Config = require(ReplicatedStorage.Shared.Config)
 local WeaponConfig = require(ReplicatedStorage.Shared.WeaponConfig)
@@ -223,7 +224,9 @@ local function fireHeavy(weapon: string)
 	localReady[weapon] = Workspace:GetServerTimeNow() + def.time
 	wasReloading[weapon] = true
 
-	local visualOrigin = TurretPose.muzzle(weapon) or AimController.getMuzzlePosition()
+	-- In the gunsight the launch starts on the aim, not the lagging barrel.
+	local podMuzzle = TurretPose.muzzle(weapon)
+	local visualOrigin = if podMuzzle then AimController.toAimFrame(podMuzzle) else AimController.getMuzzlePosition()
 	WeaponFx.predict(weapon, nextToken, origin, visualOrigin, dir, targetModel)
 	if weapon == "Missile" then
 		LockOn.consume()
@@ -334,7 +337,7 @@ function WeaponController.start()
 	TurretPose.start()
 	WeaponFx.start()
 	connectInput()
-	RunService:BindToRenderStep("RedMesaWeapons", Enum.RenderPriority.Camera.Value + 4, step)
+	RunService:BindToRenderStep("RedMesaWeapons", Enum.RenderPriority.Camera.Value + 4, FrameProfile.wrap("Weapons", step))
 	GameState.onChanged("Phase", function(phase)
 		if phase == "Intermission" or phase == "Title" or phase == "WaveIntro" then
 			WeaponController.reset()

@@ -1,0 +1,92 @@
+{
+ "after_afternoon_2-turret": {
+  "captured": "2026-09-27T19:29:16",
+  "source_size": [
+   1191,
+   1080
+  ],
+  "normalised": "resized",
+  "git_head": "0a9353a"
+ },
+ "after_afternoon_3-gunsight-aa": {
+  "captured": "2026-09-27T19:29:37",
+  "source_size": [
+   1191,
+   1080
+  ],
+  "normalised": "resized",
+  "git_head": "0a9353a"
+ },
+ "after_afternoon_3-gunsight-mg": {
+  "captured": "2026-09-27T19:29:24",
+  "source_size": [
+   1191,
+   1080
+  ],
+  "normalised": "resized",
+  "git_head": "0a9353a"
+ },
+ "after_afternoon_3-gunsight-rocket": {
+  "captured": "2026-09-27T19:29:31",
+  "source_size": [
+   1191,
+   1080
+  ],
+  "normalised": "resized",
+  "git_head": "0a9353a"
+ },
+ "before_afternoon_2-turret": {
+  "captured": "2026-09-27T19:13:17",
+  "source_size": [
+   1191,
+   1080
+  ],
+  "normalised": "resized",
+  "git_head": "0a9353a"
+ },
+ "before_afternoon_3-gunsight-aa": {
+  "captured": "2026-09-27T19:13:39",
+  "source_size": [
+   1191,
+   1080
+  ],
+  "normalised": "resized",
+  "git_head": "0a9353a"
+ },
+ "before_afternoon_3-gunsight-mg": {
+  "captured": "2026-09-27T19:13:25",
+  "source_size": [
+   1191,
+   1080
+  ],
+  "normalised": "resized",
+  "git_head": "0a9353a"
+ },
+ "before_afternoon_3-gunsight-rocket": {
+  "captured": "2026-09-27T19:13:33",
+  "source_size": [
+   1191,
+   1080
+  ],
+  "normalised": "resized",
+  "git_head": "0a9353a"
+ },
+ "tier2_afternoon_2-turret": {
+  "captured": "2026-09-27T19:29:48",
+  "source_size": [
+   1191,
+   1080
+  ],
+  "normalised": "resized",
+  "git_head": "0a9353a"
+ },
+ "tier2_afternoon_3-gunsight-mg": {
+  "captured": "2026-09-27T19:29:58",
+  "source_size": [
+   1191,
+   1080
+  ],
+  "normalised": "resized",
+  "git_head": "0a9353a"
+ }
+}

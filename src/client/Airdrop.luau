@@ -30,6 +30,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
+local FrameProfile = require(script.Parent.FrameProfile)
 
 local AirdropPath = require(ReplicatedStorage.Shared.AirdropPath)
 local Cargo = require(script.Parent.AirdropCargo)
@@ -580,13 +581,13 @@ function Airdrop.start()
 	-- A failure in the visuals never breaks the game or floods the output:
 	-- it is reported at most every 10 s and the next frame carries on.
 	local lastWarn = -math.huge
-	RunService:BindToRenderStep("RedMesaAirdrop", Enum.RenderPriority.Camera.Value + 2, function()
+	RunService:BindToRenderStep("RedMesaAirdrop", Enum.RenderPriority.Camera.Value + 2, FrameProfile.wrap("Airdrop", function()
 		local ok, err = pcall(step)
 		if not ok and os.clock() - lastWarn > 10 then
 			lastWarn = os.clock()
 			warn("[RedMesa] airdrop visuals: " .. tostring(err))
 		end
-	end)
+	end))
 end
 
 return Airdrop

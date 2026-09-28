@@ -33,6 +33,7 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Assets = require(script.Parent.PostFxAssets)
+local Governor = require(script.Parent.PerfGovernor)
 
 local Air = {}
 
@@ -299,7 +300,8 @@ function Air.update(look: any, storm: number, fading: boolean)
 	if not folder then
 		return
 	end
-	local off = IS_STUDIO and Workspace:GetAttribute("AirFxOff") == true
+	-- Studio A/B switch, or the quality governor at tier 2 (PERF-1).
+	local off = (IS_STUDIO and Workspace:GetAttribute("AirFxOff") == true) or Governor.tier() >= 2
 	if off ~= hidden then
 		hidden = off;
 		(folder :: Folder).Parent = if off then nil else Workspace

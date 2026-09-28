@@ -12,6 +12,7 @@
 
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
+local FrameProfile = require(script.Parent.FrameProfile)
 
 local TurretPose = {}
 
@@ -21,6 +22,7 @@ type Group = {
 	stowed: CFrame,
 	active: CFrame,
 	t: number,
+	applied: number?, -- t last written to the model (nil: never)
 	missiles: { BasePart },
 }
 
@@ -150,11 +152,17 @@ local function update(dt: number)
 		if math.abs(goal - g.t) < 0.002 then
 			g.t = goal
 		end
-		local pose = g.stowed:Lerp(g.active, g.t)
-		local swing = g.hinge * pose * g.hinge:Inverse()
-		for _, item in g.items do
-			if item.inst.Parent then
-				item.inst:PivotTo(pivot * swing * item.base)
+		-- AimController pivots the whole gun model every frame, which carries
+		-- each group rigidly; a group only needs writing while its pose
+		-- changes (PERF-1: all three were re-pivoted every frame).
+		if g.t ~= g.applied then
+			g.applied = g.t
+			local pose = g.stowed:Lerp(g.active, g.t)
+			local swing = g.hinge * pose * g.hinge:Inverse()
+			for _, item in g.items do
+				if item.inst.Parent then
+					item.inst:PivotTo(pivot * swing * item.base)
+				end
 			end
 		end
 		if weapon == "Missile" then
@@ -203,7 +211,7 @@ function TurretPose.muzzle(weapon: string): Vector3?
 end
 
 function TurretPose.start()
-	RunService:BindToRenderStep("RedMesaWeaponPose", Enum.RenderPriority.Camera.Value + 2, update)
+	RunService:BindToRenderStep("RedMesaWeaponPose", Enum.RenderPriority.Camera.Value + 2, FrameProfile.wrap("WeaponPose", update))
 	-- HS-2: emplacement motion (belt feed, casings, barrel heat, wind) and
 	-- the first-person sight meshes. Required here rather than at the top:
 	-- both listen to WeaponController, which requires this module. HS-5:

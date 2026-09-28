@@ -18,6 +18,7 @@ local Lighting = game:GetService("Lighting")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
+local FrameProfile = require(script.Parent.FrameProfile)
 
 local Config = require(ReplicatedStorage.Shared.Config)
 local Dust = require(script.Parent.VehicleFxDust)
@@ -450,7 +451,7 @@ function VehicleFx.start()
 	wrecks.ChildAdded:Connect(watchWreck)
 
 	local nightCheck = 0
-	RunService.RenderStepped:Connect(function(dt)
+	RunService.RenderStepped:Connect(FrameProfile.wrap("VehicleFx", function(dt)
 		local now = os.clock()
 		if now > nightCheck then
 			nightCheck = now + 0.5
@@ -463,7 +464,7 @@ function VehicleFx.start()
 				animate(v, dt, now)
 			end
 		end
-	end)
+	end))
 end
 
 return VehicleFx

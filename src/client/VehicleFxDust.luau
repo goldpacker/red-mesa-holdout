@@ -25,6 +25,7 @@
 local Debris = game:GetService("Debris")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
+local FrameProfile = require(script.Parent.FrameProfile)
 
 local Effects = require(script.Parent.Effects)
 local Light = require(script.Parent.EffectsLight)
@@ -502,7 +503,7 @@ local function recap()
 end
 
 function Dust.start()
-	RunService:BindToRenderStep("VehicleFxDust", Enum.RenderPriority.Last.Value, step)
+	RunService:BindToRenderStep("VehicleFxDust", Enum.RenderPriority.Last.Value, FrameProfile.wrap("VehicleFxDust", step))
 	task.spawn(function()
 		while true do
 			task.wait(0.5)

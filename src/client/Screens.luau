@@ -11,6 +11,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
+local FrameProfile = require(script.Parent.FrameProfile)
 
 local GameState = require(script.Parent.GameState)
 local Ui = require(script.Parent.Ui)
@@ -463,11 +464,11 @@ function Screens.start()
 	buildBanner()
 	buildTally()
 	buildEndScreen()
-	game:GetService("RunService").RenderStepped:Connect(function()
+	game:GetService("RunService").RenderStepped:Connect(FrameProfile.wrap("Screens", function()
 		if tally.Visible and GameState.phase() == "Intermission" and tallyCountdown then
 			tallyNext.Text = string.format("%s  ·  %ds", tallyNextBase, math.ceil(Screens.phaseRemaining()))
 		end
-	end)
+	end))
 
 	GameState.onEvent("WaveStart", function(p)
 		Screens.banner(string.format("WAVE %d", p.wave), p.hint or "", 3)

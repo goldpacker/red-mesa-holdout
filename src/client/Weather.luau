@@ -32,6 +32,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
+local FrameProfile = require(script.Parent.FrameProfile)
 
 local Wind = require(ReplicatedStorage.Shared.Wind)
 
@@ -271,7 +272,7 @@ function Weather.start()
 			m.start()
 		end
 	end
-	RunService:BindToRenderStep("Weather", Enum.RenderPriority.Last.Value - 2, step)
+	RunService:BindToRenderStep("Weather", Enum.RenderPriority.Last.Value - 2, FrameProfile.wrap("Weather", step))
 end
 
 return Weather

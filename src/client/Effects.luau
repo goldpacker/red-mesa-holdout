@@ -14,6 +14,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
+local FrameProfile = require(script.Parent.FrameProfile)
 
 local Config = require(ReplicatedStorage.Shared.Config)
 local Flipbooks = require(ReplicatedStorage.Shared.Flipbooks)
@@ -795,6 +796,6 @@ end
 
 ---------------------------------------------------------------------------
 
-RunService.RenderStepped:Connect(stepTracers)
+RunService.RenderStepped:Connect(FrameProfile.wrap("Tracers", stepTracers))
 
 return Effects

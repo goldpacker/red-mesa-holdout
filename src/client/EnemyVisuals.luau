@@ -9,6 +9,7 @@
 local Lighting = game:GetService("Lighting")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
+local FrameProfile = require(script.Parent.FrameProfile)
 
 local GameState = require(script.Parent.GameState)
 local InfantryRig = require(script.Parent.InfantryRig)
@@ -149,7 +150,7 @@ end
 function EnemyVisuals.start()
 	VehicleFx.start()
 	local lampClock = 0
-	RunService.Heartbeat:Connect(function(dt)
+	RunService.Heartbeat:Connect(FrameProfile.wrap("EnemyVisualsHB", function(dt)
 		lampClock -= dt
 		if lampClock > 0 then
 			return
@@ -164,7 +165,7 @@ function EnemyVisuals.start()
 				end
 			end
 		end
-	end)
+	end))
 	GameState.onEvent("EnemyFire", function(p: any)
 		if type(p) == "table" and p.kind == "Infantry" and type(p.id) == "number" then
 			local rig = byId[p.id]
@@ -176,7 +177,7 @@ function EnemyVisuals.start()
 	local enemies = Workspace:WaitForChild("Enemies")
 	enemies.ChildRemoved:Connect(forget)
 	-- Rigid soldiers: Motor6D.Transform before the physics step.
-	RunService.Stepped:Connect(function(t)
+	RunService.Stepped:Connect(FrameProfile.wrap("EnemyVisualsStepped", function(t)
 		for _, model in enemies:GetChildren() do
 			if model:IsA("Model") and model.Name == "Infantry" and model:GetAttribute("Skin") == nil then
 				local rig = rigFor(model)
@@ -185,9 +186,9 @@ function EnemyVisuals.start()
 				end
 			end
 		end
-	end)
+	end))
 	-- Skinned soldiers: bones just before rendering.
-	RunService.PreRender:Connect(function()
+	RunService.PreRender:Connect(FrameProfile.wrap("InfantryRig", function()
 		local camera = Workspace.CurrentCamera
 		if not camera then
 			return
@@ -209,7 +210,7 @@ function EnemyVisuals.start()
 				end
 			end
 		end
-	end)
+	end))
 end
 
 return EnemyVisuals

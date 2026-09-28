@@ -12,12 +12,20 @@
 --     FOV punch, and a slow idle roll in the gunsight. Moving along the
 --     view axis, rolling about it and zooming all keep the screen centre on
 --     the same world ray, so the reticle stays exactly where the shot goes.
+--
+-- Input path (PERF-1, measured): the mouse delta is polled in the camera
+-- step (RenderPriority.Camera + 1, after input processing) and the camera
+-- CFrame is written in the same step, so the view follows the mouse in the
+-- frame the delta arrives, with no smoothing. The sprung turret never feeds
+-- the camera or the aim; in the gunsight the muzzle effects start from the
+-- aim, not from the hidden, lagging barrel (toAimFrame).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
+local FrameProfile = require(script.Parent.FrameProfile)
 
 local Config = require(ReplicatedStorage.Shared.Config)
 local Aim = require(ReplicatedStorage.Shared.Aim)
@@ -49,7 +57,11 @@ local function stepSpring(s: Spring, target: number, dt: number)
 	end
 end
 
-local lagYaw, lagPitch = spring(4, 0.72), spring(4, 0.72, -4)
+-- Turret look-lag. PERF-1 (playtest: "mouse feels laggy"): 8 Hz, damping
+-- 0.75 (was 4 Hz / 0.72). The drawn gun settles on a flick in ~7 frames
+-- instead of ~15 and trails a 60 deg/s slew by ~1.3 deg instead of ~2.7, with
+-- a hint of overshoot left; the camera and the aim never wait for it.
+local lagYaw, lagPitch = spring(8, 0.75), spring(8, 0.75, -4)
 local gunBack, gunClimb, gunTwist = spring(5, 0.6), spring(3.5, 0.45), spring(3, 0.5)
 local camShove, camRoll, fovPunch = spring(4, 0.55), spring(3, 0.5), spring(3, 0.7)
 local idle = 0
@@ -73,12 +85,56 @@ local IDLE_AFTER = 0.8 -- s without input or fire before the sway fades in
 local emplacement: Instance? = nil
 local turretYaw: Model? = nil
 local turretGun: Model? = nil
+-- Where the drawn gun is this frame (lagged, swayed, kicked) and where an
+-- un-lagged gun would be (the aim). Effects that start at the muzzle map
+-- through these in the gunsight (AimController.toAimFrame).
+local drawnGunCf = CFrame.identity
+local aimGunCf = CFrame.identity
 
 local aimParams = RaycastParams.new()
 aimParams.FilterType = Enum.RaycastFilterType.Exclude
 
+-- In the gunsight view the whole emplacement is hidden so sandbags don't
+-- block steep downward shots (they never block the actual raycast). The
+-- parts are gathered once (and as they are added), and written only when
+-- the state changes (PERF-1: this walked ~every emplacement descendant and
+-- rewrote it every frame).
+local hideParts: { [BasePart]: true } = {}
+local hideConnections: { RBXScriptConnection } = {}
+local hidden = false
+
+local function watchHidden(model: Instance?)
+	if not model then
+		return
+	end
+	for _, d in model:GetDescendants() do
+		if d:IsA("BasePart") then
+			hideParts[d] = true
+			d.LocalTransparencyModifier = if hidden then 1 else 0
+		end
+	end
+	table.insert(hideConnections, model.DescendantAdded:Connect(function(d)
+		if d:IsA("BasePart") then
+			hideParts[d] = true
+			d.LocalTransparencyModifier = if hidden then 1 else 0
+		end
+	end))
+	table.insert(hideConnections, model.DescendantRemoving:Connect(function(d)
+		hideParts[d :: BasePart] = nil
+	end))
+end
+
+local staticWatched = false
+
 local function findTurret()
 	if turretGun and turretGun.Parent then
+		if not staticWatched and emplacement then
+			local static = emplacement:FindFirstChild("Static")
+			if static then
+				staticWatched = true
+				watchHidden(static)
+			end
+		end
 		return
 	end
 	local battlefield = Workspace:FindFirstChild("Battlefield")
@@ -87,21 +143,26 @@ local function findTurret()
 		turretYaw = emplacement:FindFirstChild("TurretYaw") :: Model?
 		turretGun = emplacement:FindFirstChild("TurretGun") :: Model?
 		aimParams.FilterDescendantsInstances = { emplacement, Workspace:FindFirstChild("Projectiles") :: Instance }
+		for _, connection in hideConnections do
+			connection:Disconnect()
+		end
+		table.clear(hideConnections)
+		table.clear(hideParts)
+		staticWatched = false
+		if turretGun then
+			watchHidden(turretGun)
+			watchHidden(turretYaw)
+		end
 	end
 end
 
--- In the gunsight view the whole emplacement is hidden so sandbags don't
--- block steep downward shots (they never block the actual raycast).
-local function setTurretHidden(hidden: boolean)
-	local static = emplacement and emplacement:FindFirstChild("Static")
-	for _, model in { turretGun, turretYaw, static } do
-		if model then
-			for _, part in model:GetDescendants() do
-				if part:IsA("BasePart") then
-					part.LocalTransparencyModifier = if hidden then 1 else 0
-				end
-			end
-		end
+local function setTurretHidden(hide: boolean)
+	if hide == hidden then
+		return
+	end
+	hidden = hide
+	for part in hideParts do
+		part.LocalTransparencyModifier = if hide then 1 else 0
 	end
 end
 
@@ -187,10 +248,23 @@ function AimController.getAimTarget(): (Vector3, Vector3)
 	return target, dir
 end
 
+-- Maps a point on the drawn gun (sprung look-lag, sway, kick) to the same
+-- point on a gun held exactly on the aim, while the gunsight is up. The
+-- drawn turret is hidden there, so tracers, flashes and launches must start
+-- from where the sight looks, not from a barrel that trails the mouse
+-- (PERF-1: up to ~50 px on screen after a quick flick). In the third-person
+-- view effects stay on the visible barrel.
+function AimController.toAimFrame(point: Vector3): Vector3
+	if not aiming or mode ~= "Turret" then
+		return point
+	end
+	return aimGunCf:PointToWorldSpace(drawnGunCf:PointToObjectSpace(point))
+end
+
 function AimController.getMuzzlePosition(): Vector3
 	local muzzle = turretGun and turretGun:FindFirstChild("Muzzle") :: BasePart?
 	if muzzle then
-		return muzzle.Position
+		return AimController.toAimFrame(muzzle.Position)
 	end
 	return Aim.muzzle(yaw, pitch)
 end
@@ -263,11 +337,13 @@ local function updateTurret(dt: number)
 	local gunPitch = math.clamp(lagPitch.x + swayPitch, Config.PITCH_MIN - 3, Config.PITCH_MAX + 3)
 	local kick = CFrame.new(0, 0, math.max(gunBack.x, -0.1))
 		* CFrame.Angles(math.rad(gunClimb.x), 0, math.rad(cant + gunTwist.x))
+	drawnGunCf = Aim.cframe(gunYaw, gunPitch) * kick
+	aimGunCf = Aim.cframe(yaw, pitch)
 	if turretYaw then
 		turretYaw:PivotTo(Aim.cframe(gunYaw, 0))
 	end
 	if turretGun then
-		turretGun:PivotTo(Aim.cframe(gunYaw, gunPitch) * kick)
+		turretGun:PivotTo(drawnGunCf)
 	end
 end
 
@@ -347,7 +423,7 @@ end
 
 function AimController.start()
 	camera.CameraType = Enum.CameraType.Scriptable
-	RunService:BindToRenderStep("RedMesaCamera", Enum.RenderPriority.Camera.Value + 1, function(dt)
+	RunService:BindToRenderStep("RedMesaCamera", Enum.RenderPriority.Camera.Value + 1, FrameProfile.wrap("Camera", function(dt)
 		camera.CameraType = Enum.CameraType.Scriptable
 		if mode == "Turret" then
 			turretCamera(dt)
@@ -358,7 +434,7 @@ function AimController.start()
 		else
 			titleCamera(dt)
 		end
-	end)
+	end))
 end
 
 return AimController

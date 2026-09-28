@@ -31,6 +31,7 @@
 
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
+local FrameProfile = require(script.Parent.FrameProfile)
 
 local VehicleLod = {}
 
@@ -201,13 +202,13 @@ function VehicleLod.start()
 	watch("Enemies")
 	watch("Wrecks")
 	local acc = 0
-	RunService.Heartbeat:Connect(function(dt)
+	RunService.Heartbeat:Connect(FrameProfile.wrap("VehicleLod", function(dt)
 		acc += dt
 		if acc >= UPDATE then
 			acc = 0
 			pass()
 		end
-	end)
+	end))
 end
 
 -- Studio QA: how many tracked vehicles are drawing their kit / have it culled.

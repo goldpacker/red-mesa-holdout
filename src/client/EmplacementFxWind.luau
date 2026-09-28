@@ -144,6 +144,19 @@ local function makeNetMesh(part: MeshPart): EditableMesh?
 	if not ok or not mesh then
 		return nil
 	end
+	-- A published experience without the EditableMesh API enabled (Game
+	-- Settings > Security) hands out a mesh whose reads throw ("EditableMesh
+	-- is not accessible"), which errored in the live game: keep the static
+	-- net then, before anything is applied to the part.
+	local readable = pcall(function()
+		return mesh:GetVertices()
+	end)
+	if not readable then
+		pcall(function()
+			mesh:Destroy()
+		end)
+		return nil
+	end
 	local ok2, live = pcall(function()
 		return AssetService:CreateMeshPartAsync(Content.fromObject(mesh))
 	end)
@@ -204,8 +217,20 @@ local function collectFaces(mesh: EditableMesh, slotOf: { [number]: number }, mo
 	end
 end
 
+-- The net ripple needs the EditableMesh API. A published experience has it
+-- only with Game Settings > Security > "Allow Mesh & Image APIs" on; without
+-- it, AssetService:Create*EditableMesh* logs "EditableMesh is not
+-- accessible" (an engine error line, not catchable) and hands out a mesh
+-- whose reads throw. Red Mesa Holdout (place 81446709679456) has it off, so
+-- the net stays static there; set NET_RIPPLE_PUBLISHED = true once the
+-- setting is on. Unpublished Studio places (PlaceId 0) always ripple.
+local NET_RIPPLE_PUBLISHED = false
+
 local function attachNet(static: Instance)
 	clearNet()
+	if game.PlaceId ~= 0 and not NET_RIPPLE_PUBLISHED then
+		return
+	end
 	local model = static:FindFirstChild("CamoNet")
 	local part = model and model:FindFirstChild("Net")
 	if not part or not part:IsA("MeshPart") or part.MeshId == "" then

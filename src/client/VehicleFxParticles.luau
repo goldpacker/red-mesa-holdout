@@ -16,6 +16,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
+local FrameProfile = require(script.Parent.FrameProfile)
 
 local Flipbooks = require(ReplicatedStorage.Shared.Flipbooks)
 local Effects = require(script.Parent.Effects)
@@ -594,7 +595,7 @@ function Particles.fly(body: BasePart, from: Vector3, to: Vector3, duration: num
 	local start = os.clock()
 	local last = from
 	local conn: RBXScriptConnection
-	conn = RunService.RenderStepped:Connect(function()
+	conn = RunService.RenderStepped:Connect(FrameProfile.wrap("VehicleFxFly", function()
 		local t = math.min(1, (os.clock() - start) / duration)
 		local p = from:Lerp(to, t) + Vector3.new(0, math.sin(t * math.pi) * arc, 0)
 		if (p - last).Magnitude > 1e-3 then
@@ -617,7 +618,7 @@ function Particles.fly(body: BasePart, from: Vector3, to: Vector3, duration: num
 				onArrive()
 			end
 		end
-	end)
+	end))
 	Debris:AddItem(body, duration + 5)
 end
 
@@ -706,9 +707,9 @@ function Particles.bomb(): BasePart
 	return p
 end
 
-RunService.RenderStepped:Connect(stepDebris)
+RunService.RenderStepped:Connect(FrameProfile.wrap("Debris", stepDebris))
 
-RunService.Heartbeat:Connect(function()
+RunService.Heartbeat:Connect(FrameProfile.wrap("VehicleFxParticlesHB", function()
 	local t = os.clock()
 	local k = Effects.exposure()
 	for light, range in flickering do
@@ -718,6 +719,6 @@ RunService.Heartbeat:Connect(function()
 			flickering[light] = nil
 		end
 	end
-end)
+end))
 
 return Particles

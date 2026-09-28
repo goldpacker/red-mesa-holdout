@@ -21,6 +21,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
+local FrameProfile = require(script.Parent.FrameProfile)
 
 local Config = require(ReplicatedStorage.Shared.Config)
 local AimController = require(script.Parent.AimController)
@@ -511,7 +512,7 @@ function EmplacementFx.start()
 	end)
 	-- After AimController (Camera+1) and the weapon pose (Camera+2) have
 	-- placed the gun this frame.
-	RunService:BindToRenderStep("RedMesaEmplacementFx", Enum.RenderPriority.Camera.Value + 3, step)
+	RunService:BindToRenderStep("RedMesaEmplacementFx", Enum.RenderPriority.Camera.Value + 3, FrameProfile.wrap("EmplacementFx", step))
 end
 
 return EmplacementFx

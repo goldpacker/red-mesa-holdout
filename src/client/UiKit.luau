@@ -13,6 +13,7 @@
 local ContentProvider = game:GetService("ContentProvider")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
+local FrameProfile = require(script.Parent.FrameProfile)
 
 local Assets = require(script.Parent.UiKitAssets)
 local Ui = require(script.Parent.Ui)
@@ -414,7 +415,7 @@ end
 -- Preloads the kit textures; on failure every panel switches to the flat
 -- translucent fallback.
 function UiKit.start()
-	RunService.RenderStepped:Connect(stepHazards)
+	RunService.RenderStepped:Connect(FrameProfile.wrap("UiHazards", stepHazards))
 	task.spawn(function()
 		local probe = Instance.new("ImageLabel")
 		probe.Image = Assets.atlas

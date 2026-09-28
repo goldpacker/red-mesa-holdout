@@ -17,6 +17,7 @@
 
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
+local FrameProfile = require(script.Parent.FrameProfile)
 
 local Lod = {}
 
@@ -171,7 +172,7 @@ end
 
 local nextUpdate = 0
 local nextPublish = 0
-RunService.Heartbeat:Connect(function()
+RunService.Heartbeat:Connect(FrameProfile.wrap("EffectsLod", function()
 	local now = os.clock()
 	if now >= nextUpdate then
 		nextUpdate = now + UPDATE
@@ -181,6 +182,6 @@ RunService.Heartbeat:Connect(function()
 		nextPublish = now + 0.5
 		Workspace:SetAttribute("FxOneShotLive", Lod.oneShotLive())
 	end
-end)
+end))
 
 return Lod

@@ -28,6 +28,7 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Assets = require(script.Parent.PostFxAssets)
+local Governor = require(script.Parent.PerfGovernor)
 
 local FilmFx = {}
 
@@ -224,7 +225,8 @@ local function build()
 end
 
 local function enabled(): boolean
-	return FilmFx.ENABLED and Workspace:GetAttribute("FilmFxOff") ~= true
+	-- The quality governor drops the layer from tier 1 (PERF-1).
+	return FilmFx.ENABLED and Workspace:GetAttribute("FilmFxOff") ~= true and Governor.tier() < 1
 end
 
 -- Grain and vignette opacities; the layer jumps to a new offset at GRAIN_FPS

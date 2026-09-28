@@ -8,6 +8,7 @@
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
+local FrameProfile = require(script.Parent.FrameProfile)
 
 local GameState = require(script.Parent.GameState)
 local Hud = require(script.Parent.Hud)
@@ -306,10 +307,10 @@ function ThreatHud.start()
 		end
 	end)
 	task.spawn(watchFirstEncounters)
-	RunService.RenderStepped:Connect(function(dt)
+	RunService.RenderStepped:Connect(FrameProfile.wrap("ThreatHud", function(dt)
 		updateArrows()
 		updateBanners(dt)
-	end)
+	end))
 end
 
 return ThreatHud

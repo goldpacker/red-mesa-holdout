@@ -14,11 +14,13 @@
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
+local FrameProfile = require(script.Parent.FrameProfile)
 
 local AimController = require(script.Parent.AimController)
 local Air = require(script.Parent.PostFxAir)
 local Assets = require(script.Parent.PostFxAssets)
 local Film = require(script.Parent.PostFxFilm)
+local Governor = require(script.Parent.PerfGovernor)
 local Presets = require(script.Parent.PostFxPresets)
 local Storm = require(script.Parent.PostFxStorm)
 
@@ -84,7 +86,8 @@ end
 
 local function updateDof(dt: number)
 	local effect = ensureDof()
-	local aiming = AimController.getMode() == "Turret" and AimController.isAiming()
+	-- Governor tier 2 drops the near blur (PERF-1).
+	local aiming = AimController.getMode() == "Turret" and AimController.isAiming() and Governor.tier() < 2
 	local step = dt / DOF.FADE
 	dofWeight = math.clamp(dofWeight + (if aiming then step else -step), 0, 1)
 	if dofWeight <= 0 then
@@ -178,6 +181,10 @@ local hazeStorm = 0 -- a dust storm hides the shimmer
 
 local function applyHazeStrength(level: number)
 	level *= 1 - hazeStorm
+	-- Governor tier 1+ drops the shimmer (PERF-1).
+	if Governor.tier() >= 1 then
+		level = 0
+	end
 	for _, band in bands do
 		local v = 1 - (1 - HAZE_TRANSPARENCY) * level * band.strength
 		for _, item in band.beams do
@@ -231,9 +238,15 @@ end
 
 -- ------------------------------------------------------------------ LOOK-5 step
 local airReady = false
+local hazeTier = 0
 
 local function step(dt: number)
 	updateDof(dt)
+	local tier = Governor.tier()
+	if tier ~= hazeTier then
+		hazeTier = tier
+		applyHazeStrength(hazeDriver.Value)
+	end
 	Presets.step()
 	local look = Presets.current()
 	local storm = Presets.storm()
@@ -249,6 +262,7 @@ local function step(dt: number)
 end
 
 function PostFx.start()
+	Governor.start()
 	ensureDof()
 	Presets.start()
 	Film.start()
@@ -270,7 +284,7 @@ function PostFx.start()
 		Workspace:GetAttributeChangedSignal("BeautyShot"):Connect(pauseForBeauty)
 		pauseForBeauty()
 	end)
-	RunService.RenderStepped:Connect(step)
+	RunService.RenderStepped:Connect(FrameProfile.wrap("PostFx", step))
 end
 
 return PostFx

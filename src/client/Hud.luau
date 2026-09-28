@@ -10,6 +10,7 @@ local RunService = game:GetService("RunService")
 local StarterGui = game:GetService("StarterGui")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
+local FrameProfile = require(script.Parent.FrameProfile)
 
 local Config = require(ReplicatedStorage.Shared.Config)
 local AimController = require(script.Parent.AimController)
@@ -304,7 +305,7 @@ function Hud.start()
 	GameState.onEvent("WaveStart", function()
 		UiKit.snapBar(integrityBar, (GameState.get("Integrity") or 100) / Config.Integrity.MAX)
 	end)
-	RunService.RenderStepped:Connect(function(dt)
+	RunService.RenderStepped:Connect(FrameProfile.wrap("Hud", function(dt)
 		if not root.Visible then
 			return
 		end
@@ -314,7 +315,7 @@ function Hud.start()
 		updateVignette()
 		local remaining = GameState.get("Remaining") or 0
 		refs.remaining.Text = if GameState.phase() == "Wave" then string.format("HOSTILES REMAINING: %d", remaining) else ""
-	end)
+	end))
 end
 
 return Hud

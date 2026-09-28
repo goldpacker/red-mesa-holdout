@@ -37,6 +37,7 @@
 
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
+local FrameProfile = require(script.Parent.FrameProfile)
 
 local Body = require(script.Parent.EnemyMotionBody)
 local Probe = require(script.Parent.EnemyMotionProbe)
@@ -421,7 +422,7 @@ function EnemyMotion.start()
 	Probe.start(tracks)
 	-- First in the frame: before the camera, VehicleFx, InfantryRig, the HUD
 	-- and the dust read any enemy position.
-	RunService:BindToRenderStep("RedMesaEnemyMotion", Enum.RenderPriority.First.Value, step)
+	RunService:BindToRenderStep("RedMesaEnemyMotion", Enum.RenderPriority.First.Value, FrameProfile.wrap("EnemyMotion", step))
 	task.spawn(watch)
 end
 
