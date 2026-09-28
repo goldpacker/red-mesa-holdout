@@ -101,9 +101,12 @@ Listing art and text are in `assets/listing/`.
 
 **Mobile (MOBILE-1, 2026-09-28):** built and playtested in Studio's Device
 Simulator (iPhone XR 896x414 with notch, iPhone 7 667x375, iPad 1024x768)
-and on desktop. **Not yet in the live Roblox build** (needs a Studio
-publish), and the Creator Hub's supported devices must include Phone and
-Tablet for mobile players to join.
+and on desktop. **Live since 2026-09-28 18:16 UTC.** Published from Studio
+as "Mobile: touch controls and device-scaled UI" (commit 6ddcebd). The
+Creator Hub device types are now Desktop, Mobile and Tablet (Console and
+VR off), confirmed through Open Cloud. The Open Cloud key has no
+`universe:write` scope, so device settings are changed on the Creator Hub
+(Audience > Access).
 
 ## Known bugs / gaps
 - **No lag compensation on server hitscan** (found 2026-09-26 by the Look
@@ -148,8 +151,6 @@ Tablet for mobile players to join.
   then Play Again, Retry Wave and Restart verified.
 
 ## Next planned task
-- Mobile: publish the build from Studio, check the Creator Hub's device
-  list (Phone, Tablet), then do a real-phone playtest (fps, sensitivity,
-  thumb reach).
+- Mobile: a real-phone playtest (fps, touch sensitivity, thumb reach).
 - Publish (GitHub, then Roblox private → public).
 - Human playtest for aim feel, audio mix and difficulty.
