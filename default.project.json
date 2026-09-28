@@ -1,5 +1,9 @@
 {
-  "name": "RedMesaHoldout",
+  "name": "RedMesaHoldout-Opus",
+  "servePort": 34872,
+  "servePlaceIds": [
+    81446709679456
+  ],
   "tree": {
     "$className": "DataModel",
     "ReplicatedStorage": {
