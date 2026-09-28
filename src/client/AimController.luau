@@ -2,9 +2,13 @@
 -- Owns the turret aim (yaw/pitch), the camera and the visible turret model.
 -- Modes: "Title" (slow pan), "Turret" (player control), "Defeat" (pull back).
 --
--- Motion (LOOK-3). The aim itself (yaw/pitch, the camera's view direction,
--- the ray the shot follows) is never offset; only the drawn turret and
--- centre-preserving camera moves are:
+-- Motion (LOOK-3). The player's aim (yaw/pitch) is offset only by recoil;
+-- everything else is on the drawn turret or a centre-preserving camera move:
+--   - aim recoil (playtest round 2, "the aim should shake a little"): each
+--     MG round kicks the aim up and to a random side, and a stiff spring
+--     pulls it back. The camera's view direction and the ray the shot
+--     follows both use the recoiled aim (aimAngles), so the view shakes but
+--     the reticle still shows exactly where each round goes;
 --   - turret model: a sprung look-lag (slight overshoot), a cant while it
 --     slews, an idle sway once the gun is left alone, and a per-weapon kick
 --     (recoil back, muzzle climb, twist);
@@ -64,18 +68,42 @@ end
 local lagYaw, lagPitch = spring(8, 0.75), spring(8, 0.75, -4)
 local gunBack, gunClimb, gunTwist = spring(5, 0.6), spring(3.5, 0.45), spring(3, 0.5)
 local camShove, camRoll, fovPunch = spring(4, 0.55), spring(3, 0.5), spring(3, 0.7)
+-- Aim recoil (degrees). 7 Hz, damping 0.5: a round's kick is mostly gone
+-- before the next (~11 rounds/s), so a burst shakes the aim by about its
+-- per-round kick while the mean climb stays ~0.05 deg, well inside the
+-- server's 0.5 deg MG spread.
+local recoilYaw, recoilPitch = spring(7, 0.5), spring(7, 0.5)
+-- A kick lands after this frame's camera step (WeaponController fires at
+-- Camera+4), so the next camera step shows it at full size before the
+-- spring starts pulling it back; otherwise a slow frame (15-30 fps) eats
+-- most of it before it is ever drawn.
+local recoilFresh = false
 local idle = 0
 local lastActive = os.clock()
 
 -- Per-weapon kick: gun recoil (studs), muzzle climb and twist (degrees),
 -- camera shove back along the view (studs), camera roll (degrees), FOV
--- punch (degrees). `nominal` is the amount WeaponController passes.
-type Kick = { nominal: number, back: number, climb: number, twist: number, shove: number, roll: number, fov: number }
-local KICK: { [string]: Kick } = {
-	MG = { nominal = 0.5, back = 0.2, climb = 0.45, twist = 0.2, shove = 0.03, roll = 0.08, fov = 0 },
-	Rocket = { nominal = 1, back = 0.75, climb = 3.2, twist = 1.4, shove = 0.4, roll = 0.9, fov = 2.4 },
-	Missile = { nominal = 1, back = 0.45, climb = 1.6, twist = 0.7, shove = 0.22, roll = 0.5, fov = 1.3 },
+-- punch (degrees), aim recoil up and to a random side (degrees, capped at
+-- AIM_KICK_MAX). `nominal` is the amount WeaponController passes.
+type Kick = {
+	nominal: number,
+	back: number,
+	climb: number,
+	twist: number,
+	shove: number,
+	roll: number,
+	fov: number,
+	aimUp: number,
+	aimSide: number,
 }
+local KICK: { [string]: Kick } = {
+	MG = { nominal = 0.5, back = 0.2, climb = 0.45, twist = 0.2, shove = 0.03, roll = 0.08, fov = 0, aimUp = 0.18, aimSide = 0.1 },
+	-- Rockets and missiles: no aim recoil (one launch, then a reload; their
+	-- camera kick already sells it, and an AA lock must not be jolted).
+	Rocket = { nominal = 1, back = 0.75, climb = 3.2, twist = 1.4, shove = 0.4, roll = 0.9, fov = 2.4, aimUp = 0, aimSide = 0 },
+	Missile = { nominal = 1, back = 0.45, climb = 1.6, twist = 0.7, shove = 0.22, roll = 0.5, fov = 1.3, aimUp = 0, aimSide = 0 },
+}
+local AIM_KICK_MAX = 0.5
 -- Turret cant while slewing (degrees per degree/s of lag velocity), idle
 -- sway (degrees) and the gunsight's idle roll (degrees).
 local CANT = 0.011
@@ -174,6 +202,7 @@ function AimController.setMode(newMode: string)
 	modeStarted = os.clock()
 	if newMode == "Turret" then
 		yaw, pitch = 0, -4
+		recoilYaw.x, recoilYaw.v, recoilPitch.x, recoilPitch.v = 0, 0, 0, 0
 	end
 	if newMode ~= "Turret" then
 		aiming = false
@@ -189,8 +218,16 @@ function AimController.isAiming(): boolean
 	return aiming
 end
 
+-- The player's aim, without recoil (radar, airdrop HUD and lock-on read
+-- this; they shouldn't jitter while the MG fires).
 function AimController.getAngles(): (number, number)
 	return yaw, pitch
+end
+
+-- The aim the camera looks along and the shot follows: the player's aim
+-- plus the current recoil, kept inside the turret's arc.
+local function aimAngles(): (number, number)
+	return Aim.clampAngles(yaw + recoilYaw.x, pitch + recoilPitch.x)
 end
 
 -- Adds camera shake. `amount` 0..1, decays over time.
@@ -232,6 +269,13 @@ function AimController.kick(amount: number)
 	camShove.x = math.min(camShove.x + k.shove * scale, math.max(k.shove * 2, 0.08))
 	camRoll.x += k.roll * scale * side
 	fovPunch.x += k.fov * scale
+	if k.aimUp > 0 then
+		local up = k.aimUp * scale * (0.8 + 0.4 * math.random())
+		local across = k.aimSide * scale * (0.5 + 0.5 * math.random()) * (if math.random() < 0.5 then -1 else 1)
+		recoilPitch.x = math.clamp(recoilPitch.x + up, -AIM_KICK_MAX, AIM_KICK_MAX)
+		recoilYaw.x = math.clamp(recoilYaw.x + across, -AIM_KICK_MAX, AIM_KICK_MAX)
+		recoilFresh = true
+	end
 	lastActive = os.clock()
 	lastKick = os.clock()
 end
@@ -239,7 +283,7 @@ end
 -- Where the crosshair points in the world, and the muzzle direction that
 -- converges on it (the direction sent to the server).
 function AimController.getAimTarget(): (Vector3, Vector3)
-	local look = Aim.direction(yaw, pitch)
+	local look = Aim.direction(aimAngles())
 	local camPos = camera.CFrame.Position
 	local result = Workspace:Raycast(camPos, look * Config.MachineGun.RANGE, aimParams)
 	local target = if result then result.Position else camPos + look * Config.MachineGun.RANGE
@@ -266,7 +310,7 @@ function AimController.getMuzzlePosition(): Vector3
 	if muzzle then
 		return AimController.toAimFrame(muzzle.Position)
 	end
-	return Aim.muzzle(yaw, pitch)
+	return Aim.muzzle(aimAngles())
 end
 
 local function readInput()
@@ -323,10 +367,19 @@ local function updateTurret(dt: number)
 	local swayYaw = SWAY_YAW * idle * noise(now * 0.21, 1.5)
 	local swayPitch = SWAY_PITCH * idle * (noise(now * 0.27, 2.5) * 0.7 + math.sin(now * 1.6) * 0.3)
 	if still then
-		lagYaw.x, lagYaw.v, lagPitch.x, lagPitch.v = yaw, 0, pitch, 0
+		recoilYaw.x, recoilYaw.v, recoilPitch.x, recoilPitch.v = 0, 0, 0, 0
+	elseif recoilFresh then
+		recoilFresh = false
 	else
-		stepSpring(lagYaw, yaw, dt)
-		stepSpring(lagPitch, pitch, dt)
+		stepSpring(recoilYaw, 0, dt)
+		stepSpring(recoilPitch, 0, dt)
+	end
+	local aimYaw, aimPitch = aimAngles()
+	if still then
+		lagYaw.x, lagYaw.v, lagPitch.x, lagPitch.v = aimYaw, 0, aimPitch, 0
+	else
+		stepSpring(lagYaw, aimYaw, dt)
+		stepSpring(lagPitch, aimPitch, dt)
 	end
 	stepSpring(gunBack, 0, dt)
 	stepSpring(gunClimb, 0, dt)
@@ -338,7 +391,7 @@ local function updateTurret(dt: number)
 	local kick = CFrame.new(0, 0, math.max(gunBack.x, -0.1))
 		* CFrame.Angles(math.rad(gunClimb.x), 0, math.rad(cant + gunTwist.x))
 	drawnGunCf = Aim.cframe(gunYaw, gunPitch) * kick
-	aimGunCf = Aim.cframe(yaw, pitch)
+	aimGunCf = Aim.cframe(aimYaw, aimPitch)
 	if turretYaw then
 		turretYaw:PivotTo(Aim.cframe(gunYaw, 0))
 	end
@@ -365,7 +418,7 @@ local function turretCamera(dt: number)
 	UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
 	UserInputService.MouseIconEnabled = false
 
-	local look = Aim.direction(yaw, pitch)
+	local look = Aim.direction(aimAngles())
 	local pos: Vector3
 	if aiming then
 		pos = Config.TURRET_PIVOT + look * 1.5 + Vector3.new(0, 0.9, 0)
