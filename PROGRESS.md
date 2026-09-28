@@ -61,8 +61,9 @@ Listing art and text are in `assets/listing/`.
 - **GitHub:** https://github.com/goldpacker/red-mesa-holdout. Public, both
   branches, default `opus-5.5-run-01`.
 - **Roblox: PUBLIC** as "Red Mesa Holdout" (Place 81446709679456, Universe
-  10768349365); latest build published from Studio at 19:41 (playtest
-  round 1). Set on the Creator Hub:
+  10768349365). Latest build published from Studio 2026-09-27 22:47,
+  "Playtest 2: MG sight kick + aim recoil" (commits 550a406, 2440b2d; round
+  1 was 19:41). Set on the Creator Hub:
   - description (afternoon-only wording, matching `assets/listing/DESCRIPTION.txt`);
   - genre Shooter / PvE Shooter, locked until 2026-10-23;
   - icon `icon.png`;
