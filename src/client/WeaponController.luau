@@ -2,7 +2,9 @@
 -- Client weapon handling: selection (1/2/3, mouse wheel), predicted machine
 -- gun heat/overheat, rocket and missile fire requests (ammo and reload are
 -- server-owned player attributes), lock-on, and the local fire effects.
--- Every shot is sent to the server for authority.
+-- Every shot is sent to the server for authority. In touch mode (MOBILE-1)
+-- the trigger is the on-screen FIRE buttons (TouchInput) and weapons are
+-- picked by tapping their slots (WeaponHud); mouse buttons are ignored.
 --
 -- Listener events (WeaponController.on): "Shot", "Overheat", "Cooled",
 -- "Switched" (weapon), "Fired" (weapon), "Empty" (weapon), "NoLock",
@@ -20,8 +22,10 @@ local WeaponConfig = require(ReplicatedStorage.Shared.WeaponConfig)
 local AimController = require(script.Parent.AimController)
 local Effects = require(script.Parent.Effects)
 local GameState = require(script.Parent.GameState)
+local InputMode = require(script.Parent.InputMode)
 local LockOn = require(script.Parent.LockOn)
 local Sfx = require(script.Parent.Sfx)
+local TouchInput = require(script.Parent.TouchInput)
 local TurretPose = require(script.Parent.WeaponFxTurret)
 local WeaponFx = require(script.Parent.WeaponFx)
 
@@ -139,7 +143,11 @@ local function cycle(delta: number)
 end
 
 local function triggerHeld(): boolean
-	if UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
+	if InputMode.isTouch() then
+		if TouchInput.firing() then
+			return true
+		end
+	elseif UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
 		return true
 	end
 	return RunService:IsStudio() and player:GetAttribute("DebugFire") == true
@@ -276,8 +284,11 @@ end
 local function step(dt: number)
 	local inTurret = AimController.getMode() == "Turret"
 	local canShoot = inTurret and GameState.isCombat() and WeaponController.getSwitchProgress() >= 1
-	local held = triggerHeld()
-	local pressed = held and not triggerWasHeld
+	-- A touch tap can start and end between two frames: it still counts
+	-- as one press (and one machine-gun round).
+	local tapped = TouchInput.consumePress()
+	local held = triggerHeld() or tapped
+	local pressed = (held and not triggerWasHeld) or tapped
 	triggerWasHeld = held
 
 	stepMachineGun(dt, canShoot, held)

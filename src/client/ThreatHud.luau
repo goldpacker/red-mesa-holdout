@@ -12,9 +12,11 @@ local FrameProfile = require(script.Parent.FrameProfile)
 
 local GameState = require(script.Parent.GameState)
 local Hud = require(script.Parent.Hud)
+local InputMode = require(script.Parent.InputMode)
 local Sfx = require(script.Parent.Sfx)
 local Ui = require(script.Parent.Ui)
 local UiKit = require(script.Parent.UiKit)
+local UiScale = require(script.Parent.UiScale)
 
 local ThreatHud = {}
 
@@ -30,6 +32,11 @@ local TIPS: { [string]: string } = {
 	Helicopter = "Air threat — press <b>3</b>, hold on target to lock.",
 	Jet = "Incoming jet! <b>Lock and fire</b> before it drops its bombs.",
 	SiegeCrawler = "SIEGE CRAWLER! Rocket the <b>side turrets and main cannon</b>, then the core.",
+}
+-- Touch wording for tips that name a key (MOBILE-1).
+local TOUCH_TIPS: { [string]: string } = {
+	Tank = "Bullets can't stop armor — tap <b>ROCKETS</b>.",
+	Helicopter = "Air threat — tap <b>AA MISSILES</b>, hold on target to lock.",
 }
 
 local root: Frame
@@ -106,9 +113,9 @@ end
 -- Places arrows at the screen edge for threatening enemies that are off
 -- screen (or behind the camera).
 local function updateArrows()
+	-- Worked in design units: the arrows sit in the scaled HUD root.
 	local camera = Workspace.CurrentCamera
-	local viewport = camera.ViewportSize
-	local center = viewport / 2
+	local center = UiScale.size(root) / 2
 	local used = 0
 	local enemies = Workspace:FindFirstChild("Enemies")
 	if enemies and GameState.phase() == "Wave" then
@@ -120,12 +127,12 @@ local function updateArrows()
 			if not rootPart or model:GetAttribute("Threat") ~= true or model:GetAttribute("State") == "Dead" then
 				continue
 			end
-			local screen, onScreen = camera:WorldToViewportPoint(rootPart.Position)
+			local screen, onScreen = camera:WorldToScreenPoint(rootPart.Position)
 			if onScreen then
 				continue
 			end
 			-- Direction in screen space; flip when the point is behind us.
-			local dir = Vector2.new(screen.X, screen.Y) - center
+			local dir = UiScale.fromScreen(root, Vector2.new(screen.X, screen.Y)) - center
 			if screen.Z < 0 then
 				dir = -dir
 			end
@@ -248,7 +255,7 @@ local function watchFirstEncounters()
 			local kind = child:GetAttribute("Kind")
 			if type(kind) == "string" and not seenKinds[kind] then
 				seenKinds[kind] = true
-				local tip = TIPS[kind]
+				local tip = (InputMode.isTouch() and TOUCH_TIPS[kind]) or TIPS[kind]
 				if tip then
 					Hud.tipOnce("enemy_" .. kind, tip, 6)
 				end

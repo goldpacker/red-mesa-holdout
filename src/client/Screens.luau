@@ -6,6 +6,12 @@
 -- stats count up and buttons rise in. LOOK-4: the title shows the Blender
 -- key art (an airdrop over the basin at sunset) under the stencilled metal
 -- logo (UiKitArt); both are released when the game starts.
+--
+-- MOBILE-1: the content sits in `root`, a device-scaled root (UiScale) in a
+-- ScreenGui inside the device safe area; the full-bleed layers (key art,
+-- title shade, end-screen dim) sit in `back`, a ScreenGui covering the
+-- whole screen. Short canvases (phones) get compact title and end
+-- screens, and the controls card lists the touch or the mouse controls.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -14,9 +20,11 @@ local Workspace = game:GetService("Workspace")
 local FrameProfile = require(script.Parent.FrameProfile)
 
 local GameState = require(script.Parent.GameState)
+local InputMode = require(script.Parent.InputMode)
 local Ui = require(script.Parent.Ui)
 local UiKit = require(script.Parent.UiKit)
 local UiKitArt = require(script.Parent.UiKitArt)
+local UiScale = require(script.Parent.UiScale)
 
 local Screens = {}
 
@@ -24,13 +32,58 @@ local C = Ui.Colors
 local F = Ui.Fonts
 local remotes = ReplicatedStorage:WaitForChild("Remotes")
 
-local BANNER_Y = 0.36
-local END_TOP = 0.12
+local BANNER_Y, BANNER_Y_COMPACT = 0.36, 0.28
+-- Compact tally: its bottom this far above the safe area's bottom, clear
+-- of the HUD's weapon strip (98 tall, 10 up) on a phone.
+local TALLY_BOTTOM_COMPACT = 118
+local bannerY = BANNER_Y
+local tallyHome = UDim2.fromScale(0.5, 0.5)
+local SHADE_WIDTH = 580
+
+-- Controls card rows (key, action) per input mode.
+local CONTROLS = {
+	desktop = {
+		{ "MOUSE", "Aim turret" },
+		{ "LEFT MOUSE", "Fire" },
+		{ "RIGHT MOUSE (HOLD)", "Gunsight view" },
+		{ "1 / 2 / 3", "Machine gun / Rockets / AA" },
+		{ "MOUSE WHEEL", "Cycle weapons" },
+	},
+	touch = {
+		{ "DRAG SCREEN", "Aim turret" },
+		{ "HOLD FIRE", "Fire (drag it to aim too)" },
+		{ "SIGHT", "Gunsight view (toggle)" },
+		{ "TAP A WEAPON", "Machine gun / Rockets / AA" },
+	},
+}
+
+-- Title and end-screen vertical layout: the full one, and the compact one
+-- for short canvases (phones), which starts under Roblox's top bar.
+type TitleLayout = { nameSize: number, name2Y: number, name2Size: number, logoWidth: number, ruleY: number, ruleWidth: number, taglineY: number, cardY: number, startHeight: number }
+local TITLE_FULL: TitleLayout = { nameSize = 92, name2Y = 88, name2Size = 72, logoWidth = 520, ruleY = 164, ruleWidth = 380, taglineY = 176, cardY = 222, startHeight = 64 }
+local TITLE_COMPACT: TitleLayout = { nameSize = 72, name2Y = 68, name2Size = 56, logoWidth = 420, ruleY = 114, ruleWidth = 320, taglineY = 124, cardY = 158, startHeight = 60 }
+type EndLayout = { top: UDim, titleSize: number, sub: number, panel: number, buttons: number }
+local END_FULL: EndLayout = { top = UDim.new(0.12, 0), titleSize = 88, sub = 100, panel = 150, buttons = 500 }
+local END_COMPACT: EndLayout = { top = UDim.new(0, 10), titleSize = 72, sub = 82, panel = 124, buttons = 470 }
+local endLayout = END_FULL
 
 type Row = { label: TextLabel, value: TextLabel }
 
-local gui: ScreenGui
+local gui: ScreenGui -- safe-area content
+local root: Frame
+local back: ScreenGui -- full-bleed layers
 local title: Frame
+local titleBack: Frame
+local shade: Frame
+local card: ImageLabel
+local cardRows: { GuiObject } = {}
+local cardTouch: boolean? = nil -- the scheme the card's rows describe
+local titleNames: { TextLabel } = {}
+local titleRule: ImageLabel
+local titleTagline: TextLabel
+local startButton: ImageButton
+local loadStatus: TextLabel
+local logoAspect = 0.25
 -- LOOK-4 title art: the key art backdrop and the metal logo (title only;
 -- released when the game starts), with the text title as their fallback.
 local backdrop: UiKitArt.Backdrop? = nil
@@ -46,6 +99,7 @@ local tally: ImageLabel
 local tallyRows: { Row } = {}
 local tallyNext: TextLabel
 local endScreen: Frame
+local endDim: Frame
 local endTitle: TextLabel
 local endTitleScale: UIScale
 local endSub: TextLabel
@@ -71,63 +125,114 @@ local function titleSlide(inst: GuiObject, delay: number)
 	table.insert(titleParts, { inst = inst, delay = delay })
 end
 
+-- Fills the controls card with the rows for the current input mode (only
+-- when the mode changed: layouts re-run on every window resize).
+local function fillControls()
+	local touch = InputMode.isTouch()
+	if touch == cardTouch then
+		return
+	end
+	cardTouch = touch
+	for _, inst in cardRows do
+		inst:Destroy()
+	end
+	table.clear(cardRows)
+	local rows = if touch then CONTROLS.touch else CONTROLS.desktop
+	for i, r in rows do
+		local y = 42 + (i - 1) * 30
+		if i > 1 then
+			table.insert(cardRows, Ui.new("Frame", { Name = "Divider", BackgroundColor3 = C.OliveDark, BackgroundTransparency = 0.3, BorderSizePixel = 0, Position = UDim2.fromOffset(14, y - 3), Size = UDim2.new(1, -28, 0, 1), Parent = card }))
+		end
+		table.insert(cardRows, Ui.label({ Text = r[1], FontFace = F.Label, TextSize = 17, TextColor3 = C.Amber, Position = UDim2.fromOffset(16, y), Size = UDim2.fromOffset(170, 24), Parent = card }))
+		table.insert(cardRows, Ui.label({ Text = r[2], FontFace = F.Body, TextSize = 17, Position = UDim2.fromOffset(190, y), Size = UDim2.fromOffset(190, 24), Parent = card }))
+	end
+	card.Size = UDim2.fromOffset(390, 50 + #rows * 30)
+end
+
+-- Places a title element and records it as the intro's resting position.
+local function place(inst: GuiObject?, position: UDim2)
+	if inst then
+		inst.Position = position
+		inst:SetAttribute("Home", position)
+	end
+end
+
+local function layoutTitle()
+	local compact = UiScale.short()
+	local L = if compact then TITLE_COMPACT else TITLE_FULL
+	local top = if compact then UDim.new(0, UiScale.topbar() + 8) else UDim.new(0.18, 0)
+	local function at(x: number, y: number): UDim2
+		return UDim2.new(0, x, top.Scale, top.Offset + y)
+	end
+	shade.Size = UDim2.new(0, SHADE_WIDTH * UiScale.get(), 1, 0)
+	titleNames[1].TextSize = L.nameSize
+	titleNames[1].Size = UDim2.fromOffset(600, L.nameSize + 4)
+	place(titleNames[1], at(60, 0))
+	titleNames[2].TextSize = L.name2Size
+	titleNames[2].Size = UDim2.fromOffset(600, L.name2Size + 4)
+	place(titleNames[2], at(64, L.name2Y))
+	if logo then
+		logo.Size = UDim2.fromOffset(L.logoWidth, math.floor(L.logoWidth * logoAspect + 0.5))
+		place(logo, at(50, 4))
+	end
+	titleRule.Size = UDim2.fromOffset(L.ruleWidth, 8)
+	place(titleRule, at(66, L.ruleY))
+	titleTagline.TextSize = if compact then 20 else 22
+	place(titleTagline, at(68, L.taglineY))
+	fillControls()
+	place(card, at(64, L.cardY))
+	local startY = L.cardY + card.Size.Y.Offset + 20
+	startButton.Size = UDim2.fromOffset(240, L.startHeight)
+	place(startButton, at(68, startY))
+	loadStatus.Position = at(70, startY + L.startHeight + 8)
+end
+
 local function buildTitle()
-	-- Hidden until applyPhase("Title"), which plays the intro.
-	title = Ui.new("Frame", { Name = "Title", BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), Visible = false, Parent = gui })
-	Ui.new("Frame", {
+	-- Hidden until applyPhase("Title"), which plays the intro. The key art
+	-- and the shade are full-bleed (`titleBack`); the rest is safe-area.
+	titleBack = Ui.new("Frame", { Name = "TitleBack", BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), Visible = false, Parent = back })
+	title = Ui.new("Frame", { Name = "Title", BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), Visible = false, Parent = root })
+	shade = Ui.new("Frame", {
 		Name = "Shade",
 		BackgroundColor3 = Color3.fromRGB(8, 9, 5),
 		BackgroundTransparency = 0.5,
 		BorderSizePixel = 0,
-		Size = UDim2.new(0, 580, 1, 0),
-		Parent = title,
+		Size = UDim2.new(0, SHADE_WIDTH, 1, 0),
+		ZIndex = 1,
+		Parent = titleBack,
 	}, {
 		Ui.new("UIGradient", { Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(0.75, 0.3), NumberSequenceKeypoint.new(1, 1) }) }),
 	})
-	local name = Ui.label({ Text = "RED MESA", FontFace = F.Header, TextSize = 92, TextColor3 = C.Amber, Position = UDim2.new(0, 60, 0.18, 0), Size = UDim2.fromOffset(600, 96), Parent = title })
+	local name = Ui.label({ Text = "RED MESA", FontFace = F.Header, TextSize = 92, TextColor3 = C.Amber, Size = UDim2.fromOffset(600, 96), Parent = title })
 	Ui.outline(name, 3)
 	titleSlide(name, 0)
-	local name2 = Ui.label({ Text = "HOLDOUT", FontFace = F.Header, TextSize = 72, TextColor3 = C.Text, Position = UDim2.new(0, 64, 0.18, 88), Size = UDim2.fromOffset(600, 76), Parent = title })
+	local name2 = Ui.label({ Text = "HOLDOUT", FontFace = F.Header, TextSize = 72, TextColor3 = C.Text, Size = UDim2.fromOffset(600, 76), Parent = title })
 	Ui.outline(name2, 3)
 	titleSlide(name2, 0.06)
 	titleText = { name, name2 }
+	titleNames = { name, name2 }
 	table.insert(titleParts, logoSlide)
-	local rule = Ui.new("ImageLabel", {
+	titleRule = Ui.new("ImageLabel", {
 		Name = "Rule",
 		BackgroundTransparency = 1,
 		Image = UiKit.Assets.strip,
 		ImageColor3 = C.Amber,
 		ScaleType = Enum.ScaleType.Tile,
 		TileSize = UDim2.fromOffset(64, 8),
-		Position = UDim2.new(0, 66, 0.18, 164),
 		Size = UDim2.fromOffset(380, 8),
 		Parent = title,
 	})
-	titleSlide(rule, 0.1)
-	local tagline = Ui.label({ Text = "HOLD THE MESA. SURVIVE 10 WAVES.", FontFace = F.Label, TextSize = 22, TextColor3 = C.Olive, Position = UDim2.new(0, 68, 0.18, 176), Size = UDim2.fromOffset(500, 26), Parent = title })
-	Ui.outline(tagline)
-	titleSlide(tagline, 0.12)
+	titleSlide(titleRule, 0.1)
+	titleTagline = Ui.label({ Text = "HOLD THE MESA. SURVIVE 10 WAVES.", FontFace = F.Label, TextSize = 22, TextColor3 = C.Olive, Size = UDim2.fromOffset(500, 26), Parent = title })
+	Ui.outline(titleTagline)
+	titleSlide(titleTagline, 0.12)
 
-	local card = UiKit.panel({ Name = "Controls", Position = UDim2.new(0, 64, 0.18, 222), Size = UDim2.fromOffset(390, 200), Parent = title }, { brackets = true, stripe = true })
+	card = UiKit.panel({ Name = "Controls", Size = UDim2.fromOffset(390, 200), Parent = title }, { brackets = true, stripe = true })
 	titleSlide(card, 0.2)
 	Ui.label({ Text = "CONTROLS", FontFace = F.HeaderBold, TextSize = 20, TextColor3 = C.Amber, Position = UDim2.fromOffset(16, 12), Size = UDim2.fromOffset(200, 22), Parent = card })
-	local rows = {
-		{ "MOUSE", "Aim turret" },
-		{ "LEFT MOUSE", "Fire" },
-		{ "RIGHT MOUSE (HOLD)", "Gunsight view" },
-		{ "1 / 2 / 3", "Machine gun / Rockets / AA" },
-		{ "MOUSE WHEEL", "Cycle weapons" },
-	}
-	for i, r in rows do
-		local y = 42 + (i - 1) * 30
-		if i > 1 then
-			Ui.new("Frame", { Name = "Divider", BackgroundColor3 = C.OliveDark, BackgroundTransparency = 0.3, BorderSizePixel = 0, Position = UDim2.fromOffset(14, y - 3), Size = UDim2.new(1, -28, 0, 1), Parent = card })
-		end
-		Ui.label({ Text = r[1], FontFace = F.Label, TextSize = 17, TextColor3 = C.Amber, Position = UDim2.fromOffset(16, y), Size = UDim2.fromOffset(170, 24), Parent = card })
-		Ui.label({ Text = r[2], FontFace = F.Body, TextSize = 17, Position = UDim2.fromOffset(190, y), Size = UDim2.fromOffset(190, 24), Parent = card })
-	end
 
-	local start = UiKit.button({ Name = "StartButton", Position = UDim2.new(0, 68, 0.18, 442), Size = UDim2.fromOffset(240, 64), Parent = title }, "LOADING…", 36)
+	local start = UiKit.button({ Name = "StartButton", Size = UDim2.fromOffset(240, 64), Parent = title }, "LOADING…", 36)
+	startButton = start
 	titleSlide(start, 0.28)
 	local startLabel = start:FindFirstChild("Label") :: TextLabel
 	startLabel.TextColor3 = C.AmberDim -- dim until the world is ready
@@ -136,8 +241,10 @@ local function buildTitle()
 			(remotes:WaitForChild("StartGame") :: RemoteEvent):FireServer()
 		end
 	end)
-	local status = Ui.label({ Name = "LoadStatus", Text = "SURVEYING BATTLEFIELD…", FontFace = F.Label, TextSize = 16, TextColor3 = C.Olive, Position = UDim2.new(0, 70, 0.18, 514), Size = UDim2.fromOffset(400, 20), Parent = title })
+	local status = Ui.label({ Name = "LoadStatus", Text = "SURVEYING BATTLEFIELD…", FontFace = F.Label, TextSize = 16, TextColor3 = C.Olive, Size = UDim2.fromOffset(400, 20), Parent = title })
+	loadStatus = status
 	Ui.outline(status)
+	layoutTitle()
 	task.spawn(function()
 		Screens.waitForWorld()
 		start:SetAttribute("Ready", true)
@@ -163,17 +270,19 @@ end
 -- place of the text title (the text comes back if the logo never loads).
 local function mountTitleArt()
 	if not backdrop then
-		backdrop = UiKitArt.backdrop(title, 0)
+		backdrop = UiKitArt.backdrop(titleBack, 0)
 	end
 	if logo then
 		return
 	end
-	local image = UiKitArt.logo({ Position = UDim2.new(0, 50, 0.18, 4), Parent = title }, 520, function()
+	local image = UiKitArt.logo({ Parent = title }, 520, function()
 		showTitleText(false)
 	end)
 	logo = image
 	logoSlide.inst = image
 	if image then
+		logoAspect = image.Size.Y.Offset / image.Size.X.Offset
+		layoutTitle()
 		showTitleText(false)
 		task.delay(8, function()
 			if logo == image and not image.IsLoaded then
@@ -203,7 +312,15 @@ local function playTitleIntro()
 			inst.ImageTransparency = 1
 		end
 		task.delay(part.delay, function()
-			UiKit.tween(inst, 0.45, { Position = home }, Enum.EasingStyle.Quint)
+			-- Re-read the home: a layout (screen size, input mode) may have
+			-- moved it since, and snap to it once the slide is done.
+			local tween = UiKit.tween(inst, 0.45, { Position = inst:GetAttribute("Home") or home }, Enum.EasingStyle.Quint)
+			tween.Completed:Connect(function(state)
+				local now = inst:GetAttribute("Home")
+				if state == Enum.PlaybackState.Completed and typeof(now) == "UDim2" then
+					inst.Position = now
+				end
+			end)
 			if inst:IsA("TextLabel") then
 				UiKit.tween(inst, 0.35, { TextTransparency = 0 })
 			elseif inst:IsA("ImageLabel") or inst:IsA("ImageButton") then
@@ -215,7 +332,7 @@ end
 
 local function buildBanner()
 	-- A CanvasGroup so the whole banner fades as one while it slides.
-	banner = Ui.new("CanvasGroup", { Name = "Banner", BackgroundTransparency = 1, AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, BANNER_Y), Size = UDim2.fromOffset(900, 150), GroupTransparency = 1, Visible = false, Parent = gui })
+	banner = Ui.new("CanvasGroup", { Name = "Banner", BackgroundTransparency = 1, AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, BANNER_Y), Size = UDim2.fromOffset(900, 150), GroupTransparency = 1, Visible = false, Parent = root })
 	Ui.new("Frame", {
 		Name = "Band",
 		BackgroundColor3 = Color3.fromRGB(14, 16, 10),
@@ -251,7 +368,7 @@ local function buildBanner()
 end
 
 local function buildTally()
-	tally = UiKit.panel({ Name = "Tally", AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromOffset(460, 222), Visible = false, Parent = gui }, { brackets = true, stripe = true, solid = true })
+	tally = UiKit.panel({ Name = "Tally", AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromOffset(460, 222), Visible = false, Parent = root }, { brackets = true, stripe = true, solid = true })
 	for i = 1, 5 do
 		tallyRows[i] = row(tally, 16 + (i - 1) * 28, 460)
 	end
@@ -260,13 +377,14 @@ local function buildTally()
 end
 
 local function buildEndScreen()
-	endScreen = Ui.new("Frame", { Name = "EndScreen", BackgroundColor3 = Color3.new(0, 0, 0), BackgroundTransparency = 0.45, BorderSizePixel = 0, Size = UDim2.fromScale(1, 1), Visible = false, Parent = gui })
-	endTitle = Ui.label({ Text = "", FontFace = F.Header, TextSize = 88, TextColor3 = C.Red, TextXAlignment = Enum.TextXAlignment.Center, AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.fromScale(0.5, END_TOP), Size = UDim2.fromOffset(900, 96), Parent = endScreen })
+	endDim = Ui.new("Frame", { Name = "EndDim", BackgroundColor3 = Color3.new(0, 0, 0), BackgroundTransparency = 0.45, BorderSizePixel = 0, Size = UDim2.fromScale(1, 1), Visible = false, Parent = back })
+	endScreen = Ui.new("Frame", { Name = "EndScreen", BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), Visible = false, Parent = root })
+	endTitle = Ui.label({ Text = "", FontFace = F.Header, TextSize = 88, TextColor3 = C.Red, TextXAlignment = Enum.TextXAlignment.Center, AnchorPoint = Vector2.new(0.5, 0), Size = UDim2.fromOffset(900, 96), Parent = endScreen })
 	Ui.outline(endTitle, 3)
 	endTitleScale = Ui.new("UIScale", { Parent = endTitle })
-	endSub = Ui.label({ Text = "", FontFace = F.Label, TextSize = 28, TextXAlignment = Enum.TextXAlignment.Center, AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, END_TOP, 100), Size = UDim2.fromOffset(900, 32), Parent = endScreen })
+	endSub = Ui.label({ Text = "", FontFace = F.Label, TextSize = 28, TextXAlignment = Enum.TextXAlignment.Center, AnchorPoint = Vector2.new(0.5, 0), Size = UDim2.fromOffset(900, 32), Parent = endScreen })
 	Ui.outline(endSub, 2)
-	endPanel = UiKit.panel({ Name = "Stats", AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, END_TOP, 150), Size = UDim2.fromOffset(460, 330), Parent = endScreen }, { brackets = true, stripe = true, solid = true })
+	endPanel = UiKit.panel({ Name = "Stats", AnchorPoint = Vector2.new(0.5, 0), Size = UDim2.fromOffset(460, 330), Parent = endScreen }, { brackets = true, stripe = true, solid = true })
 	for i = 1, 5 do
 		endRows[i] = row(endPanel, 16 + (i - 1) * 27, 460)
 	end
@@ -276,14 +394,43 @@ local function buildEndScreen()
 		endKills[i] = row(endPanel, 180 + (i - 1) * 22, 460, 18)
 	end
 
-	restartButton = UiKit.button({ Name = "RestartButton", Size = UDim2.fromOffset(220, 58), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, -120, END_TOP, 500), Parent = endScreen }, "RESTART", 28)
-	retryButton = UiKit.button({ Name = "RetryButton", Size = UDim2.fromOffset(220, 58), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 120, END_TOP, 500), Parent = endScreen }, "RETRY WAVE", 28)
+	restartButton = UiKit.button({ Name = "RestartButton", Size = UDim2.fromOffset(220, 58), AnchorPoint = Vector2.new(0.5, 0), Parent = endScreen }, "RESTART", 28)
+	retryButton = UiKit.button({ Name = "RetryButton", Size = UDim2.fromOffset(220, 58), AnchorPoint = Vector2.new(0.5, 0), Parent = endScreen }, "RETRY WAVE", 28)
 	restartButton.Activated:Connect(function()
 		(remotes:WaitForChild("Restart") :: RemoteEvent):FireServer()
 	end)
 	retryButton.Activated:Connect(function()
 		(remotes:WaitForChild("RetryWave") :: RemoteEvent):FireServer()
 	end)
+end
+
+-- End-screen rows `y` design units under the layout's top.
+local function endAt(x: number, y: number): UDim2
+	return UDim2.new(0.5, x, endLayout.top.Scale, endLayout.top.Offset + y)
+end
+
+local function restartX(): number
+	return if retryButton.Visible then -120 else 0
+end
+
+local function layoutEnd()
+	local compact = UiScale.short()
+	-- Banner and tally: on a phone the tally sits above the weapon strip
+	-- and the banner moves up to make room.
+	bannerY = if compact then BANNER_Y_COMPACT else BANNER_Y
+	banner.Position = UDim2.fromScale(0.5, bannerY)
+	tally.AnchorPoint = Vector2.new(0.5, if compact then 1 else 0)
+	tallyHome = if compact then UDim2.new(0.5, 0, 1, -TALLY_BOTTOM_COMPACT) else UDim2.fromScale(0.5, 0.5)
+	tally.Position = tallyHome
+	endLayout = if compact then END_COMPACT else END_FULL
+	endTitle.TextSize = endLayout.titleSize
+	endTitle.Size = UDim2.fromOffset(900, endLayout.titleSize + 8)
+	endTitle.Position = endAt(0, 0)
+	endSub.Position = endAt(0, endLayout.sub)
+	endSub:SetAttribute("KitHome", endSub.Position)
+	endPanel.Position = endAt(0, endLayout.panel)
+	restartButton.Position = endAt(restartX(), endLayout.buttons)
+	retryButton.Position = endAt(120, endLayout.buttons)
 end
 
 local bannerToken = 0
@@ -302,11 +449,11 @@ function Screens.banner(main: string, sub: string, duration: number, color: Colo
 	-- Slide in from the left, hold, slide out to the right.
 	banner.Visible = true
 	banner.GroupTransparency = 1
-	banner.Position = UDim2.new(0.5, -140, BANNER_Y, 0)
-	UiKit.tween(banner, 0.4, { Position = UDim2.fromScale(0.5, BANNER_Y), GroupTransparency = 0 }, Enum.EasingStyle.Quint)
+	banner.Position = UDim2.new(0.5, -140, bannerY, 0)
+	UiKit.tween(banner, 0.4, { Position = UDim2.fromScale(0.5, bannerY), GroupTransparency = 0 }, Enum.EasingStyle.Quint)
 	task.delay(math.max(0.5, duration - 0.3), function()
 		if bannerToken == my then
-			UiKit.tween(banner, 0.3, { Position = UDim2.new(0.5, 140, BANNER_Y, 0), GroupTransparency = 1 }, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+			UiKit.tween(banner, 0.3, { Position = UDim2.new(0.5, 140, bannerY, 0), GroupTransparency = 1 }, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
 		end
 	end)
 	task.delay(duration, function()
@@ -365,17 +512,18 @@ local function showEnd(victory: boolean, stats: any)
 		end
 	end
 	-- The title lands, then the subtitle, the stats (counting up) and the buttons.
-	endScreen.BackgroundTransparency = 1
-	UiKit.tween(endScreen, 0.5, { BackgroundTransparency = 0.45 })
+	endDim.Visible = true
+	endDim.BackgroundTransparency = 1
+	UiKit.tween(endDim, 0.5, { BackgroundTransparency = 0.45 })
 	endTitleScale.Scale = 1.5
 	endTitle.TextTransparency = 1
 	UiKit.tween(endTitleScale, 0.45, { Scale = 1 }, Enum.EasingStyle.Back)
 	UiKit.tween(endTitle, 0.25, { TextTransparency = 0 })
 	UiKit.revealText(endSub, 0.25, Vector2.new(0, 10))
-	endPanel.Position = UDim2.new(0.5, 0, END_TOP, 180)
+	endPanel.Position = endAt(0, endLayout.panel + 30)
 	endPanel.ImageTransparency = 1
 	task.delay(0.3, function()
-		UiKit.tween(endPanel, 0.4, { Position = UDim2.new(0.5, 0, END_TOP, 150), ImageTransparency = 0 }, Enum.EasingStyle.Quint)
+		UiKit.tween(endPanel, 0.4, { Position = endAt(0, endLayout.panel), ImageTransparency = 0 }, Enum.EasingStyle.Quint)
 	end)
 	local accuracy = math.floor(stats.accuracy * 100 + 0.5)
 	showRow(endRows[1], "FINAL SCORE", 0.45, stats.score, int, C.Amber)
@@ -408,17 +556,16 @@ local function showEnd(victory: boolean, stats: any)
 	retryButton.Visible = not victory
 	local restartLabel = restartButton:FindFirstChild("Label") :: TextLabel
 	restartLabel.Text = if victory then "PLAY AGAIN" else "RESTART"
-	local restartX = if victory then 0 else -120
 	for i, button in { restartButton, retryButton } do
-		local x = if button == restartButton then restartX else 120
+		local x = if button == restartButton then restartX() else 120
 		local label = button:FindFirstChild("Label") :: TextLabel
 		local brackets = button:FindFirstChild("Brackets") :: ImageLabel
-		button.Position = UDim2.new(0.5, x, END_TOP, 530)
+		button.Position = endAt(x, endLayout.buttons + 30)
 		button.ImageTransparency = 1
 		label.TextTransparency = 1
 		brackets.ImageTransparency = 1
 		task.delay(0.9 + i * 0.08, function()
-			UiKit.tween(button, 0.35, { Position = UDim2.new(0.5, x, END_TOP, 500), ImageTransparency = 0 }, Enum.EasingStyle.Back)
+			UiKit.tween(button, 0.35, { Position = endAt(x, endLayout.buttons), ImageTransparency = 0 }, Enum.EasingStyle.Back)
 			UiKit.tween(label, 0.3, { TextTransparency = 0 })
 			UiKit.tween(brackets, 0.3, { ImageTransparency = 0 })
 		end)
@@ -446,24 +593,43 @@ function Screens.showWaveClear(payload: any)
 	UiKit.revealText(tallyNext, 1.0, Vector2.new(0, 8))
 	-- The panel rises into place and fades in.
 	tally.Visible = true
-	tally.Position = UDim2.new(0.5, 0, 0.5, 40)
+	tally.Position = tallyHome + UDim2.fromOffset(0, 40)
 	tally.ImageTransparency = 1
-	UiKit.tween(tally, 0.4, { Position = UDim2.fromScale(0.5, 0.5), ImageTransparency = 0 }, Enum.EasingStyle.Quint)
+	UiKit.tween(tally, 0.4, { Position = tallyHome, ImageTransparency = 0 }, Enum.EasingStyle.Quint)
 end
 
 function Screens.start()
-	gui = Ui.new("ScreenGui", {
-		Name = "Screens",
-		IgnoreGuiInset = true,
+	local playerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
+	back = Ui.new("ScreenGui", {
+		Name = "ScreensBack",
+		-- The whole screen, notch and home-indicator strips included.
+		ScreenInsets = Enum.ScreenInsets.None,
+		ClipToDeviceSafeArea = false,
 		ResetOnSpawn = false,
 		DisplayOrder = 5,
 		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
-		Parent = Players.LocalPlayer:WaitForChild("PlayerGui"),
+		Parent = playerGui,
 	})
+	gui = Ui.new("ScreenGui", {
+		Name = "Screens",
+		ScreenInsets = Enum.ScreenInsets.DeviceSafeInsets,
+		ClipToDeviceSafeArea = false,
+		ResetOnSpawn = false,
+		DisplayOrder = 6,
+		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+		Parent = playerGui,
+	})
+	root = Ui.new("Frame", { Name = "Root", BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), Parent = gui })
+	UiScale.attach(root)
 	buildTitle()
 	buildBanner()
 	buildTally()
 	buildEndScreen()
+	layoutEnd()
+	UiScale.changed(function()
+		layoutTitle()
+		layoutEnd()
+	end)
 	game:GetService("RunService").RenderStepped:Connect(FrameProfile.wrap("Screens", function()
 		if tally.Visible and GameState.phase() == "Intermission" and tallyCountdown then
 			tallyNext.Text = string.format("%s  ·  %ds", tallyNextBase, math.ceil(Screens.phaseRemaining()))
@@ -511,6 +677,7 @@ end
 function Screens.applyPhase(phase: string)
 	local wasTitle = title.Visible
 	title.Visible = phase == "Title"
+	titleBack.Visible = title.Visible
 	if phase ~= "Title" then
 		releaseTitleArt()
 	end
@@ -523,6 +690,7 @@ function Screens.applyPhase(phase: string)
 	end
 	if phase ~= "Defeat" and phase ~= "Victory" then
 		endScreen.Visible = false
+		endDim.Visible = false
 	end
 	if phase == "Defeat" then
 		Screens.banner("OUTPOST LOST", "", 2.4, C.Red)

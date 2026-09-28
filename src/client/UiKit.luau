@@ -201,6 +201,13 @@ function UiKit.button(props: { [string]: any }, text: string, textSize: number?)
 	button.MouseButton1Up:Connect(function()
 		button.ImageColor3 = Color3.fromRGB(255, 255, 235)
 	end)
+	-- A touch "hovers" on press but never leaves (MOBILE-1): settle back
+	-- when the finger lifts.
+	button.InputEnded:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.Touch then
+			setHover(false)
+		end
+	end)
 	return button
 end
 

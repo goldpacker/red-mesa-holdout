@@ -40,6 +40,17 @@ Contracts: `docs/ARCHITECTURE.md`, `docs/ASSET_CONTRACTS.md`.
   Emplacement, Infantry, Tank, Buggy, Helicopter, Jet, SiegeCrawler, rock kit.
 - **Balance:** waves 3/8/9 and the boss tuned from bot runs.
 - **Final end-to-end playthrough succeeded** (see DONE.md).
+- **Mobile support (MOBILE-1, 2026-09-28, user request):** touch play on
+  phones and tablets. The spec was updated (§1, §4, §18).
+  - Controls: drag anywhere to aim (with light aim friction on enemies),
+    two FIRE buttons that also aim when dragged, a SIGHT toggle, and
+    tappable weapon slots.
+  - Scaling and safe area: the UI scales to the device and keeps panels
+    and buttons clear of the notch and home indicator.
+  - Layouts: compact title, end and tally screens on phones; the touch
+    HUD puts integrity top-left and radar top-right.
+  - Adaptive text: the controls card and tips describe touch or mouse.
+  - Desktop is unchanged at 1280x720 and up.
 
 ## Current work
 **Update 2 is complete** (2026-09-27): airdrop arrivals, a cinematic-realistic
@@ -88,6 +99,12 @@ Listing art and text are in `assets/listing/`.
   in the afternoon. Re-shoot the thumbnails in Afternoon light if Roblox
   moderation or players flag it.
 
+**Mobile (MOBILE-1, 2026-09-28):** built and playtested in Studio's Device
+Simulator (iPhone XR 896x414 with notch, iPhone 7 667x375, iPad 1024x768)
+and on desktop. **Not yet in the live Roblox build** (needs a Studio
+publish), and the Creator Hub's supported devices must include Phone and
+Tablet for mobile players to join.
+
 ## Known bugs / gaps
 - **No lag compensation on server hitscan** (found 2026-09-26 by the Look
   agent): at ~100 ms latency, MG shots at a moving buggy's centre hit
@@ -99,12 +116,31 @@ Listing art and text are in `assets/listing/`.
   applies. Left as-is during the visual-only face-lift because balance was
   tuned without headshots; needs a user decision.
 - Real mouse play and audio not yet checked by a human (see DONE.md).
+- Mobile has only been tested in Studio's Device Simulator, not on a real
+  phone: frame rate and thermals on mid-range phones are unmeasured
+  (PerfGovernor steps the post layers down if fps drops), and touch
+  sensitivity (0.18 deg/pt) may want tuning after a real-device session.
 - Wash/road material edges show 4-stud voxel steps (Roblox terrain limit).
 - The Mac display idles when unattended, pausing Studio rendering; a
   12 h `caffeinate -d` assertion is running and playtests run
   `caffeinate -u` first.
 
 ## Last successful playtest
+- 2026-09-28 (MOBILE-1), Device Simulator on iPhone XR, iPhone 7 and iPad,
+  plus desktop. Every input was a real emulated touch. Passed:
+  - title START;
+  - drag aim (0.18 deg/pt);
+  - left and right FIRE: held (11 rounds/s), quick tap (1 round), and
+    drag-while-firing;
+  - SIGHT toggle;
+  - slot taps: rockets fired (8 -> 7);
+  - AA missile lock turns FIRE red; the missile fired (4 -> 3) and killed
+    the helicopter;
+  - defeat screen, then RETRY WAVE;
+  - intermission tally;
+  - boss-wave HUD.
+
+  Desktop: mouse fire and the unchanged layout. No console errors.
 - Face-lift: each milestone was playtested in its own area (live waves,
   boss wave 10, all screens), but **no full 10-wave run has been done on
   the face-lifted build yet** (planned in QA-9).
@@ -112,5 +148,8 @@ Listing art and text are in `assets/listing/`.
   then Play Again, Retry Wave and Restart verified.
 
 ## Next planned task
+- Mobile: publish the build from Studio, check the Creator Hub's device
+  list (Phone, Tablet), then do a real-phone playtest (fps, sensitivity,
+  thumb reach).
 - Publish (GitHub, then Roblox private → public).
 - Human playtest for aim feel, audio mix and difficulty.

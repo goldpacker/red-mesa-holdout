@@ -8,7 +8,7 @@ It is an original reinterpretation of the *feeling* of classic early-2000s PC "f
 
 **Scope:** a small, highly polished vertical slice. One battlefield, three weapons, five enemy types plus one boss, ten waves, roughly **15 minutes** for a complete successful run.
 
-**Platform:** PC, keyboard + mouse. Single player.
+**Platform:** PC (keyboard + mouse) and mobile (phones and tablets, touch, landscape). Single player.
 
 ---
 
@@ -68,7 +68,20 @@ A hybrid camera:
 
 Reloading is automatic. Controls should be discoverable from the title screen controls card and contextual tips; no separate tutorial level.
 
-Gamepad and mobile support are out of scope.
+### Touch controls (mobile)
+
+On a touch device the game shows its own on-screen controls in the turret (Roblox's walking controls are hidden). The title controls card and the tips describe whichever scheme the player is using, and a touchscreen laptop switches with the device used last.
+
+| Input | Action |
+|---|---|
+| Drag anywhere on the screen | Aim (a drag slows slightly while the reticle is on an enemy) |
+| FIRE (hold; right, plus a second one on the left) | Fire; dragging it aims too |
+| SIGHT (tap) | Toggle the gunsight |
+| Tap a weapon slot | Select Machine Gun / Rockets / AA Missiles |
+
+The UI scales with the screen and keeps buttons and panels inside the device safe area (notches, home indicator). Phones get compact title and end screens, and the corner panels move (integrity under Roblox's top bar, radar top right) to clear the thumbs.
+
+Gamepad support is out of scope.
 
 ---
 
@@ -412,7 +425,7 @@ Priority order:
 ## 18. Out of Scope
 
 - Multiplayer or co-op
-- Gamepad or mobile controls
+- Gamepad controls
 - Multiple maps or emplacements
 - Upgrades, shops, currencies, unlocks, or meta-progression
 - Persistent saves or leaderboards

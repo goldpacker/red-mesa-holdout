@@ -3,6 +3,14 @@
 -- crosshair, hit markers, damage direction indicators and the low-integrity
 -- vignette. Only visible while the player is in the turret. Panels, bars
 -- and the radar come from the LOOK-2 kit (UiKit, UiKitRadar).
+--
+-- MOBILE-1: both roots are scaled to the device (UiScale). Full-screen
+-- layers, the top bar, tips and markers sit in `root` (whole screen); the
+-- corner panels, the weapon strip and the touch controls sit in `safeRoot`,
+-- a second ScreenGui inside the device safe area (notches, home
+-- indicator). Touch mode moves the integrity panel under Roblox's top bar
+-- (top left) and the radar to the top right, clearing the bottom corners
+-- for the FIRE buttons.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -15,10 +23,12 @@ local FrameProfile = require(script.Parent.FrameProfile)
 local Config = require(ReplicatedStorage.Shared.Config)
 local AimController = require(script.Parent.AimController)
 local GameState = require(script.Parent.GameState)
+local InputMode = require(script.Parent.InputMode)
 local Sfx = require(script.Parent.Sfx)
 local Ui = require(script.Parent.Ui)
 local UiKit = require(script.Parent.UiKit)
 local UiKitRadar = require(script.Parent.UiKitRadar)
+local UiScale = require(script.Parent.UiScale)
 local WeaponHud = require(script.Parent.WeaponHud)
 
 local Hud = {}
@@ -26,22 +36,39 @@ local Hud = {}
 local C = Ui.Colors
 local F = Ui.Fonts
 local RADAR_SIZE = 206
+local RADAR_SIZE_TOUCH = 170
 local INDICATOR_RADIUS = 175
 
 local gui: ScreenGui
 local root: Frame
+local safeGui: ScreenGui
+local safeRoot: Frame
 local refs: { [string]: any } = {}
 local integrityBar: UiKit.Bar
 
 local function build()
 	gui = Ui.new("ScreenGui", {
 		Name = "Hud",
-		IgnoreGuiInset = true,
+		-- The whole screen, notch and home-indicator strips included.
+		ScreenInsets = Enum.ScreenInsets.None,
+		ClipToDeviceSafeArea = false,
 		ResetOnSpawn = false,
 		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
 		Parent = Players.LocalPlayer:WaitForChild("PlayerGui"),
 	})
 	root = Ui.new("Frame", { Name = "Root", BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), Parent = gui })
+	UiScale.attach(root)
+	safeGui = Ui.new("ScreenGui", {
+		Name = "HudSafe",
+		ScreenInsets = Enum.ScreenInsets.DeviceSafeInsets,
+		ClipToDeviceSafeArea = false,
+		DisplayOrder = 1,
+		ResetOnSpawn = false,
+		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+		Parent = Players.LocalPlayer:WaitForChild("PlayerGui"),
+	})
+	safeRoot = Ui.new("Frame", { Name = "Root", BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), Parent = safeGui })
+	UiScale.attach(safeRoot)
 
 	-- Low-integrity vignette: four red edge bands fading toward the centre
 	-- (behind everything else), plus the damage flash.
@@ -91,21 +118,46 @@ local function build()
 	Ui.outline(refs.remaining)
 
 	-- Integrity (bottom left): segmented bar with a lagging damage ghost.
-	local integrity = UiKit.panel({ Name = "Integrity", AnchorPoint = Vector2.new(0, 1), Position = UDim2.new(0, 16, 1, -16), Size = UDim2.fromOffset(300, 72), Parent = root }, { stripe = true })
+	local integrity = UiKit.panel({ Name = "Integrity", AnchorPoint = Vector2.new(0, 1), Position = UDim2.new(0, 16, 1, -16), Size = UDim2.fromOffset(300, 72), Parent = safeRoot }, { stripe = true })
+	refs.integrity = integrity
 	Ui.label({ Text = "OUTPOST INTEGRITY", FontFace = F.Label, TextSize = 16, TextColor3 = C.Olive, Position = UDim2.fromOffset(14, 10), Size = UDim2.fromOffset(200, 18), Parent = integrity })
 	refs.integrityText = Ui.label({ Text = "100%", FontFace = F.Mono, TextSize = 20, TextXAlignment = Enum.TextXAlignment.Right, Position = UDim2.new(1, -94, 0, 8), Size = UDim2.fromOffset(80, 22), Parent = integrity })
 	integrityBar = UiKit.bar(integrity, { Position = UDim2.fromOffset(12, 34), Size = UDim2.new(1, -24, 0, 26) }, { color = C.Olive, segments = 10, ghost = Color3.fromRGB(255, 226, 170), rate = 10 })
 
 	-- Radar (bottom right): the 270 degree arc, rotated to the aim direction.
-	UiKitRadar.build(root, RADAR_SIZE)
+	refs.radar = UiKitRadar.build(safeRoot, RADAR_SIZE)
 
-	WeaponHud.build(root)
+	WeaponHud.build(root, safeRoot)
 
 	refs.indicators = Ui.new("Frame", { Name = "DamageIndicators", BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), Parent = root })
 	refs.popups = Ui.new("Frame", { Name = "Popups", BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), Parent = root })
 
 	refs.tip = UiKit.panel({ Name = "Tip", AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 104), Size = UDim2.fromOffset(540, 46), Visible = false, Parent = root }, { stripe = true, solid = true })
 	refs.tipText = Ui.label({ Text = "", FontFace = F.Label, TextSize = 20, TextXAlignment = Enum.TextXAlignment.Center, RichText = true, Position = UDim2.fromOffset(12, 2), Size = UDim2.new(1, -24, 1, 0), Parent = refs.tip })
+end
+
+-- Desktop or touch placement of the corner panels, the strip and the tip.
+local function layout()
+	local touch = InputMode.isTouch()
+	local integrity = refs.integrity :: GuiObject
+	local radar = refs.radar :: GuiObject
+	if touch then
+		integrity.AnchorPoint = Vector2.new(0, 0)
+		integrity.Position = UDim2.fromOffset(16, UiScale.topbar() + 6)
+		integrity.Size = UDim2.fromOffset(240, 72)
+		radar.AnchorPoint = Vector2.new(1, 0)
+		radar.Position = UDim2.new(1, -16, 0, 12)
+		radar.Size = UDim2.fromOffset(RADAR_SIZE_TOUCH, RADAR_SIZE_TOUCH)
+	else
+		integrity.AnchorPoint = Vector2.new(0, 1)
+		integrity.Position = UDim2.new(0, 16, 1, -16)
+		integrity.Size = UDim2.fromOffset(300, 72)
+		radar.AnchorPoint = Vector2.new(1, 1)
+		radar.Position = UDim2.new(1, -16, 1, -16)
+		radar.Size = UDim2.fromOffset(RADAR_SIZE, RADAR_SIZE)
+	end
+	refs.tip.Size = UDim2.fromOffset(if touch then 480 else 540, 46)
+	WeaponHud.layout(touch)
 end
 
 local function pulseCombo()
@@ -155,10 +207,11 @@ Hud.showHitMarker = WeaponHud.showHitMarker
 
 function Hud.scorePopup(worldPos: Vector3, text: string)
 	local camera = Workspace.CurrentCamera
-	local screen, onScreen = camera:WorldToViewportPoint(worldPos)
+	local point, onScreen = camera:WorldToScreenPoint(worldPos)
 	if not onScreen then
 		return
 	end
+	local screen = UiScale.fromScreen(root, Vector2.new(point.X, point.Y))
 	local label = Ui.label({
 		Text = text,
 		FontFace = F.Header,
@@ -274,8 +327,14 @@ function Hud.getRoot(): Frame
 	return root
 end
 
+-- The safe-area root (corner panels, weapon strip, touch controls).
+function Hud.getSafeRoot(): Frame
+	return safeRoot
+end
+
 function Hud.setVisible(visible: boolean)
 	root.Visible = visible
+	safeRoot.Visible = visible
 end
 
 -- Single-player game: Roblox's player list only covers the top-right of
@@ -295,7 +354,9 @@ function Hud.start()
 	task.spawn(hidePlayerList)
 	UiKit.start()
 	build()
-	root.Visible = false
+	layout()
+	UiScale.changed(layout)
+	Hud.setVisible(false)
 	for _, attr in { "Wave", "TotalWaves", "Score", "Multiplier", "Integrity" } do
 		GameState.onChanged(attr, refreshStats)
 	end

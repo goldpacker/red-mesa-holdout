@@ -181,7 +181,9 @@ local function build()
 	local playerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
 	local screen = Instance.new("ScreenGui")
 	screen.Name = "FilmFx"
-	screen.IgnoreGuiInset = true
+	-- The whole screen, notch and home-indicator strips included (MOBILE-1).
+	screen.ScreenInsets = Enum.ScreenInsets.None
+	screen.ClipToDeviceSafeArea = false
 	screen.ResetOnSpawn = false
 	screen.DisplayOrder = DISPLAY_ORDER
 	screen.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
@@ -276,11 +278,13 @@ end
 
 local function placeGlare(camera: Camera, level: number, color: Color3)
 	local visible = level > 0.002
-	local viewport = camera.ViewportSize
-	local sunPoint = camera:WorldToViewportPoint(camera.CFrame.Position + Lighting:GetSunDirection() * 1000)
-	local sun2 = Vector2.new(sunPoint.X, sunPoint.Y)
-	local centre = viewport * 0.5
-	local h = viewport.Y
+	-- In this gui's space: on a notched phone the viewport is only the safe
+	-- area, while the picture (and this gui) is the whole screen.
+	local screen = gui :: ScreenGui
+	local sunPoint = camera:WorldToScreenPoint(camera.CFrame.Position + Lighting:GetSunDirection() * 1000)
+	local sun2 = Vector2.new(sunPoint.X, sunPoint.Y) - screen.AbsolutePosition
+	local centre = screen.AbsoluteSize * 0.5
+	local h = screen.AbsoluteSize.Y
 	local g = glow :: ImageLabel
 	local s = streak :: ImageLabel
 	g.Visible, s.Visible = visible, visible

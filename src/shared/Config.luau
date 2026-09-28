@@ -23,6 +23,10 @@ Config.Camera = {
 	FOV_AIM = 32,
 	SENSITIVITY = 0.22, -- degrees per pixel
 	SENSITIVITY_AIM = 0.09,
+	-- Touch drag (MOBILE-1), degrees per GUI point: a swipe across a phone
+	-- (~840 pt) turns ~150 deg. The gunsight keeps the mouse's ratio.
+	TOUCH_SENSITIVITY = 0.18,
+	TOUCH_SENSITIVITY_AIM = 0.075,
 }
 
 Config.MachineGun = {

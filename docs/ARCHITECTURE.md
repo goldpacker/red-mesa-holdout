@@ -28,7 +28,7 @@ in your final report. Never reformat or restructure another owner's file.
 
 | Owner | Files |
 |---|---|
-| **Lead** | `src/server/{init.server,GameController,WaveDirector,Scoring,WorldBuilder,Crates*}.luau`, `src/shared/{Config,Aim}.luau`, `src/client/{init.client,AimController,GameState,Hud,Screens,Effects,Sfx,Ui}.luau`, `PROGRESS.md`, `GAME_SPEC.md`, `docs/ARCHITECTURE.md` |
+| **Lead** | `src/server/{init.server,GameController,WaveDirector,Scoring,WorldBuilder,Crates*}.luau`, `src/shared/{Config,Aim}.luau`, `src/client/{init.client,AimController,GameState,Hud,Screens,Effects,Sfx,Ui,InputMode,UiScale,TouchInput,TouchControls}.luau`, `PROGRESS.md`, `GAME_SPEC.md`, `docs/ARCHITECTURE.md` |
 | **Weapons** | `src/server/Weapons.luau`, `src/server/Projectiles*.luau`, `src/shared/WeaponConfig.luau`, `src/client/{WeaponController,WeaponHud,LockOn*,WeaponFx*}.luau` |
 | **Enemies** | `src/server/EnemyTypes/*`, `src/shared/EnemyConfig.luau`, `src/client/{EnemyVisuals,EnemyFireFx,VehicleFx*}.luau` |
 | **Assets** | `assets/**`, `tools/assets/**`, `src/shared/AssetLibrary.luau`, `src/server/Emplacement.luau`, `docs/ASSET_CONTRACTS.md` |
@@ -126,6 +126,17 @@ attributes (e.g. `Rockets`, `Missiles`) set by the server.
   `airdrop`, `dropZoneCheck`, `airdropStats`, `airdropSeed`
   (`tools/qa/BEAUTY.md` §8).
   `tools/qa/autoplay.client.luau` auto-aims and fires at the nearest enemy.
+- Mobile / touch (MOBILE-1): Studio **Test > Device Simulator** (enable it
+  while stopped) emulates a phone or tablet; mouse clicks and drags in the
+  emulated screen arrive as touches, so the on-screen controls can be
+  exercised for real. Player attribute `DebugTouch` (true/false) forces the
+  touch or desktop layout without the emulator. Client pieces:
+  `InputMode` (which scheme), `UiScale` (device scale, safe-area and
+  screen-space mapping), `TouchInput` (drag aim, trigger, sight),
+  `TouchControls` (FIRE / SIGHT buttons). GUI code that places things at a
+  world point must use `Camera:WorldToScreenPoint` + `UiScale.fromScreen`,
+  not viewport points: on a notched phone `ViewportSize` is only the safe
+  area while the picture spans the whole screen.
 - Temporary test waves: don't edit `Config.Waves`; instead use
   `RedMesaDebug:Invoke("startWave", n)` or spawn directly from a Server
   execute_luau via the debug hook the lead exposes (`spawn`).

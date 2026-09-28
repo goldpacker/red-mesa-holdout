@@ -6,6 +6,8 @@
 -- slots, heat and reload bars use the LOOK-2 kit (UiKit): eased fills, a
 -- colour-ramped heat bar with a hot sheen and scrolling hazard stripes on
 -- overheat, reload-complete flashes and bracket motion on weapon select.
+-- MOBILE-1: the strip lives in the HUD's safe-area root; in touch mode its
+-- slots are tap targets (they select the weapon) and lose the 1/2/3 keys.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
@@ -17,6 +19,7 @@ local PostFxAssets = require(script.Parent.PostFxAssets)
 local Ui = require(script.Parent.Ui)
 local UiKit = require(script.Parent.UiKit)
 local UiKitArt = require(script.Parent.UiKitArt)
+local UiScale = require(script.Parent.UiScale)
 local WeaponController = require(script.Parent.WeaponController)
 
 local WeaponHud = {}
@@ -71,8 +74,34 @@ local function heatColor(heat: number): Color3
 	return C.Amber:Lerp(C.Red, math.clamp((heat - 0.5) / 0.35, 0, 1))
 end
 
+-- Touch: a press on a slot selects its weapon (on press, not release, so
+-- a quick switch-and-fire isn't held up).
+local function tapTarget(plate: ImageLabel, weapon: string): TextButton
+	local button = Ui.new("TextButton", {
+		Name = "Tap",
+		Text = "",
+		BackgroundTransparency = 1,
+		AutoButtonColor = false,
+		Position = UDim2.fromOffset(-4, -6),
+		Size = UDim2.new(1, 8, 1, 12),
+		Visible = false,
+		ZIndex = 8,
+		Parent = plate,
+	})
+	button.InputBegan:Connect(function(input)
+		local kind = input.UserInputType
+		if kind == Enum.UserInputType.Touch or kind == Enum.UserInputType.MouseButton1 then
+			if AimController.getMode() == "Turret" then
+				WeaponController.select(weapon)
+			end
+		end
+	end)
+	return button
+end
+
 local function buildSlots(root: Frame)
 	local strip = UiKit.panel({ Name = "Weapons", AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -16), Size = UDim2.fromOffset(436, 98), Parent = root }, { stripe = true })
+	refs.strip = strip
 	refs.slots = {}
 	for i, weapon in SLOTS do
 		local plate = UiKit.sprite("button", {
@@ -94,13 +123,16 @@ local function buildSlots(root: Frame)
 			-- callout sits over it, dimming it, while one shows).
 			icon = UiKitArt.weaponIcon(weapon, { Position = UDim2.fromOffset(9, 18), Size = UDim2.fromOffset(75, 25), ImageColor3 = DIM, ZIndex = 2, Parent = plate }),
 			reload = nil :: UiKit.Bar?,
+			key = nil :: TextLabel?,
+			tap = nil :: TextButton?,
 			wasReloading = false,
 			readyUntil = 0,
 		}
 		if slot.icon then
 			Ui.outline(slot.status, 1.5)
 		end
-		Ui.label({ Text = tostring(i), FontFace = F.Header, TextSize = 18, TextColor3 = C.Amber, Position = UDim2.fromOffset(8, 4), Size = UDim2.fromOffset(16, 18), Parent = plate })
+		slot.key = Ui.label({ Text = tostring(i), FontFace = F.Header, TextSize = 18, TextColor3 = C.Amber, Position = UDim2.fromOffset(8, 4), Size = UDim2.fromOffset(16, 18), Parent = plate })
+		slot.tap = tapTarget(plate, weapon)
 		if weapon ~= "MG" then
 			local bar = UiKit.bar(plate, { Position = UDim2.new(0, 6, 1, -13), Size = UDim2.new(1, -12, 0, 9), SliceScale = 0.6 }, { color = C.Olive, rate = 18 })
 			bar.fill.SliceScale = 0.6
@@ -245,7 +277,10 @@ local function buildSeeker(parent: Frame): Frame
 	return seeker
 end
 
-function WeaponHud.build(root: Frame)
+-- `root` covers the whole screen (sights, crosshairs, markers); `safe`,
+-- when given, is the safe-area root that takes the weapon strip.
+function WeaponHud.build(root: Frame, safe: Frame?)
+	refs.root = root
 	-- Sights sit behind every other HUD panel (ZIndex 0).
 	refs.sight = Ui.new("Frame", { Name = "Gunsight", BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), Visible = false, ZIndex = 0, Parent = root })
 	-- Lens vignette (gunsight only, LOOK-1): darkens the frame edges under
@@ -265,7 +300,7 @@ function WeaponHud.build(root: Frame)
 		Rocket = buildRocketScope(refs.sight),
 		Missile = buildSeeker(refs.sight),
 	}
-	buildSlots(root)
+	buildSlots(safe or root)
 	buildCrosshairs(root)
 	buildHitMarker(root)
 
@@ -281,6 +316,20 @@ function WeaponHud.build(root: Frame)
 	WeaponController.on("Hold", function()
 		WeaponHud.flash("HOLD FIRE", C.Amber, 0.8)
 	end)
+end
+
+-- Desktop or touch placement of the strip and its slots.
+function WeaponHud.layout(touch: boolean)
+	if not refs.strip then
+		return
+	end
+	refs.strip.Position = UDim2.new(0.5, 0, 1, if touch then -10 else -16)
+	for i, slot in refs.slots do
+		slot.tap.Visible = touch
+		slot.key.Visible = not touch
+		slot.name.Position = UDim2.fromOffset(if touch then 9 else 24, 5)
+		slot.name.Text = WeaponConfig.SLOT_NAMES[SLOTS[i]]
+	end
 end
 
 -- HS-2 hook (client/GunsightModels): while a 3D sight model stands in
@@ -453,7 +502,10 @@ end
 local function coneRadius(): number
 	local camera = Workspace.CurrentCamera
 	local half = math.rad(camera.FieldOfView / 2)
-	return math.tan(math.rad(WeaponConfig.Missile.ACQUIRE_DEG)) / math.tan(half) * camera.ViewportSize.Y / 2
+	-- The field of view spans the whole screen (the HUD root), which on a
+	-- notched phone is taller than the viewport.
+	local height = UiScale.size(refs.root).Y
+	return math.tan(math.rad(WeaponConfig.Missile.ACQUIRE_DEG)) / math.tan(half) * height / 2
 end
 
 local function updateLockBox(current: string, state: string, target: Model?, progress: number)
@@ -463,13 +515,14 @@ local function updateLockBox(current: string, state: string, target: Model?, pro
 		box.Visible = false
 		return
 	end
-	local screen, onScreen = Workspace.CurrentCamera:WorldToViewportPoint(root.Position)
+	local screen, onScreen = Workspace.CurrentCamera:WorldToScreenPoint(root.Position)
 	if not onScreen then
 		box.Visible = false
 		return
 	end
 	box.Visible = true
-	box.Position = UDim2.fromOffset(screen.X, screen.Y)
+	local at = UiScale.fromScreen(refs.root, Vector2.new(screen.X, screen.Y))
+	box.Position = UDim2.fromOffset(at.X, at.Y)
 	local locked = state == "Locked"
 	local size = if locked then 40 else 110 - 64 * progress
 	box.Size = UDim2.fromOffset(size, size)

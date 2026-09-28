@@ -1,6 +1,8 @@
 -- Client entry point for Red Mesa Holdout: wires input, camera, HUD,
 -- screens and effects to the server's game state.
 
+local GuiService = game:GetService("GuiService")
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local AimController = require(script.AimController)
@@ -9,14 +11,22 @@ local EnemyFireFx = require(script.EnemyFireFx)
 local EnemyVisuals = require(script.EnemyVisuals)
 local GameState = require(script.GameState)
 local Hud = require(script.Hud)
+local InputMode = require(script.InputMode)
 local NightFx = require(script.NightFx)
 local PostFx = require(script.PostFx)
 local Screens = require(script.Screens)
 local Sfx = require(script.Sfx)
 local ThreatHud = require(script.ThreatHud)
+local TouchControls = require(script.TouchControls)
 local WeaponController = require(script.WeaponController)
 
 local Config = require(ReplicatedStorage.Shared.Config)
+
+-- MOBILE-1: landscape only, and none of Roblox's walking controls (there
+-- is no character; TouchControls draws the game's own).
+GuiService.TouchControlsEnabled = false
+local playerGui = Players.LocalPlayer:WaitForChild("PlayerGui") :: PlayerGui
+playerGui.ScreenOrientation = Enum.ScreenOrientation.LandscapeSensor
 
 Sfx.preload()
 AimController.start()
@@ -24,6 +34,7 @@ WeaponController.start()
 Hud.start()
 Screens.start()
 ThreatHud.start()
+TouchControls.start()
 EnemyVisuals.start()
 PostFx.start()
 -- Studio-only beauty-shot rig (tools/qa/BEAUTY.md); a no-op in live games.
@@ -54,7 +65,11 @@ applyPhase(GameState.phase())
 
 GameState.onEvent("WaveStart", function(p)
 	if p.wave == 1 then
-		tipOnce("fire", "Hold <b>LEFT MOUSE</b> to fire · hold <b>RIGHT MOUSE</b> for the gunsight", 7)
+		if InputMode.isTouch() then
+			tipOnce("fire", "Hold <b>FIRE</b> to shoot · drag the screen to aim · tap <b>SIGHT</b> for the gunsight", 7)
+		else
+			tipOnce("fire", "Hold <b>LEFT MOUSE</b> to fire · hold <b>RIGHT MOUSE</b> for the gunsight", 7)
+		end
 	end
 end)
 

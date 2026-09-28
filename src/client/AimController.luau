@@ -23,6 +23,11 @@
 -- frame the delta arrives, with no smoothing. The sprung turret never feeds
 -- the camera or the aim; in the gunsight the muzzle effects start from the
 -- aim, not from the hidden, lagging barrel (toAimFrame).
+--
+-- Touch (MOBILE-1): in touch mode the aim follows finger drags instead
+-- (TouchInput, read in the same camera step), the SIGHT button toggles the
+-- gunsight, and a drag slows while the reticle is on an enemy (aim
+-- friction; it never pulls the aim). Mouse buttons are ignored there.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -30,6 +35,8 @@ local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 local FrameProfile = require(script.Parent.FrameProfile)
+local InputMode = require(script.Parent.InputMode)
+local TouchInput = require(script.Parent.TouchInput)
 
 local Config = require(ReplicatedStorage.Shared.Config)
 local Aim = require(ReplicatedStorage.Shared.Aim)
@@ -208,6 +215,8 @@ function AimController.setMode(newMode: string)
 		aiming = false
 		setTurretHidden(false)
 	end
+	-- A drag or a gunsight left over from the last mode never carries in.
+	TouchInput.reset()
 end
 
 function AimController.getMode(): string
@@ -313,12 +322,53 @@ function AimController.getMuzzlePosition(): Vector3
 	return Aim.muzzle(aimAngles())
 end
 
+-- Touch aim friction: a drag slows to ASSIST_SLOW of its speed with the
+-- reticle on an enemy, easing back to full speed ASSIST_DEG (or
+-- ASSIST_DEG_AIM in the gunsight) off it.
+local ASSIST_DEG, ASSIST_DEG_AIM, ASSIST_SLOW = 3, 1.5, 0.5
+
+local function assistFactor(): number
+	local enemies = Workspace:FindFirstChild("Enemies")
+	if not enemies then
+		return 1
+	end
+	local look = Aim.direction(aimAngles())
+	local eye = camera.CFrame.Position
+	local limit = if aiming then ASSIST_DEG_AIM else ASSIST_DEG
+	local best = -1
+	for _, model in enemies:GetChildren() do
+		local rootPart = (model :: Model).PrimaryPart
+		if rootPart and model:GetAttribute("State") ~= "Dead" then
+			local to = rootPart.Position - eye
+			local distance = to.Magnitude
+			if distance > 1 then
+				best = math.max(best, look:Dot(to / distance))
+			end
+		end
+	end
+	local angle = math.deg(math.acos(math.clamp(best, -1, 1)))
+	if angle >= limit then
+		return 1
+	end
+	return ASSIST_SLOW + (1 - ASSIST_SLOW) * angle / limit
+end
+
 local function readInput()
 	local lastYaw, lastPitch = yaw, pitch
-	local delta = UserInputService:GetMouseDelta()
-	local sens = if aiming then CAM.SENSITIVITY_AIM else CAM.SENSITIVITY
-	yaw -= delta.X * sens
-	pitch -= delta.Y * sens
+	local touch = InputMode.isTouch()
+	if touch then
+		local delta = TouchInput.consumeDelta()
+		if delta.Magnitude > 0 then
+			local sens = (if aiming then CAM.TOUCH_SENSITIVITY_AIM else CAM.TOUCH_SENSITIVITY) * assistFactor()
+			yaw -= delta.X * sens
+			pitch -= delta.Y * sens
+		end
+	else
+		local delta = UserInputService:GetMouseDelta()
+		local sens = if aiming then CAM.SENSITIVITY_AIM else CAM.SENSITIVITY
+		yaw -= delta.X * sens
+		pitch -= delta.Y * sens
+	end
 
 	if RunService:IsStudio() then
 		local dy = player:GetAttribute("DebugYaw")
@@ -334,8 +384,10 @@ local function readInput()
 	if math.abs(yaw - lastYaw) + math.abs(pitch - lastPitch) > 0.01 then
 		lastActive = os.clock()
 	end
-	aiming = UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2)
-		or player:GetAttribute("DebugAiming") == true
+	local held = if touch
+		then TouchInput.sightOn()
+		else UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2)
+	aiming = held or player:GetAttribute("DebugAiming") == true
 end
 
 local function shakeOffset(dt: number): CFrame
@@ -415,8 +467,11 @@ end
 local function turretCamera(dt: number)
 	readInput()
 	updateTurret(dt)
-	UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
-	UserInputService.MouseIconEnabled = false
+	-- Touch mode leaves the mouse free (a touchscreen laptop, or Studio
+	-- forcing touch mode, can still click the on-screen buttons).
+	local touch = InputMode.isTouch()
+	UserInputService.MouseBehavior = if touch then Enum.MouseBehavior.Default else Enum.MouseBehavior.LockCenter
+	UserInputService.MouseIconEnabled = touch
 
 	local look = Aim.direction(aimAngles())
 	local pos: Vector3
