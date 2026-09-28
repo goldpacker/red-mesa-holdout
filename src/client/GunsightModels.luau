@@ -35,13 +35,13 @@ local AA_SIDE_INNER = 0.195 -- |x| of the side bars' inner edge as built (gunsig
 -- lamp box (Controls) and Lamp riding the right one. Keeps the lamp box
 -- beside the centred, fixed-pixel HUD panels at any aspect.
 local AA_SIDE = { Left = -1, Right = 1, Controls = 1, Lamp = 1 }
--- MG recoil (PERF-1): the ring sight is the MG reticle, so a round pushes
--- the sight back toward the eye and rolls it a little (both keep the ring
--- centred on the shot line) instead of pitching it up, which bounced the
--- ring 5-19 px off the aim point at 11 Hz while firing.
-local KICK_MG_BACK = 0.02 -- studs toward the eye per round (capped)
-local KICK_MG_BACK_MAX = 0.06
-local KICK_MG_ROLL = math.rad(0.3) -- roll jitter per round
+-- MG recoil: each round jumps the ring sight up and rolls it a little.
+-- PERF-1 swapped this for a near-invisible push toward the eye (the jump
+-- lifts the ring 5-19 px off the aim point while firing); playtest round 2
+-- put it back: without it the MG "feels less real" and firing is easy to
+-- miss. The sight settles back onto the shot line ~0.25 s after a burst.
+local KICK_MG = math.rad(0.3) -- sight jump per MG round (capped at KICK_MG_MAX)
+local KICK_MG_MAX = math.rad(1.1)
 local KICK_HEAVY = math.rad(2.4) -- rocket / missile launch (one jolt, then a reload)
 local KICK_RETURN = 14 -- 1/s, settles in ~0.25 s
 
@@ -60,8 +60,7 @@ local WARM_TIME = 2.5
 local warmUntil = 0 -- os.clock() until which all models are drawn nearly invisible
 local warming = false
 local raise = 0
-local kick = 0 -- pitch-up of the sight (rad), heavy weapons only
-local back = 0 -- MG push toward the eye (studs)
+local kick = 0 -- pitch-up of the sight (rad)
 local jitter = 0 -- MG roll jitter (rad)
 
 local function prepare(model: Model): Sight
@@ -122,8 +121,8 @@ local function onFired(heavy: boolean)
 	if heavy then
 		kick += KICK_HEAVY
 	else
-		back = math.min(back + KICK_MG_BACK, KICK_MG_BACK_MAX)
-		jitter = (math.random() - 0.5) * KICK_MG_ROLL
+		kick = math.min(kick + KICK_MG, KICK_MG_MAX)
+		jitter = (math.random() - 0.5) * KICK_MG
 	end
 end
 
@@ -211,10 +210,9 @@ local function step(dt: number)
 	-- Kick: the sight jumps a little per shot and settles back to the eye.
 	local decay = math.exp(-KICK_RETURN * dt)
 	kick *= decay
-	back *= decay
 	jitter *= decay
 	local lowered = (1 - easeOut(raise * swap)) * DROP_ANGLE
-	local base = camera.CFrame * CFrame.new(0, 0, back) * CFrame.Angles(kick - lowered, 0, jitter)
+	local base = camera.CFrame * CFrame.Angles(kick - lowered, 0, jitter)
 	local sight = sights[want]
 	place(sight, base, camera)
 	updateLamp(sight)
