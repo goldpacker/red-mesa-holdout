@@ -163,11 +163,7 @@ One polished battlefield in a desert canyon basin.
 
 ### 7.1 Time of Day Progression
 
-Lighting progresses with the waves as a free escalation of mood. The game is played entirely in daylight; there is no dusk or night (user decision, 2026-09-26, to keep the busiest waves inside the performance budget):
-
-- **Waves 1–3:** bright afternoon.
-- **Waves 4–6:** late afternoon, warmer light and longer shadows.
-- **Waves 7–10:** golden sunset. The climax and the boss fight play out in raking golden light.
+All ten waves are played in **bright afternoon** light (user decision, 2026-09-27, after playtest: late afternoon and sunset lost too much visual quality on the player's machine). Warmer late-afternoon and sunset presets may return once a performance solution keeps their fidelity; until then the escalation comes from the enemies, the airdrops and the storms, not the light.
 
 Transitions happen during intermissions (or smoothly during them), never in a way that makes enemies hard to see.
 
@@ -184,13 +180,13 @@ Each wave should open quietly with the first transports crossing the horizon and
 | 1 | Afternoon | Infantry, center lane | Learn aiming, machine gun, overheat |
 | 2 | Afternoon | Infantry + buggies on the flanks | Traversing the arc; fast targets |
 | 3 | Afternoon | First tanks + infantry. First supply crate. | Rockets; basic prioritization |
-| 4 | Late afternoon | First helicopters + infantry | AA lock-on; off-screen warnings |
-| 5 | Late afternoon | Mixed ground assault on all lanes | Juggling three ground threats |
-| 6 | Late afternoon | First jets + helicopters + infantry | "Look up now" reactions |
-| 7 | Sunset | Armored push: tanks with buggy escorts, plus jets | Rocket scarcity |
-| 8 | Sunset | Air assault: helicopters on both flanks, jets, infantry rush | Missile scarcity; machine-gun fallback |
-| 9 | Sunset | Full combined arms from every direction | Everything at once |
-| 10 | Sunset | Siege Crawler boss + escorts | Climax |
+| 4 | Afternoon | First helicopters + infantry | AA lock-on; off-screen warnings |
+| 5 | Afternoon | Mixed ground assault on all lanes | Juggling three ground threats |
+| 6 | Afternoon | First jets + helicopters + infantry | "Look up now" reactions |
+| 7 | Afternoon | Armored push: tanks with buggy escorts, plus jets | Rocket scarcity |
+| 8 | Afternoon | Air assault: helicopters on both flanks, jets, infantry rush | Missile scarcity; machine-gun fallback |
+| 9 | Afternoon | Full combined arms from every direction | Everything at once |
+| 10 | Afternoon | Siege Crawler boss + escorts | Climax |
 
 Exact compositions, counts, drop timing, drop points, and routes are at the developer's discretion, guided by this table. Waves are retuned after the airdrop change so difficulty stays as intended.
 
@@ -439,7 +435,7 @@ From a fresh game session, the player can:
 6. Switch weapons when threats require it — rockets destroy tanks, AA missiles lock onto and destroy aircraft.
 7. Take damage with clear directional feedback, and see enemies clearly destroyed.
 8. Collect at least one supply crate.
-9. Complete successive waves with working intermissions (tally, repair, resupply, preview), and see time of day progress to sunset.
+9. Complete successive waves with working intermissions (tally, repair, resupply, preview), and see the waves escalate.
 10. Experience increasing combined-arms pressure from multiple directions.
 11. Destroy the Siege Crawler's weak points and core in wave 10.
 12. Reach an unmistakable victory state, and start a fresh run with Play Again.
