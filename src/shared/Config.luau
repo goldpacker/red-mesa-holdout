@@ -213,7 +213,7 @@ Config.Waves = {
 	},
 	{ -- 4: AA lock-on and off-screen warnings
 		hint = "AIR THREAT",
-		time = "LateAfternoon",
+		time = "Afternoon",
 		crates = { 32 },
 		groups = {
 			g("Helicopter", "AirLeft", 1, 10, 1),
@@ -227,7 +227,7 @@ Config.Waves = {
 	},
 	{ -- 5: juggling three ground threats on every lane
 		hint = "ALL LANES ACTIVE",
-		time = "LateAfternoon",
+		time = "Afternoon",
 		crates = { 28, 64 },
 		groups = {
 			g("Infantry", "Road", 6, 25, 0.9),
@@ -244,7 +244,7 @@ Config.Waves = {
 	},
 	{ -- 6: "look up now" reactions
 		hint = "JETS INBOUND",
-		time = "LateAfternoon",
+		time = "Afternoon",
 		crates = { 25, 55 },
 		groups = {
 			g("Helicopter", "AirLeft", 1, 8, 1),
@@ -259,7 +259,7 @@ Config.Waves = {
 	},
 	{ -- 7: armored push with rocket scarcity
 		hint = "ARMORED PUSH",
-		time = "Sunset",
+		time = "Afternoon",
 		crates = { 28, 52, 76 },
 		crateBias = "Rockets",
 		-- capped at 0.8: at 1 the gunsight probe read 2.80-2.92:1 (< 3);
@@ -280,7 +280,7 @@ Config.Waves = {
 	},
 	{ -- 8: missile scarcity, machine-gun fallback
 		hint = "AIR ASSAULT",
-		time = "Sunset",
+		time = "Afternoon",
 		crates = { 18, 40, 60, 80 },
 		crateBias = "Missiles",
 		groups = {
@@ -299,7 +299,7 @@ Config.Waves = {
 	},
 	{ -- 9: everything at once, from every direction
 		hint = "FULL ASSAULT",
-		time = "Sunset",
+		time = "Afternoon",
 		crates = { 16, 40, 64, 86, 102 },
 		groups = {
 			g("Helicopter", "AirLeft", 1, 18, 1),
@@ -322,7 +322,7 @@ Config.Waves = {
 	},
 	{ -- 10: the Siege Crawler (it spawns and manages its own escorts)
 		hint = "SIEGE CRAWLER",
-		time = "Sunset",
+		time = "Afternoon",
 		maxDuration = 720,
 		crates = { 30, 70 },
 		-- AD-4: every trooper of this wave (the opening groups below and the
